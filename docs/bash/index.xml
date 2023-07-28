@@ -1,0 +1,437 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Goldydocs – Bash scripting</title><link>/docs/bash/</link><description>Recent content in Bash scripting on Goldydocs</description><generator>Hugo -- gohugo.io</generator><atom:link href="/docs/bash/index.xml" rel="self" type="application/rss+xml"/><item><title>Docs: Blueprints</title><link>/docs/bash/blueprints/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>/docs/bash/blueprints/</guid><description>
+&lt;h2 id="general-blueprint">General blueprint&lt;/h2>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">#!/bin/bash # declare the shell type, or it uses
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span>&lt;span style="color:#8f5902;font-style:italic"># OR the default shell.&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">#!/usr/bin/bash &lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic"># &lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic"># &lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic"># SCRIPT: &lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic"># AUTHOR: &lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic"># DATE: &lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic"># REV: 1.1.A ([A]lpha, [B]eta, [D]ev, [T]est, and [P]roduction)&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic"># &lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic"># PLATFORM: Linux&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic"># &lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic"># PURPOSE: Give a clear description of the shell script.&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic"># &lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic"># REV LIST:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic"># DATE: &lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic"># BY: &lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic"># MODIFICATION: &lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic"># &lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic"># set -n # Uncomment to check script syntax, without execution.&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic"># # NOTE: Do not forget to add comment back in or the &lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic"># script will not execute.&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic"># &lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic"># set -x # Uncomment to debug this shell script.&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic"># &lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">###############################################################################&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic"># DEFINE FILE VARIABLES HERE&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">###############################################################################&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">###############################################################################&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic"># DEFINE FUNCTIONS HERE&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">###############################################################################&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">###############################################################################&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic"># BEGINNING OF MAIN&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">###############################################################################&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic"># End of script&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div></description></item><item><title>Docs: Common commands</title><link>/docs/bash/commands/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>/docs/bash/commands/</guid><description>
+&lt;p>The following table describes common shell commands:&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th style="text-align:left">Command&lt;/th>
+&lt;th style="text-align:left">Description&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td style="text-align:left">&amp;gt;&lt;/td>
+&lt;td style="text-align:left">Redirects, creates, or overwrites a file.&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:left">&amp;raquo;&lt;/td>
+&lt;td style="text-align:left">Appends to a file.&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:left">&amp;amp;&lt;/td>
+&lt;td style="text-align:left">Executes the program in the background.&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:left">*&lt;/td>
+&lt;td style="text-align:left">Matches any number of characters.&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:left">?&lt;/td>
+&lt;td style="text-align:left">Matches a single character.&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:left">awk&lt;/td>
+&lt;td style="text-align:left">Programming language to parse characters.&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:left">basename &lt;em>file&lt;/em>&lt;/td>
+&lt;td style="text-align:left">Displays base filename of file&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:left">cal&lt;/td>
+&lt;td style="text-align:left">Displays a calendar.&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:left">chgrp&lt;/td>
+&lt;td style="text-align:left">Changes the file group.&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:left">chmod&lt;/td>
+&lt;td style="text-align:left">Changes the file modes (permissions).&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:left">cut&lt;/td>
+&lt;td style="text-align:left">Writes out selected characters.&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:left">diff &lt;em>file1&lt;/em> &lt;em>file2&lt;/em>&lt;/td>
+&lt;td style="text-align:left">Compares two files.&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:left">df&lt;/td>
+&lt;td style="text-align:left">Displays filesystem statistics.&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:left">sdiff &lt;em>file1&lt;/em> &lt;em>file2&lt;/em>&lt;/td>
+&lt;td style="text-align:left">Compares two files, side-by-side.&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:left">date&lt;/td>
+&lt;td style="text-align:left">Displays system data and time.&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:left">chown&lt;/td>
+&lt;td style="text-align:left">Changes the file owner.&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:left">egrep&lt;/td>
+&lt;td style="text-align:left">Pattern matching with extended regex.&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:left">file&lt;/td>
+&lt;td style="text-align:left">Prints the file type.&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:left">find&lt;/td>
+&lt;td style="text-align:left">Locates files and directories.&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:left">head&lt;/td>
+&lt;td style="text-align:left">Views the top of the file.&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:left">iostat&lt;/td>
+&lt;td style="text-align:left">Shows input/output status.&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:left">last&lt;/td>
+&lt;td style="text-align:left">Shows login history since the &lt;code>wtmp&lt;/code> file was created&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:left">more&lt;/td>
+&lt;td style="text-align:left">Displays the contents of a file, one page at a time.&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:left">netstat&lt;/td>
+&lt;td style="text-align:left">Shows network status.&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:left">passwd&lt;/td>
+&lt;td style="text-align:left">Changes the user password.&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:left">ps&lt;/td>
+&lt;td style="text-align:left">Displays information on currently running processes.&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:left">sar&lt;/td>
+&lt;td style="text-align:left">Reports system activity.&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:left">sed&lt;/td>
+&lt;td style="text-align:left">Programming language for character substitution.&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:left">sleep &lt;em>length&lt;/em>&lt;/td>
+&lt;td style="text-align:left">Pauses execution for &lt;em>length&lt;/em> number of seconds.&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:left">spell &lt;em>file&lt;/em>&lt;/td>
+&lt;td style="text-align:left">Checks spelling on &lt;em>file&lt;/em>.&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:left">tail&lt;/td>
+&lt;td style="text-align:left">Views the end of the file.&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:left">tr &lt;em>chars1&lt;/em> &lt;em>chars2&lt;/em>&lt;/td>
+&lt;td style="text-align:left">Translates &lt;code>chars1&lt;/code> into the format specified by &lt;code>chars2&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:left">wc&lt;/td>
+&lt;td style="text-align:left">Counts number of words, lines, and characters in a file.&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:left">w&lt;/td>
+&lt;td style="text-align:left">Extended &lt;code>who&lt;/code> command that also provides &lt;code>uptime&lt;/code> output. Displays information about who is on the system.&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:left">who&lt;/td>
+&lt;td style="text-align:left">Displays information about who is on the system.&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:left">whoami&lt;/td>
+&lt;td style="text-align:left">Displays &lt;code>$LOGNAME&lt;/code> or &lt;code>$USER&lt;/code> env vars.&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:left">who am i&lt;/td>
+&lt;td style="text-align:left">Displays login name, terminal, login date/time, and where logged in.&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:left">vmstat&lt;/td>
+&lt;td style="text-align:left">Shows virtual memory status.&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table></description></item><item><title>Docs: Basics</title><link>/docs/bash/basics/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>/docs/bash/basics/</guid><description>
+&lt;h2 id="running-a-script">Running a script&lt;/h2>
+&lt;p>Before you can run a script, you have to set the execution bit on it with &lt;code>chmod&lt;/code>:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>$ chmod +x script_name
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>$ ./script_name
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="arguments">Arguments&lt;/h2>
+&lt;p>Shell arguments are 0-indexed, and are always preceded with the &lt;code>$&lt;/code> symbol. For example, &lt;code>$0&lt;/code> is the shell itself, and &lt;code>$1&lt;/code> is the first argument passed to the shell.&lt;/p>
+&lt;p>You can process all CLI args at once with the following commands. Notice the different behavior when each command is wrapped in double quotes (&lt;code>&amp;quot;&amp;quot;&lt;/code>):&lt;/p>
+&lt;dl>
+&lt;dt>&lt;code>$*&lt;/code>&lt;/dt>
+&lt;dd>Specifies all command arguments.&lt;/dd>
+&lt;dt>&lt;code>$@&lt;/code>&lt;/dt>
+&lt;dd>Specifies all command arguments.&lt;/dd>
+&lt;dt>&lt;code>&amp;quot;$*&amp;quot;&lt;/code>&lt;/dt>
+&lt;dd>Takes the entire argument list as one argument, with a space between each value.&lt;/dd>
+&lt;dt>&lt;code>&amp;quot;$@&amp;quot;&lt;/code>&lt;/dt>
+&lt;dd>Takes the entire argument list as separates it into individual arguments.&lt;/dd>
+&lt;/dl>
+&lt;blockquote>
+&lt;p>Look into the &lt;code>shift&lt;/code> command.&lt;/p>
+&lt;/blockquote>
+&lt;h2 id="variables">Variables&lt;/h2>
+&lt;p>A variable is a user-defined value that points to data. Define variables with the following syntax:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>$ &lt;span style="color:#000">var&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span>&lt;span style="color:#4e9a06">&amp;#39;value to assign&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic"># access with &amp;#39;$&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>$ &lt;span style="color:#204a87">echo&lt;/span> &lt;span style="color:#000">$var&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>$ print &lt;span style="color:#000">$var&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>$ cat &lt;span style="color:#000">$var_file&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="symbol-commands">Symbol commands&lt;/h2>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th style="text-align:left">Command&lt;/th>
+&lt;th style="text-align:left">Description&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td style="text-align:left">&lt;code>( )&lt;/code>&lt;/td>
+&lt;td style="text-align:left">Runs command in a subshell.&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:left">&lt;code>(( ))&lt;/code>&lt;/td>
+&lt;td style="text-align:left">Evaluates and assigns value to a variable.&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:left">&lt;code>$(( ))&lt;/code>&lt;/td>
+&lt;td style="text-align:left">Evaluates encloded expression.&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:left">&lt;code>[ ]&lt;/code>&lt;/td>
+&lt;td style="text-align:left">&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:left">&lt;code>&amp;lt;&lt;/code> &lt;code>&amp;gt;&lt;/code>&lt;/td>
+&lt;td style="text-align:left">String comparison&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:left">&lt;code>$( )&lt;/code>&lt;/td>
+&lt;td style="text-align:left">Command substitution. Execute a command and substitue it in the place of the &lt;code>$()&lt;/code> syntax.&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:left">&lt;code>command&lt;/code>&lt;/td>
+&lt;td style="text-align:left">Command substitution. Execute a command and substitue it in the place of the &lt;code>$()&lt;/code> syntax.&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;h3 id="quotes-and-tics">Quotes and tics&lt;/h3>
+&lt;p>Backticks, double-, and single-quotes have different use cases:&lt;/p>
+&lt;ul>
+&lt;li>single (&lt;code>''&lt;/code>): When you want to use the literal text in the variable or command statement and do not want character or command substution.&lt;/li>
+&lt;li>double (&lt;code>&amp;quot;&amp;quot;&lt;/code>): Allow white space, and character or command substitution.&lt;/li>
+&lt;li>backticks (` `): Execute a command or script and have its ouput substituted.&lt;/li>
+&lt;/ul>
+&lt;h2 id="functions">Functions&lt;/h2>
+&lt;p>There are a number of ways to define functions in bash. You should use the function keyword and no parentheses to emphasize that Bash functions do not accept paramters. Additionally, you can put the curly braces on separate lines. Make sure that you define a function before you can use it:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic"># signature options:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">function&lt;/span> Helper&lt;span style="color:#ce5c00;font-weight:bold">()&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">{}&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">function&lt;/span> Helper &lt;span style="color:#ce5c00;font-weight:bold">{}&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>Helper &lt;span style="color:#ce5c00;font-weight:bold">()&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">{}&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic"># preferred&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">function&lt;/span> func_name &lt;span style="color:#ce5c00;font-weight:bold">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#8f5902;font-style:italic"># commands&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#ce5c00;font-weight:bold">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="control-flow">Control flow&lt;/h2>
+&lt;p>The following sections describe basic control flow syntax.&lt;/p>
+&lt;h3 id="ifthen">if&amp;hellip;then&amp;hellip;&lt;/h3>
+&lt;p>End the &lt;code>if&lt;/code> block with &lt;code>fi&lt;/code> (&lt;em>if&lt;/em> spelled backwards):&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic"># if...then&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">if&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">[&lt;/span> test_command &lt;span style="color:#ce5c00;font-weight:bold">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">then&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#8f5902;font-style:italic"># command&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">fi&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic"># if...then...else&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">if&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">[&lt;/span> test_command &lt;span style="color:#ce5c00;font-weight:bold">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">then&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#8f5902;font-style:italic"># command&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">else&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#8f5902;font-style:italic"># command&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">fi&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic"># if...then...elif...(else)&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">if&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">[&lt;/span> test_command &lt;span style="color:#ce5c00;font-weight:bold">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">then&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#8f5902;font-style:italic"># command&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">elif&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#8f5902;font-style:italic"># command&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">else&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#8f5902;font-style:italic"># command&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">fi&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="loops">Loops&lt;/h3>
+&lt;p>Indicate that a loop is complete with the &lt;code>done&lt;/code> keyword:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic"># for...in&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">for&lt;/span> loop_var in arg_list
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">do&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#8f5902;font-style:italic"># commands&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">done&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic"># while&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">while&lt;/span> test_condition_is_true
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">do&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#8f5902;font-style:italic"># commands&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">done&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic"># until&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">until&lt;/span> test_condition_is_true
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">do&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#8f5902;font-style:italic"># commands&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">done&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="case-statement">Case statement&lt;/h3>
+&lt;p>The &lt;code>case&lt;/code> statement is the Bash equivalent to the &lt;code>switch&lt;/code> statement in other languages. Indicate the end of command execution for each case with double semi-colons (&lt;code>;;&lt;/code>). The default (&amp;ldquo;fall-through&amp;rdquo;) case is indicated with the wildcard (&lt;code>*&lt;/code>) character:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">case&lt;/span> &lt;span style="color:#000">$var&lt;/span> in
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>match_1&lt;span style="color:#ce5c00;font-weight:bold">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#8f5902;font-style:italic"># commands for match_1&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000;font-weight:bold">;;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>match_2&lt;span style="color:#ce5c00;font-weight:bold">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#8f5902;font-style:italic"># commands for match_2&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000;font-weight:bold">;;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>match_3&lt;span style="color:#ce5c00;font-weight:bold">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#8f5902;font-style:italic"># commands for match_3&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000;font-weight:bold">;;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>*&lt;span style="color:#ce5c00;font-weight:bold">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#8f5902;font-style:italic"># commands for default (no match)&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000;font-weight:bold">;;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">esac&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="control-keywords">Control keywords&lt;/h3>
+&lt;p>You can use the following keywords when you want to control loop execution apart from the conditions:&lt;/p>
+&lt;dl>
+&lt;dt>break&lt;/dt>
+&lt;dd>Terminates the execution of a loop.&lt;/dd>
+&lt;dt>continue&lt;/dt>
+&lt;dd>Passes control of a loop to the next iteration.&lt;/dd>
+&lt;dt>exit&lt;/dt>
+&lt;dd>Exits the entire script.&lt;/dd>
+&lt;dt>return&lt;/dt>
+&lt;dd>Sends back data, result, or return code to the calling script.&lt;/dd>
+&lt;/dl>
+&lt;h2 id="here-documents">Here documents&lt;/h2>
+&lt;p>A &lt;em>here document&lt;/em> provides values to a script without user action. It is a multiline string or file literal that sends input streams to other commands and programs.&lt;/p>
+&lt;p>The here document must contain data in the exact format that the script expects, or it fails. For example, if there are extra spaces, the script fails.&lt;/p>
+&lt;p>I need to revisit this. For much better examples, see the &lt;a href="https://tldp.org/LDP/abs/html/here-docs.html">Advanced Bash scripting guide&lt;/a>.&lt;/p>
+&lt;h2 id="traps-termination-signals">Traps (termination signals)&lt;/h2>
+&lt;p>When a program terminates before its supposed to, the computer sends an exit symbol. This is called a trap. You can view them all with &lt;code>kill -l&lt;/code>:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>$ &lt;span style="color:#204a87">kill&lt;/span> -l
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> 1&lt;span style="color:#ce5c00;font-weight:bold">)&lt;/span> SIGHUP 2&lt;span style="color:#ce5c00;font-weight:bold">)&lt;/span> SIGINT 3&lt;span style="color:#ce5c00;font-weight:bold">)&lt;/span> SIGQUIT 4&lt;span style="color:#ce5c00;font-weight:bold">)&lt;/span> SIGILL 5&lt;span style="color:#ce5c00;font-weight:bold">)&lt;/span> SIGTRAP
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> ...
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="processes">Processes&lt;/h2>
+&lt;p>The following table shows common &lt;code>ps&lt;/code> commands:&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th style="text-align:left">Command&lt;/th>
+&lt;th style="text-align:left">Description&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td style="text-align:left">ps&lt;/td>
+&lt;td style="text-align:left">Currently running processes for the user.&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:left">ps -f&lt;/td>
+&lt;td style="text-align:left">Full list of users currently running processes.&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:left">ps -ef&lt;/td>
+&lt;td style="text-align:left">Full list of processes, excluding kernel processs.&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:left">ps -A&lt;/td>
+&lt;td style="text-align:left">All user and kernel processes.&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:left">ps -Kf&lt;/td>
+&lt;td style="text-align:left">Full kernel processes.&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align:left">ps auxw&lt;/td>
+&lt;td style="text-align:left">Wide listing sorted by percentage of CPU usage.&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table></description></item><item><title>Docs: Snippets</title><link>/docs/bash/snippets/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>/docs/bash/snippets/</guid><description>
+&lt;h2 id="text">Text&lt;/h2>
+&lt;h3 id="uppercase-or-lowercase">Uppercase or lowercase&lt;/h3>
+&lt;p>Use the &lt;code>tr&lt;/code> (translate) command to change the case of a character set:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">uppercase&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span>&lt;span style="color:#204a87;font-weight:bold">$(&lt;/span>&lt;span style="color:#204a87">echo&lt;/span> &lt;span style="color:#000">$var&lt;/span> &lt;span style="color:#000;font-weight:bold">|&lt;/span> tr &lt;span style="color:#4e9a06">&amp;#39;[a-z]&amp;#39;&lt;/span> &lt;span style="color:#4e9a06">&amp;#39;[A-Z]&amp;#39;&lt;/span>&lt;span style="color:#204a87;font-weight:bold">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">lowercase&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span>&lt;span style="color:#204a87;font-weight:bold">$(&lt;/span>&lt;span style="color:#204a87">echo&lt;/span> &lt;span style="color:#000">$var&lt;/span> &lt;span style="color:#000;font-weight:bold">|&lt;/span> tr &lt;span style="color:#4e9a06">&amp;#39;[A-Z]&amp;#39;&lt;/span> &lt;span style="color:#4e9a06">&amp;#39;[a-z]&amp;#39;&lt;/span>&lt;span style="color:#204a87;font-weight:bold">)&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Another option is the &lt;code>typeset&lt;/code> command. You can use the &lt;code>-u&lt;/code> and &lt;code>-l&lt;/code> options to ensure a variable always evaluates in upper or lowercase, respectively:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>$ &lt;span style="color:#204a87">typeset&lt;/span> -u my_name
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>$ &lt;span style="color:#000">my_name&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span>&lt;span style="color:#4e9a06">&amp;#39;Sally&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>$ &lt;span style="color:#204a87">echo&lt;/span> &lt;span style="color:#000">$my_name&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>SALLY
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>$ &lt;span style="color:#204a87">typeset&lt;/span> -l last_name
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>$ &lt;span style="color:#000">last_name&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span>&lt;span style="color:#4e9a06">&amp;#39;Ride&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>$ &lt;span style="color:#204a87">echo&lt;/span> &lt;span style="color:#000">$last_name&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>ride
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;blockquote>
+&lt;p>You must set the &lt;code>typset&lt;/code> value first.&lt;/p>
+&lt;/blockquote></description></item></channel></rss>

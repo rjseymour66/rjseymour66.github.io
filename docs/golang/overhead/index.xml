@@ -1,0 +1,498 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Goldydocs – Project organization</title><link>/docs/golang/overhead/</link><description>Recent content in Project organization on Goldydocs</description><generator>Hugo -- gohugo.io</generator><atom:link href="/docs/golang/overhead/index.xml" rel="self" type="application/rss+xml"/><item><title>Docs: Project setup</title><link>/docs/golang/overhead/project-setup/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>/docs/golang/overhead/project-setup/</guid><description>
+&lt;h2 id="requirements-analysis">Requirements analysis&lt;/h2>
+&lt;h3 id="functional-requirements">Functional requirements&lt;/h3>
+&lt;p>&lt;em>Functional requirements&lt;/em> is a list of the core functionalities that the system is expected to implement and how the actors (users, other system components or services) interact with it. To establish the functional requirements, you must write &lt;em>user stories&lt;/em>.&lt;/p>
+&lt;p>User stories describe business value and include a list of acceptance criteria that acts as a verification tool that each goal is met.&lt;/p>
+&lt;h4 id="user-story-template">User story template&lt;/h4>
+&lt;p>As an &lt;em>&lt;code>actor&lt;/code>&lt;/em>, I need to be able to &lt;em>&lt;code>short requirement&lt;/code>&lt;/em>, so as to &lt;em>&lt;code>reason/business value&lt;/code>&lt;/em>.&lt;/p>
+&lt;p>The acceptance criteria for this user story are as follows:&lt;/p>
+&lt;ul>
+&lt;li>&lt;em>&lt;code>acceptance criteria 1&lt;/code>&lt;/em>&lt;/li>
+&lt;li>&lt;em>&lt;code>acceptance criteria 2&lt;/code>&lt;/em>&lt;/li>
+&lt;li>&amp;hellip;&lt;/li>
+&lt;/ul>
+&lt;h3 id="non-functional-requirements">Non-functional requirements&lt;/h3>
+&lt;p>&lt;em>Non-functional requirements&lt;/em> include items like &lt;em>service-level objectives&lt;/em> (SLOs) and capacity and scalability requirements.&lt;/p>
+&lt;p>To&lt;/p>
+&lt;h2 id="makefile">Makefile&lt;/h2>
+&lt;p>Create a Makefile at the base of your project to manage project tasks, builds, and dependencies. A Makefile consists of targets, which are tasks that you can run by entering &lt;code>make target-name&lt;/code>.&lt;/p>
+&lt;p>The following sections describe common Makefile idioms and targets for a basic Go project.&lt;/p>
+&lt;h3 id="global-variables">Global variables&lt;/h3>
+&lt;p>Add global variables at the top of the Makefile in all caps. For example, the following variable defines the Go version:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-Makefile" data-lang="Makefile">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">GO_VERSION&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">:=&lt;/span> 1.19.4
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>To use this variable in the Makefile, enclose it in parentheses and prepend it with a &lt;code>$&lt;/code>:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-Makefile" data-lang="Makefile">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">$(&lt;/span>&lt;span style="color:#000">GO_VERSION&lt;/span>&lt;span style="color:#204a87;font-weight:bold">)&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="build">Build&lt;/h3>
+&lt;p>Build the application for your host machine:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-Makefile" data-lang="Makefile">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">build&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> go build -o appname path/to/main.go
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Build binaries for multiple architectures, and store them in a &lt;code>bin/&lt;/code> directory at the project root:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-Makefile" data-lang="Makefile">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">build&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#8f5902;font-style:italic"># Linux&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000">GOOS&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span>linux &lt;span style="color:#000">GOARCH&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span>amd64 go build -o ./bin/appname_linux_amd64 .path/to/main.go
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#8f5902;font-style:italic"># macOS&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000">GOOS&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span>darwin &lt;span style="color:#000">GOARCH&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span>amd64 go build -o ./bin/appname_darwin_amd64 .path/to/main.go
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#8f5902;font-style:italic"># windows&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000">GOOS&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span>windows &lt;span style="color:#000">GOARCH&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span>amd64 go build -o ./bin/appname_win_amd64.exe .path/to/main.go
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="cross-compilation">Cross-compilation&lt;/h3>
+&lt;p>You need to know the &lt;code>GOOS&lt;/code> and &lt;code>GOOARCH&lt;/code> values to compile the correct binaries.&lt;/p>
+&lt;p>Next, you can cross compile for multiple operating systems with a Makefile. Create a make target that compiles multiple binaries and places them in the &lt;code>/bin&lt;/code> directory:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-makefile" data-lang="makefile">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">compile&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#8f5902;font-style:italic"># Linux&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000">GOOS&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span>linux &lt;span style="color:#000">GOARCH&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span>amd64 go build -o ./bin/hit_linux_amd64 ./cmd/hit
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#8f5902;font-style:italic"># macOS&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000">GOOS&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span>darwin &lt;span style="color:#000">GOARCH&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span>amd64 go build -o ./bin/hit_darwin_amd64 ./cmd/hit
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#8f5902;font-style:italic"># windows&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000">GOOS&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span>windows &lt;span style="color:#000">GOARCH&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span>amd64 go build -o ./bin/hit_win_amd64.exe ./cmd/hit
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;blockquote>
+&lt;p>Make sure that you add the &lt;code>/bin&lt;/code> directory to the &lt;code>.gitignore&lt;/code> file.&lt;/p>
+&lt;/blockquote>
+&lt;h3 id="test">Test&lt;/h3>
+&lt;p>Run go tests:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-Makefile" data-lang="Makefile">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">test&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> go &lt;span style="color:#204a87">test&lt;/span> ./... -coverprofile&lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span>coverage.out
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="code-coverage">Code coverage&lt;/h3>
+&lt;p>View how much of the source code is adequetly tested:&lt;/p>
+&lt;blockquote>
+&lt;p>What does this do?&lt;/p>
+&lt;/blockquote>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-Makefile" data-lang="Makefile">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">coverage&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> go tool cover -func coverage.out &lt;span style="color:#000;font-weight:bold">|&lt;/span> grep &lt;span style="color:#4e9a06">&amp;#34;total:&amp;#34;&lt;/span> &lt;span style="color:#000;font-weight:bold">|&lt;/span> &lt;span style="color:#4e9a06">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#4e9a06">&lt;/span> awk &lt;span style="color:#4e9a06">&amp;#39;{print ((int($$3) &amp;gt; 80) != 1) }&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="generate-coverage-report">Generate coverage report&lt;/h3>
+&lt;p>Runs the Go coverage tool to generate an HTML page that describes what code is covered by tests:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-Makefile" data-lang="Makefile">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">report&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> go tool cover -html&lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span>coverage.out -o cover.html
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="format-your-source-code">Format your source code&lt;/h3>
+&lt;p>This is not an issue in VSCode, but you can add a target that verifies the Go source code is formatted correctly:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-Makefile" data-lang="Makefile">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">check-format&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#204a87">test&lt;/span> -z &lt;span style="color:#000">$$&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">(&lt;/span>go fmt ./...&lt;span style="color:#ce5c00;font-weight:bold">)&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="static-linters">Static linters&lt;/h3>
+&lt;p>&lt;a href="https://golangci-lint.run/">golangci-lint&lt;/a> is a Go linters aggregator&amp;ndash;it provides multiple linters for Go source code.&lt;/p>
+&lt;h4 id="install">Install&lt;/h4>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-Makefile" data-lang="Makefile">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">install-lint&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> sudo curl -sSfL &lt;span style="color:#4e9a06">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#4e9a06">&lt;/span> https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh &lt;span style="color:#4e9a06">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#4e9a06">&lt;/span> &lt;span style="color:#000;font-weight:bold">|&lt;/span> sh -s -- -b &lt;span style="color:#000">$$&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">(&lt;/span>go env GOPATH&lt;span style="color:#ce5c00;font-weight:bold">)&lt;/span>/bin v1.51.1
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h4 id="run-the-linter">Run the linter&lt;/h4>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-Makefile" data-lang="Makefile">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">static-check&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> golangci-lint run ./...
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="github-actions">Github Actions&lt;/h2>
+&lt;h2 id="modules">Modules&lt;/h2>
+&lt;p>A Go code repository comprises of exactly one module. The module includes packages, and these packages include source files. To create a module, go to the top-level directory of the project and enter the following command:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>go mod init &amp;lt;project-name&amp;gt;
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>The preceding command creates a &lt;code>go.mod&lt;/code> file in the top-level of your project that lists your project name at the top.&lt;/p>
+&lt;p>Module names should be unique within the Go community. This prevents conflicts with other public libraries. A common pattern is to use a URL that you own, such a &lt;code>project-name.example.com&lt;/code>. Another very common pattern is to use the path where the project exists, minus the scheme. For example, &lt;code>github.com/username/projectname&lt;/code>.&lt;/p>
+&lt;h2 id="packages">Packages&lt;/h2>
+&lt;p>Packages are directories in a Go project. A package name should describe what it provides, not what it does. The name of the directory is the package name. For example, source files in the &lt;code>go-src/stocks/&lt;/code> package are in the &lt;code>stocks&lt;/code> package. At the top of the file, declare package names with &lt;code>package &amp;lt;package-name&amp;gt;&lt;/code>, and import packages with the &lt;code>import &amp;lt;package-name&amp;gt;&lt;/code> statement.&lt;/p>
+&lt;blockquote>
+&lt;p>&lt;code>import&lt;/code> statements use the fully-qualified package name. This begins with the module name containing the package. For example, &lt;code>import go-src/&amp;lt;package-name&amp;gt;&lt;/code>&lt;/p>
+&lt;/blockquote>
+&lt;p>Prepend any imported package code with the package name, or an alias for the package: &lt;code>alias package/name&lt;/code>. For example, &lt;code>s go-src/stocks&lt;/code> allows you to prepend any code with &lt;code>s.&lt;/code>, such as &lt;code>s.Investment&lt;/code>.&lt;/p>
+&lt;p>&lt;em>main&lt;/em>: any program that has to run as an application must be in the &lt;code>main&lt;/code> package.&lt;/p>
+&lt;p>When you write external tests, use a &lt;code>_test&lt;/code> suffix. For example, a package that contains external tests for the &lt;code>url&lt;/code> package is &lt;code>url_test&lt;/code>.&lt;/p>
+&lt;h3 id="import-external-packages">Import external packages&lt;/h3>
+&lt;p>When you import an external package, you list the module name in the &lt;code>go.mod&lt;/code> file, followed by the path to the specific library from the project root. For example, if the &lt;code>go.mod&lt;/code> file contains the following:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-go" data-lang="go">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">module&lt;/span> &lt;span style="color:#000">url&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#ce5c00;font-weight:bold">...&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Then you import the module as follows:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-go" data-lang="go">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">import&lt;/span> &lt;span style="color:#4e9a06">&amp;#34;url/path/to/library&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Commonly, packages are publically available in repositories, and the module name is the path to the root of the repository:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-go" data-lang="go">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">module&lt;/span> &lt;span style="color:#000">github&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">com&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">/&lt;/span>&lt;span style="color:#000">rjs&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">/&lt;/span>&lt;span style="color:#000">url&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">-&lt;/span>&lt;span style="color:#000">parser&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#ce5c00;font-weight:bold">...&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>In this case, the import statement for the &lt;code>parser&lt;/code> package within this repo is as follows:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-go" data-lang="go">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">import&lt;/span> &lt;span style="color:#4e9a06">&amp;#34;github.com/rjs/url-parser/parser&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="cli-tools">CLI tools&lt;/h2>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-shell" data-lang="shell">&lt;span style="display:flex;">&lt;span>.
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>├── cmd
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>│ └── todo
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>│ ├── main.go &lt;span style="color:#8f5902;font-style:italic"># config, parse, switch {} flags&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>│ └── main_test.go &lt;span style="color:#8f5902;font-style:italic"># integration tests (user interaction)&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>├── go.mod
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>├── todo.go &lt;span style="color:#8f5902;font-style:italic"># API logic for flags&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>└── todo_test.go &lt;span style="color:#8f5902;font-style:italic"># unit tests&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;code>/internal&lt;/code> directory is special because other projects cannot import anything in this directory. This is a good place for domain code.
+If an entity needs to be accessible to all domain code, place its file in the &lt;code>/internal&lt;/code> directory. Its package name is the project package.
+Each subdirectory in &lt;code>/internal&lt;/code> is a domain.&lt;/p>
+&lt;p>You create a tool that the user interacts with and is responsible for the following:&lt;/p>
+&lt;ul>
+&lt;li>Parses the flags&lt;/li>
+&lt;li>Validates flags&lt;/li>
+&lt;li>Calls the business logic library&lt;/li>
+&lt;/ul>
+&lt;p>Go uses the &lt;code>cmd&lt;/code> directory for executables (the entry point) such as CLI tools. Within each &lt;code>cmd/subdirectory&lt;/code>, you can name the entry point &lt;code>main.go&lt;/code> or the name of the package, such as &lt;code>hit.go&lt;/code>. Regardless of the file name, it must be in the &lt;code>main&lt;/code> package because that package is what makes a file executable.&lt;/p>
+&lt;p>Next, you have to create the tool library that contains the business logic. This is a standalone package, so use the name of the library that you are building.&lt;/p>
+&lt;p>The following is a simple directory structure for the &lt;code>hit&lt;/code> tool:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-shell" data-lang="shell">&lt;span style="display:flex;">&lt;span>hit-tool
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>├── cmd &lt;span style="color:#8f5902;font-style:italic"># Executable directory&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>│   └── hit &lt;span style="color:#8f5902;font-style:italic"># CLI tool directory&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>├── go.mod
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>└── hit &lt;span style="color:#8f5902;font-style:italic"># Library directory&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="web-apps">Web apps&lt;/h2>
+&lt;p>Web app structure separates the Go code and the web assets to simplify building and deploying.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-shell" data-lang="shell">&lt;span style="display:flex;">&lt;span>.
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>├── cmd
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>│   └── web
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>│   ├── handlers.go
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>│   └── main.go
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>├── go.mod
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>├── internal
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>├── README.md
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>└── ui
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> ├── html
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> └── static
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;dl>
+&lt;dt>&lt;code>/cmd&lt;/code>&lt;/dt>
+&lt;dd>Application-specific code for executables.&lt;/dd>
+&lt;dt>&lt;code>/internal&lt;/code>&lt;/dt>
+&lt;dd>Non-application-specific code, including reusable code like validation helpers and SQL database models.
+Code in the &lt;code>/internal&lt;/code> directory cannot be imported by external projects.&lt;/dd>
+&lt;dt>&lt;code>/ui&lt;/code>&lt;/dt>
+&lt;dd>User-interface assets for the web app, including templates and static files (CSS, Javascript).&lt;/dd>
+&lt;/dl>
+&lt;h3 id="configuration-with-cli-flags">Configuration with CLI flags&lt;/h3>
+&lt;p>Add flags to manage environment configurations. CLI flags are easier to manage, have default values, and have built-in help.&lt;/p>
+&lt;p>If you plan to use environment variables, you can pass the env vars to the flag:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-go" data-lang="go">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">$&lt;/span> &lt;span style="color:#000">export&lt;/span> &lt;span style="color:#000">ENV_VAR&lt;/span>&lt;span style="color:#000;font-weight:bold">=&lt;/span>&lt;span style="color:#4e9a06">&amp;#34;value&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">$&lt;/span> &lt;span style="color:#204a87;font-weight:bold">go&lt;/span> &lt;span style="color:#000">run&lt;/span> &lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">/&lt;/span>&lt;span style="color:#000">example&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">-&lt;/span>&lt;span style="color:#000">addr&lt;/span>&lt;span style="color:#000;font-weight:bold">=&lt;/span>&lt;span style="color:#a40000">$&lt;/span>&lt;span style="color:#000">ENV_VAR&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>This prevents you from relying on env vars in your code and needing to convert the values from string to the flag type. The &lt;code>flag&lt;/code> package handles those conversions themselves.&lt;/p>
+&lt;h2 id="dependency-injection">Dependency injection&lt;/h2>
+&lt;p>&lt;strong>Definition here&lt;/strong>&lt;/p>
+&lt;p>In web applications, handlers need access to multiple dependencies. The easiest way to do that is to inject the dependencies with structs:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-go" data-lang="go">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">type&lt;/span> &lt;span style="color:#000">application&lt;/span> &lt;span style="color:#204a87;font-weight:bold">struct&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000">logger&lt;/span>&lt;span style="color:#000;font-weight:bold">:&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">*&lt;/span>&lt;span style="color:#000">log&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">logger&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000">db&lt;/span>&lt;span style="color:#000;font-weight:bold">:&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">*&lt;/span>&lt;span style="color:#000">sql&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">DB&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000">cache&lt;/span>&lt;span style="color:#000;font-weight:bold">:&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">*&lt;/span>&lt;span style="color:#000">cache&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Then, you can initialize your app in the main method, and &lt;em>inject&lt;/em> any dependencies in the new &lt;code>application&lt;/code> object at runtime:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-go" data-lang="go">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">func&lt;/span> &lt;span style="color:#000">main&lt;/span>&lt;span style="color:#000;font-weight:bold">()&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#8f5902;font-style:italic">// instantiate myLogger
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span> &lt;span style="color:#8f5902;font-style:italic">// mySQLHandle db config
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span> &lt;span style="color:#8f5902;font-style:italic">// instantiate myCache
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000">app&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">:=&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">&amp;amp;&lt;/span>&lt;span style="color:#000">application&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000">logger&lt;/span>&lt;span style="color:#000;font-weight:bold">:&lt;/span> &lt;span style="color:#000">myLogger&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000">db&lt;/span>&lt;span style="color:#000;font-weight:bold">:&lt;/span> &lt;span style="color:#000">mySQLHandle&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000">cache&lt;/span>&lt;span style="color:#000;font-weight:bold">:&lt;/span> &lt;span style="color:#000">myCache&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000;font-weight:bold">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="web-app-checklist">Web app checklist&lt;/h2>
+&lt;p>Plan your routes:&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th style="text-align:left">Method&lt;/th>
+&lt;th style="text-align:left">Pattern&lt;/th>
+&lt;th style="text-align:left">Handler&lt;/th>
+&lt;th style="text-align:left">Action&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td style="text-align:left">&lt;/td>
+&lt;td style="text-align:left">&lt;/td>
+&lt;td style="text-align:left">&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table></description></item><item><title>Docs: Go tooling</title><link>/docs/golang/overhead/tooling/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>/docs/golang/overhead/tooling/</guid><description>
+&lt;p>See &lt;a href="https://www.alexedwards.net/blog/an-overview-of-go-tooling">An Overview of Go&amp;rsquo;s Tooling&lt;/a> for a much better overview.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-shell" data-lang="shell">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic"># go fmt&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>$ gofmt -w &amp;lt;file&amp;gt;.go &lt;span style="color:#8f5902;font-style:italic"># formats &amp;lt;file&amp;gt;.go&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>$ gofmt -l dirname/*.go &lt;span style="color:#8f5902;font-style:italic"># lists files in dir that do not conform to go formatting &lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic"># go run&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>$ go run . &lt;span style="color:#8f5902;font-style:italic"># runs binary in cwd&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>$ go run &amp;lt;binary-name&amp;gt;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>$ go run ./cmd/web &lt;span style="color:#8f5902;font-style:italic"># runs proj-root/cmd/web/main.go&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic"># go build&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>$ go build &lt;span style="color:#8f5902;font-style:italic"># uses module name for binary name&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>$ go build -o &amp;lt;binary-name&amp;gt; &lt;span style="color:#8f5902;font-style:italic"># provide binary name&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic"># go test&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>$ go &lt;span style="color:#204a87">test&lt;/span> -v &lt;span style="color:#8f5902;font-style:italic"># verbose output&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>$ go &lt;span style="color:#204a87">test&lt;/span> -v ./&amp;lt;dirname&amp;gt;/ &lt;span style="color:#8f5902;font-style:italic"># run tests in a specific directory&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>$ go &lt;span style="color:#204a87">test&lt;/span> -v ./cmd/
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic"># go get for dependencies&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>$ go get github.com/entire/module/path
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>$ go get -u github.com/entire/module/path &lt;span style="color:#8f5902;font-style:italic"># upgrade to latest minor version or patch&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>$ go get -u github.com/entire/module/path@v2.0.0 &lt;span style="color:#8f5902;font-style:italic"># upgrade to specific version&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>$ go get github.com/entire/module/path@none &lt;span style="color:#8f5902;font-style:italic"># remove unused package (same as &amp;#39;go mod tidy -v&amp;#39;)&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic"># After go get, update dependencies&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>$ &lt;span style="color:#204a87">cd&lt;/span> &amp;lt;project-root&amp;gt;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>$ go mod tidy
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="go-modules">Go modules&lt;/h2>
+&lt;p>Go modules group related packages into a single unit to be versioned together. Because they track an application&amp;rsquo;s dependencies, they ensure that users build the application with the same dependencies as the original developer. Go modules allow you to write go programs outside of the $GOPATH directory, as in previous releases.&lt;/p>
+&lt;p>Go sum records the checksum for each module in the application to ensure that each build uses the correct version.&lt;/p>
+&lt;p>Go modules are tracked in &lt;code>go.mod&lt;/code>. Update the &lt;code>go.mod&lt;/code> file with &lt;a href="https://go.dev/ref/mod#mod-commands">mod commands&lt;/a>:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-shell" data-lang="shell">&lt;span style="display:flex;">&lt;span>$ go mod tidy &lt;span style="color:#ce5c00;font-weight:bold">[&lt;/span>-v&lt;span style="color:#ce5c00;font-weight:bold">]&lt;/span> &lt;span style="color:#8f5902;font-style:italic"># reconcile project dependencies&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>$ go mod verify &lt;span style="color:#8f5902;font-style:italic"># verifies the checksums in go.sum match the downloaded packages on your machine&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>$ go list &lt;span style="color:#8f5902;font-style:italic"># list project packages&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>$ go list -m &lt;span style="color:#8f5902;font-style:italic"># list project modules&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>In the source file, import each dependency as it is described in &lt;code>go.mod&lt;/code>:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-go" data-lang="go">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">module&lt;/span> &lt;span style="color:#000">moduleName&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">go&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">1.19&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">require&lt;/span> &lt;span style="color:#000;font-weight:bold">(&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000">github&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">com&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">/&lt;/span>&lt;span style="color:#000">entire&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">/&lt;/span>&lt;span style="color:#000">module&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">/&lt;/span>&lt;span style="color:#000">path&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">/&lt;/span>&lt;span style="color:#000">v1&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000">github&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">com&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">/&lt;/span>&lt;span style="color:#000">entire&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">/&lt;/span>&lt;span style="color:#000">module&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">/&lt;/span>&lt;span style="color:#000">path&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">/&lt;/span>&lt;span style="color:#000">dependcy2&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000;font-weight:bold">)&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-go" data-lang="go">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">import&lt;/span> &lt;span style="color:#000;font-weight:bold">(&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#4e9a06">&amp;#34;github.com/entire/module/path/v1&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#4e9a06">&amp;#34;github.com/entire/module/path/dependcy2&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000;font-weight:bold">)&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="cross-compilation">Cross-compilation&lt;/h2>
+&lt;p>Build static go binaries for operating systems that are different than the one that you are building it on. Because you build a static binary, the target machine does not need any additional libraries or tools to run the binary.&lt;/p>
+&lt;p>For example, use the &lt;code>GOOS&lt;/code> environment variable with the &lt;code>build&lt;/code> command to compile for a Windows machine:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-go" data-lang="go">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#a40000">$&lt;/span> &lt;span style="color:#000">GOOS&lt;/span>&lt;span style="color:#000;font-weight:bold">=&lt;/span>&lt;span style="color:#000">window&lt;/span> &lt;span style="color:#204a87;font-weight:bold">go&lt;/span> &lt;span style="color:#000">build&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>For a list of accepted GOOS values, see &lt;a href="https://go.dev/src/go/build/syslist.go">https://go.dev/src/go/build/syslist.go&lt;/a>&lt;/p></description></item><item><title>Docs: Idioms</title><link>/docs/golang/overhead/idioms/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>/docs/golang/overhead/idioms/</guid><description>
+&lt;h2 id="short-if-declaration">Short-if declaration&lt;/h2>
+&lt;p>&lt;code>if variable := value; condition&lt;/code>&lt;/p>
+&lt;p>For example:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-go" data-lang="go">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">if&lt;/span> &lt;span style="color:#000">err&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">:=&lt;/span> &lt;span style="color:#000">json&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">Marshal&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">&amp;amp;&lt;/span>&lt;span style="color:#000">val&lt;/span>&lt;span style="color:#000;font-weight:bold">);&lt;/span> &lt;span style="color:#000">err&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">!=&lt;/span> &lt;span style="color:#204a87;font-weight:bold">nil&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#8f5902;font-style:italic">// handle error
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="named-return-values">Named return values&lt;/h2>
+&lt;p>Name the returned values of a function so other developers can see what it returns without having to read the code.&lt;/p>
+&lt;h2 id="ok-return-value">ok return value&lt;/h2>
+&lt;p>If you are writing a helper function, do NOT return an error from the helper&amp;ndash;return &lt;code>ok bool&lt;/code>. This allows you to check the &lt;code>ok&lt;/code> value in the caller and return the error there. For example:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-go" data-lang="go">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">func&lt;/span> &lt;span style="color:#000">Parse&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">rawurl&lt;/span> &lt;span style="color:#204a87;font-weight:bold">string&lt;/span>&lt;span style="color:#000;font-weight:bold">)&lt;/span> &lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">*&lt;/span>&lt;span style="color:#000">URL&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span> &lt;span style="color:#204a87;font-weight:bold">error&lt;/span>&lt;span style="color:#000;font-weight:bold">)&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000">scheme&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span> &lt;span style="color:#000">rest&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span> &lt;span style="color:#000">ok&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">:=&lt;/span> &lt;span style="color:#000">parseScheme&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">rawurl&lt;/span>&lt;span style="color:#000;font-weight:bold">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#204a87;font-weight:bold">if&lt;/span> &lt;span style="color:#000;font-weight:bold">!&lt;/span>&lt;span style="color:#000">ok&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#204a87;font-weight:bold">return&lt;/span> &lt;span style="color:#204a87;font-weight:bold">nil&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span> &lt;span style="color:#000">errors&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">New&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#4e9a06">&amp;#34;missing scheme&amp;#34;&lt;/span>&lt;span style="color:#000;font-weight:bold">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000;font-weight:bold">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#ce5c00;font-weight:bold">...&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">func&lt;/span> &lt;span style="color:#000">parseScheme&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">rawurl&lt;/span> &lt;span style="color:#204a87;font-weight:bold">string&lt;/span>&lt;span style="color:#000;font-weight:bold">)&lt;/span> &lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">scheme&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span> &lt;span style="color:#000">rest&lt;/span> &lt;span style="color:#204a87;font-weight:bold">string&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span> &lt;span style="color:#000">ok&lt;/span> &lt;span style="color:#204a87;font-weight:bold">bool&lt;/span>&lt;span style="color:#000;font-weight:bold">)&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000">i&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">:=&lt;/span> &lt;span style="color:#000">strings&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">Index&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">rawurl&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span> &lt;span style="color:#4e9a06">&amp;#34;://&amp;#34;&lt;/span>&lt;span style="color:#000;font-weight:bold">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#204a87;font-weight:bold">if&lt;/span> &lt;span style="color:#000">i&lt;/span> &lt;span style="color:#000;font-weight:bold">&amp;lt;&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">1&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#204a87;font-weight:bold">return&lt;/span> &lt;span style="color:#4e9a06">&amp;#34;&amp;#34;&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span> &lt;span style="color:#4e9a06">&amp;#34;&amp;#34;&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span> &lt;span style="color:#204a87;font-weight:bold">false&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000;font-weight:bold">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#204a87;font-weight:bold">return&lt;/span> &lt;span style="color:#000">rawurl&lt;/span>&lt;span style="color:#000;font-weight:bold">[:&lt;/span>&lt;span style="color:#000">i&lt;/span>&lt;span style="color:#000;font-weight:bold">],&lt;/span> &lt;span style="color:#000">rawurl&lt;/span>&lt;span style="color:#000;font-weight:bold">[&lt;/span>&lt;span style="color:#000">i&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">+&lt;/span>&lt;span style="color:#0000cf;font-weight:bold">3&lt;/span>&lt;span style="color:#000;font-weight:bold">:],&lt;/span> &lt;span style="color:#204a87;font-weight:bold">true&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="naked-returns">Naked returns&lt;/h2>
+&lt;p>You can return from a function with just the &lt;code>return&lt;/code> keyword. This is called a &lt;em>naked return&lt;/em>. A naked return returns the current state of the result values.&lt;/p>
+&lt;p>Generally, &lt;strong>do NOT&lt;/strong> use naked returns because they impact readability.&lt;/p>
+&lt;h2 id="blank-identifiers">blank identifiers&lt;/h2>
+&lt;p>You can use blank identifiers in function definitions:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-go" data-lang="go">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">handler&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">:=&lt;/span> &lt;span style="color:#204a87;font-weight:bold">func&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">_&lt;/span> &lt;span style="color:#000">http&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">ResponseWriter&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span> &lt;span style="color:#000">_&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">*&lt;/span>&lt;span style="color:#000">http&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">Request&lt;/span>&lt;span style="color:#000;font-weight:bold">)&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#8f5902;font-style:italic">// logic
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="interfaces">Interfaces&lt;/h2>
+&lt;p>When a type satisfies an interface, you say &lt;em>type X is a Y&lt;/em>. For example, &lt;em>URL is a Stringer&lt;/em> or &lt;em>Parser is a Reader&lt;/em>.&lt;/p>
+&lt;h3 id="stringer">Stringer&lt;/h3>
+&lt;p>&lt;code>Stringer&lt;/code> prints the string representation of the object. The &lt;code>fmt.Print[x]&lt;/code> packages detect when a type has a &lt;code>Stringer&lt;/code> method, so it calls that method for proper formatting.&lt;/p>
+&lt;p>The &lt;code>Stringer&lt;/code> interface:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-go" data-lang="go">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">type&lt;/span> &lt;span style="color:#000">Stringer&lt;/span> &lt;span style="color:#204a87;font-weight:bold">interface&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000">String&lt;/span>&lt;span style="color:#000;font-weight:bold">()&lt;/span> &lt;span style="color:#204a87;font-weight:bold">string&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Implementation example:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-go" data-lang="go">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">func&lt;/span> &lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">u&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">*&lt;/span>&lt;span style="color:#000">URL&lt;/span>&lt;span style="color:#000;font-weight:bold">)&lt;/span> &lt;span style="color:#000">String&lt;/span>&lt;span style="color:#000;font-weight:bold">()&lt;/span> &lt;span style="color:#204a87;font-weight:bold">string&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#204a87;font-weight:bold">return&lt;/span> &lt;span style="color:#000">fmt&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">Sprintf&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#4e9a06">&amp;#34;%s://%s/%s&amp;#34;&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span> &lt;span style="color:#000">u&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">Scheme&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span> &lt;span style="color:#000">u&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">Host&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span> &lt;span style="color:#000">u&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">Path&lt;/span>&lt;span style="color:#000;font-weight:bold">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="teststring">testString&lt;/h3>
+&lt;p>Create a &lt;code>testString()&lt;/code> function to return a concise string representation value for tests. For example, the following is the test version of the &lt;code>String()&lt;/code> function in the previous section:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-go" data-lang="go">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">func&lt;/span> &lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">u&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">*&lt;/span>&lt;span style="color:#000">URL&lt;/span>&lt;span style="color:#000;font-weight:bold">)&lt;/span> &lt;span style="color:#000">testString&lt;/span>&lt;span style="color:#000;font-weight:bold">()&lt;/span> &lt;span style="color:#204a87;font-weight:bold">string&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#204a87;font-weight:bold">return&lt;/span> &lt;span style="color:#000">fmt&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">Sprintf&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#4e9a06">&amp;#34;scheme=%q, host=%q, path=%q&amp;#34;&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span> &lt;span style="color:#000">u&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">Scheme&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span> &lt;span style="color:#000">u&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">Host&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span> &lt;span style="color:#000">u&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">Path&lt;/span>&lt;span style="color:#000;font-weight:bold">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="sortinterface">sort.Interface&lt;/h3>
+&lt;p>The Go &lt;code>sort&lt;/code> package has a &lt;a href="https://pkg.go.dev/sort#Slice">&lt;code>Slice&lt;/code> method&lt;/a> to sort the values in a slice. However, you can implement the &lt;code>sort.Interface&lt;/code> interface to create a custom &lt;code>sort&lt;/code> method.&lt;/p>
+&lt;p>&lt;code>sort.Interface&lt;/code> has the following methods:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-go" data-lang="go">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">// Len is the number of elements in the collection.
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span>&lt;span style="color:#000">Len&lt;/span>&lt;span style="color:#000;font-weight:bold">()&lt;/span> &lt;span style="color:#204a87;font-weight:bold">int&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">// Less reports whether the element with index i
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">// must sort before the element with index j.
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span>&lt;span style="color:#000">Less&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">i&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span> &lt;span style="color:#000">j&lt;/span> &lt;span style="color:#204a87;font-weight:bold">int&lt;/span>&lt;span style="color:#000;font-weight:bold">)&lt;/span> &lt;span style="color:#204a87;font-weight:bold">bool&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">// Swap swaps the elements with indexes i and j.
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span>&lt;span style="color:#000">Swap&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">i&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span> &lt;span style="color:#000">j&lt;/span> &lt;span style="color:#204a87;font-weight:bold">int&lt;/span>&lt;span style="color:#000;font-weight:bold">)&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;code>sort.Interface&lt;/code> operates on collection types, so you should create a custom collection type to implement the interface methods. Name the type in a way that describes the sorting strategy. For example, the following implementation sorts a slice of type &lt;code>Book&lt;/code> by the &lt;code>Author&lt;/code> field:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-go" data-lang="go">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">// Define a custom type whose name describe the sorting strategy.
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span>&lt;span style="color:#204a87;font-weight:bold">type&lt;/span> &lt;span style="color:#000">byAuthor&lt;/span> &lt;span style="color:#000;font-weight:bold">[]&lt;/span>&lt;span style="color:#000">Book&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">// Len returns the length of the collection.
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span>&lt;span style="color:#204a87;font-weight:bold">func&lt;/span> &lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">b&lt;/span> &lt;span style="color:#000">byAuthor&lt;/span>&lt;span style="color:#000;font-weight:bold">)&lt;/span> &lt;span style="color:#000">Len&lt;/span>&lt;span style="color:#000;font-weight:bold">()&lt;/span> &lt;span style="color:#204a87;font-weight:bold">int&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span> &lt;span style="color:#204a87;font-weight:bold">return&lt;/span> &lt;span style="color:#204a87">len&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">b&lt;/span>&lt;span style="color:#000;font-weight:bold">)&lt;/span> &lt;span style="color:#000;font-weight:bold">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">// Swap swaps two books.
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span>&lt;span style="color:#204a87;font-weight:bold">func&lt;/span> &lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">b&lt;/span> &lt;span style="color:#000">byAuthor&lt;/span>&lt;span style="color:#000;font-weight:bold">)&lt;/span> &lt;span style="color:#000">Swap&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">i&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span> &lt;span style="color:#000">j&lt;/span> &lt;span style="color:#204a87;font-weight:bold">int&lt;/span>&lt;span style="color:#000;font-weight:bold">)&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000">b&lt;/span>&lt;span style="color:#000;font-weight:bold">[&lt;/span>&lt;span style="color:#000">i&lt;/span>&lt;span style="color:#000;font-weight:bold">],&lt;/span> &lt;span style="color:#000">b&lt;/span>&lt;span style="color:#000;font-weight:bold">[&lt;/span>&lt;span style="color:#000">j&lt;/span>&lt;span style="color:#000;font-weight:bold">]&lt;/span> &lt;span style="color:#000;font-weight:bold">=&lt;/span> &lt;span style="color:#000">b&lt;/span>&lt;span style="color:#000;font-weight:bold">[&lt;/span>&lt;span style="color:#000">j&lt;/span>&lt;span style="color:#000;font-weight:bold">],&lt;/span> &lt;span style="color:#000">b&lt;/span>&lt;span style="color:#000;font-weight:bold">[&lt;/span>&lt;span style="color:#000">i&lt;/span>&lt;span style="color:#000;font-weight:bold">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">// Less returns books sorted by Author and then Title.
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span>&lt;span style="color:#204a87;font-weight:bold">func&lt;/span> &lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">b&lt;/span> &lt;span style="color:#000">byAuthor&lt;/span>&lt;span style="color:#000;font-weight:bold">)&lt;/span> &lt;span style="color:#000">Less&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">i&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span> &lt;span style="color:#000">j&lt;/span> &lt;span style="color:#204a87;font-weight:bold">int&lt;/span>&lt;span style="color:#000;font-weight:bold">)&lt;/span> &lt;span style="color:#204a87;font-weight:bold">bool&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#204a87;font-weight:bold">if&lt;/span> &lt;span style="color:#000">b&lt;/span>&lt;span style="color:#000;font-weight:bold">[&lt;/span>&lt;span style="color:#000">i&lt;/span>&lt;span style="color:#000;font-weight:bold">].&lt;/span>&lt;span style="color:#000">Author&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">!=&lt;/span> &lt;span style="color:#000">b&lt;/span>&lt;span style="color:#000;font-weight:bold">[&lt;/span>&lt;span style="color:#000">j&lt;/span>&lt;span style="color:#000;font-weight:bold">].&lt;/span>&lt;span style="color:#000">Author&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#204a87;font-weight:bold">return&lt;/span> &lt;span style="color:#000">b&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">LessByAuthor&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">i&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span> &lt;span style="color:#000">j&lt;/span>&lt;span style="color:#000;font-weight:bold">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000;font-weight:bold">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#204a87;font-weight:bold">return&lt;/span> &lt;span style="color:#000">b&lt;/span>&lt;span style="color:#000;font-weight:bold">[&lt;/span>&lt;span style="color:#000">i&lt;/span>&lt;span style="color:#000;font-weight:bold">].&lt;/span>&lt;span style="color:#000">Title&lt;/span> &lt;span style="color:#000;font-weight:bold">&amp;lt;&lt;/span> &lt;span style="color:#000">b&lt;/span>&lt;span style="color:#000;font-weight:bold">[&lt;/span>&lt;span style="color:#000">j&lt;/span>&lt;span style="color:#000;font-weight:bold">].&lt;/span>&lt;span style="color:#000">Title&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="empty-interface">Empty interface&lt;/h3>
+&lt;p>Go versions prior to 1.18 used the empty interface: &lt;code>interface{}&lt;/code>. This is an interface that did not implement any methods, so any type satisfied it. In Go 1.18 and later, &lt;code>interface{}&lt;/code> was replaced with &lt;code>any&lt;/code>.&lt;/p>
+&lt;h2 id="strconvparseint">strconv.ParseInt&lt;/h2>
+&lt;p>Prefer &lt;code>strconv.ParseInt()&lt;/code> over &lt;code>strconv.Atoi()&lt;/code> because the former can parse hex and numbers with underscores (&lt;code>1_000&lt;/code>).&lt;/p>
+&lt;h2 id="formatting-verbs">Formatting verbs&lt;/h2>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>verb&lt;/th>
+&lt;th style="text-align:left">Definition&lt;/th>
+&lt;th style="text-align:left">Usage&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>%q&lt;/td>
+&lt;td style="text-align:left">Wraps the given string in double quotes.&lt;/td>
+&lt;td style="text-align:left">&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>%#v&lt;/td>
+&lt;td style="text-align:left">Prints the Go syntax representation of the value.&lt;/td>
+&lt;td style="text-align:left">t.Errorf(&amp;quot;%#v.String()\ngot %q\nwant %q&amp;quot;, u, got, want)&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>%t&lt;/td>
+&lt;td style="text-align:left">Boolean values.&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;h2 id="nil">nil&lt;/h2>
+&lt;p>You can execute a method on a &lt;code>nil&lt;/code> type. A method is a function that takes the receiver as a hidden first parameter. So, when you have a &lt;code>nil&lt;/code> type, Go can find the method function to run, but it does not have anything to execute it on. For example, the Go compiler does the following when calling the &lt;code>String()&lt;/code> method on a &lt;code>nil&lt;/code> typ:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-go" data-lang="go">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#204a87;font-weight:bold">var&lt;/span> &lt;span style="color:#000">u&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">*&lt;/span>&lt;span style="color:#000">URL&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000">u&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">String&lt;/span>&lt;span style="color:#000;font-weight:bold">()&lt;/span> &lt;span style="color:#8f5902;font-style:italic">// (*url.URL).String(u)
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="if-found">if found&lt;/h3>
+&lt;p>Use &lt;code>if found...&lt;/code> to determine if an element exists in a list:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-go" data-lang="go">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">// returs a bool and int
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span>&lt;span style="color:#204a87;font-weight:bold">func&lt;/span> &lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">hl&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">*&lt;/span>&lt;span style="color:#000">HostsList&lt;/span>&lt;span style="color:#000;font-weight:bold">)&lt;/span> &lt;span style="color:#000">search&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">host&lt;/span> &lt;span style="color:#204a87;font-weight:bold">string&lt;/span>&lt;span style="color:#000;font-weight:bold">)&lt;/span> &lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#204a87;font-weight:bold">bool&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span> &lt;span style="color:#204a87;font-weight:bold">int&lt;/span>&lt;span style="color:#000;font-weight:bold">)&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#ce5c00;font-weight:bold">...&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">// found is a boolean. You can use a truncated syntax:
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic">&lt;/span>&lt;span style="color:#204a87;font-weight:bold">func&lt;/span> &lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">hl&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">*&lt;/span>&lt;span style="color:#000">HostsList&lt;/span>&lt;span style="color:#000;font-weight:bold">)&lt;/span> &lt;span style="color:#000">Add&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">host&lt;/span> &lt;span style="color:#204a87;font-weight:bold">string&lt;/span>&lt;span style="color:#000;font-weight:bold">)&lt;/span> &lt;span style="color:#204a87;font-weight:bold">error&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#204a87;font-weight:bold">if&lt;/span> &lt;span style="color:#000">found&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span> &lt;span style="color:#000">_&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">:=&lt;/span> &lt;span style="color:#000">hl&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">search&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#000">host&lt;/span>&lt;span style="color:#000;font-weight:bold">);&lt;/span> &lt;span style="color:#000">found&lt;/span> &lt;span style="color:#000;font-weight:bold">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#204a87;font-weight:bold">return&lt;/span> &lt;span style="color:#000">fmt&lt;/span>&lt;span style="color:#000;font-weight:bold">.&lt;/span>&lt;span style="color:#000">Errorf&lt;/span>&lt;span style="color:#000;font-weight:bold">(&lt;/span>&lt;span style="color:#4e9a06">&amp;#34;%w: %s&amp;#34;&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span> &lt;span style="color:#000">ErrExists&lt;/span>&lt;span style="color:#000;font-weight:bold">,&lt;/span> &lt;span style="color:#000">host&lt;/span>&lt;span style="color:#000;font-weight:bold">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#000;font-weight:bold">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#ce5c00;font-weight:bold">...&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#000;font-weight:bold">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="fatal-and-panic">Fatal and Panic&lt;/h2>
+&lt;p>You should call &lt;code>Fatal()&lt;/code> and &lt;code>Panic()&lt;/code> from the &lt;code>main&lt;/code> method only. Return errors in other areas of the application.&lt;/p></description></item><item><title>Docs: Blueprints</title><link>/docs/golang/overhead/blueprints/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>/docs/golang/overhead/blueprints/</guid><description>
+&lt;h2 id="web-applications">Web applications&lt;/h2>
+&lt;p>Web applications have an &lt;code>application&lt;/code> struct that contains the following:&lt;/p>
+&lt;ul>
+&lt;li>loggers&lt;/li>
+&lt;li>models (with db connections)&lt;/li>
+&lt;li>templateCache&lt;/li>
+&lt;li>(optional) form decoder&lt;/li>
+&lt;li>(optional) session manager&lt;/li>
+&lt;/ul>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-shell" data-lang="shell">&lt;span style="display:flex;">&lt;span>project/
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>├── cmd
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>│   └── web
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>│   ├── context.go
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>│   ├── handlers.go
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>│   ├── handlers_test.go
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>│   ├── helpers.go
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>│   ├── main.go
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>│   ├── middleware.go
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>│   ├── middleware_test.go
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>│   ├── routes.go
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>│   ├── templates.go
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>│   └── testutils_test.go
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>├── go.mod
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>├── go.sum
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>├── internal
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>│   ├── assert
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>│   │   └── assert.go
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>│   ├── models
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>│   │   ├── errors.go
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>│   │   ├── mocks
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>│   │   │   ├── snippets.go
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>│   │   │   └── users.go
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>│   │   ├── snippets.go
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>│   │   ├── testdata
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>│   │   │   ├── setup.sql
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>│   │   │   └── teardown.sql
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>│   │   ├── testutils_test.go
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>│   │   ├── users.go
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>│   │   └── users_test.go
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>│   └── validator
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>│   └── validator.go
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>├── README.md
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>├── tls
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>│   ├── cert.pem
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>│   └── key.pem
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>└── ui
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> ├── html
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> │   ├── base.tmpl.html
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> │   ├── pages
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> │   │   ├── create.tmpl.html
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> │   │   ├── home.tmpl.html
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> │   │   ├── login.tmpl.html
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> │   │   ├── signup.tmpl.html
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> │   │   └── view.tmpl.html
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> │   └── partials
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> │   └── nav.tmpl.html
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> └── static
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> ├── css
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> │   └── main.css
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> ├── img
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> │   ├── favicon.ico
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> │   └── logo.png
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> └── js
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> └── main.js
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="cmd">&lt;code>/cmd&lt;/code>&lt;/h3>
+&lt;p>Holds executables&lt;/p>
+&lt;h4 id="web">&lt;code>/web&lt;/code>&lt;/h4>
+&lt;p>Holds executables for the web application:&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>context.go&lt;/code>&lt;/li>
+&lt;li>&lt;code>handlers.go&lt;/code>&lt;/li>
+&lt;li>&lt;code>helpers.go&lt;/code>&lt;/li>
+&lt;li>&lt;code>main.go&lt;/code>&lt;/li>
+&lt;li>&lt;code>middleware.go&lt;/code>&lt;/li>
+&lt;li>&lt;code>routes.go&lt;/code>&lt;/li>
+&lt;li>&lt;code>templates.go&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;h3 id="internal">&lt;code>/internal&lt;/code>&lt;/h3>
+&lt;h4 id="models">&lt;code>/models&lt;/code>&lt;/h4>
+&lt;h4 id="validator">&lt;code>/validator&lt;/code>&lt;/h4>
+&lt;h3 id="tls">&lt;code>/tls&lt;/code>&lt;/h3>
+&lt;h3 id="ui">&lt;code>/ui&lt;/code>&lt;/h3>
+&lt;h4 id="html">&lt;code>/html&lt;/code>&lt;/h4>
+&lt;h4 id="static">&lt;code>/static&lt;/code>&lt;/h4>
+&lt;h3 id="steps">Steps&lt;/h3>
+&lt;ol>
+&lt;li>Create your templates, render method, handlers for the templates.&lt;/li>
+&lt;li>Set up your router.&lt;/li>
+&lt;li>Add error and info loggers to main, and the application.&lt;/li>
+&lt;li>Set up &lt;code>serverError&lt;/code> helper method that logs the trace to the errorLog and sends an &lt;code>http.Error()&lt;/code> message.&lt;/li>
+&lt;li>Set up &lt;code>clientError&lt;/code> helper that validates that form submissions use the correct HTTP verb.&lt;/li>
+&lt;li>Set up &lt;code>notFound&lt;/code> helper to manage client requests for pages that do not exist.&lt;/li>
+&lt;li>Add middleware logger, security header, and panic recovery. Use &lt;code>github.com/justinas/alice&lt;/code> to simplify routing. Add them as methods to the application so they can access application dependencies, like loggers.&lt;/li>
+&lt;/ol>
+&lt;h2 id="service-blueprint">Service blueprint&lt;/h2>
+&lt;p>Services do not require an &lt;code>application&lt;/code> struct to manage user details.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-shell" data-lang="shell">&lt;span style="display:flex;">&lt;span>shortner/
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>├── cmd
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>│   └── servicename
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>│   └── main.go or service.go
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>├── internal
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>│   └── httpio
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>│   ├── handler.go
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>│   └── httpio.go
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>├── linkit
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>│   └── errors.go
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>└── short
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> ├── server.go
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> ├── server_test.go
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> └── business-logic.go
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="template-data">Template data&lt;/h2>
+&lt;h2 id="hashing-and-storing-passwords">Hashing and storing passwords&lt;/h2></description></item></channel></rss>

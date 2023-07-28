@@ -1,0 +1,119 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Goldydocs – Linux</title><link>/docs/linux/</link><description>Recent content in Linux on Goldydocs</description><generator>Hugo -- gohugo.io</generator><atom:link href="/docs/linux/index.xml" rel="self" type="application/rss+xml"/><item><title>Docs: Linux commands</title><link>/docs/linux/command-reference/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>/docs/linux/command-reference/</guid><description>
+&lt;p>Write to a file from with cat:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>$ cat &lt;span style="color:#4e9a06">&amp;lt;&amp;lt; EOF &amp;gt; filename
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#4e9a06"># enter text
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#4e9a06">&amp;gt; EOF&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Setting and unsetting environment variables:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>$ &lt;span style="color:#204a87">export&lt;/span> &lt;span style="color:#000">VARIABLE_NAME&lt;/span>&lt;span style="color:#ce5c00;font-weight:bold">=&lt;/span>new-variable-name
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>$ &lt;span style="color:#204a87">unset&lt;/span> VARIABLE_NAME
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Create dirs and files quickly:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>$ mkdir -p /tmp/testdir/&lt;span style="color:#ce5c00;font-weight:bold">{&lt;/span>text,logs&lt;span style="color:#ce5c00;font-weight:bold">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>$ touch /tmp/testdir/text/&lt;span style="color:#ce5c00;font-weight:bold">{&lt;/span>text1,text2,text3&lt;span style="color:#ce5c00;font-weight:bold">}&lt;/span>.txt
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>$ touch /tmp/testdir/logs/&lt;span style="color:#ce5c00;font-weight:bold">{&lt;/span>log1,log2,log3&lt;span style="color:#ce5c00;font-weight:bold">}&lt;/span>.log
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Copy multiple files from a directory:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>$ cp ../tool/&lt;span style="color:#ce5c00;font-weight:bold">{&lt;/span>add.go,go.mod&lt;span style="color:#ce5c00;font-weight:bold">}&lt;/span> .
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Creating &lt;code>cron&lt;/code> job:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>$ crontab -e &lt;span style="color:#8f5902;font-style:italic"># opens visual editor&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>$
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Switch back to the previous working directory:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>$ &lt;span style="color:#204a87">cd&lt;/span> -
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;code>time&lt;/code> executes an application and logs to the console how long it takes to run:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>$ &lt;span style="color:#204a87">time&lt;/span> ./colstats -op avg -col &lt;span style="color:#0000cf;font-weight:bold">3&lt;/span> testdata/example.csv testdata/example2.csv
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>233.84
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>real 0m0.005s
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>user 0m0.006s
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>sys 0m0.000s
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>In the preceding example, &lt;code>real&lt;/code> shows the total elapsed time.&lt;/p>
+&lt;p>The &lt;code>tee&lt;/code> command logs command output to STDOUT and writes it to a file:&lt;/p>
+&lt;pre tabindex="0">&lt;code>$ go test -bench . -benchtime=10x -run ^$ | tee benchresults00.txt
+goos: linux
+goarch: amd64
+pkg: colstats
+cpu: Intel(R) Core(TM) i7-9750H CPU @ 2.60GHz
+BenchmarkRun-12 10 546183149 ns/op
+PASS
+ok colstats 6.067s
+$ cat benchresults00.txt
+goos: linux
+goarch: amd64
+pkg: colstats
+cpu: Intel(R) Core(TM) i7-9750H CPU @ 2.60GHz
+BenchmarkRun-12 10 546183149 ns/op
+PASS
+ok colstats 6.067s
+&lt;/code>&lt;/pre>&lt;blockquote>
+&lt;p>TODO Learn how cURL works&lt;/p>
+&lt;/blockquote>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-shell" data-lang="shell">&lt;span style="display:flex;">&lt;span>curl -L -XPOST -d &lt;span style="color:#4e9a06">&amp;#39;{&amp;#34;task&amp;#34;:&amp;#34;Task 1&amp;#34;}&amp;#39;&lt;/span> -H &lt;span style="color:#4e9a06">&amp;#39;Content-Type: application/json&amp;#39;&lt;/span> http://localhost:8080/todo
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="compress-files">Compress files&lt;/h2>
+&lt;p>Unzip &lt;code>.zip&lt;/code> files with &lt;code>unzip&lt;/code>. Do not include a directory if you want to unzip it to the current working directory:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>$ unzip file.zip -p /unzip/to/this/dir
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Extract contents of a tar file with &lt;code>tar&lt;/code>:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>$ tar -xzvf filename.tar.gz -C targetDir/
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>View compressed file info:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>$ gzip -l *
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> compressed uncompressed ratio uncompressed_name
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#0000cf;font-weight:bold">1229&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">3047&lt;/span> 61.1% experiment_toolid_test.go
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#0000cf;font-weight:bold">1021&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">2106&lt;/span> 53.3% overlaydir_test.go
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#0000cf;font-weight:bold">696&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">1320&lt;/span> 49.8% reboot_test.go
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#0000cf;font-weight:bold">2946&lt;/span> &lt;span style="color:#0000cf;font-weight:bold">6473&lt;/span> 55.0% &lt;span style="color:#ce5c00;font-weight:bold">(&lt;/span>totals&lt;span style="color:#ce5c00;font-weight:bold">)&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="curl">cURL&lt;/h2>
+&lt;p>Use the &lt;code>-i&lt;/code> flag to display HTTP response headers with the body:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-shell" data-lang="shell">&lt;span style="display:flex;">&lt;span>$ curl -i localhost:4000/v1/healthcheck
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;code>-d&lt;/code> flag&lt;/p>
+&lt;p>The following command annotates the HTTP response with the total time for the command to complete:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-shell" data-lang="shell">&lt;span style="display:flex;">&lt;span>$ curl -w &lt;span style="color:#4e9a06">&amp;#39;\nTime: %{time_total}s \n&amp;#39;&lt;/span> localhost:4000/v1/movies/1
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;a href="https://blog.josephscott.org/2011/10/14/timing-details-with-curl/">https://blog.josephscott.org/2011/10/14/timing-details-with-curl/&lt;/a>&lt;/p>
+&lt;h2 id="xargs-todo">xargs TODO&lt;/h2>
+&lt;p>&lt;a href="https://man7.org/linux/man-pages/man1/xargs.1.html">https://man7.org/linux/man-pages/man1/xargs.1.html&lt;/a>&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-shell" data-lang="shell">&lt;span style="display:flex;">&lt;span>$ xargs -I % -P8 curl -X PATCH -d &lt;span style="color:#4e9a06">&amp;#39;{&amp;#34;runtime&amp;#34;: &amp;#34;97 mins&amp;#34;}&amp;#39;&lt;/span> &lt;span style="color:#4e9a06">&amp;#34;localhost:4000/v1/movies/4&amp;#34;&lt;/span> &amp;lt; &amp;lt;&lt;span style="color:#ce5c00;font-weight:bold">(&lt;/span>&lt;span style="color:#204a87">printf&lt;/span> &lt;span style="color:#4e9a06">&amp;#39;%s\n&amp;#39;&lt;/span> &lt;span style="color:#ce5c00;font-weight:bold">{&lt;/span>1..8&lt;span style="color:#ce5c00;font-weight:bold">})&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div></description></item><item><title>Docs: tmux</title><link>/docs/linux/tmux/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>/docs/linux/tmux/</guid><description>
+&lt;p>&lt;code>tmux&lt;/code> (terminal multiplexer) is a Linux program that lets you open multiple terminal windows and sessions in the same terminal window.&lt;/p>
+&lt;h2 id="sessions">Sessions&lt;/h2>
+&lt;p>Create a new session:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-shell" data-lang="shell">&lt;span style="display:flex;">&lt;span>$ tmux
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>When you have multiple windows, the &lt;code>*&lt;/code> indicates what window you have in focus.&lt;/p>
+&lt;p>Create a new horizontal pane with &lt;code>CTRL + b&lt;/code> and then &lt;code>%&lt;/code> (&lt;code>SHIFT&lt;/code> + &lt;code>5&lt;/code>).
+To switch between horizontal panes, use &lt;code>CTRL + b&lt;/code> and then the arrow key (&lt;code>-&amp;gt;&lt;/code> or &lt;code>&amp;lt;-&lt;/code>) that points to the pane that you want to put in focus.&lt;/p>
+&lt;p>Create a vertical pane beneath the in-focus pane, use &lt;code>CTRL + b&lt;/code> and the quotation mark (&lt;code>&amp;quot;&lt;/code>).
+To switch between vertical panes, use &lt;code>CTRL + b&lt;/code> and then the up or down arrow key that points to the pane that you want to put in focus.&lt;/p>
+&lt;p>To close a pane, either use &lt;code>CTRL + D&lt;/code> or type &lt;code>exit&lt;/code>.&lt;/p>
+&lt;h3 id="detach-a-session">Detach a session&lt;/h3>
+&lt;p>&lt;code>tmux&lt;/code> sessions preserve state.&lt;/p>
+&lt;p>To detach from a session, use &lt;code>CTRL + b&lt;/code> and &lt;code>d&lt;/code>. This brings you back to your normal terminal session.&lt;/p>
+&lt;p>To view the sessions that are currently running, enter the following:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-shell" data-lang="shell">&lt;span style="display:flex;">&lt;span>$ tmux ls
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>0: &lt;span style="color:#0000cf;font-weight:bold">2&lt;/span> windows &lt;span style="color:#ce5c00;font-weight:bold">(&lt;/span>created Sun Apr &lt;span style="color:#0000cf;font-weight:bold">2&lt;/span> 22:34:09 2023&lt;span style="color:#ce5c00;font-weight:bold">)&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>In the previous example, &lt;code>0&lt;/code> is the name of the session. &lt;code>0&lt;/code> is the default session name.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-shell" data-lang="shell">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic"># Rejoin a session: &lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>$ tmux attach -t &amp;lt;session-name&amp;gt;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic"># Rename a session:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>$ tmux rename-session -t &amp;lt;current-name&amp;gt; &amp;lt;new-name&amp;gt;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic"># Give a session a custom name from the outset:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>$ tmux new -s &amp;lt;session-name&amp;gt;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic"># Delete a session:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>$ tmux kill-session -t &amp;lt;session-name&amp;gt;
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="windows">Windows&lt;/h2>
+&lt;p>A window is like a new tab in the terminal. You can see the different window names at the bottom of the terminal.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-shell" data-lang="shell">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic"># Create a new window:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>$ CTRL + b
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>$ c
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic"># Switch between windows:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>$ CTRL + b
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>$ &amp;lt;number of the window&amp;gt; &lt;span style="color:#8f5902;font-style:italic"># e.g. `0`. Terminal windows are zero-indexed.&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic"># Rename your window:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>$ CTRL + b
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>$ comma &lt;span style="color:#8f5902;font-style:italic"># (`,`)&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>$ &amp;lt;window name&amp;gt;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic"># Close a window:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>$ CTRL + D
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8f5902;font-style:italic"># or&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>$ &lt;span style="color:#204a87">exit&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div></description></item></channel></rss>

@@ -1,0 +1,822 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Goldydocs – Inkscape</title><link>/docs/inkscape/</link><description>Recent content in Inkscape on Goldydocs</description><generator>Hugo -- gohugo.io</generator><atom:link href="/docs/inkscape/index.xml" rel="self" type="application/rss+xml"/><item><title>Docs: Basics</title><link>/docs/inkscape/basics/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>/docs/inkscape/basics/</guid><description>
+&lt;h2 id="layout-overview">Layout overview&lt;/h2>
+&lt;p>Stroke is an Outline. To remove, Shift + click the X in the bottom-left corner
+Fill is the color. To remove, click X in the bottom-left corner&lt;/p>
+&lt;h2 id="navigating-the-canvas">Navigating the Canvas&lt;/h2>
+&lt;p>Zoom in: press 1 key
+Scroll bars: add/rm with Ctrl + b
+Grab canvas: zoom wheel or right click and drag&lt;/p>
+&lt;h2 id="select-tool">Select tool&lt;/h2>
+&lt;p>After you select an object and make it active:&lt;/p>
+&lt;ul>
+&lt;li>Hold CTRL to lock an object on the vertical or horizontal axis&lt;/li>
+&lt;/ul>
+&lt;p>Scaling handles (arrows):&lt;/p>
+&lt;ul>
+&lt;li>middle ones change length or width&lt;/li>
+&lt;li>corner scales length and width&lt;/li>
+&lt;/ul>
+&lt;p>Rotation handles:&lt;/p>
+&lt;ul>
+&lt;li>Click object twice&lt;/li>
+&lt;li>CTRL key rotates it in 15 deg increments&lt;/li>
+&lt;li>Crosshair determines where the object
+&lt;ul>
+&lt;li>SHIFT + click puts it back in the center&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;p>Shearing handles&lt;/p>
+&lt;ul>
+&lt;li>Click object twice&lt;/li>
+&lt;li>Distort the object on horizontal or vertical axis&lt;/li>
+&lt;li>Shears relative to the crosshair&lt;/li>
+&lt;/ul>
+&lt;p>Copy objects&lt;/p>
+&lt;ul>
+&lt;li>click and drag, then press spacebar where you want to drop copies.&lt;/li>
+&lt;li>CTRL + d. This creates a copy directly on top of the original. Click and drag the copy wherever you want.&lt;/li>
+&lt;/ul>
+&lt;h2 id="snapping">Snapping&lt;/h2>
+&lt;p>Shortcut: % key (SHIFT + 5)
+Granular control over objects in the workspace, like making them align perfectly. The magnet button in the top-right corner enables snapping.&lt;/p>
+&lt;p>After you snap objects together, you can use the bezier tool to select the corners of the objects, press ESC when you are done, then the two objects are combined into one.&lt;/p>
+&lt;p>Options:&lt;/p>
+&lt;ul>
+&lt;li>Bounding box: snap according to the dotted outline around the object&lt;/li>
+&lt;li>Nodes: snap to the individual connection points (nodes) on the object&lt;/li>
+&lt;li>Alignment: Similar to align and distribute menu. Aligns to center, edges, etc&lt;/li>
+&lt;/ul></description></item><item><title>Docs: Menus</title><link>/docs/inkscape/menus/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>/docs/inkscape/menus/</guid><description>
+&lt;h1 id="file-menu">File Menu&lt;/h1>
+&lt;p>File &amp;gt; New From Template to create an image with default sizing.&lt;/p>
+&lt;p>File &amp;gt; Open&amp;ndash;you should only open vector documents:&lt;/p>
+&lt;ul>
+&lt;li>.svg&lt;/li>
+&lt;li>.eps&lt;/li>
+&lt;li>.ai&lt;/li>
+&lt;li>.pdf (sometimes)&lt;/li>
+&lt;/ul>
+&lt;p>Opened files are often grouped together by default. To ungroup, select the object, Obect &amp;gt; Ungroup as many times as you ned to.&lt;/p>
+&lt;p>Import means that you are importing a file into an open file.&lt;/p>
+&lt;ul>
+&lt;li>File &amp;gt; Import &amp;gt; select file&lt;/li>
+&lt;/ul>
+&lt;p>Clipart with File &amp;gt; Import Web Image&lt;/p>
+&lt;ul>
+&lt;li>Select a source and choose a clipart image that you want to import&lt;/li>
+&lt;/ul>
+&lt;h3 id="saving">Saving&lt;/h3>
+&lt;p>When you save a file, save it as an Inkscape SVG&lt;/p>
+&lt;h3 id="exporting-to-png-or-jpeg">Exporting to png or jpeg&lt;/h3>
+&lt;p>File &amp;gt; Export&lt;/p>
+&lt;p>You can do single exports or batch exports. There is a preview at the bottom.&lt;/p>
+&lt;h4 id="single-export">Single export&lt;/h4>
+&lt;p>Export by:&lt;/p>
+&lt;ul>
+&lt;li>Document: Anything on or outside the page content&lt;/li>
+&lt;li>Page: only what is on the page.&lt;/li>
+&lt;li>Selection: Whatever you have selected. Click Export Selected only to export jsut what you selected. Otherwise, it will export what you selected and anything else behind the selections.&lt;/li>
+&lt;li>Custom: export anything within the X and Y coordinates that you set.&lt;/li>
+&lt;/ul>
+&lt;p>Each tab has image size settings, like DPI. (Only worry about DPI when you are printing something or you are opening it up in another application. The DPI is 96. Standard print DPI is 300.)&lt;/p>
+&lt;p>Select the format at the bottom. PNG preserves transparency.&lt;/p>
+&lt;h4 id="batch-export">Batch export&lt;/h4>
+&lt;p>Export multiple graphics at one time. Name of the file is automatically named. You can select the graphic and change the name in the top toolbar.&lt;/p>
+&lt;p>After you have your batch export ready, you can click Add Export. Then, you can create another export in a different format and export them in the same operation.&lt;/p>
+&lt;p>Export by:&lt;/p>
+&lt;ul>
+&lt;li>Selection: Batch exports anything that you select with the Selection tool.&lt;/li>
+&lt;li>Layers:&lt;/li>
+&lt;li>Pages:&lt;/li>
+&lt;/ul>
+&lt;p>After you click Export, accept the defaults in the popup.&lt;/p>
+&lt;h2 id="document-properties">Document properties&lt;/h2>
+&lt;p>File &amp;gt; Document Properties or CTRL + SHIFT + D&lt;/p>
+&lt;p>Document is the piece-of-paper-looking white space. It is 8.5 x 11 letter size by default.&lt;/p>
+&lt;ul>
+&lt;li>Display: Change the white space attributes.
+&lt;ul>
+&lt;li>Format: Select a template&lt;/li>
+&lt;li>Width, height, orientation&lt;/li>
+&lt;li>Resize to content: will update the workspace to fit any objects that you have created.&lt;/li>
+&lt;li>Display&amp;ndash;maybe set it to px? defaults to mm&lt;/li>
+&lt;li>Page, border, dekt. Change the bottom background color (alpha) to use a new background in your design&lt;/li>
+&lt;li>checkerboard to check transparency&lt;/li>
+&lt;li>always on top: border is always on top&lt;/li>
+&lt;li>antialiasing: smooths out the rigid edges, like in text or raster images.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>Guides: Changes colors of the guides that you can pull down from the top and side rulers&lt;/li>
+&lt;li>Grids: place grid lines all over the workspace.
+&lt;ul>
+&lt;li>Click New then select the grid.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>Color: A color profile that you downloaded from the internet. Not the same as the color pallete below&lt;/li>
+&lt;li>Scripting: For scripts&lt;/li>
+&lt;li>Metadata: Metadata for the file that you created.&lt;/li>
+&lt;li>License: Use an Open* license to make it free, use proprietary to protect it.&lt;/li>
+&lt;/ul>
+&lt;h2 id="creating-templates">Creating templates&lt;/h2>
+&lt;p>File &amp;gt; Document Properties&lt;/p>
+&lt;p>Allow you to save your document so you can open and launch from it without having to input the size dimensions, etc. each time.&lt;/p>
+&lt;p>File &amp;gt; Document Properties to change the sizing, etc
+File &amp;gt; Save Template. Then add name and set as default, if you want to.&lt;/p>
+&lt;p>Create a new file from a template: File &amp;gt; New From Template&lt;/p>
+&lt;h2 id="documents-tools">Documents Tools&lt;/h2>
+&lt;p>Version 1.2&lt;/p>
+&lt;p>Create multi-page documents. This toolbar is second from the top, directly below the standard New file, open directory toolbar.&lt;/p>
+&lt;p>Click Create and Edit document Page on bottom of left toolbar. This activates nodes on the page.&lt;/p>
+&lt;ul>
+&lt;li>You can click and drag to create a new page in the same workspace.&lt;/li>
+&lt;li>Click Create a New Page above select tool icon to create a copy of the currently selected page.&lt;/li>
+&lt;/ul>
+&lt;p>All pages have an order. You can select the page and change order (or name) in the second toolbar from top.&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>Move overlapping objects as the page is moved&lt;/code> will move any objects on the page along with the page, if you click and drag.&lt;/li>
+&lt;li>&lt;code>Fit the page to the current selection or drawing if there is no selection&lt;/code> trims the page down to the size of the object.&lt;/li>
+&lt;/ul>
+&lt;h3 id="save-a-multipage-document">Save a multipage document&lt;/h3>
+&lt;p>File &amp;gt; Save as &amp;gt; &lt;format> (ex: pdf)&lt;/p>
+&lt;h1 id="edit-menu">Edit menu&lt;/h1>
+&lt;h2 id="inkscape-preferences">Inkscape preferences&lt;/h2>
+&lt;p>Allows you to control settings and behaviors.&lt;/p>
+&lt;p>Edit &amp;gt; Preferences or CTRL + SHIFT + P&lt;/p>
+&lt;h3 id="tools">Tools&lt;/h3>
+&lt;p>These are all the tools on the left hand toolbar.&lt;/p>
+&lt;ul>
+&lt;li>Shapes &amp;gt; &lt;shape> &amp;gt; last used style. This is why Inkscape creates an object just like the previous one. Use This tool&amp;rsquo;s own style to change that.&lt;/li>
+&lt;li>Text: Inkscape does not have fonts installed, it just references fonts that are installed on your OS.&lt;/li>
+&lt;/ul>
+&lt;h3 id="interface">Interface&lt;/h3>
+&lt;p>Zoom correction factor: makes sure what you create is true to size.&lt;/p>
+&lt;p>Toolbars: Change color, size of toolbar icons
+Keyboard: Keyboard shortcuts&lt;/p>
+&lt;h3 id="inputoutput">Input/Output&lt;/h3>
+&lt;p>Autosave: Configure where and how often work is saved automatically&lt;/p>
+&lt;h2 id="bitmap-copies">Bitmap copies&lt;/h2>
+&lt;p>Select the object
+Edit &amp;gt; Make a bitmap copy
+Click and drag the new object where you want it&lt;/p>
+&lt;h2 id="creating-clones">Creating Clones&lt;/h2>
+&lt;p>Clones is a way to create duplicate copies of objects that are grouped together and behave together.&lt;/p>
+&lt;p>Edit &amp;gt; Clone &amp;gt; Create Clone or ALT + D. Then click and drag the new object over the existing one.&lt;/p>
+&lt;ul>
+&lt;li>THis lets you change properties of the original object and automatically apply them to the clone.&lt;/li>
+&lt;/ul>
+&lt;p>Edit &amp;gt; Clone &amp;gt; Unlink clone lets you make changes to clones individually.&lt;/p>
+&lt;p>Edit &amp;gt; Clone &amp;gt; Unlink clones recursively lets you unlink clones that are grouped together.&lt;/p>
+&lt;ul>
+&lt;li>you can&amp;rsquo;t group clones and then unlink them&lt;/li>
+&lt;/ul>
+&lt;p>Edit &amp;gt; Clone &amp;gt; Relink to copy&lt;/p>
+&lt;p>Edit &amp;gt; Clone &amp;gt; Select Original if you cannot find the original when there are many clones&lt;/p>
+&lt;h2 id="creating-tiled-clones">Creating Tiled Clones&lt;/h2>
+&lt;p>How to generate clones, in bulk.&lt;/p>
+&lt;p>Edit &amp;gt; Clone &amp;gt; Create tiled clones&lt;/p>
+&lt;blockquote>
+&lt;p>All the tabs in this tool work together, so settings on one affect settings on another. Use the reset to get back to the defaults.&lt;/p>
+&lt;/blockquote>
+&lt;h3 id="symmetry-tab">Symmetry tab&lt;/h3>
+&lt;p>After you create clones, the clones are created on top of the original. Raise the original to the top and then change as needed.&lt;/p>
+&lt;p>If you want to generate clones that cover a specific amount of space, you can set the width and height&lt;/p>
+&lt;p>Use the dropdown to select clone formatting. You can rotate them all X degrees, or create reflection.&lt;/p>
+&lt;h3 id="shift">Shift&lt;/h3>
+&lt;p>You can shift by row or by column.&lt;/p>
+&lt;h3 id="color">Color&lt;/h3>
+&lt;p>Before you can edit the color, you have to remove the fill color.&lt;/p>
+&lt;ol>
+&lt;li>Select the object.&lt;/li>
+&lt;li>Go to Fill and Stroke, and select the question mark.&lt;/li>
+&lt;li>Go back to Create Tiled Clones and select the initial color.&lt;/li>
+&lt;/ol>
+&lt;p>Use HSL:
+H: Hue&amp;ndash;the color that is being chosen
+S: Saturation&amp;ndash;the levle of color that is applied
+L: Lightness&amp;ndash;gradient of the color, with black and white on either side.&lt;/p>
+&lt;h3 id="trace">Trace&lt;/h3>
+&lt;p>Lets you trace the drawing under the clones with the top object. You create two objects, then select the one that you would like to use to trace.&lt;/p>
+&lt;ul>
+&lt;li>Opacity and Size looks pretty cool.&lt;/li>
+&lt;/ul>
+&lt;h1 id="view-menu">View menu&lt;/h1>
+&lt;h2 id="view-and-display-mode">View and display mode&lt;/h2>
+&lt;p>View &amp;gt; Zoom 1:1&lt;/p>
+&lt;ul>
+&lt;li>Lots of self-explanatory options&lt;/li>
+&lt;/ul>
+&lt;p>View &amp;gt; Display Mode (CTRL + 5 to cycle through them)&lt;/p>
+&lt;ul>
+&lt;li>Normal is default&lt;/li>
+&lt;li>Outline is a wire-frame view of paths in design&lt;/li>
+&lt;li>No filters: Removes any filters from graphic or selected object. Good to view PDFs&lt;/li>
+&lt;li>Visible hairline: Display any stroke, no matter how thin&lt;/li>
+&lt;li>Outline overlay: same as Outline, just leaves some color&lt;/li>
+&lt;/ul>
+&lt;h2 id="rotating-the-canvas">Rotating the Canvas&lt;/h2>
+&lt;p>Not rotating the design, just the view of the design.&lt;/p>
+&lt;p>View &amp;gt; Orientation &amp;gt; Lock Rotation &amp;ndash; uncheck to rotate it&lt;/p>
+&lt;ul>
+&lt;li>To rotate, CTRL + Shift + 2 fingers on touchpad&lt;/li>
+&lt;li>Also use options in View &amp;gt; Orientation &amp;gt; &lt;option-name>&lt;/li>
+&lt;/ul>
+&lt;p>To reset, View &amp;gt; Orientation &amp;gt; Reset Rotation&lt;/p>
+&lt;h2 id="x-ray-and-split-view-mode">X-ray and Split view mode&lt;/h2>
+&lt;p>View &amp;gt; Split Mode &amp;gt; Split&lt;/p>
+&lt;ul>
+&lt;li>Double-click the arrow in the circle cursor to select which side displays the normal mode
+View &amp;gt; Split Mode &amp;gt; X-Ray&lt;/li>
+&lt;li>Gives you a large cursor to view everything in X-Ray mode.&lt;/li>
+&lt;/ul>
+&lt;h1 id="layers-and-objects">Layers and Objects&lt;/h1>
+&lt;p>Layering is how you control the stacking of objects in your workspace&lt;/p>
+&lt;p>Layers &amp;gt; Layers and Objects opens up the side menu&lt;/p>
+&lt;ul>
+&lt;li>eyeball makes it visible/invisible&lt;/li>
+&lt;li>lock icon locks object into place&lt;/li>
+&lt;/ul>
+&lt;p>You can rename the layer&lt;/p>
+&lt;p>Add layer button&lt;/p>
+&lt;ul>
+&lt;li>name it&lt;/li>
+&lt;li>position it relative to existing layer&lt;/li>
+&lt;/ul>
+&lt;p>When you delete a layer, it deletes the contents of the layer.&lt;/p>
+&lt;h1 id="object-menu">Object menu&lt;/h1>
+&lt;h2 id="grouping">Grouping&lt;/h2>
+&lt;p>Select the objects that you want to group, then Object &amp;gt; Group or use the toolbar shortcut&lt;/p>
+&lt;p>If you want to select individual paths or objects in a group, click the Edit Paths by Nodes in the left hand toolbar, below the Select tool. After it is selected, you can use the Select tool and edit it.&lt;/p>
+&lt;p>To remove a selected object from the group, select the object, then Object &amp;gt; Pop Selected Object out of group.&lt;/p>
+&lt;h2 id="guides">Guides&lt;/h2>
+&lt;p>View &amp;gt; Show/Hide &amp;gt; Rulers needs to have a check beside it.&lt;/p>
+&lt;p>Hover cursor over ruler on top, corder, or left, then drag.&lt;/p>
+&lt;p>Double-click to open up guide properties. Change Angle to change the degree/slant&lt;/p>
+&lt;p>To disable some guides if they are getting in the way, View &amp;gt; Guides or SHIFT + | (vertical bar)
+To lock guides, click the Lock in the top-left corner.&lt;/p>
+&lt;p>Use a shape to create guides:&lt;/p>
+&lt;ol>
+&lt;li>Select object&lt;/li>
+&lt;li>Object &amp;gt; Object to guides
+Object disappears and there are guides that outline the shape.&lt;/li>
+&lt;/ol>
+&lt;h2 id="raising-and-lowering-objects">Raising and Lowering objects&lt;/h2>
+&lt;p>Object &amp;gt; Raise/Lower/*, but you can do this with toolbar icons. Or, keyboard shortcuts:
+Fn + Home/PgUp/PgDn/End&lt;/p>
+&lt;h2 id="fill-and-stroke-menu">Fill and Stroke menu&lt;/h2>
+&lt;p>Object &amp;gt; Fill and Stroke&lt;/p>
+&lt;h3 id="fill-tab">Fill tab&lt;/h3>
+&lt;p>Bottom colors are pre-defined colors, but fill menu allows you to create your own.&lt;/p>
+&lt;p>Create negative space, or remove color from overlapping sections of combined objects:&lt;/p>
+&lt;ol>
+&lt;li>Path &amp;gt; Combine&lt;/li>
+&lt;li>Fill and Stroke menu &amp;gt; Any path&amp;hellip;holes in the fill icon on the right&lt;/li>
+&lt;/ol>
+&lt;p>&lt;code>hexcolorff&lt;/code>&amp;ndash;&lt;code>ff&lt;/code> is what makes it opaque.&lt;/p>
+&lt;h4 id="create-blurred-text">Create blurred text&lt;/h4>
+&lt;ol>
+&lt;li>Write text&lt;/li>
+&lt;li>Make the text white&lt;/li>
+&lt;li>Duplicate the text&lt;/li>
+&lt;li>Make the duplicate black&lt;/li>
+&lt;li>Push the dup text on the lower level&lt;/li>
+&lt;li>Change th blur of the text&lt;/li>
+&lt;/ol>
+&lt;p>Opacity slider in the HSLA color (the A part) applies to the fill of the object. Opacity at the bottom applies to the entire object. So, the HSLA value doesn&amp;rsquo;t impact the stroke.&lt;/p>
+&lt;p>The Blend dropdown changes the way that objects interact with each other.&lt;/p>
+&lt;h2 id="working-with-strokes">Working with strokes&lt;/h2>
+&lt;p>Stroke is an outline that gets applied to an object.&lt;/p>
+&lt;h3 id="stroke-style-tab">Stroke style tab&lt;/h3>
+&lt;p>Join:
+Cap: Butt cap ends at the end of the node path exactly
+Order: Changes how the stroke overlaps or interacts with the path. Put stroke on top of the fill or behind the fill.&lt;/p>
+&lt;p>4 icons to the right of the unit dropdown in the toolbar let you select if the stroke scales with the object.&lt;/p>
+&lt;h2 id="working-with-gradients">Working with Gradients&lt;/h2>
+&lt;p>Open the Fill and stroke tab CTRL + SHIFT + F, then click on the gradient tool in the left hand toolbar to view the stops.&lt;/p>
+&lt;p>To change the color of a gradient, click the stop and then select a new color.&lt;/p>
+&lt;p>There is a reverse gradient button in the toolbar beside the lock icon.&lt;/p>
+&lt;h3 id="linear-gradient">Linear gradient&lt;/h3>
+&lt;p>Click and drag a stop to change the gradient direction.
+Double-click on the gradient to add another stop.&lt;/p>
+&lt;h3 id="radial-gradient">Radial gradient&lt;/h3>
+&lt;p>CTRL + SHIFT to scale gradients evenly.&lt;/p>
+&lt;h3 id="mesh-gradient">Mesh gradient&lt;/h3>
+&lt;p>Select the Mesh tool in the left hand toolbar, then select the number of rows and cols for the mesh tool. Then select the mesh gradient from the Fill and Stroke toolbar.&lt;/p>
+&lt;p>You can change the color only where the mesh gradients intersect.&lt;/p>
+&lt;h3 id="conical-gradient">Conical gradient&lt;/h3>
+&lt;p>Provides a circular, top-down view of the object.&lt;/p>
+&lt;ol>
+&lt;li>Select the mesh tool&lt;/li>
+&lt;li>Select Conical gradient from the top toolbar.&lt;/li>
+&lt;li>Click and drag over the image.&lt;/li>
+&lt;/ol>
+&lt;h2 id="swatches">Swatches&lt;/h2>
+&lt;p>View &amp;gt; Swatches, bottom of the screen with the color picker&lt;/p>
+&lt;p>Use the up and down arrows on the far right to cycle through the color palette.&lt;/p>
+&lt;p>To save a custom color, select the object that has the color, then click the Swatch icon in the Fill and Stroke menu. Then, you can view the color in the Swatches tab.&lt;/p></description></item><item><title>Docs: Repo dump</title><link>/docs/inkscape/repo-dump/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>/docs/inkscape/repo-dump/</guid><description>
+&lt;p>v1.0.2-2&lt;/p>
+&lt;p>Features to learn:&lt;/p>
+&lt;ul>
+&lt;li>Live Path Effects (LPE)
+&lt;ul>
+&lt;li>Perspective&lt;/li>
+&lt;li>Pattern Along a Path&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>Power Stroke&lt;/li>
+&lt;li>Gradient mesh&lt;/li>
+&lt;li>Measurement tool&lt;/li>
+&lt;li>View &amp;gt; Split Mode&lt;/li>
+&lt;li>Outline overlay&lt;/li>
+&lt;li>Page: manages page setup and the usage of multiple paged Inkscape documents&lt;/li>
+&lt;li>WEBP format&lt;/li>
+&lt;li>Batch export&lt;/li>
+&lt;li>Shape builder&lt;/li>
+&lt;li>&lt;/li>
+&lt;/ul>
+&lt;p>What is a path?&lt;/p>
+&lt;p>Path &amp;gt; Object to path changes the object to a vector path?&lt;/p>
+&lt;p>Live Path Effects (LPE) make dynamic changes to any path. Use this in the following circumstances:&lt;/p>
+&lt;ul>
+&lt;li>Render perspective&lt;/li>
+&lt;li>Align along a path&lt;/li>
+&lt;/ul>
+&lt;p>Power Stroke&lt;/p>
+&lt;p>Path menu: Take objects that you already created and turn them into new objects by how they interact with each other:&lt;/p>
+&lt;ul>
+&lt;li>unify&lt;/li>
+&lt;li>subtract&lt;/li>
+&lt;li>use the intersecting area between them&lt;/li>
+&lt;/ul>
+&lt;p>Live Path Effects:&lt;/p>
+&lt;h2 id="docking-a-toolbox">Docking a toolbox&lt;/h2>
+&lt;p>Grab the tab, then drag it until there is a big blue box.&lt;/p>
+&lt;h2 id="fill-and-stroke-shortcuts">Fill and stroke shortcuts&lt;/h2>
+&lt;p>Select the item, then click:&lt;/p>
+&lt;ul>
+&lt;li>X in bottom left to remove the fill&lt;/li>
+&lt;li>Select any color in bottom to change fill&lt;/li>
+&lt;li>SHIFT + color in bottom to change stroke color&lt;/li>
+&lt;/ul>
+&lt;h2 id="creating-a-drop-shadow-with-fill-and-stroke">Creating a drop shadow with Fill and Stroke&lt;/h2>
+&lt;ol>
+&lt;li>Write text on the screen.&lt;/li>
+&lt;li>Add a linear gradient
+&lt;ol>
+&lt;li>Select the bottom stop, and use a slightly darker shade of the original color. Move the A (opacity) to the right.&lt;/li>
+&lt;/ol>
+&lt;/li>
+&lt;li>Add a thick stroke (~10px)&lt;/li>
+&lt;li>Under Stroke Style &amp;gt; Order, put the stroke behind the text with the second option on the top.&lt;/li>
+&lt;li>Make the stroke white.&lt;/li>
+&lt;li>Right-click and create a duplicate of the original. Do not move the dup from the original.&lt;/li>
+&lt;li>Make the dupe&amp;rsquo;s fill and stroke black.&lt;/li>
+&lt;li>Lower the dupe one layer below the original.&lt;/li>
+&lt;li>Increase the blur&lt;/li>
+&lt;li>Decrease the opacity&lt;/li>
+&lt;li>Click the original, and move it up or down to create a slight offset.&lt;/li>
+&lt;li>Select both objects, and group them.&lt;/li>
+&lt;/ol>
+&lt;h2 id="markers">Markers&lt;/h2>
+&lt;p>Repeat an object along a path without deforming the object. Different from Pattern Along Path.&lt;/p>
+&lt;ol>
+&lt;li>Convert the object to a path with select, Path &amp;gt; Object to path&lt;/li>
+&lt;li>Find another shape,
+&lt;ol>
+&lt;li>Object &amp;gt; Object to marker
+The object disappears.&lt;/li>
+&lt;/ol>
+&lt;/li>
+&lt;li>Rm the fill and stroke from the object that you turned into a path.&lt;/li>
+&lt;li>Go Fill and Stroke &amp;gt; Stroke style, and select the new marker in Markers.
+The marker goes along the nodes.&lt;/li>
+&lt;li>Add new nodes to the path object:
+&lt;ol>
+&lt;li>Click the Edit path by nodes under the Select tool&lt;/li>
+&lt;li>Drag the cursor over the path object&lt;/li>
+&lt;li>Click Insert New Nodes into Selected Segments above the Select tool
+Click this more times for more markers.&lt;/li>
+&lt;/ol>
+&lt;/li>
+&lt;/ol>
+&lt;p>To change the markers:&lt;/p>
+&lt;ol>
+&lt;li>Fill and Stroke &amp;gt; Stroke style&lt;/li>
+&lt;li>Click a marker dropdown&lt;/li>
+&lt;li>Click Edit on Canvas&lt;/li>
+&lt;/ol>
+&lt;p>Make sure you scale with the same proportions with the buttons in the toolbar.&lt;/p>
+&lt;h2 id="clipping-masks">Clipping masks&lt;/h2>
+&lt;p>A way of taking one object and making it fit the shape of another object. You can do this with grouped objects and images.&lt;/p>
+&lt;p>Object &amp;gt; Clip&lt;/p>
+&lt;ol>
+&lt;li>Create a design, or any object that you want a second object to take the shape of.&lt;/li>
+&lt;li>Add the second object on top.&lt;/li>
+&lt;li>Select all both objects.&lt;/li>
+&lt;li>Object &amp;gt; Clip &amp;gt; Set Clip&lt;/li>
+&lt;/ol>
+&lt;p>If you want to undo that, Object &amp;gt; Clip &amp;gt; Release Clip. You can still grab the nodes with the Edit paths by nodes tool.&lt;/p>
+&lt;h2 id="layer-masks">Layer masks&lt;/h2>
+&lt;p>Object &amp;gt; Mask &amp;gt; Set Mask&lt;/p>
+&lt;p>Way to create areas of selective transparency on an object. Basically, you create an object, then put another object over it (square or rectangle) that you can manipulate to control how much of the image comes through the mask. Use gradients, and black and white:
+`
+black: allows the underlying object to be transparent
+white: keeps anything underneath it opaque.&lt;/p>
+&lt;h2 id="aligning-and-distributing-objects">Aligning and distributing objects&lt;/h2>
+&lt;p>Object &amp;gt; Align and Distribute (CTRL + SHIFT + A)&lt;/p>
+&lt;p>Align menu:&lt;/p>
+&lt;ul>
+&lt;li>Alignment handles with third click: When you select a group of objects, click 3 times to access alignment handles&lt;/li>
+&lt;li>Move/align selection as group instead of grouping&lt;/li>
+&lt;li>Relative to:
+&lt;ul>
+&lt;li>Page&lt;/li>
+&lt;li>Last selected lets you align relative to selection order. The last is the order (vice versa for first selected)&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;p>Centering text:
+Use Align baseline of text button&lt;/p>
+&lt;ul>
+&lt;li>Can&amp;rsquo;t use the axis bc some letters dip below the baseline&lt;/li>
+&lt;/ul>
+&lt;p>Rearrange&lt;/p>
+&lt;ul>
+&lt;li>Swap object locations&lt;/li>
+&lt;/ul>
+&lt;p>Remove overlaps&lt;/p>
+&lt;h2 id="aranging-objects">Aranging Objects&lt;/h2>
+&lt;p>Grid: Arrange objects in a grid formation&lt;/p>
+&lt;ul>
+&lt;li>Fit into selection box: arrange within the area you get from the selection tool
+&lt;ul>
+&lt;li>Select how they are spaced apart with the diagram&lt;/li>
+&lt;li>Default rotate using the center. You can change that with the Objects&amp;rsquo; bounding boxes selection&lt;/li>
+&lt;li>First/Last selected&amp;hellip; is when you have more than one circle and you need to decide which circle you will wrap the objects around.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;p>Circular: Requires an ellipse&lt;/p>
+&lt;ul>
+&lt;li>Wraps objects around the ellipse&lt;/li>
+&lt;/ul>
+&lt;h2 id="transform-tool">Transform Tool&lt;/h2>
+&lt;p>Object &amp;gt; Tranform&lt;/p>
+&lt;p>Manipulate the object with precision.&lt;/p>
+&lt;p>Move: Move the object using precise units.&lt;/p>
+&lt;ul>
+&lt;li>Relative button makes changes relative to the document coordinates.&lt;/li>
+&lt;/ul>
+&lt;p>Scale: Scale based on numerical inputs.&lt;/p>
+&lt;p>Rotate: Rotate precisely. Rotate as a group or use Apply to each object separately.&lt;/p>
+&lt;p>Skew: Skew an object on the horizontal and vertical axis.&lt;/p>
+&lt;h2 id="path-functions">Path functions&lt;/h2>
+&lt;p>View &amp;gt; Display Mode &amp;gt; Outline to see all the paths.&lt;/p>
+&lt;p>Every vector object is a series of X and Y coordinates (nodes). Use Edit paths as nodes tool to see the nodes. The lines that connect them are called paths. When you have a path, you have an element that you can apply a fill and stroke.&lt;/p>
+&lt;p>Rectangles, ellipses, and other shapes are not paths&amp;ndash;they are objects. To change that:&lt;/p>
+&lt;p>Select the object, Path &amp;gt; Object to Path&lt;/p>
+&lt;p>Text is a text object, not a path. You can change them to Paths like objects.&lt;/p>
+&lt;p>You can change the stroke to its own object with Path &amp;gt; Stroke to Path. You probably have to ungroup the original object and the path after you do this.&lt;/p>
+&lt;h2 id="path-operations">Path operations&lt;/h2>
+&lt;p>Path operations are boolean operations&amp;ndash;you create shapes based on how shapes interact with each other.&lt;/p>
+&lt;p>Path &amp;gt; Union combines obects into one.
+Path &amp;gt; Difference takes the object from top and subtracts it from the object on the bottom.
+Path &amp;gt; Intersection deletes everything except the intersecting area
+Path &amp;gt; Exclusion creates a shape from the areas that do not intersect. It creates negative space.
+Path &amp;gt; Division cuts the object on the bottom using the shape of the object on top.
+Path &amp;gt; Cut Path relates to strokes. Object on top breaks the paths on the image below. Only works for paths with strokes applied.&lt;/p>
+&lt;h2 id="more-path-operations">More path operations&lt;/h2>
+&lt;p>Path &amp;gt; Combine vs Union? Combine is temporary and Union is permanent. Use Path &amp;gt; Break Apart when you want to undo a Combine&lt;/p>
+&lt;p>Path &amp;gt; Break Apart does not preserve negative space
+Path &amp;gt; Split path preserves the negative space&lt;/p>
+&lt;h2 id="offsetting-path">Offsetting Path&lt;/h2>
+&lt;p>Increase the size of an object by adding to its surface area rather than L x W.&lt;/p>
+&lt;p>Path &amp;gt; Dynamic offset, then click nodes tool and select the node to change the size.
+Path &amp;gt; Inset | Offset increase or decrease the offset one step&lt;/p>
+&lt;p>Path &amp;gt; Linked offset. This seems like a shortcut that means you don&amp;rsquo;t have to make copies of images to create outlines. You have to change it to a path to get more nodes, though, bc it is an offset.&lt;/p>
+&lt;h2 id="tracing-bitmaps">Tracing bitmaps&lt;/h2>
+&lt;p>Make vector tracing of a bitmap with an algorithm, instead of tracing it manually. Good for a quick, sometimes sloppy tracing of your bitmap.&lt;/p>
+&lt;p>Path &amp;gt; Trace Bitmap&lt;/p>
+&lt;ul>
+&lt;li>Single scan creates a single vector object
+&lt;ul>
+&lt;li>cycle through the Detection mode dropdown to see what gives you the best outcome&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>Multiple scans are better for color
+&lt;ul>
+&lt;li>Scans is the number of colors in the output.&lt;/li>
+&lt;li>Remove background only works on images where the bg is really defined&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="trace-pixel-art">Trace pixel art&lt;/h2>
+&lt;p>Path &amp;gt; Trace bitmap
+This uses a lot of computing power. Do not use this for images that are greater than 100px by 100px.&lt;/p>
+&lt;p>Open the pixel art tab.&lt;/p>
+&lt;ul>
+&lt;li>Voroni: creates individual, grouped boxes&lt;/li>
+&lt;li>B-splines:&lt;/li>
+&lt;/ul>
+&lt;h1 id="path-effects">Path effects&lt;/h1>
+&lt;p>Advanced tranformations to objects that are paths.&lt;/p>
+&lt;p>Turn the object into a path with Path &amp;gt; Object to Path, then select the new path and enter Path &amp;gt; Path Effects. Then it is a path effect object.&lt;/p>
+&lt;p>When you are done adding path effects, you have to select Path &amp;gt; Object to path again.&lt;/p>
+&lt;p>Click + icon at the bottom of the side panel too add a path effect. Click the - icon to remove an existing, highlighted path effect.&lt;/p>
+&lt;p>You can turn the path effect on or off by selecting the eye icon in the Path Effects menu.&lt;/p>
+&lt;h2 id="attach-path">Attach path&lt;/h2>
+&lt;p>Attach 2 different paths together.&lt;/p>
+&lt;ol>
+&lt;li>Create two paths.&lt;/li>
+&lt;li>Copy one to the clipboard&lt;/li>
+&lt;li>Select the other path&lt;/li>
+&lt;li>Click the + icon in the Path effects&lt;/li>
+&lt;li>Select Attach&lt;/li>
+&lt;li>Under Start Path, select Link to path in clipboard&lt;/li>
+&lt;/ol>
+&lt;h2 id="bend-path">Bend path&lt;/h2>
+&lt;p>This tool adds a path in the middle of an object, and you can bend an object along the path with Edit on-canvas button.&lt;/p>
+&lt;h2 id="bspline">BSpline&lt;/h2>
+&lt;p>Create curved lines without drawing the curve. Select the bezier pen and then select the BSpline mode from the top toolbar.&lt;/p>
+&lt;h2 id="construct-grid">Construct grid&lt;/h2>
+&lt;p>Creates a perspective grid from any three-point object. Create the object, apply the path effect, then change the number grid boxes along the X and Y axises.&lt;/p>
+&lt;h2 id="corners-fillet--chamfer">Corners (Fillet &amp;amp; Chamfer)&lt;/h2>
+&lt;p>Allows you to take an object and give it rounded or square corners.&lt;/p>
+&lt;ul>
+&lt;li>Fillet: rounded corner&lt;/li>
+&lt;li>Chamfer: squared off corners&lt;/li>
+&lt;/ul>
+&lt;p>Method options update the way the corners behave.&lt;/p>
+&lt;h2 id="dashed-stroke">Dashed stroke&lt;/h2>
+&lt;p>Turn a stroke into a dashed line. Gives you more granular control than the Fill and Stroke options.&lt;/p>
+&lt;ul>
+&lt;li>Hole factor: changes space between the dashes. 0 - 1 value.&lt;/li>
+&lt;li>Use segments: changes the number of dashes for the entire shape.&lt;/li>
+&lt;li>Half start/end: makes any dashes between nodes twice the size of the dashes on the nodes.&lt;/li>
+&lt;li>Equalize dashes: makes dashes equal length&lt;/li>
+&lt;/ul>
+&lt;p>Use Fill and Stroke to change the dash style (butt cap, join style, etc.)&lt;/p>
+&lt;h2 id="envelope-deformation">Envelope deformation&lt;/h2>
+&lt;p>Change the object to path before you start. Helpful if you want to form text around a shape, like a circle.&lt;/p>
+&lt;p>Select X bend path to access a line that lets you mold the shape around the path.&lt;/p>
+&lt;h2 id="hatches">Hatches&lt;/h2>
+&lt;p>Applies a pen effect to the image. After you apply the Path effect, select the image and then select the nodes to change direction, density, style of the pen markings.&lt;/p>
+&lt;h1 id="text">Text&lt;/h1>
+&lt;h2 id="creating-text">Creating text&lt;/h2>
+&lt;p>Click the T icon in the toolbar, or CTRL + SHIFT + T.
+When you are actively editing the text, a shortcut toolbar displays at the top.&lt;/p>
+&lt;p>Spacing button: Kerning is the space between words or letters.&lt;/p>
+&lt;p>The node in the bottom right controls how far the text can go.&lt;/p>
+&lt;p>To change default font text:&lt;/p>
+&lt;ol>
+&lt;li>Open the Text and Font pane&lt;/li>
+&lt;li>On the Font tab, select a new font&lt;/li>
+&lt;li>Select Set as default at the bottom of the pane.&lt;/li>
+&lt;/ol>
+&lt;h2 id="flowing-text-into-a-frame">Flowing text into a frame&lt;/h2>
+&lt;p>Click and drag a box to create a boundary for your text. Grab the bottom right node to edit the boundary.&lt;/p>
+&lt;ol>
+&lt;li>Write some text&lt;/li>
+&lt;li>Create an object&lt;/li>
+&lt;li>Select the text, hold shift, select the object&lt;/li>
+&lt;li>Text &amp;gt; Flow into frame.&lt;/li>
+&lt;/ol>
+&lt;p>To undo this, select the text and Text &amp;gt; Unflow&lt;/p>
+&lt;h2 id="putting-text-on-a-path">Putting text on a path&lt;/h2>
+&lt;ol>
+&lt;li>Create a path.&lt;/li>
+&lt;li>Write some text.&lt;/li>
+&lt;li>Select the text, hold shift, select the path.&lt;/li>
+&lt;li>Text &amp;gt; Put on path&lt;/li>
+&lt;/ol>
+&lt;p>To change the location of the text on the path, you have to change it manually using kerning (in the Spacing menu)&lt;/p>
+&lt;h3 id="wrapping-text-around-a-circle">Wrapping text around a circle&lt;/h3>
+&lt;p>You cannot have multiple text items on a single path, or they will stack on top of each other. So, you have to create multiple circles&lt;/p>
+&lt;p>To change the direction of the path, select the Path, then Path &amp;gt; Reverse.&lt;/p>
+&lt;p>After you put the text on the circle path, you can rotate just the circle to get the text on top (or wherever)&lt;/p>
+&lt;p>Put text on bottom of circle&lt;/p>
+&lt;ol>
+&lt;li>Create text&lt;/li>
+&lt;li>Create circle&lt;/li>
+&lt;li>Select text, hold shift, select circle&lt;/li>
+&lt;li>Text &amp;gt; Put on path&lt;/li>
+&lt;li>Select just the circle&lt;/li>
+&lt;li>Path &amp;gt; Object to path&lt;/li>
+&lt;li>Path &amp;gt; Reverse&lt;/li>
+&lt;/ol>
+&lt;p>After you wrap text around a circle, convert the text to the path with Path &amp;gt; Object to path.&lt;/p>
+&lt;h1 id="filter-effects">Filter effects&lt;/h1>
+&lt;p>Filters are pixel-based effects that you can apply to vector objects. When you apply a filter, the object is no longer a path.&lt;/p>
+&lt;p>Filters &amp;gt; *&lt;/p>
+&lt;p>Filters are Inkscape-specific feature, so it won&amp;rsquo;t work in any other image editor.&lt;/p>
+&lt;h1 id="inkscape-tools">Inkscape tools&lt;/h1>
+&lt;h2 id="edit-paths-by-nodes">Edit paths by nodes&lt;/h2>
+&lt;p>Press n to edit the structural properties of a selected vector path.
+You can grab the nodes and the edges of the new path to edit them.&lt;/p>
+&lt;p>Select an object and Path &amp;gt; object to path.&lt;/p>
+&lt;p>There is a toolbar that displays at the top, below the standard toolbar:&lt;/p>
+&lt;ul>
+&lt;li>Insert new nodes into selected segments: Select two nodes and it adds a new node exactly half way btwn the nodes. You can also just double-click the path, but this is exact&lt;/li>
+&lt;li>Insert new nodes into selected segments with a dropdown:&lt;/li>
+&lt;li>Delete selected nodes: select and delete. You can also select and delete it.&lt;/li>
+&lt;li>Join selected nodes: Join the nodes, create a new node 1/2 way btwn the two nodes. Good for joining two nodes when you are drawing shapes with bezier pen.&lt;/li>
+&lt;li>Break path at selected nodes: creates two separate nodes from one&lt;/li>
+&lt;li>Join selected end nodes with a new segment: creates new segment to join two nodes&lt;/li>
+&lt;li>Delete segment btwn two non-endpoint nodes: deletes segment btwn two nodes&lt;/li>
+&lt;li>Make selected nodes corner:&lt;/li>
+&lt;li>Make selected nodes smooth: Handles attached to the node stay in place&lt;/li>
+&lt;li>Make selected nodes auto smooth: Handles attached to the node move around and adjust themselves as needed&lt;/li>
+&lt;li>Make selected segment straight:&lt;/li>
+&lt;li>Make selected segment curved: Adds handles so you can shape the segment
+&amp;hellip;&lt;/li>
+&lt;li>Show transformation handles for selected nodes: Path &amp;gt; object to path, then select some nodes, click this button. You can edit the nodes like they are an object. Click a node again and you get the rotate handles.&lt;/li>
+&lt;li>Show path outline: helpful if you are working on an object that is similar color to the background.&lt;/li>
+&lt;/ul>
+&lt;h2 id="squares-and-rectangles">Squares and rectangles&lt;/h2>
+&lt;p>CTRL + SHIFT lets you draw the square from the center.
+Circle nodes in the top-right corner let you change the shape of the edges
+Use Make corners sharp to quickly correct corners.&lt;/p>
+&lt;h2 id="circles-and-ellipses">Circles and ellipses&lt;/h2>
+&lt;p>Hold CTRL to make a perfect circle.
+CTRL + SHIFT to make a perfect circle from the center.&lt;/p>
+&lt;ul>
+&lt;li>Square nodes change width and height&lt;/li>
+&lt;li>Round node lets you make a partial circle
+&lt;ul>
+&lt;li>Cursor ouside the circle, you make a pie chart&lt;/li>
+&lt;li>Cursor inside, you get a semi circle&lt;/li>
+&lt;li>There is an option in the ellipse toolbar that lets you make the circle whole again.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;p>Slice, arch, closed shape icons in the ellipse toolbar&lt;/p>
+&lt;h2 id="stars-and-polygons">Stars and polygons&lt;/h2>
+&lt;p>Star toolbar has regular polygon or star shape option at the very top-left.&lt;/p>
+&lt;ul>
+&lt;li>Add corners&lt;/li>
+&lt;/ul>
+&lt;p>Nodes let you change the shape&lt;/p>
+&lt;ul>
+&lt;li>CTRL like other tools.&lt;/li>
+&lt;/ul>
+&lt;p>Click &amp;lt;= looking icon at the right to change it back to a normal star.&lt;/p>
+&lt;p>Polygon&lt;/p>
+&lt;ul>
+&lt;li>Add corners, round the edges&lt;/li>
+&lt;/ul>
+&lt;h2 id="3d-boxes">3D boxes&lt;/h2>
+&lt;p>Press &amp;lsquo;x&amp;rsquo; to access the box tool.&lt;/p>
+&lt;p>X axis: red lines
+Y axis: blue lines
+Z axis: yellow lines&lt;/p>
+&lt;p>By default, X and Z axis have a vanishing point (the nodes at the far left and right, respectively). You can enable a vanishing point for any axis with the || icon beside the axis controls in the box toolbar.&lt;/p>
+&lt;p>After you finalize the box, you can deconstruct the box by changing it to a path:&lt;/p>
+&lt;ol>
+&lt;li>Select the box&lt;/li>
+&lt;li>Path &amp;gt; Object to path&lt;/li>
+&lt;li>Select the box with the select tool, then click ungroup.&lt;/li>
+&lt;/ol>
+&lt;h2 id="creating-spirals">Creating spirals&lt;/h2>
+&lt;p>Press &amp;lsquo;i&amp;rsquo;&lt;/p>
+&lt;p>Each spiral is a single stroke. Change colors using the stroke style menus.&lt;/p>
+&lt;p>Outer handle increases, decreases outer turns to the spiral
+Inner handle does the same from the inside.&lt;/p>
+&lt;p>You can change all this with the spiral toolbar.
+Click the &amp;lt;= looking icon to change it back to the default.&lt;/p>
+&lt;p>After you finalize the shape, you can change make it a path with Path &amp;gt; Object to path.&lt;/p>
+&lt;h2 id="bezier-pen">Bezier pen&lt;/h2>
+&lt;p>Press &amp;lsquo;b&amp;rsquo;
+Lets you draw your own paths, however you like&lt;/p>
+&lt;p>There are Modes in the top-left when you open the bezier tool. Create regular bezier path is the pen in its most raw form.&lt;/p>
+&lt;p>Each click is a node. Hold CTRL to better manage the angle of the line
+Click Enter when you are done drawing paths.&lt;/p>
+&lt;ul>
+&lt;li>The path is a stroke. Use the stroke menu to edit it.&lt;/li>
+&lt;li>Create a closed path by connecting the first node with the last. The node turns red when you can connect it. Then you can add fill and treat it as any other closed path.&lt;/li>
+&lt;/ul>
+&lt;p>If you click and drag at a point, you get a curved line. Hard to manage these curved lines, so use a different Mode.&lt;/p>
+&lt;ul>
+&lt;li>Create spiro path: everything that you draw has a nice fluid curve.
+&lt;ul>
+&lt;li>It is not a pure path&amp;ndash;when you move a node, it moves other segments/curves. Go to Path &amp;gt; Object to path&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>Create BSpline path: Creates more accurate curves. Makes it easier to trace over objects than the spiro mode.
+&lt;ul>
+&lt;li>Hold SHIFT and click and you get a corner node.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>Create a sequence of straight line segments: Only lets you draw straight lines. Use to trace over something that has only straight lines to prevent you from creating a curved line.
+&lt;ul>
+&lt;li>This creates a pure path, you don&amp;rsquo;t need to convert it.&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>Create a sequence of paraxial line segments: Every line that you draw runs adjacent to the previous line. useful if you are drawing a floor plan or something like that.&lt;/li>
+&lt;li>Shape: Draw paths using specific shapes. None is the default.
+&lt;ul>
+&lt;li>Path takes the shape that you select. You can edit the paths to change the shape.&lt;/li>
+&lt;li>After you are done, Path &amp;gt; object to path.&lt;/li>
+&lt;li>From clipboard: draws whatever shape you have in your clipboard. Use to create custom brush strokes.&lt;/li>
+&lt;li>Bend from clipboard: works with grouped objects. This is pretty cool.
+&lt;ul>
+&lt;li>Path &amp;gt; Object to path, then Object &amp;gt; ungroup&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="tweak-objects">Tweak objects&lt;/h2>
+&lt;p>Press &amp;lsquo;w&amp;rsquo;. press spacebar to toggle btwn tweak and seelct tool&lt;/p>
+&lt;p>Make small changes to paths, objects, and colors&lt;/p>
+&lt;p>In the toolbar, width is the size of the cursor circle, and Force is how it applies the change. The lower the Force, the less visible the change.&lt;/p>
+&lt;p>Available modes are self-explanatory.
+Fidelity: Recommend 50. When it is high, it is gonna create a lot of new nodes and increase the file size dramatically.&lt;/p>
+&lt;h2 id="zoom">Zoom&lt;/h2>
+&lt;p>Press &amp;lsquo;z&amp;rsquo;&lt;/p>
+&lt;p>Click to zoom in, SHIFT + click to zoom out.&lt;/p>
+&lt;p>Toolbar is useful for quick zooms.&lt;/p>
+&lt;h2 id="measurements">Measurements&lt;/h2>
+&lt;p>Press &amp;rsquo;m&amp;rsquo;. Enable snapping to help you get an accurate measurement.&lt;/p>
+&lt;p>Click and drag to measure distance btwn points. Can tweak precision or scale.&lt;/p>
+&lt;p>Helpful for text, provides Font sizing.&lt;/p>
+&lt;p>Make sure Measure all layers is on in the toolbar.
+Convert to item: Turns measurements into an object&amp;ndash;good for diagrams.&lt;/p>
+&lt;h2 id="drawing-freehand-lines">Drawing freehand lines&lt;/h2>
+&lt;p>Press &amp;lsquo;p&amp;rsquo;&lt;/p>
+&lt;p>BSpline is a way to create curved lines with corners.
+Change the line to path to further edit it. Path &amp;gt; object to path&lt;/p>
+&lt;p>Put smoothing at 50 to create good lines.
+Can create lines with Shapes.&lt;/p>
+&lt;ul>
+&lt;li>From clipboard lets you stretch a path in your clipboard across a line.&lt;/li>
+&lt;/ul>
+&lt;h2 id="caligraphy-pen">Caligraphy pen&lt;/h2>
+&lt;p>Press &amp;lsquo;c&amp;rsquo;&lt;/p>
+&lt;p>Mass is helpful to draw good clean lines because it slows the cursor down.&lt;/p>
+&lt;h2 id="spraying-objects-airbrush">Spraying objects (airbrush)&lt;/h2>
+&lt;p>Select an object, select the spray tool, then use the toolbar to:&lt;/p>
+&lt;ul>
+&lt;li>spray copies&lt;/li>
+&lt;li>clones&lt;/li>
+&lt;li>a single path (single path is cpu intensive)&lt;/li>
+&lt;/ul>
+&lt;h2 id="eraser">Eraser&lt;/h2>
+&lt;p>SHIFT + E
+Use Cut out from paths and shapes Mode&lt;/p>
+&lt;p>After you erase a vector object, you can move the nodes around to change the shape of the erased part.&lt;/p>
+&lt;ul>
+&lt;li>To split it into separate parts, select the Break Apart Cut Items icon in the far right of the toolbar.&lt;/li>
+&lt;li>Or you can select and then Path &amp;gt; Break apart
+If you use the eraser on a text item, it becomes a path&amp;ndash;you cannot erase it.&lt;/li>
+&lt;/ul>
+&lt;h2 id="bucket-fill">Bucket Fill&lt;/h2>
+&lt;p>Fills negative space with a color and creates a new path from it.&lt;/p>
+&lt;p>Requires a closed-in area&amp;ndash;you can&amp;rsquo;t just use it on the workspace.&lt;/p>
+&lt;ul>
+&lt;li>If there are tiny gaps, use the Close gaps: setting in the toolbar.&lt;/li>
+&lt;/ul>
+&lt;p>Threshold might leave gaps in the fill area.&lt;/p>
+&lt;h2 id="linear-and-radial-gradients">Linear and radial gradients&lt;/h2>
+&lt;p>Press &amp;lsquo;g&amp;rsquo;&lt;/p>
+&lt;p>Use fill and stroke menu, click on one of the gradient tools in the Fill tab.&lt;/p>
+&lt;p>Press g, then select a stop (node point where there is color information) and then click a new color if you want.&lt;/p>
+&lt;p>When you select a stop to change gradient direction, hold CTRL to help with making it level&lt;/p>
+&lt;p>Double click on the gradient line and add a new stop to add a new color. You can click and drag to move it after you create it.&lt;/p>
+&lt;ul>
+&lt;li>Click on it and delete it&lt;/li>
+&lt;/ul>
+&lt;p>Radial gradients run in a circle rather than in a direction.&lt;/p>
+&lt;p>Menu provides options to create gradient on fill or stroke.&lt;/p>
+&lt;p>There is a drop down that contains all the gradients that you have made so you can easily apply them to other objects.&lt;/p>
+&lt;ul>
+&lt;li>Lock the gradient to apply updates to each object that uses that gradient (except the position of the handles)&lt;/li>
+&lt;/ul>
+&lt;p>Repeat: Anything after the gradient ends is solid. THis dropdown changes that.&lt;/p>
+&lt;p>Offset: Changes the posotion of the selected stop on the gradient line.&lt;/p>
+&lt;h2 id="mesh-and-conical-gradients">Mesh and conical gradients&lt;/h2>
+&lt;p>Select from toolbar
+Creates objects with various different colors.&lt;/p>
+&lt;p>Different options are in the toolbar.&lt;/p>
+&lt;p>Select the mesh tool, then drag the cursor across an object. Select a node or a side and change the color.&lt;/p>
+&lt;p>Change the rows and columns to add more boxes and nodes to change colors.&lt;/p>
+&lt;p>Conical gradient is similar to the mesh, but it creates a gradient in a circle.&lt;/p>
+&lt;p>If you move the lines too much, you can straighten them or make them smooth curves.&lt;/p>
+&lt;p>Scale mesh to fit in binding box: When you grab the nodes and change the shape, this button takes that shape and makes it fit within the original confines of the object.&lt;/p>
+&lt;h2 id="color-picker">Color picker&lt;/h2>
+&lt;p>Press &amp;rsquo;d&amp;rsquo;
+Select an object and assign its color using another object. So, you select an object, open the color picker, then click on a different object and the original object that you selected becomes that color.&lt;/p>
+&lt;p>Good to use for photos. If you select an entire area, then the color picker uses the average of that selection.&lt;/p>
+&lt;p>Pick and assign modes&lt;/p>
+&lt;p>Pick AND assign: preserves original color (like transparency)
+Pick: Uses original color, no transparency
+Assign: Creates new color from appearance. If there is transparency, it has the same color but not the transparency.&lt;/p>
+&lt;h2 id="diagram-connectors">Diagram connectors&lt;/h2>
+&lt;p>Press &amp;lsquo;o&amp;rsquo;
+Creates bezier paths that connect objects together. Does not work on text objects.&lt;/p>
+&lt;ul>
+&lt;li>1 px size stroke works well bc thats the size of the connectors.&lt;/li>
+&lt;/ul>
+&lt;p>toolbar options let you avoid or ignore objects.
+Create right-angle lines&lt;br>
+Curvature rounds the joints
+Spacing separates lines when an object is connected to multiple lines. Spacing makes sure they don&amp;rsquo;t connect at the same point.&lt;/p>
+&lt;p>Add arrows with Fill and Stroke &amp;gt; Stroke style tab&lt;/p></description></item></channel></rss>

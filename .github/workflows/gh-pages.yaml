@@ -20,9 +20,9 @@ jobs:
       - name: Node setup 
         uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 18
           cache: 'npm'
-          cache-dependency-path: '$**/package-lock.json'
+          cache-dependency-path: '**/package-lock.json'
       - run: npm ci
 
       - name: Clean public directory
@@ -31,14 +31,9 @@ jobs:
       - name: Build Hugo 
         run: hugo --minify
 
-      # uncomment when cname is complete
-      # - name: Create cname file
-      #   run: echo 'www.example.com' > public/CNAME
-
       # push to gh-pages branch
       - name: Deploy 
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./public
-          cname: integrators.vertica.com

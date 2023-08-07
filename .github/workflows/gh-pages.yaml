@@ -3,7 +3,7 @@ name: github pages
 on:
   push:
     branches: [ master ]
-    
+
 
 jobs:
   deploy:
@@ -21,7 +21,7 @@ jobs:
       - name: Node setup 
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: '16'
           cache: 'npm'
           # The action defaults to search for the dependency file (package-lock.json,
           # npm-shrinkwrap.json or yarn.lock) in the repository root, and uses its

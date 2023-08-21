@@ -41,7 +41,7 @@ _External CSS_ groups styles together in an external `.css` stylesheet. Link the
 
 ```css
 <head>
-  <link rel="stylesheet" href"styles.css">
+  <link rel="stylesheet" href="styles.css">
 </head>
 ```
 The `<link>` element uses the following attributes:
@@ -73,8 +73,8 @@ To create this baseline, you apply a CSS reset that undoes the browser's default
 
 ```css
 <head>
-  <link rel="stylesheet" href"reset.css">
-  <link rel="stylesheet" href"styles.css">
+  <link rel="stylesheet" href="reset.css">
+  <link rel="stylesheet" href="styles.css">
 </head>
 ```
 

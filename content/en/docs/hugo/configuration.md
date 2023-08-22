@@ -74,3 +74,24 @@ enableGitInfo: true
 params:
   DebugMenu: true 
 ```
+
+### Menus
+
+Hugo provides menus that you can populate with the `menu` configuration field. You can define these menus in the main `_default/menu.yaml` file, or in the frontmatter of the content page that the menu link leads to.
+
+If the menu item links to internal files, and you might delete the page in the future, you should place the menu configuration in the page frontmatter. Otherwise, maintain it in the `_default/menu.yaml` file.
+
+The following example defines a `main` menu (across the top of the navbar) and `footer`:
+
+```yaml
+main:
+  - name: Blog
+    identifier: blog
+    weight: 110
+  - name: Community
+    parent: blog
+footer:
+  name: Blog
+  weight: 100
+```
+Notice that the `main` menu is an array of menu items, where the `Community` item is a child of the `Blog` item. This makes `Community` a subheading, which is available when you hover over `Blog`. Hugo uses the `identifier` field as a unique value that Hugo references when working with menu items.

@@ -63,17 +63,6 @@ menu:
     - identifier: about
     ...
 ```
-### Helpful settings
-
-```yaml
-
-# _default
-enableGitInfo: true
-
-# development
-params:
-  DebugMenu: true 
-```
 
 ### Menus
 
@@ -95,3 +84,53 @@ footer:
   weight: 100
 ```
 Notice that the `main` menu is an array of menu items, where the `Community` item is a child of the `Blog` item. This makes `Community` a subheading, which is available when you hover over `Blog`. Hugo uses the `identifier` field as a unique value that Hugo references when working with menu items.
+
+## Page bundles
+
+Page bundles group associated content files in an isolated directory structure. The isolation helps to make the content more easily maintained---you can add or remove content without affecting the rest of the site, and it makes the content more modular so that individuals can contribute without interfering with each other. There are three kinds of bundles:
+- Branch
+- Leaf
+- Headless
+
+### Branch bundles
+
+A _page bundle_ is a collection of resources such as text files, images, and PDFs, that represent one or more pages of related content---a section of a website.
+
+#### Create a branch bundle
+
+To create a branch bundle, complete the following:
+1. Create a folder in the directory location where you want the section.
+2. In the directory, create a file named `_index.md` that contains the content.
+
+
+### Leaf bundles
+
+A _leaf bundle_ is also a collection of resources, but the resources represent a single web page.
+
+#### Create a leaf bundle
+
+To create a leaf bundle, complete the following:
+1. Create a folder in the directory location where you want the page, and name the directory the page name.
+2. In the directory, create a file named `index.md` that contains the content.
+
+You can store multiple files and content pages in the leaf bundle directory, but Hugo only renders the `index.md` page.
+
+
+> The `index.md` file represents a single web page. `_index.md` represents a section's root.
+
+## Taxonomies
+
+_Taxonomies_ group pages and describe relationships between the pages. They have two parts:
+- _taxonomy list_: 
+
+## Helpful settings
+
+```yaml
+
+# _default
+enableGitInfo: true
+
+# development
+params:
+  DebugMenu: true 
+```

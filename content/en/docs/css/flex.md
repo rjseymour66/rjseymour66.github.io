@@ -12,6 +12,8 @@ Flexbox allows you to define 1-D layouts. It works from the content out. Use it 
 
 Applying `display: flex` to an element turns it into a _flex container_, and all of its children become _flex items_. By default, flex items are the same height.
 
+If you use `display: inline-flex`, all elements become flex items, but they are inline elements instead of block.
+
 Flex items align side by side, left to right, in a row. Use `flex-direction` to change this.
 
 A flex container takes up 100% of its available width, while the height is determined natually by its contents. The `line-height` of the text inside each flex item is what determines the height of each item.

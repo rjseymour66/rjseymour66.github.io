@@ -1,7 +1,7 @@
 ---
 title: "Images"
 linkTitle: "Images"
-weight: 1
+weight: 5
 description: >
   Getting started with images in CSS.
 ---

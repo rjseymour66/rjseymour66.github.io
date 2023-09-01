@@ -1,7 +1,7 @@
 ---
 title: "Sass"
 linkTitle: "Sass"
-weight: 1
+weight: 3
 description: >
   Getting started with Sass.
 ---

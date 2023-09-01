@@ -37,7 +37,7 @@ In nearly all cases, you add CSS to a project with an external stylesheet.
 
 ### External CSS
 
-_External CSS_ groups styles together in an external `.css` stylesheet. Link the stylesheet in the `<head>` tag of the website:
+_External CSS_ groups styles together in an external `.css` stylesheet. Link the stylesheet in the `<head>` tag of the website. Name the stylesheet `styles.css`:
 
 ```css
 <head>
@@ -48,10 +48,18 @@ The `<link>` element uses the following attributes:
 - `rel`: Describes the relationship between the HTML document and what you are linking to it.
 - `href`: Stands for hypertext reference and indicates where to find the document that we want to include.
 
+## Devtools 
+
+For each element, devtools lists styles by specificity. Styles at the top override those below them, and they are crossed out. The ruleset location in the stylesheet is to the right of the style.
+
 ## Cascading stylesheets
 
 There are 3 differnt stylesheets that _cascade_---allow stylesheets to overwrite or inherit from one another---when we apply styles to HTML:
-- User-agent stylesheet: Stylesheet internal to your web browser (i.e. Google Chrome)
+- User-agent stylesheet: Stylesheet internal to your web browser (i.e. Google Chrome). These include:
+    - blue, underlined links 
+    - discs for lis 
+    - margins
+    - font size
 - Author stylesheet: Stylesheet developed and applied by a developer to HTML with a link tag.
 - User stylesheet: Custom user-provided stylesheets, which are usually created and applied to overcome accessibility issues.
 
@@ -62,6 +70,14 @@ The following list describes the order that styles cascade, in order of preceden
 3. User stylesheet.
 4. Author stylesheet.
 5. User agent stylesheet.
+
+Cascade determines how rule conflicts are resolved. When there is a conflict, the cascade uses the following hierarchy to resolve it:
+1. Stylesheet origin: Where the stylesheet comes from 
+2. Inline styles: Whether the style is applied to an HTML element directly.
+3. Layer (**New**): Which layer is the style defined in? Uses the last layer.
+4. Selector specificity: Which selector has highest specificity.
+5. Scope proximity (**New**): Use declaration with innermost scope.
+6. Source order: Declaration that comes latest in source order.
 
 ## CSS reset
 
@@ -84,7 +100,55 @@ In production, you want to add CSS resets with one of the following methods:
 
 ## Specificity
 
-When multiple styles are applied to one element, the browser must determine which style to apply.
+When multiple styles are applied to one element, the browser must determine which style to apply. When a declaration "wins" the cascade, it is called the _cascaded value_.
+
+1. If a selector has more IDs, it wins 
+2. If 1 is a tie, the selector with the most classes wins 
+3. If 2 is a tie, the selector with the most tag names wins 
+
+Pseudo-class selectors and attribute selectors have the same specificity as a class selector:
+
+```css
+/* pseudo-class */
+link:hover {...}
+
+/* attribute */
+[type=input] {...}
+```
+
+Universal selector and combinators do not impact specificity scores.
+
+
+### Specficity notation 
+
+Use the following format to indicate specificity:
+
+```css
+/* ID, class, tags */
+/* 0, 1, 3         */
+body header.page-header h1 {...}
+```
+
+### Reducing specificity
+You can use the `:where()` pseudo-class to reduce specificity (it has 0 specificity). `:where(.nav)` is equivalent to `.nav`, but has a specificity of 0.
+
+## Special values
+
+These values manipulate the cascade and allow you to undo styles that you set elsewhere in the stylesheet. This is helpful for something like flexbox, whose properties have multiple keyword values, and remembering the original values is difficult:
+
+- `inherit`: Causes the element to inherit the value from its parent. When you want to use inheritance when a cascading value is preventing it. This is helpful when you need to control a value in one place. For example, the background color is controlled only in the parent element.
+- `initial`: Resets to the default value for the property (not the element) when there are applied styles that you want to undo. This overrides all styles from both author and user-agent stylesheets. For example, you can set `background-color` to `initial` instead of `transparent`, bc that is its default value. Other common uses:
+  - `border: initial;` (default is `none`)
+  - `width: initial;` (default is `auto`)
+- `unset`: When applied to an inherited property, it sets the value to `inherit` , when applied to non-inherited property, it sets it to `initial`. This overrides all styles from both author and user-agent stylesheets.
+- `revert`: Overrides your author-styles but preserves the user-agent styles.
+
+
+
+### Common rules 
+
+1. Don't use IDs in selectors 
+2. Don't use `!important`
 
 ### Inherited styles
 
@@ -93,6 +157,28 @@ CSS applies the following general rules to determine inherited styles:
 - **Layout considerations** are generally not inherited.
 
 Anything defined in a rule overrides an inherited value.
+
+If there is no cascaded value for an element, it might inherit a value. A common inherited value is applying `font-family` to the `body` element so you do not have to apply it to each element in the `body`. Here is a non-comprehensive list:
+
+- color
+- font
+- font-family
+- font-size
+- font-weight
+- font-variant
+- font-style
+- line-height
+- letter-spacing
+- text-align
+- text-indent
+- text-transform
+- white-space
+- word-spacing.
+- list-style
+- list-style-type
+- list-style-position
+- list-style-image
+
 
 ### Specificity values
 
@@ -280,4 +366,88 @@ h1 {
 h1 {
   padding: top-bottom left-right
 }
+```
+
+Some common examples:
+
+```css
+/* try not to use font shorthand bc it is easy to omit values and use initial values */
+font: font-style font-weight font-size line-height font-family;
+
+background: background-color background-image background-size background-repeat background-position background-origin background-chip background-attachment;
+
+border: border-width border-style border-color;
+
+border-width: top right bottom left;
+```
+
+> Be aware of shorthands that silently override other styles. When you omit values for shorthand values, it sets the omitted values to their `initial` value.
+
+When you add only 3 values, it applies to the top, right, then bottom, and the left value takes.
+
+> Generally better to have more padding on sides of buttons, less on top.
+
+The following properties specify horizontal left/right values, then top/bottom. This is because they represent a Cartesian grid, which uses x, y ordering:
+
+- background-position
+- box-shadow
+- text-shadow
+
+> Tip: Property that specifies two measurements from a corner, think “Cartesian grid.”
+> Property that specifies measurements for each side all the way around an element, think “clock.”
+
+
+## Progressive enhancement
+
+This means that your stylesheet can apply styles that are not supported by some browsers. As user browsers upgrade, the features become available (future-compatible).
+
+Use a new feature with the `@supports` feature query. This allows you to use a feature that is possibly not supported, but you must provide a supported fallback style, too.
+
+```css
+.coffees {
+  margin: 20px 0;
+}
+ 
+/* fallback styles */
+.coffees > a {
+  display: inline-block;
+  min-width: 300px;
+  padding: 10px 15px;
+  margin-right: 10px;
+  margin-bottom: 10px;
+  color: black;
+  background-color: transparent;
+  border: 1px solid gray;
+  border-radius: 5px;
+}
+
+/* feature query */
+@supports (display: grid) {
+  .coffees {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+  }
+ 
+  .coffees > a {
+    margin: unset;
+    min-width: unset;
+  }
+}
+```
+
+Example usage:
+
+```css
+/* Only apply rules in the feature query block if the queried declaration isn’t supported */
+@supports not(<declaration>)
+
+/* Apply rules if either queried declaration is supported */
+@supports (<declaration>) or (<declaration>)
+
+/* Apply rules only if both queried declarations are supported */
+@supports (<declaration>) and (<declaration>)
+
+/* Apply rules only if the given selector is understood by the browser (for example, @supports selector(:user-invalid)) */
+@supports selector(<selector>)
 ```

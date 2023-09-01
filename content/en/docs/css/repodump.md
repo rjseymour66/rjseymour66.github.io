@@ -1,7 +1,7 @@
 ---
 title: "Repo dump"
 linkTitle: "Repo dump"
-weight: 1
+weight: 10
 description: >
   Notes about basic Repo dump.
 ---

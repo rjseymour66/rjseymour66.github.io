@@ -29,7 +29,7 @@ An `em` is relative to the element's `font-size`---its _local font size_---and i
 .padded {
   font-size: 16px;
   padding: 1em;     /* computes to 16px */
-  /* padding: 1.5em;   computes to 24px */
+/*padding: 1.5em;   computes to 24px */
 }
 ```
 
@@ -42,10 +42,9 @@ If you define the `font-size` with an `em`, then the size of the `em` is derived
 
 > You can use rems for font sizes.
 
-Rem is short for "root em". A `rem` is relative to the root `em`. The root is the `html` tag, which is the root of the HTML document. You can access the `html` tag with the `:root` pseudo-class selector so you can have the specificity of a class element rather than a tag.
+Rem is short for "root em", so a `rem` is relative to the `font-size` value in the root. The root is the `html` tag, which is the root of the HTML document. You can access the `html` tag with the `:root` pseudo-class selector so you can have the specificity of a class element rather than a tag.
 
 Because rems are relative to the root element, it has the same computed value throughout the stylesheet.
-
 
 
 ## Fonts
@@ -60,6 +59,71 @@ The following example sets the inherited font size to 14px:
 }
 ```
 > For most browsers, the default font size is 16px.
+
+### Change padding and margin with fonts
+
+If you change the font size for an element with rems, you do not have to change the padding or other relative properties because their values are calculated according to the local `font-size` value.
+
+> Use `rem` for properties that you _do not_ want to scale.
+> Use `em` for properties that you _want_ to scale.
+
+### Media queries
+
+A media query uses the `@media` rule to specify styles that are applied to certain screen sizes or media types. You can define the root font-size in each media query:
+
+```css
+:root {
+  font-size: 0.85em;
+}
+ 
+@media (min-width: 800px) {
+  :root {
+    font-size: 1em;
+  }
+}
+ 
+@media (min-width: 1200px) {
+  :root {
+    font-size: 1.15em;
+  }
+}
+```
+
+> `min-width` is _mobile-first_ responsive design.
+
+## Viewport-relative units
+
+The _viewport_ is the area in the browser window where the web page is displayed. The following are the basic units:
+
+- vh—1% of the viewport height
+- vw—1% of the viewport width
+- vmin—1% of the smaller dimension, height or width
+- vmax—1% of the larger dimension, height or width
+
+So, `25vh` is 25% of the viewport's height.
+
+> Viewport units are good for large hero images. However, this is an issue with mobile devices because some mobile devices have a feature that hides the address or nav bar to save space. This causes viewport-relative items to change size on the screen. This is called _layout thrashing_.
+>
+> Also, remember that viewports do not take scrollbars into account.
+
+When a viewport size changes because the device hides the address bar, you can use the large (for screens without the address bar):
+
+- lvw
+- lvh
+- lvmin
+- lvmax
+
+Or small (for screens with the address bar):
+- svw
+- svh
+- svmin
+- svmax
+
+### Viewports and font-size
+
+You can use the `calc()` function to do basic arithmetic with two or more values.
+
+
 
 ## Relative values
 

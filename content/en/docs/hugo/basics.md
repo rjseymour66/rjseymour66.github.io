@@ -64,3 +64,17 @@ The `config.yaml` file has two sections:
 ## Add content
 
 Add content in the `content/` directory. The directory structure defines the URL. For example, the `test.md` file is served at `https://localhost:1313/test`.
+
+
+## Archetypes
+
+An archetype is a template for a Hogo page that automatically creates the folder structure, fills in the front matter, and supplies placeholder images for content.
+
+When you create an archetype, name it after the subdirectory in `content/` that you want to use the archetype. For example, to create an archetype for files in the `content/posts/` directory, create an archetype named `posts.md`.
+
+To generate a new file, use the following command:
+
+```bash
+$ hugo new posts/filename.md
+```
+

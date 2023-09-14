@@ -124,6 +124,57 @@ Or small (for screens with the address bar):
 You can use the `calc()` function to do basic arithmetic with two or more values.
 
 
+## clamp() function
+
+The `clamp()` function lets you create a responsive font size. It has the following signature:
+
+```css
+clamp(min-val, preferred-val-expression, max-val)
+
+/* Example */
+:root {
+   clamp(0.9rem, 0.6rem + 0.5svw, 1.5rem);
+}
+```
+
+The previous example specifies a value of `0.6rem + 0.5svw`, where the `0.6em` acts as a minimum font size, and the `0.5svw` acts as a responsive scalar. The clamp function goes further to ensure that the value is never smaller than `0.9em` or larger than `1.5rem`.
+
+## Unitless numbers and line height 
+
+Some properties accept unitless values, but you can also use 0 without a unit, because 0 is equal to 0 of any length.
+
+### line-height 
+
+The `line-height` is calculated locally as font-size x line-height. Use unitless values for `line-height` because of inheritance--when you use a unitless number, the declared value is inherited and recalculated for each inherited child element. If you use a unit, when an element has a value defined with a length (rem, em, px), its computed value is inherited by child elements and can cause issues.
+
+## Variables (custom properties)
+
+Define variables in the `root` element so they are avialble for the entire page. Then, use them with the `var()` function:
+
+```css
+:root {
+   --main-font: sans-serif;
+}
+
+p {
+   font-family: var(--main-font);
+}
+```
+
+The `var()` function accepts an optional second parameter which acts as a fallback. If the first value is not defined, then it uses the second:
+
+```css
+p {
+   font-family: var(--main-font);
+   color: var(--secondary-color, red);
+}
+```
+
+### Scope 
+
+Variables have scope. You can define a variable on the `root`, and then redefine it on another ruleset for a particular container. Inheritence makes any styles based on the variable resolve to the root value if it is outside that container, and they resolve to the redefined value if it is inside the container.
+
+
 
 ## Relative values
 

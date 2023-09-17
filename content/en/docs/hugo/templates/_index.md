@@ -10,6 +10,25 @@ description: >
 
 Hugo compiles the template files in `layouts/` with the mardown content files to create HTML pages to serve to the browser.
 
+## Template performance
+
+Measure the impact of a template on the overall build with the `--templateMetrics` build flag:
+
+```shell
+$ hugo --templateMetrics
+```
+
+If a partial is used more than a once, you can cache it to increase performance with `partialCached` function:
+
+```go
+{{ partialCached "menu.html" (dict "Menu" site.Menus.footer) "footer" }}
+```
+
+The previous example renders the footer from the `site.Menus.footer` object, and uses `"footer"` to create a variant that renders only the footer links (`"footer"` is a boolean in this example). This lets you cache distinct versions of a partial without having to execute the template multiple times.
+
+[partialCached](https://gohugo.io/functions/partialcached/)
+
+[Blog about partialCached](https://www.regisphilibert.com/blog/2019/12/hugo-partial-series-part-1-caching-with-partialcached/)
 ## Go templating language
 
 Content outside of the double braces is treated as a raw string that you can pass into the final HTML. Information in the `content/` folder is available with variables, including the following top-level variables:
@@ -285,6 +304,7 @@ Hugo uses the default template that the theme provides unless you set the `type:
 
 To create a content type, create a new folder in the `content/` directory, and name it using the name of the new content type. Then, place an `index.html` file in that directory.
 
+
 ### Base template
 
 The _base template_ contains the common HTML parts of a web page (header, main, footer) that acts as a skeleton for other templates and partials to build on.
@@ -326,3 +346,96 @@ And there are two less important layouts:
 - Taxonomy layout: Render the list of taxonomy tags.
 - Terms layout: Render the list of pages associated with the taxonomy tags.
 
+### Partials
+
+_Inheritence_ is when a template uses the entire code of the base template and can modify certain parts (blocks).
+
+_Composition_ is when you have a reusable piece of code that you can plug in wherever you want in the page.
+
+A _partial_ is a reusable piece of code that you share among templates. They are equivalent to functions in standard programming in that they isolate computation and generate some output and return data. In general, they do the following:
+1. Accept arguments
+2. Process those arguments
+3. Log data to the output HTML file
+4. Return the results to the caller
+
+Place partials directly under the `layouts/` folder---they are available across all content types in Hugo.
+
+> You can override the partials used in a theme in your local project by creating a file with the same name in the `layouts/partials` folder. You can also use subdirectories as namespaces.
+
+
+
+#### Args and contexts
+
+Like shortcodes, a partial has access to no variables except the ones that you pass it. The `$` does not reference the global object---it references the top-level context that you pass to the partial. This promotes partial reuse and caching performance.
+
+`$` and `.` are the same context when passed to a partial.
+
+You must pass the context to blocks and partials.
+
+Partials accept only one argument, so you have to use a dictionary to pass multiple values.
+
+> **dict type**
+> 
+> The `dict` type creates a map from a list of k/v pairs. For example:
+> ```go
+> {{ partial "menu.html" (dict "Menu" site.Menus.main "Button" > true) }}
+> ```
+> 
+> In the previous example, the `dict` passes the following:
+> - `"Menu"` is the key, so you can reference it in the partial.
+> - `site.Menus.footer` is the value that is accessible from the > `"Menu"` key. So, you can iterate over the `"Menu"` key in a > partial to access the footer elements for the site.
+> - `"Button"` is another key set to `true`. This allows you to > conditionally render an element if the `"Button"` key is present > and set to true.
+> 
+> Below is the partial:
+> ```html
+{{with $.Menu }}
+<nav>
+    {{if $.Button}}
+    <button class="hamburger">&#9776;</button>
+    {{end}}
+    <ul>
+        {{range $.Menu}}
+        <li>
+            <a href="{{.URL}}">{{.Name | humanize}}</a>
+            {{if .HasChildren}}
+            <ul>
+                {{ range .Children }}
+                <li><a href="{{.URL}}">{{.Name | humanize}}</a></li>
+                {{end}}
+            </ul>
+            {{end}}
+        </li>
+        {{end}}
+    </ul>
+</nav>
+{{end}}
+> ```
+> 
+> The previous example, the partial requires an argument of type `.> Menu` to process. This allows you to pass different menus on the > `site.Menus.menuType` parameter.
+
+#### Nesting submenus
+
+Hugo lets you infinitely nest submenus. You can access them with the `.HasChildren` and `.Children` properties.
+
+Each menu item has a Boolean property `.HasChildren` and a slice array that contains any children named `.Children`. You can use the `range` function to conditionally iterate over this slice to render any children in a menu:
+
+```html
+...
+{{range $.Menu}}
+<li>
+    <a href="{{.URL}}">{{.Name | humanize}}</a>
+    {{if .HasChildren}}
+    <ul>
+        {{ range .Children }}
+        <li><a href="{{.URL}}">{{.Name | humanize}}</a></li>
+        {{end}}
+    </ul>
+    {{end}}
+</li>
+{{end}}
+```
+
+The previous example uses nested `range` loops to render menu items, and then conditionally render any submenus if the menu item's `.HasChildren` property returns true in the existence check.
+
+[Menu variables](https://gohugo.io/variables/menus/)
+[Menu templates](https://gohugo.io/templates/menu-templates/)

@@ -6,7 +6,7 @@ description: >
   How to add, work with, and process Templates.
 ---
 
-# Need to detail each of these hugo objects, like site.RegularPages
+## Need to detail each of these hugo objects, like site.RegularPages
 
 Hugo compiles the template files in `layouts/` with the mardown content files to create HTML pages to serve to the browser.
 
@@ -271,3 +271,58 @@ In the previous example:
 3. Loop through the multidimensional slice with the `range` function as you would in Go code, with the key and value double assignment.
 4. If the index is `0`, then create a table head element and continue processing.
 5. Loop through the remaining values in the slice with the standard `range` loop.
+
+
+## Content type
+
+A _content type_ is a colleciton of templates that can render pages from markup according to a design. For example, a blog is a content type, an API endpoint is a topic type.
+
+A _theme_ is a collection of content types that link to form a website. Each theme has a default type that all pages revert to if they are explicitly assigned a content type. For example, the `layouts/shortcodes/index.html` file is always the default type for the theme.
+
+Hugo uses the default template that the theme provides unless you set the `type: _content type_` in the page's frontmatter. In addition, it uses the `content/` subdirectory name as the content type. For example, if you create a new file in the `content/endpoints/` directory, Hugo uses the `endpoints` content type if it exists. If it does not exist, it uses the default content type.
+
+### Create a new content type
+
+To create a content type, create a new folder in the `content/` directory, and name it using the name of the new content type. Then, place an `index.html` file in that directory.
+
+### Base template
+
+The _base template_ contains the common HTML parts of a web page (header, main, footer) that acts as a skeleton for other templates and partials to build on.
+
+The base template should be generic so that it works well with all content types.
+
+Create a `baseof.html` file in the `layouts/theme-name/` directory.
+
+> The top-level context of a base template is the page.
+
+### Blocks
+
+A _block_ is content that you can override in specialized templates. Add blocks to the base template for sections that you expect child templates will override. You can provide a default value that is executed if a child template does not override the block. The following example shows how you define a block in the base template, and how you override it in a child template:
+
+```html
+<!-- baseof.html -->
+{{block "blockname" blockArg}}
+{{end}}
+
+<!-- Child template -->
+{{define "blockname"}}
+<!-- use (.) to referene the blockArg, which is actually
+     a context variable -->
+{{end}}
+```
+The `define` keyword tells Hugo that the template defines blocks that are within the base template.
+
+Blocks should have reasonable defaults, and any parameters should be optional.
+
+### Layouts
+
+A _layout_ is one of the different types of pages you can render using templates in Hugo. There are four main layouts:
+- List layout: Renders index pages of sections within the website. This provides a list of all subsections and pages within each section.
+- Single layout: Regular webpage with markdown content.
+- Index layout: Renders the home page for the entire website and is present at the root.
+- 404 layout: Base for all error pages within the site. Usually a 404 page is enough for static websites.
+
+And there are two less important layouts:
+- Taxonomy layout: Render the list of taxonomy tags.
+- Terms layout: Render the list of pages associated with the taxonomy tags.
+

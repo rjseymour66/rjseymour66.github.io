@@ -18,17 +18,7 @@ Measure the impact of a template on the overall build with the `--templateMetric
 $ hugo --templateMetrics
 ```
 
-If a partial is used more than a once, you can cache it to increase performance with `partialCached` function:
 
-```go
-{{ partialCached "menu.html" (dict "Menu" site.Menus.footer) "footer" }}
-```
-
-The previous example renders the footer from the `site.Menus.footer` object, and uses `"footer"` to create a variant that renders only the footer links (`"footer"` is a boolean in this example). This lets you cache distinct versions of a partial without having to execute the template multiple times.
-
-[partialCached](https://gohugo.io/functions/partialcached/)
-
-[Blog about partialCached](https://www.regisphilibert.com/blog/2019/12/hugo-partial-series-part-1-caching-with-partialcached/)
 ## Go templating language
 
 Content outside of the double braces is treated as a raw string that you can pass into the final HTML. Information in the `content/` folder is available with variables, including the following top-level variables:
@@ -439,3 +429,22 @@ The previous example uses nested `range` loops to render menu items, and then co
 
 [Menu variables](https://gohugo.io/variables/menus/)
 [Menu templates](https://gohugo.io/templates/menu-templates/)
+
+
+### Caching partials
+
+If a partial is used more than a once, you can cache it to increase performance with `partialCached` function:
+
+```go
+{{ partialCached "menu.html" (dict "Menu" site.Menus.footer) "footer" }}
+```
+
+The previous example renders the footer from the `site.Menus.footer` object, and uses `"footer"` to create a variant that renders only the footer links (`"footer"` is a boolean in this example). This lets you cache distinct versions of a partial without having to execute the template multiple times.
+
+[partialCached](https://gohugo.io/functions/partialcached/)
+
+[Blog about partialCached](https://www.regisphilibert.com/blog/2019/12/hugo-partial-series-part-1-caching-with-partialcached/)
+
+### Caching resource information with partials
+
+You can temporarily hold data with the `scratch` data structure, which functions as a mutable dictionary. This is helpful because Hugo does not let you modify a slice or dict.

@@ -10,6 +10,12 @@ description: >
 
 Flexbox is short for Flexible Box Layout, and can help you arrange elements in a row or column, vertically center items, and make elements equal height. 
 
+In general, start a flexbox with the following methods:
+- Apply `display: flex` to the flex container.
+- Set a `gap` or `flex-direction`, as needed.
+- Declare `flex` values for the flex items to control their size, as needed.
+
+## Flex container
 
 Apply `display: flex` to an element to turn it into a _flex container_, and all of its children become _flex items_. By default, flex items are the same height, and the height is determined by their content.
 
@@ -54,6 +60,17 @@ The shorthand `flex` property is usually all you need. For example, the followin
     flex: 1;
 }
 ```
+
+When you need flex items to grow to fill their container, set `flex` to any value other than `0`.
+
+## Flex direction
+
+Add the `flex-direction` style to the flex container.
+
+When you change the flex direction to `column`, that means that `flex-basis`, `flex-grow`, and `flex-shrink` apply to the element height, not width. The flex container's height is still determined by the contents of its flex items.
+
+
+
 ## Old notes
 
 Flexbox allows you to define 1-D layouts. It works from the content out. Use it for rows or columns of similar elements. You don't need to set the size, because that is determined by the content.
@@ -90,12 +107,24 @@ Apply the following properties to the flex container:
     justify-content: space-between;
     /* align-* props use the cross-axis */
     align-items: flex-start;
+    /* align-content works only when flex-wrap is enabled. It 
+    controls the spacing of the flex rows along the cross axis. */
     align-content: stretch;
     gap: 1rem;
     row-gap: 1rem;
     column-gap: 1rem;
 }
 ```
+
+- `flex-wrap: column/column-reverse` only works when something constrains the container.
+
+`justify-content`, `align-items`, and `align-content` all accept the following values:
+- `flex-start`, `start`, `left`
+- `flex-end`, `end`, `right`
+- `center`
+- `space-between`
+- `space-around`
+- `space-evenly`
 
 ### Flex item properties
 
@@ -108,9 +137,19 @@ Apply the following properties to the flex container:
     flex-shrink: 2;
     flex-basis: auto;
     flex: 1;
-    /* uses cross-axis */
+    /* uses cross-axis, overrides the container align-items
+    value. Ignored if item has margin: auto on cross-axis. */
     align-self: flex-start;
 }
+```
+
+`align-self` accepts the following properties:
+- `auto`
+- `flex-start`, `start`, `self-start`
+- `flex-end`, `end`, `self-end`
+- `center`
+- `stretch`
+- `baseline`
 
 ```
 ### flex: property

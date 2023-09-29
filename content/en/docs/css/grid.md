@@ -8,20 +8,87 @@ description: >
 
 Grid lets you create 2-D layouts. It works from the layout in.
 
+Like flexbox, grid has two levels that create a hierarchy:
+- grid container
+- grid items
+
 Grid containers behave like block elements, it fills 100% of the available width.
 
-You can use the `fr` unit, which stands for `fraction unit`. This is analogous to `flex-grow` in flexbox.
+## Flexbox vs Grid
 
-`grid-gap` defines the amount of space to add to the gutter between each grid cell. If you define this, it lies atop the grid lines.
+Flexbox is one-dimensional---you cannot align items in one row with the next. The size of flexbox items is determined by their contents. In other words, flexbox works from the content out, meaning that you can arrange flex items in a row or column, but you do not have to explicitly set their size.
+
+Use flexbox for things like navbars.
+
+Grids is two-dimensional---you can align items vertically and horizontally. Grid works from the layout in. You begin by defining a layout and placing items within that structure. If a grid item's contents grow beyond its grid track, then it affects other items in the grid.
+
+### When to use what?
+
+If you need to align items in two dimensions, use grid.
+
+If you need to align items in one direction (like navs), use flexbox.
+
+## Columns and rows
+
+Define the column and rows in the grid container definition. You can create a layout with the following properties:
+- `grid-template-columns`
+- `grid-template-rows`
+
+For example, the following ruleset defines three rows and columns of equal width and height:
+
+```css
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 0.5em;
+}
+```
+
+### `fr`
+
+The `fr` unit, which stands for `fraction unit`, is analogous to `flex-grow` in flexbox. You can mix and match `fr` units with other units, such as `px`.
+
+### `auto`
+
+To create columns or rows that grow according to their contents, use the `auto` value. For example, the following ruleset creates four columns that are sized based on their contents:
+
+```css
+.grid {
+  grid-template-columns: repeat(4, auto);
+}
+```
+
+### `gap`
+
+`gap` defines the amount of space to add to the gutter between each grid cell. You can provide two values to `gap`, where the first is row gap and the second is column gap.
+
+
+### `repeat()`
+
+You could also define the rows and columns with the `repeat()` function:
+
+```css
+.grid {
+  ...
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  ...
+}
+```
+
+### `span`
+
+
 
 ### Terminology
 
 - grid container: The element that you apply `display: grid` to
 - grid item: A child of the grid container.
 - grid line: The line between the columns and rows.
-- grid cell: Area between grid lines.
-- grid track: The space between two adjacent grid lines.
-- grid area: The total space surrounded by four grid lines.
+- grid cell: Single space on the grid where horizontal and vertical tracks overlap.
+- grid track: The space between two adjacent grid lines. This is a different way to say _row_ or _column_. A horizontal track is a row, and vertical is column.
+- grid area: The total space surrounded by four grid lines---a rectangle of one or more grid cells.
 
 ### Grid container properties
 
@@ -89,9 +156,22 @@ Apply the following properties to the grid items:
 - `minmax(min, max)`: sets the min and max for the element.
 - `repeat(num, size)`: creates `num` rows or columns of `size` width
 
+### Grid lines
+
+You can place grid items in the grid container using the grid lines and the following properties:
+- `grid-column`
+- `grid-row`
+
+If you have a grid that has 4 columns, and you want a grid item to span the first three columns, apply the following rule:
+```css
+.grid-item {
+    grid-column: 1 / 4;
+}
+```
+
 ### Grid areas
 
-If you don't want to count grid lines to place items, use grid areas. You apply `grid-template` on the grid container, and then the `grid-area` property on the child elements:
+If you don't want to count grid lines to place items, use grid areas. You apply `grid-template` on the grid container, and then assign the area with the `grid-area` property on the child elements:
 
 ```css
 .container {
@@ -116,6 +196,16 @@ nav {
     grid-area: nav;
 }
 ...
+```
+To leave a cell empty, use a period. The following example creates an empty cell in the center:
+
+```css
+.grid-container {
+    grid-template-areas:
+        "title tile right"
+        "left  .    left"
+        "footer footer footer";
+}
 ```
 
 ### Implicit grid

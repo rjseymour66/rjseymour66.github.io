@@ -1,5 +1,5 @@
 ---
-title: "Box model"
+title: "Box model and layout"
 linkTitle: "Box model"
 weight: 2
 description: >
@@ -48,6 +48,22 @@ You can create this pattern using the logical properties:
     margin: auto;
 }
 ```
+
+### Double container with `min()`
+
+You can also set up the double container with the `min()` function. The `min()` function always applies the smaller of the two values to the HTML. For example:
+
+```css
+.container {
+  --max-width: 1110px;
+  --side-padding: 1rem;
+
+  width: min(var(--max-width), 100% - var(--side-padding) * 2)
+}
+```
+This example sets the container width to either 1110px or 100% of the screen, with 1rem of padding on either side. On a large monitor, the container displays at 1110px. When the display is smaller than 1110px, it displays the other `min()` setting, which leaves 1rem of padding on either side.
+
+
 
 ## Logical properties
 

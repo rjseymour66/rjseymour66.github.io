@@ -8,12 +8,25 @@ description: >
 
 ## Flex
 
+[Flex visual cheatsheet](https://flexbox.malven.co/)
+
 Flexbox is short for Flexible Box Layout, and can help you arrange elements in a row or column, vertically center items, and make elements equal height. 
 
 In general, start a flexbox with the following methods:
 - Apply `display: flex` to the flex container.
 - Set a `gap` or `flex-direction`, as needed.
 - Declare `flex` values for the flex items to control their size, as needed.
+
+
+Flexbox allows you to define 1-D layouts. It works from the content out. Use it for rows or columns of similar elements. You don't need to set the size, because that is determined by the content.
+
+
+Flex items align side by side, left to right, in a row. Use `flex-direction` to change this.
+
+A flex container takes up 100% of its available width, while the height is determined natually by its contents. The `line-height` of the text inside each flex item is what determines the height of each item.
+
+Margins between flex items do not collapse like in the regular document flow.
+
 
 ## Flex container
 
@@ -33,6 +46,8 @@ The `flex` property controls the size of the flex items along the main axis.
 
 By default, flex is set to `flex: 0 1 auto`. It consists of three properties: `flex-grow`, `flex-shrink`, and `flex-basis`:
 - `flex-basis`: Defines a starting size of an element. Set this like you would set a width, with px, ems, percentages.
+
+  When you set `flex-basis` to `auto`, then flexbox looks to see if there is a defined width. If so, it uses the width. Otherwise, it uses the contents to size the item.
   
   By default, this is set to `auto`. When set to `auto`, the browser checks if there is a `width` declared on the element. If there is a `width`, the browser uses the `width` setting. If there is no `width`, the browser determines the size by the item's contents. If you have a `width` set, but `flex-basis` is set to anything other than `auto`, then the browser ignores the `width` setting.
 - `flex-grow`: When the browser calculates the `flex-basis`, it does not necessarily fill the width of the flex container. Any remaining space is consumed according to the `flex-grow` setting on each flex item.
@@ -69,30 +84,21 @@ Add the `flex-direction` style to the flex container.
 
 When you change the flex direction to `column`, that means that `flex-basis`, `flex-grow`, and `flex-shrink` apply to the element height, not width. The flex container's height is still determined by the contents of its flex items.
 
+Swaps the direction of the main-axis and the cross-axis. 
 
+For `flex-direction` is a row, the `flex` property applies to the width of the container. When `flex-direction` is column, the `flex` property applies to the height of the container.
 
-## Old notes
+### Flex basis and flex directions
 
-Flexbox allows you to define 1-D layouts. It works from the content out. Use it for rows or columns of similar elements. You don't need to set the size, because that is determined by the content.
+If you set `flex-basis` to anything other than `auto`, flexbox ignores any height setting and only uses the contents. This is because `flex-grow` and `flex-shrink` begin calculating the sizing values at 0. If the flex item is empty, then it will not have any height.
 
+This is tricky when you are using `flex-direction: column`;. When arranged in a row, flex items take up the width of their container because they are block elements. When arranged in a column, flex items default to the height of their container because they are block elements. If there is no content, that height is 0.
 
+Depending on the `flex-direction`, `flex-basis` refers to the following:
+- row: width 
+- column: height
 
-
-
-Flex items align side by side, left to right, in a row. Use `flex-direction` to change this.
-
-A flex container takes up 100% of its available width, while the height is determined natually by its contents. The `line-height` of the text inside each flex item is what determines the height of each item.
-
-
-
-Margins between flex items do not collapse like in the regular document flow.
-
-Styling with flexbox involves the following:
-- Identify the flex container and apply `flex: display;`
-- Set `flex-direction`, if necessary.
-- Declare margins or `flex` values for the flex items to control their sizes.
-
-### Flex container properties
+## Flex container properties
 
 Apply the following properties to the flex container:
 
@@ -126,7 +132,7 @@ Apply the following properties to the flex container:
 - `space-around`
 - `space-evenly`
 
-### Flex item properties
+## Flex item properties
 
 Apply the following properties to the flex container:
 
@@ -191,8 +197,57 @@ The first and third columns have a fixed width of 200px, and the center column g
 }
 ```
 
-### Flex direction
+## Use cases
 
-Swaps the direction of the main-axis and the cross-axis. 
+[Typical use cases](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Flexible_Box_Layout/Typical_Use_Cases_of_Flexbox)
 
-For `flex-direction` is a row, the `flex` property applies to the width of the container. When `flex-direction` is column, the `flex` property applies to the height of the container.
+### Cards
+
+You can use flexbox to make cards that are all the same size. For example, if you have a row of cards with a button at the bottom, you can push the button all the way to the bottom by setting `flex-grow` and `flex-shrink` to `1`, and `flex-basis` to `auto`. You can also use the `flex: 1;` shorthand:
+
+```html
+<div class="cards">
+  <div class="card">
+    <div class="content">
+      <p>This card doesn't have much content.</p>
+    </div>
+    <footer>Card footer</footer>
+  </div>
+  <!-- more cards... -->
+</div>
+```
+
+```css
+.card {
+  display: flex;
+  flex-direction: column;
+}
+
+.card .content {
+  /* flex: 1 1 auto; */
+  flex: 1;
+}
+```
+
+Because the `div.content` is the only item that can grow, it grows to fill up its container. When `flex-direction` is set to `column`, the items grow to fill the height of the container.
+
+### Forms and search bars
+
+```html
+<form class="example">
+  <div class="wrapper">
+    <input type="text" id="text">
+    <input type="submit" value="Send">
+  </div>
+</form>
+```
+
+```css
+.wrapper {
+  display: flex;
+}
+
+.wrapper input[type="text"] {
+  flex: 1 1 auto;
+}
+```

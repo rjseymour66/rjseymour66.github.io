@@ -1,6 +1,6 @@
 ---
-title: "Box model and layout"
-linkTitle: "Box model"
+title: "Layout and box model"
+linkTitle: "Layout"
 weight: 2
 description: >
   Notes about basic Box model.

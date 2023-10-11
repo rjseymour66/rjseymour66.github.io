@@ -14,6 +14,10 @@ _Inline elements_ flow along with the text of the page and will line wrap if the
 
 _Block elements_ have a line break before and below them. The user-agent stylesheet sets block elements to `display: block;`.
 
+- _inline-block_ elements use margin and padding for their height, but behave like inline elements.
+- _div_ is a generic block element that you can use as a container.
+- _span_ is a generic inline element that you can use to group text and other inline elements.
+
 ### Height and width
 
 Contents fill the width of their container, then line wrap if thats their behavior. 

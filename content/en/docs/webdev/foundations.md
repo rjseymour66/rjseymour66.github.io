@@ -30,7 +30,7 @@ description: >
 </head>
 ```
 
-### Add/remove elements to DOM
+### Add/remove DOM elements
 
 - `parentNode.appendChild(childNode)` - appends childNode as the last child of parentNode.
   > Append child nodes to the parent element before you append the parent element to the DOM.
@@ -42,6 +42,18 @@ description: >
   const linkPara = document.querySelector("p");
   linkPara.parentNode.removeChild(linkPara);
   ```
+### Remove all child elements
+
+If you are creating nodes with Javascript and appending them to a parent (like a contaier), then you need to remove all child nodes before you refresh the elements:
+
+```js
+const container = document.querySelector('.grid-container');
+
+while (container.firstChild) {
+    container.removeChild(container.firstChild);
+}
+```
+So, while the container has a first child, remove the first child frm the container.
 
 ### append() vs appendChild()
 

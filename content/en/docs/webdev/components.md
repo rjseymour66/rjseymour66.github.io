@@ -1,7 +1,7 @@
 ---
 title: "Components"
 # linkTitle: "Components"
-weight: 20
+weight: 40
 description: >
   Building different UI components.
 ---

@@ -1,7 +1,7 @@
 ---
 title: "CSS"
 # linkTitle: "CSS"
-weight: 15
+weight: 30
 description: >
   Setting up a CSS file.
 ---

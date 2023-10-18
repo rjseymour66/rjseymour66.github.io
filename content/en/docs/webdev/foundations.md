@@ -203,3 +203,129 @@ btn.addEventListener("click", function (e) {
      });
    });
    ```
+
+## Objects
+
+Define an object with curly braces and an optional list of properties that are key/value pairs.
+
+### Properties
+
+Multiword properties must use quotes:
+
+```js
+// you can use a comma after the last property
+let user = {
+  name: "John",
+  age: 30,
+  "likes birds": true,
+};
+```
+
+#### Add or remove properties
+
+```js
+// add
+user.isAdmin = true;
+
+// delete
+delete user.age;
+```
+
+#### Square brackets and properties
+
+```js
+let user = {};
+
+// set
+user["likes birds"] = true;
+
+// get
+alert(user["likes birds"]); // true
+
+// delete
+delete user["likes birds"];
+```
+
+#### undefined
+
+If you try to access a property that doesn't exist, you get `undefined`:
+
+```js
+$ let user = {};
+undefined
+$ user
+{}
+$ user.noProp;
+undefined
+```
+
+#### Key in test
+
+```js
+$ let user = {name: 'Jake', age: 40};
+undefined
+$ "name" in user
+true
+$ "age" in user
+true
+```
+
+### Create an object
+
+```js
+let user = new Object();
+let user = {};
+```
+
+The following are equal:
+
+```js
+let createUser = (name, age) => {
+  return {
+    name: name,
+    age: age,
+  };
+};
+
+let createUser = (name, age) => {
+  return {
+    name,
+    age,
+  };
+};
+```
+
+### for...in loop
+
+```js
+let user = {
+    name: 'Ryan',
+    age: 40,
+    likes: 'stuff',
+}
+
+$ for (let key in user) {
+    console.log(key)
+}
+name
+age
+likes
+```
+
+If the keys can be converted to or from an integer, then JS automatically orders them. Otherwise, they are listed in the order that you created them:
+
+```js
+$ let nums = {
+  10: "ten",
+  5: "five",
+  1: "one",
+};
+
+
+$ for (let key in nums) {
+  console.log(key);
+}
+1;
+5;
+10;
+```

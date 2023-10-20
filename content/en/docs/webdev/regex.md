@@ -42,4 +42,5 @@ Quantifiers define how many
 - `\S`: anything other than a whitespace character.
 - `{min,max}`: match any characters between min and max. So `/\w{4,5}\/g` matches any 4 or 5 consequtive word characters.
 - `[bc]at`: matches bat or cat. 
-- `[a-zA-Z]`: any word that ends in `at` and starts with an uppercase or lowercase letter.
+- `[a-zA-Z]`: any word that ends in `at` and starts with an uppercase or lowercase letter. Works with numbers too (`[0-9]`)
+- `()`: groups

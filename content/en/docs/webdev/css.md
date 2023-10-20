@@ -565,3 +565,482 @@ You can minimize these drawbacks with React or Webpack.
 [Table basics](https://developer.mozilla.org/en-US/docs/Learn/HTML/Tables/Basics)
 [Table advanced](https://developer.mozilla.org/en-US/docs/Learn/HTML/Tables/Advanced)
 [Data Table Design UX Patterns](https://pencilandpaper.io/articles/ux-pattern-analysis-enterprise-data-tables/)
+
+
+## CSS Units
+
+Use `rem` for font sizes.
+
+[This article](https://codyloyd.com/2021/css-units/) says to use rem for fonts and px for everything else. This is because padding and margin scale along with the font. You might want to use rem instead of px at times.
+
+### viewport units
+
+Use cases:
+
+- full-height heroes
+- full-screen app-like interfaces
+
+Other examples and implementations in this CSS tricks article, [Fun With Viewport Units](https://css-tricks.com/fun-viewport-units/):
+
+- Responsive typography
+- Full-Height layouts, hero images, and sticky footers
+- Fluid aspect ratios
+- [Full width containers in Limited width parents](https://css-tricks.com/full-width-containers-limited-width-parents/)
+- Scroll indicators
+
+### Kevin Powell suggestions
+
+[Youtube link](https://www.youtube.com/watch?v=N5wpD9Ov_To)
+
+- font size: rem
+- widths (page/container widths): percentage
+- padding/margin: rem or em
+- document flow: rem to make it consistent through the doc, or use em if you want more space (like between headings for whitespace)
+- media queries: em bc it is consistent between browsers
+- height: use min-height() when you need to set a height so that the content does not overflow at the bottom if the viewport size changes.
+- shadow-box: px
+- border-radius: px
+
+## Text and typography
+
+Good article: [Modern CSS Techniques to Improve Legibility](https://www.smashingmagazine.com/2020/07/css-techniques-legibility/)
+
+If your `font-family` property setting uses this hierarchy:
+
+1. First setting
+2. Fallback font
+3. Default user agent style
+
+You can make sure you get the font that you want with the [system font stack](https://css-tricks.com/snippets/css/system-font-stack/), which is a long list of fallback fonts.
+
+With variables:
+
+```css
+:root {
+  --system-ui: system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+}
+
+.element {
+  font-family: var(--system-ui);
+}
+```
+
+Without variables:
+
+```css
+/* Define the "system" font family */
+@font-face {
+  font-family: system-ui;
+  font-style: normal;
+  font-weight: 300;
+  src: local(".SFNSText-Light"), local(".HelveticaNeueDeskInterface-Light"),
+    local(".LucidaGrandeUI"), local("Ubuntu Light"), local("Segoe UI Light"),
+    local("Roboto-Light"), local("DroidSans"), local("Tahoma");
+}
+
+/* Now, let's apply it on an element */
+body {
+  font-family: "system-ui";
+}
+```
+
+### Online fonts
+
+To prevent long lists of font-family values, you can include an online font library:
+
+- [Google Fonts](https://fonts.google.com/)
+- [Font Library](https://fontlibrary.org/)
+- [Adobe Fonts (not free)](https://fonts.adobe.com/)
+
+You can include them with link tags in the HTML or `@import` statement at the top of the stylesheet.
+
+### Downloaded fonts
+
+A downloaded font is a font that you downloaded from the web. This requires that you use the `@font-face` rule, then use the `font-family` property:
+
+```css
+@font-face {
+  font-family: my-cool-font;
+  src: url(../fonts/the-font-file.woff);
+}
+
+h1 {
+  font-family: my-cool-font, sans-serif;
+}
+```
+
+Here are some links:
+
+- [W3 general info](https://www.w3schools.com/css/css3_fonts.asp)
+- [Font file formats](https://fileinfo.com/filetypes/font)
+
+## Font styles
+
+### Italics
+
+- `font-style`:
+  - If italics are for styling purposes, use `font-style: italic;`
+  - If italics are for emphasis, use `<em>` tags
+- `letter-spacing`: space between letters
+- `line-height`: space between lines in wrapped text.
+- `text-transform`: Changes the case of the text (ex: all UPPERCASE)
+- `text-shadow`: Shadow around text. `text-shadow: offset-x | offset-y | blur-radius | color` [MDN docs](https://developer.mozilla.org/en-US/docs/Web/CSS/text-shadow)
+- `ellipsis`: Use this with other properties to put an ellipsis in place of overflowing text:
+  ```css
+  .overflowing {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  ```
+  You need this because text will write outside of its container, by default. See [CSS Tricks](https://css-tricks.com/snippets/css/truncate-string-with-ellipsis/) for in-depth info.
+
+## CSS properties
+
+### background
+
+[MDN docs](https://developer.mozilla.org/en-US/docs/Web/CSS/background)
+[CSS Tricks](https://css-tricks.com/almanac/properties/b/background/)
+
+Includes 8 properties that can do the following:
+
+- change background color
+- add background images
+- change position and size of background images
+- repeat or tile the images
+- create background layers
+
+### box-shadow
+
+[MDN docs](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow)
+
+Adds effects around elements.
+
+### overflow
+
+[MDN docs](https://developer.mozilla.org/en-US/docs/Web/CSS/overflow)
+[CSS Tricks](https://css-tricks.com/almanac/properties/o/overflow/)
+
+How an elment behaves when its content is too big.
+
+### opacity
+
+[MDN docs](https://developer.mozilla.org/en-US/docs/Web/CSS/opacity)
+
+Sets the opacity.
+
+## Advanced selectors
+
+[MDN combinators](https://developer.mozilla.org/en-US/docs/Learn/CSS/Building_blocks/Selectors/Combinators)
+
+### Pseudo-classes
+
+[MDN classes vs elements](https://developer.mozilla.org/en-US/docs/Learn/CSS/Building_blocks/Selectors/Pseudo-classes_and_pseudo-elements)
+[MDN docs](https://developer.mozilla.org/en-US/docs/Web/CSS/Pseudo-classes#location_pseudo-classes)
+
+Classes use a single colon and target elements that already exist in the HTML. Some common ones are:
+
+- `:focus `
+- `:hover `
+- `:active`
+
+Structural pseudo-classes:
+
+- `:root` that represents the very top level of your document
+- `:first-child`
+- `:last-child`
+- `:empty` for elements that have no children at all
+- `:only-child` for elements that do not have any siblings
+- `:nth-child`
+
+  ```css
+  .myList:nth-child(5) {
+    /* Selects the 5th element with class myList */
+  }
+
+  .myList:nth-child(3n) {
+    /* Selects every 3rd element with class myList */
+  }
+
+  .myList:nth-child(3n + 3) {
+    /* Selects every 3rd element with class myList, beginning with the 3rd */
+  }
+
+  .myList:nth-child(even) {
+    /* Selects every even element with class myList */
+  }
+  ```
+
+### Pseudo-elements
+
+[MDN docs](https://developer.mozilla.org/en-US/docs/Web/CSS/Pseudo-elements)
+
+Elements use a double colon and target elements that do not normally exist or are not elements at all:
+
+- `::marker` style `li` bullets or numbers
+- `::first-letter`
+- `::first-line`
+- `::selection` change styling when user selects text on the page.
+- `::before`
+- `::after`
+
+### Advanced selectors
+
+[Complete list](https://css-tricks.com/almanac/selectors/)
+[MDN attribute selectors](https://developer.mozilla.org/en-US/docs/Web/CSS/Attribute_selectors)
+[Complex Selectors](https://learn.shayhowe.com/advanced-html-css/complex-selectors/)
+[CSS Tricks: Taming Advanced CSS Selectors](https://www.smashingmagazine.com/2009/08/taming-advanced-css-selectors/)
+[CSS Tricks: The Skinny on CSS Attribute Selectors](https://css-tricks.com/attribute-selectors/)
+
+Select and style any attribute:
+
+- `[attribute]`
+- `selector[attribute]`
+- `[attribute="value"]`
+
+```css
+[src] {
+  /* This will target any element that has a src attribute. */
+}
+
+img[src] {
+  /* This will only target img elements that have a src attribute. */
+}
+
+img[src="puppy.jpg"] {
+  /* This will target img elements with a src attribute that is exactly "puppy.jpg" */
+}
+```
+
+- `[attribute^="value]` match from the start
+- `[attribute$="value"]` match from the end
+- `[attribute*="value]` match anywhere inside the string
+
+```css
+[class^="aus"] {
+  /* Classes are attributes too!
+    This will target any class that begins with 'aus':
+    class='austria'
+    class='australia'
+  */
+}
+
+[src$=".jpg"] {
+  /* This will target any src attribute that ends in '.jpg':
+  src='puppy.jpg'
+  src='kitten.jpg'
+  */
+}
+
+[for*="ill"] {
+  /* This will target any for attribute that has 'ill' anywhere inside it:
+  for="bill"
+  for="jill"
+  for="silly"
+  for="ill"
+  */
+}
+```
+
+## Positioning
+
+[MDN docs](https://developer.mozilla.org/en-US/docs/Web/CSS/position)
+[CSS Tricks](https://css-tricks.com/absolute-relative-fixed-positioining-how-do-they-differ/)
+[Fixed vs Sticky](https://www.kevinpowell.co/article/positition-fixed-vs-sticky/)
+
+- `position: static;` is the default mode for all elements. `top`, `right`, `bottom`, and `left` do not affect static elements.
+
+When you position elements, you remove them from the normal document flow. This means that the positioned elements do not affect other elements, and other elements do not affect the positioned element.
+
+### Relative
+
+Positions relative to the parent element and removes it from the doc flow.
+
+### Absolute
+
+Position something at an exact point on the screen without affecting any elements around it. It removes it from the normal document flow and positions it relative to an ancestor element.
+
+#### Use cases
+
+- modals
+- image with a caption on top of it
+- icons on top of other elements
+
+### Fixed
+
+Removed from the normal flow of the document and positioned relative to the viewport with `top`, `right`, `bottom`, and `left`.
+
+Fixed elements stay in the same place as the user scrolls.
+
+#### Use cases
+
+- navigation bars
+- floating chat buttons
+
+### Sticky
+
+Behave like `static` elements until you scroll past them, then they behave like `fixed` elements and stay at the offset that you set for them. They are not taken out of the document flow.
+
+#### Use cases
+
+- section headings
+
+## CSS Functions
+
+[Practical use cases](https://moderncss.dev/practical-uses-of-css-math-functions-calc-clamp-min-max/)
+[MDN complete list of functions](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Functions)
+[min(), max(), clamp() info](https://web.dev/articles/min-max-clamp)
+
+### calc()
+
+You can nest `calc()`:
+
+```css
+:root {
+  --header: 3rem;
+  --footer: 40px;
+  --main: calc(100vh - calc(var(--header) + var(--footer))); /*
+  --main: calc(100vh - (3rem + 40px))
+  */
+}
+```
+
+### min()
+
+Applies the smaller value to the element:
+
+```css
+img {
+  width: min(150px, 100%);
+}
+```
+
+If there is 150px available to the image, then it uses it. Otherwise, the image is set to 100% of its parent element.
+
+You can also see this as "at maximum, the image is 150px wide"
+
+### max()
+
+Applies the larger value to the element:
+
+```css
+img {
+  width: min(100px, 4em, 50%);
+}
+```
+
+If there is enough viewport size to apply 4em or 50%, then it is applied. If there isn't, the image is 100px wide.
+
+### clamp()
+
+Makes elements fluid and responsive. Accepts 3 values:
+
+- smallest val
+- ideal val
+- largest val
+
+```css
+h1 {
+  font-size: clamp(320px, 80vw, 60rem); /*
+  font-size: clamp(smallest, ideal, largest); */
+}
+```
+
+## Custom properties
+
+CSS variables that you can use within the context or scope that they are defined.
+
+### Fallback values
+
+```css
+.fallback {
+  --color-text: white;
+
+  background-color: var(--undeclared-property, black);
+  color: var(--undeclared-again, var(--color-text, yellow));
+}
+```
+
+### Scope
+
+The scope of a custom property includes the selector that the custom property was delcared in, and any descendants of that selector.
+
+To make custom properties globally available, put them on the `:root` selector:
+
+```css
+:root {
+  --custom-prop: value;
+}
+```
+
+### Themes with custom properties
+
+You can add dark and light themes with custom properties. First, create the theme colors with class styles on the `:root` element:
+
+```css
+:root.dark {
+  --border-btn: 1px solid rgb(220, 220, 220);
+  --color-base-bg: rgb(18, 18, 18);
+  --color-base-text: rgb(240, 240, 240);
+  --color-btn-bg: rgb(36, 36, 36);
+}
+
+:root.light {
+  --border-btn: 1px solid rgb(36, 36, 36);
+  --color-base-bg: rgb(240, 240, 240);
+  --color-base-text: rgb(18, 18, 18);
+  --color-btn-bg: rgb(220, 220, 220);
+}
+
+/* apply custom props to elements below */
+```
+
+Then, use JS to grab the root element (`documentElement`), and toggle the theme:
+
+```js
+let setTheme = () => {
+  const root = document.documentElement;
+  const newTheme = root.className === "dark" ? "light" : "dark";
+  root.className = newTheme;
+
+  document.querySelector(".theme-name").textContent = newTheme;
+};
+
+document.querySelector(".theme-toggle").addEventListener("click", setTheme);
+```
+
+#### prefers-color-scheme media query
+
+You can also set the theme according to the user agent settings. If you have the user agent set to dark, then this media query sets the styles to the dark theme. The media query accepts only `light` and `dark` as arguments:
+
+```css
+:root {
+  --border-btn: 1px solid rgb(36, 36, 36);
+  --color-base-bg: rgb(240, 240, 240);
+  --color-base-text: rgb(18, 18, 18);
+  --color-btn-bg: rgb(220, 220, 220);
+  --theme-name: "light";
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --border-btn: 1px solid rgb(220, 220, 220);
+    --color-base-bg: rgb(18, 18, 18);
+    --color-base-text: rgb(240, 240, 240);
+    --color-btn-bg: rgb(36, 36, 36);
+    --theme-name: "dark";
+  }
+}
+
+/* element styles below */
+```
+
+## Browser compatibility
+
+[Can I use](https://caniuse.com/)
+
+- Major web browsers pretty much share the same compatibility features.
+- On IoS, Safari is the only supported browser. When you install Chrome or Firefox, they use the Safari rendering engine.
+
+  For more info, [read this](https://adactio.com/journal/17428).

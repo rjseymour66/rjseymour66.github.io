@@ -37,7 +37,7 @@ You can add the following attributes to an `<input>` element in the `attribute="
 
 | Attribute | Association | Description |
 |:----------|:------------|:------------|
-| `type`    |   | Tells the browser what type of data to expect. Helps to validate the user entry. Examples inlcude `text`, `email`, `password`, `number`, `date`, `radio`  |
+| `type`    |   | Tells the browser what type of data to expect. Helps to validate the user entry. Examples inlcude `text`, `email`, `password`, `number`, `date`, `radio`, `checkbox`  |
 | `id`      | label `for` | Associates a label to an input element for assistive technology--focusses on the input when the label is clicked. |
 | `placeholder` |   | Guide users on what to add to input fields and how to format it.  |
 | `name`  | The key name for this value in the request object sent to the server.  | Required, or the server ignores the data. Tells the backend know what this data represents.  |

@@ -32,6 +32,16 @@ description: >
 
 Add this reset to your file (adapted from [A Modern CSS Reset](https://andy-bell.co.uk/a-modern-css-reset/)):
 
+> NOTE
+> CSS In-depth recommended adding this to each stylesheet:
+> ```css
+> button,
+> input {
+>   font: inherit;
+> }
+> ```
+> This might be taken care of by the `* {... font: inherit; }` ruleset below.
+
 ```css
 /* Box sizing rules */
 *,
@@ -845,19 +855,95 @@ img[src="puppy.jpg"] {
 
 ## Positioning
 
+
+
 [MDN docs](https://developer.mozilla.org/en-US/docs/Web/CSS/position)
+
 [CSS Tricks](https://css-tricks.com/absolute-relative-fixed-positioining-how-do-they-differ/)
+
 [Fixed vs Sticky](https://www.kevinpowell.co/article/positition-fixed-vs-sticky/)
 
-- `position: static;` is the default mode for all elements. `top`, `right`, `bottom`, and `left` do not affect static elements.
+`position: static;` is the default mode for all elements. `top`, `right`, `bottom`, and `left` do not affect static elements.
 
 When you position elements, you remove them from the normal document flow. This means that the positioned elements do not affect other elements, and other elements do not affect the positioned element.
 
+### z-index
+
+Relative and absolute positioning remove the element from the document flow. This might cause issues with other positioned elements.
+
+When HTML is parsed, the browser creates the DOM tree and a render tree. The render tree represents the physical appearance and position of each element, as well as the order that the browser paints each element.
+
+First, the browser paints all non-positioned elements, then positioned elements according to the _z-index_. Elements that the browser paints later appear in front of previously painted elements, should they overlap.
+
+Elements with a `z-index` establish a _stacking context_. A stacking context is a n element or a group of elements that are painted together with a browser. Elements with a higher `z-index` are positioned in front of elements with a lower `z-index`. Elements with a negative `z-index` are positioned behind static elements. No element outside the stacking context can be positioned between elements in the stacking context.
+
+If an element is positioned within another element's stacking context, then the nested element is painted with the parent element. For example, if a div uses `position: relative;` to act as the containing div for an `abolute` positioned element, then the `absolute` element is painted with its `relative` parent.
+
+Elements within the stacking context are stacked in this order:
+- root element of the stacking context
+- positioned elements with negative z-index and their children
+- non-positioned elements
+- positioned elements witha  z-index of `auto` and their children
+- positioned elements with a positive z-index
+
+### Cheatsheet 
+
+| Positioning | Use cases | Containing block | Description |
+|:------------|:----------|:-----------------|:------------|
+| Fixed       | modal, navigation bars, floating chat buttons   | Viewport         | Positioned relative to viewport. |
+| Absolute    | popup menus, tooltips, "info" boxes | Closest-positioned ancestor element. |  |
+| Relative    | dropdown menus | element with `position: absolute;` |  |
+| Sticky      | section headings |  |  |
+
+
 ### Relative
+
+> Usually establishes the containing block for an absolute element.
 
 Positions relative to the parent element and removes it from the doc flow.
 
+You cannot size the element with the `inset` property---you can only move it in relation to its original location. If you apply both `top` and `bottom`, then `bottom` is ignored. If you apply both `left` and `right`, then right is ignored.
+
+#### Create a dropdown menu
+
+A dropdown consists of a containing div that is positioned `relative`. The following elements are within this container:
+- button that you click to open the menu
+- div that contains a ul. Set this div to `display: none;`. When it is visible, set the display to `block`. This div needs to display exactly below the button that opens the menu, so compute the side of the button element and use apply that value to this div's `top` property.
+  - a ul with the following styles:
+  ```css
+  .ul-class {
+    padding-inline-start: 0;
+    margin: 0;
+    list-style-type: none;
+    border: 1px solid #999;
+  }
+ 
+  .ul-class > li + li {
+    border-top: 1px solid #999;
+  }
+ 
+  .ul-class > li > a {
+    display: block;
+    padding: 0.5em 1.5em;
+    background-color: #eee;
+    color: #369;
+    text-decoration: none;
+  }
+  
+  .ul-class > li > a:hover {
+    background-color: #fff;
+  }
+  ```
+
+#### Use cases
+
+[Custom select dropdown](https://www.webaxe.org/accessible-custom-select-dropdowns/) menus.
+
 ### Absolute
+
+Absolute positioned elements are positioned based on their closest-positioned ancestor element. That ancestor element is called the _containing block_. The `inset` property values place the absolute positioned element within that containing block.
+
+> Usually, an `absolute` element's containing block is set to `relative`.
 
 Position something at an exact point on the screen without affecting any elements around it. It removes it from the normal document flow and positions it relative to an ancestor element.
 
@@ -869,9 +955,108 @@ Position something at an exact point on the screen without affecting any element
 
 ### Fixed
 
-Removed from the normal flow of the document and positioned relative to the viewport with `top`, `right`, `bottom`, and `left`.
-
 Fixed elements stay in the same place as the user scrolls.
+
+Removed from the normal flow of the document and positioned relative to the viewport (the viewport is the _containing block_) with `top`, `right`, `bottom`, and `left`. These settings also size the element. If you set `left` and `right` to `5em`, then the width of the fixed element is 10em less than the viewport width.
+
+`inset` is the shorthand and it accepts values in the same format as the `padding` or `margin` shorthand:
+
+```css
+.class {
+  inset: <top> <right> <bottom> <left>;
+}
+```
+
+To make the element take up the entire viewport, use `inset: 0;`. This is helpful to darken the background for a smaller modal element.
+
+#### Create a modal
+
+A modal consists of a div container named 'modal' or something intuitive (add `aria-modal=true`, too). Place the modal HTML right before the closing `</body>` tag.
+
+The following elements are nested in this div container:
+- empty div that serves as the modal backdrop. This needs to be fixed with an `inset: 0;`.
+- div that contains the modal contents. Set the `display: none;` so you can make it visible with JS (described next).
+- A button to display the modal. The button can add a class that changes the modal display from `none` to `block`.
+- A button that closes the modal, and a class that changes the display back to `none`.
+- A class that prevents the screen from scrolling.
+- JS that adds and removes the class that displays the modal and the class that prevents scrolling.
+
+Here is a complete example:
+
+```html
+<!-- <header>...</header> -->
+<div class="modal" id="modal" role="dialog" aria-modal="true">
+    <div class="modal-backdrop"></div>
+    <div class="modal-body">
+        <!-- modal body contents -->
+    </div>
+</div>
+<!-- <main> ... </main> -->
+```
+
+```css
+.modal {
+  display: none;
+}
+
+.modal.is-open {
+  display: block;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgb(0 0 0 / 0.5);
+}
+
+.modal-body {
+  position: fixed;
+  inset-block: 3em; /* inset top and bottom */
+  inset-inline: 20%; /* inset left and right */
+  padding: 2em 3em;
+  background-color: #fff;
+  overflow: auto;
+}
+
+body.no-scroll {
+  overflow: hidden;
+}
+```
+
+Here is the JS. You grab the buttons that open and close the modal, and make them add and remove a class that changes the modal display. You can also add a class to the body to prevent scrolling:
+```js
+var button = document.getElementById('open');
+var close = document.getElementById('close');
+var modal = document.getElementById('modal');
+
+button.addEventListener('click', function (event) {
+    modal.classList.add('is-open');
+    document.body.classList.add('no-scroll');
+});
+
+close.addEventListener('click', function (event) {
+    modal.classList.remove('is-open');
+    document.body.classList.remove('no-scroll');
+});
+```
+
+
+#### Position elements whose contents determine size 
+
+You can specify the sides that you need to place the element and a width, and let the contents determine the element size:
+
+```css
+.fixed-position {
+  position: fixed;
+  top: 1em;
+  right: 1em;
+  width: 20%;
+}
+```
+This is helpful for fixed navs or fixed side-navs.
+
+> To prevent other content from overflowing behind a fixed nav, add margin to the content's container.
+
 
 #### Use cases
 
@@ -881,6 +1066,8 @@ Fixed elements stay in the same place as the user scrolls.
 ### Sticky
 
 Behave like `static` elements until you scroll past them, then they behave like `fixed` elements and stay at the offset that you set for them. They are not taken out of the document flow.
+
+Sticky elements always remain within the bounds of their parent elements.
 
 #### Use cases
 

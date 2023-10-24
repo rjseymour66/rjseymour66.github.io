@@ -175,8 +175,9 @@ Elements with a `z-index` establish a _stacking context_. A stacking context is 
 Put your `z-index` values in variables:
 
 ```css
---z-one:    100;
---z-two:    200;
---z-three:  300;
---z-four:   400;
+--z-loading-indicator: 100;
+--z-nav-menu:          200;
+--z-dropdown-menu:     300;
+--z-modal-backdrop:    400;
+--z-modal-body:        410;
 ```

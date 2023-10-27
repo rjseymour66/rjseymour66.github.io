@@ -266,3 +266,421 @@ Progress bars represent a value that changes over time up to a maximum value, li
 ```html
 <progress max="100" value="75">75/100</progress>
 ```
+
+## Styling forms
+
+Most form widgets are easy to style except the following:
+
+- Checkboxes
+- Radio buttons
+- Search bars `<input type="search">`
+
+Other items cannot be styled with only CSS:
+
+- Color picker `<input type="color">`
+- Date controls such as `<input type="datetime-local">`
+- Slider selectors `<input type="range">`
+- File selectors `<input type="file">`
+- Dropdown elements (`<select>`, `<option>`, `<optgroup>` and `<datalist>`)
+- `<progress>` and `<meter>`
+
+### Form reset
+
+Default browser styles around fonts are inconsistent, and each form element has its own default rules for `border`, `padding`, and `margin`. Add the following to make the form font consistent with the rest of your content:
+
+```css
+button,
+input,
+select,
+textarea {
+  width: 150px;
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+
+  font-family: inherit;
+  font-size: 100%;
+
+  /* removes system-level styling */
+  appearance: none;
+}
+```
+
+### Legend placement
+
+If you want to move the legend description text, you have to make the fieldset `position: relative;` and the legend `position: absolute;`:
+
+```css
+fieldset {
+  position: relative;
+}
+
+legend {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+}
+```
+
+### textarea
+
+These default to `display: inline-block;`. The important attributes are `resize` and `overflow`:
+
+- In general, do not restrict users with `resize`
+- `overflow` makes the element render consistently across browsers. Setting to `auto` usually fixes this.
+
+```css
+textarea {
+  display: block;
+
+  padding: 10px;
+  margin: 10px 0 0 -10px;
+  width: 100%;
+  height: 90%;
+
+  border-right: 1px solid;
+
+  /* resize  : none; */
+  overflow: auto;
+}
+```
+
+### Search input
+
+Safari restricts some styling (`height`, `font-size`), so you need to add `appearance: none;` to search inputs:
+
+```css
+input[type="search"] {
+  appearance: none;
+}
+```
+
+When a search field is not empty, there is an 'x' in the right of the box when it is in focus. When it is not in focus, it disappears in Edge and Chrome, but not Safari. You can make this behavior consistent with the following:
+
+```css
+input[type="search"]:not(:focus, :active)::-webkit-search-cancel-button {
+  display: none;
+}
+```
+
+## radio and checkboxes
+
+These elements are difficult to style bc of the default appearance. So, you should first remove that, then optionally style the checkbox appearance.
+
+For example, the following styles add a checkmark in the checkbox and apply other general styles:
+
+```css
+input[type="checkbox"] {
+  appearance: none;
+}
+
+input[type="checkbox"] {
+  position: relative;
+  width: 1em;
+  height: 1em;
+  border: 1px solid gray;
+  /* Adjusts the position of the checkboxes on the text baseline */
+  vertical-align: -2px;
+  /* Set here so that Windows' High-Contrast Mode can override */
+  color: green;
+}
+
+input[type="checkbox"]::before {
+  content: "✔";
+  position: absolute;
+  font-size: 1.2em;
+  right: -1px;
+  top: -0.3em;
+  visibility: hidden;
+}
+
+input[type="checkbox"]:checked::before {
+  /* Use `visibility` instead of `display` to avoid recalculating layout */
+  visibility: visible;
+}
+
+input[type="checkbox"]:disabled {
+  border-color: black;
+  background: #ddd;
+  color: gray;
+}
+```
+
+## Difficult items
+
+These include the following:
+
+- Color picker `<input type="color">`
+- Date controls such as `<input type="datetime-local">`. You can style the containing box, but you can't style any of the popups.
+- Slider selectors `<input type="range">`
+- File selectors `<input type="file">`
+- Dropdown elements (`<select>`, `<option>`, `<optgroup>` and `<datalist>`)
+- `<progress>` and `<meter>`
+
+You can "reset" (or get close to resetting them) with the following styles:
+
+```css
+button,
+label,
+input,
+select,
+progress,
+meter {
+  display: block;
+  font-family: inherit;
+  font-size: 100%;
+  margin: 0;
+  box-sizing: border-box;
+  width: 100%;
+  padding: 5px;
+  height: 30px;
+}
+
+/* box shado inside */
+input[type="text"],
+input[type="datetime-local"],
+input[type="color"],
+select {
+  box-shadow: inset 1px 1px 3px #ccc;
+  border-radius: 5px;
+}
+```
+
+## Select and datalist
+
+The down arrow that indicates it is a dropdown is inconsistent across browsers, and sizing is an issue. Start by adding `appearance`:
+
+```css
+select {
+  appearance: none;
+}
+```
+
+To add an arrow, you have to add a wrapper to the `<select>` element because `::before` and `::after` do not work on `<select>` elements:
+
+```html
+<label for="select">Select a fruit</label>
+<div class="select-wrapper">
+  <select id="select" name="select">
+    <option>Banana</option>
+    <option>Cherry</option>
+    <option>Lemon</option>
+  </select>
+</div>
+```
+
+The wrapper is the parent context for the arrow positioning:
+
+```css
+.select-wrapper {
+  position: relative;
+}
+
+.select-wrapper::after {
+  content: "▼";
+  font-size: 1rem;
+  top: 6px;
+  right: 10px;
+  position: absolute;
+}
+```
+
+Styling the dropdown box requires a custom library--you can only inherit font with the CSS.
+
+## Sliders (range)
+
+You can't do much with this input type other than remove it completely and replace it with a color of your choice. For example, the following creates a red slider:
+
+```css
+input[type="range"] {
+  appearance: none;
+  background: red;
+  height: 2px;
+  padding: 0;
+  outline: 1px solid transparent;
+}
+```
+
+## Color pickers
+
+You can only remove the border:
+
+```css
+input[type="color"] {
+  border: 0;
+  padding: 0;
+}
+```
+
+## File uploader
+
+You cannot style the default button at all, but you can style it so the button does not display, and then add your own button:
+
+```html
+<form>
+  <div>
+    <label for="file">Choose a file to upload</label>
+    <input id="file" name="file" type="file" multiple />
+    <ul id="file-list"></ul>
+  </div>
+  <div><button>Submit?</button></div>
+</form>
+```
+
+```css
+label[for="file"] {
+  box-shadow: 1px 1px 3px #ccc;
+  background: linear-gradient(to bottom, #eee, #ccc);
+  border: 1px solid rgb(169, 169, 169);
+  border-radius: 5px;
+  text-align: center;
+  line-height: 1.5;
+}
+
+label[for="file"]:hover {
+  background: linear-gradient(to bottom, #fff, #ddd);
+}
+
+label[for="file"]:active {
+  box-shadow: inset 1px 1px 3px #ccc;
+}
+```
+
+Listing the files requires JS. Look in the script tag in the [MDN repo](https://github.com/mdn/learning-area/blob/main/html/forms/styling-examples/styled-file-picker.html).
+
+## Meter and progress bars
+
+These are impossible to style. For progress bars, use [ProgressBar.js](https://kimmobrunfeldt.github.io/progressbar.js/#examples).
+
+## Pseudo-classes
+
+A pseudo-class targets an existing element. Some of the most common ones include:
+
+| Pseudo-class                                             | Description                                                                                                                                                                                                                                                                                                      |
+| :------------------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `:required`, `:optional`                                 | Target elements that can be required                                                                                                                                                                                                                                                                             |
+| `:valid` and `:invalid`, `:in-range` and `:out-of-range` | Target form controls that are valid/invalid according to form validation constraints set on them, or in-range/out-of-range.                                                                                                                                                                                      |
+| :enabled, :disabled, and :read-only, :read-write         | Target elements that can be disabled (e.g. elements that support the disabled HTML attribute), based on whether they are currently enabled or disabled, and read-write or read-only form controls (e.g. elements with the readonly HTML attribute set).                                                          |
+| `:checked`, `:indeterminate`, and `:default`             | Respectively target checkboxes and radio buttons that are checked, in an indeterminate state (neither checked or not checked), and the default selected option when the page loads (e.g. an `<input type="checkbox">` with the checked attribute set, or an `<option>` element with the selected attribute set). |
+
+[Table is from MDN](https://developer.mozilla.org/en-US/docs/Learn/Forms/UI_pseudo-classes#what_pseudo-classes_do_we_have_available).
+
+### Required
+
+If an element has a `required` or `optional` attribute, you can style them like so:
+
+```css
+input:required {
+  border: 1px solid black;
+}
+
+input:optional {
+  border: 1px solid silver;
+}
+```
+
+### Generating content with spans
+
+Form inputs don't support generated content, because generated content is placed relative to an element's formatting box and inputs don't have a formatting box.
+
+_The trick is to use a `<span>` to attach generated content_.
+
+Place the span after the input element:
+
+```html
+<div>
+  <label for="fname">First name: </label>
+  <input id="fname" name="fname" type="text" required />
+  <span></span>
+</div>
+```
+
+> If the label and input take up 100% of the container width, the span will be on the next line. To fix this, make the `<div>` a flex container with `flex-flow: row wrap;` so that the `<label>` and `<input>` still sit on their own line, but the `<span>` is right after the `<input>` because it has a width of 0.
+
+Now, you can target the span and add `position: relative` so that you can `position: absolute` a `::before` or `::after` pseudo element.
+
+```css
+/* targets the span */
+input + span {
+  position: relative;
+}
+
+input:required + span::after {
+  font-size: 0.7rem;
+  position: absolute;
+  content: "required";
+  color: white;
+  background-color: black;
+  padding: 5px 10px;
+  top: -26px;
+  left: -70px;
+}
+```
+
+### Valid and invalid data
+
+If a form has constraint limitations, you can style them based on whether they meet those constraints. Also, consider the following:
+
+- No constraints means the element is always valid and you can target it with `:valid`.
+- Elements with `required` and no value are invalid, and you can target them with `:invalid` and `:required`.
+- Elements with built-in validation like `url` or `email` types are invalid when the values don't meet those constraints.
+- Elements with values outside a `min` or `max` range are `:invalid` or `:out-of-range`.
+
+Use the [span](#generating-content-with-spans) trick to add pseudo-elements based on element state. The following adds a red 'x' or green check after the input, based on the value:
+
+```css
+input + span {
+  position: relative;
+}
+
+input + span::before {
+  position: absolute;
+  right: -20px;
+  top: 5px;
+}
+
+input:invalid {
+  border: 2px solid red;
+}
+
+input:invalid + span::before {
+  content: "✖";
+  color: red;
+}
+
+input:valid + span::before {
+  content: "✓";
+  color: green;
+}
+```
+
+## In-range and out-of-range
+
+Use these pseudo-classes when the inputs are outside of a range defined by `min` or `max` attributes.
+
+> You could use `:valid` or `:invalid`, but `:in-range` and `:out-of-range` are more semantically correct.
+
+
+## Enabled and disabled input
+
+You can gray-out elements if users don't need to fill them out. A common example is shipping and billing info---if the addresses match, then you don't have to fill out the billing.
+
+[This example](https://developer.mozilla.org/en-US/docs/Learn/Forms/UI_pseudo-classes#styling_enabled_and_disabled_inputs_and_read-only_and_read-write) shows how to do that, including the JS.
+
+## Read-only and read-write
+
+You might need to display form data that the user cannot edit--like a confirmation page before the final form submission.
+
+You can do this with the `readonly` attribute on the input element, and the `:read-only` pseudo-class. To allow editing, use the `read-write` attribute (this is the input element's default state).
+
+The MDN docs have a [full example here](https://developer.mozilla.org/en-US/docs/Learn/Forms/UI_pseudo-classes#read-only_and_read-write).
+
+## Radio and checkbox states
+
+`:checked` is useful when you reset the checkbox styling with `appearance: none;` and you need to add your own styling.
+
+`:default` matches checkboxes that are checked by default (with the `default` attribute.)
+
+## More pseudo-classes
+
+Check out MDN for more [less-used pseudo-classes](https://developer.mozilla.org/en-US/docs/Learn/Forms/UI_pseudo-classes#more_pseudo-classes).

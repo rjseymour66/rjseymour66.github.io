@@ -654,20 +654,20 @@ input:valid + span::before {
 }
 ```
 
-## In-range and out-of-range
+### In-range and out-of-range
 
 Use these pseudo-classes when the inputs are outside of a range defined by `min` or `max` attributes.
 
 > You could use `:valid` or `:invalid`, but `:in-range` and `:out-of-range` are more semantically correct.
 
 
-## Enabled and disabled input
+### Enabled and disabled input
 
 You can gray-out elements if users don't need to fill them out. A common example is shipping and billing info---if the addresses match, then you don't have to fill out the billing.
 
 [This example](https://developer.mozilla.org/en-US/docs/Learn/Forms/UI_pseudo-classes#styling_enabled_and_disabled_inputs_and_read-only_and_read-write) shows how to do that, including the JS.
 
-## Read-only and read-write
+### Read-only and read-write
 
 You might need to display form data that the user cannot edit--like a confirmation page before the final form submission.
 
@@ -675,12 +675,12 @@ You can do this with the `readonly` attribute on the input element, and the `:re
 
 The MDN docs have a [full example here](https://developer.mozilla.org/en-US/docs/Learn/Forms/UI_pseudo-classes#read-only_and_read-write).
 
-## Radio and checkbox states
+### Radio and checkbox states
 
 `:checked` is useful when you reset the checkbox styling with `appearance: none;` and you need to add your own styling.
 
 `:default` matches checkboxes that are checked by default (with the `default` attribute.)
 
-## More pseudo-classes
+### More pseudo-classes
 
 Check out MDN for more [less-used pseudo-classes](https://developer.mozilla.org/en-US/docs/Learn/Forms/UI_pseudo-classes#more_pseudo-classes).

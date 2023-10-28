@@ -684,3 +684,80 @@ The MDN docs have a [full example here](https://developer.mozilla.org/en-US/docs
 ### More pseudo-classes
 
 Check out MDN for more [less-used pseudo-classes](https://developer.mozilla.org/en-US/docs/Learn/Forms/UI_pseudo-classes#more_pseudo-classes).
+
+
+
+
+## Form element
+
+When you leave the `action` attribute blank, the form submits to the same URL, which lets us test the form.
+
+You can style a `<form>` element as you would style a `<div>`
+
+## Styling
+
+### Namespacing styles
+
+Avoid creating global `input[type="text"]` styles, and try to namespace the styles:
+
+```html
+<div class="form-row">
+  <label for="full-name">Name</label>
+  <input id="full-name" name="full-name" type="text" />
+</div>
+```
+
+```css
+.form-row input[type="text"] {
+  /* styles... */
+}
+
+.form-row label {
+  /* styles... */
+}
+```
+
+### Mobile vs desktop
+
+Try styling mobile forms with `flex-direction: column;` and desktop with `flex-direction: row;`. If you don't use flex, still structure them as columns or rows.
+
+### Radio buttons
+
+Apply the following to every radio button group:
+
+- Wrap in a <fieldset> and label it with <legend>
+- Associate a <label> element with each radio button
+- Use the same name attribute for each radio button in the group.
+- Use different value attributes for each radio button.
+
+Radio buttons do the following:
+
+- send their `value` to the server
+- must have a `name` attribute to associate them with the radio button group.
+
+### Select elements
+
+The `<select>` element is hard to style because the default styles vary so widely across browsers and devices. There is not much you can do, so don't overdo it.
+
+To style the text, you have to set `appearance: none;` or it won't work correctly on Chrome or Safari.
+
+### Checkboxes
+
+You can select any number of checkboxes--they are not part of a group. This means that you do not need to wrap them in a `<fieldset>` element.
+
+### Submit button
+
+If the form's `action` attribute is blank, you can submit the form and see the query parameters in the browser URL box.
+
+
+
+## Form validation
+
+| Attribute   | Type      | Description                                                                                                                                              |
+| :---------- | :-------- | :------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `required`  | Boolean   | Makes any input field required. YOu should also add an asterisk to a required field label.                                                               |
+| `minlength` | key/value | Minimum number of text characters. Can be combined with `maxlength`.                                                                                     |
+| `maxlength` | key/value | Maximum number of text characters. Can be combined with `minlength`.                                                                                     |
+| `min`       | key/value | Minimum number value accepted. Can be combined with `max`.                                                                                               |
+| `max`       | key/value | Maximum number value accepted. Can be combined with `min`.                                                                                               |
+| `pattern`   | key/value | `<input>` elements only. Must match the regular expression. Common use cases include zipcodes or CC numbers. Use with `placeholder` to provide guidance. |

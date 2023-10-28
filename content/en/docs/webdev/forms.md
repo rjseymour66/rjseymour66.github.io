@@ -47,6 +47,8 @@ You can add the following attributes to an `<input>` element in the `attribute="
 | `placeholder` |   | Guide users on what to add to input fields and how to format it.  |
 | `name`  | The key name for this value in the request object sent to the server.  | Required, or the server ignores the data. Tells the backend know what this data represents.  |
 
+This [Sitepoint article](https://www.sitepoint.com/html-forms-constraint-validation-complete-guide/) lists additional options.
+
 > To associate a label with an input, the label's `for` and the input's `id` attributes must have the exact same value.
 > 
 > You can also nest the input within the label:
@@ -753,11 +755,20 @@ If the form's `action` attribute is blank, you can submit the form and see the q
 
 ## Form validation
 
-| Attribute   | Type      | Description                                                                                                                                              |
-| :---------- | :-------- | :------------------------------------------------------------------------------------------------------------------------------------------------------- |
+Validate data so it is in the correct format, and that it is secure for both the users and the application.
+
+- This [Sitepoint](https://www.sitepoint.com/html-forms-constraint-validation-complete-guide/) article provides a summary of attributes, including autocomplete for SMS OTP.
+- [web.dev SMS OTP](https://web.dev/articles/sms-otp-form#autocomplete%22one-time-code%22)
+- [Good codepen example](https://www.silocreativo.com/en/css-rescue-improving-ux-forms/)
+
+### Attributes
+
+| Attribute   | Type      | Description |
+| :---------- | :-------- | :-----------|
 | `required`  | Boolean   | Makes any input field required. YOu should also add an asterisk to a required field label.                                                               |
 | `minlength` | key/value | Minimum number of text characters. Can be combined with `maxlength`.                                                                                     |
 | `maxlength` | key/value | Maximum number of text characters. Can be combined with `minlength`.                                                                                     |
 | `min`       | key/value | Minimum number value accepted. Can be combined with `max`.                                                                                               |
 | `max`       | key/value | Maximum number value accepted. Can be combined with `min`.                                                                                               |
 | `pattern`   | key/value | `<input>` elements only. Must match the regular expression. Common use cases include zipcodes or CC numbers. Use with `placeholder` to provide guidance. |
+

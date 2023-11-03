@@ -200,7 +200,18 @@ Users click buttons to submit forms or trigger other actions. The button attribu
 | `button` | Generic button that you can use for anything. Commonly used with JS to create interactive UIs. |
 
 
-> By default, a form button `type` attribute is set to `submit`. Always set the `type` attribute so that the button does not submit the form by accident
+> By default, a form button `type` attribute is set to `submit`. Always set the `type` attribute so that the button does not submit the form by accident.
+
+You should try to place the `<button>` attribute within the `<form>` element. If you cannot, you can link the form and button with `id` attributes:
+
+```html
+<section class="form">
+    <form action="" method="post" id="odin-form"></form>
+</section>
+<section class="cta">
+    <button type="submit" id="odin-form"></button>
+</section>
+```
 
 ## Organization
 

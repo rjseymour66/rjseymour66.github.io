@@ -219,8 +219,36 @@ console.log(teacher.greet());   // Hello, my name is Ms. Smith
 Object.create() is a static method on the `Object` creates a new object that uses an existing object as its prototype. Pass the prototype as an argument to the `create()` function. This works easiest when the prototype is an object literal:
 
 ```js
+const person = {
+    init: function (phrase) {
+        this.phrase = phrase;
+        return this;
+    },
+    speak: function () {
+        console.log(this.phrase);
+    }
+};
 
+const jack = Object.create(person).init('My name is Jack');
+jack.speak();   // => My name is Jack
+person.isPrototypeOf(jack); // => true
 ```
+`Object.create` is the preferred method when you create an object with a prototype. It is much more aligned with the prototype philosophy than the `new` keyword, which is derived from class-based object instantiation. It is also easier to use than `setPrototypeOf()` when you create objects with prototypes.
+
+#### Implementation
+
+Below is a sample implementation of `Object.create()`:
+
+```js
+function objectCreate(proto) {
+    const obj = {};
+    Object.setPrototypeOf(obj, proto);
+    return obj;
+}
+```
+
+
+
 
 ### Iterate over inherited properties
 

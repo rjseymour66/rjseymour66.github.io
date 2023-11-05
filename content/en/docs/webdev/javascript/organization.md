@@ -212,6 +212,16 @@ Object.setPrototypeOf(Teacher.prototype, Person.prototype);
 console.log(teacher.greet());   // Hello, my name is Ms. Smith
 ```
 
+### `Object.create()`
+
+[Object.create() MDN docs](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/create)
+
+Object.create() is a static method on the `Object` creates a new object that uses an existing object as its prototype. Pass the prototype as an argument to the `create()` function. This works easiest when the prototype is an object literal:
+
+```js
+
+```
+
 ### Iterate over inherited properties
 
 You can get all the property keys of an object:
@@ -377,10 +387,111 @@ Don't forget to use the `new` keyword. Otherwise, the constructor correctly assi
 
 ### Indirect invocation
 
+An _indirect invocation_ is when a function is called using the `.call()` or `.apply()` methods.
 
+`call(thisArg, arg1, arg2, ...)`
+: `thisArg` is the context of the invocation, and the other args are passed as arguments to the called function.
 
+`.apply(thisArg, [arg1, arg2, ...])`
+: `thisArg` is the context of the invocation that accepts an array of args passed to the called function.
 
+#### Definition
+
+`this` is the first argument in `.call()` or `.apply()`. For example, the context for the following function invocation's `this` defaults to the window object. You can change that context with `.call()` by passing the desired context to `.call()`, and then pass any arguments that the `sayHi()` function accepts as args following the new context. The same logic applies to `apply()`, but you pass the caller arguments as an array:
+
+```js
+const dog = { name: 'fido' };
+
+function sayHi(greeting) {
+    console.log(this === dog);  // => true
+    return greeting + this.name;
+}
+
+sayHi.call(dog, 'Howdy, ');     // => Howdy, fido
+sayHi.apply(dog, ['Howdy, ']);  // => Howdy, fido
+```
+
+A more practical example is calling the prototype's constructor in the inheriting object's constructor:
+
+```js
+function Person(name) {
+    this.name = name;
+}
+
+function Teacher(name, subject, age) {
+    Person.call(this, name);    // this === current Teacher object
+    this.subject = subject;
+    this.age = age;
+}
+```
 ### Bound function
 
+A _bound_ function is a function whose context or arguments are bound to specific values with `.bind()`.
+
+`.bind(thisArg, [arg1, arg2, ...])`
+: `thisArg` is the context of the invocation that accepts an optional array of args to bind to.
+  `.bind()` returns a new function with a predefined `this` value.
+
+#### Definition
+
+`this` is the first argument in `.bind()` when you are invoking a bound function. It lets you predefine the `this` value for the caller.
+
+> **IMPORTANT**
+> 
+> `.bind()` creates a permanent context link that you cannot change with `.call()` or `.apply()`.
+
+For example, the `concat()` function prepends the word 'Hello' to the argument and then returns the new string. Because it is a function invocation, `this` is the global window object. You can call `.bind()` with the new context:
+
+```js
+function concat(word) {
+    'use strict';
+    return `${this} ${word}`;   // => undefined
+}
+
+concat('World!');    // => undefined World!
+
+const hello = concat.bind('Hello,');
+hello('World');     // => Hello, World!
+```
+In the previous example, `.bind()` literally changes the value of `this`. `.bind()` lets you change the context on functions that share code and scope.
+
+
+#### Beware
+
+If you extract a bound function into a variable, the binding context does not persist.
 
 ### Arrow function
+
+An arrow function is a short-form function that binds `this` to its current context. You cannot use the [`arguments` object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/arguments) with arrow functions, you must use the rest syntax (`...args`).
+
+#### Definition
+
+`this` is the enclosing context where the arrow function is defined. It doesn't create its own context, it takes the context from the outer function that defines it. This means that it resolves `this` _lexically_.
+
+> **IMPORTANT**
+> Remember these two gotchas:
+> - You cannot use an arrow function as a constructor.
+> - An arrow function creates a permanent context link that you cannot change with `.call()` or `.apply()`.
+
+#### Beware
+
+You cannot use an arrow function to declare a method on an object. Instead, you must use `function` expressions. This is because the arrow function uses the global context (window object) as its context, not the caller. For example:
+
+```js
+function Period(hours, minutes) {
+    this.hours = hours;
+    this.minutes = minutes;
+}
+
+// INCORRECT! Uses global context
+Period.prototype.format = () => {
+    return this.hours + ' hours and ' + this.minutes + ' minutes';
+};
+
+// CORRECT! Uses caller's context during method invocation
+Period.prototype.format = function () {
+    return this.hours + ' hours and ' + this.minutes + ' minutes';
+};
+
+const walkPeriod = new Period(2, 30);
+```

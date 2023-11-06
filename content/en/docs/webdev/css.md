@@ -110,6 +110,22 @@ svg {
     scroll-behavior: auto !important;
   }
 }
+
+button,
+input,
+select,
+textarea {
+  width: 150px;
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+
+  font-family: inherit;
+  font-size: 100%;
+
+  /* removes system-level styling */
+  appearance: none;
+}
 ```
 
 ## Set up variables

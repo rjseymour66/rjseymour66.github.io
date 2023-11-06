@@ -588,9 +588,9 @@ You can minimize these drawbacks with React or Webpack.
 
 ## Tables
 
-[Table basics](https://developer.mozilla.org/en-US/docs/Learn/HTML/Tables/Basics)
-[Table advanced](https://developer.mozilla.org/en-US/docs/Learn/HTML/Tables/Advanced)
-[Data Table Design UX Patterns](https://pencilandpaper.io/articles/ux-pattern-analysis-enterprise-data-tables/)
+- [Table basics](https://developer.mozilla.org/en-US/docs/Learn/HTML/Tables/Basics)
+- [Table advanced](https://developer.mozilla.org/en-US/docs/Learn/HTML/Tables/Advanced)
+- [Data Table Design UX Patterns](https://pencilandpaper.io/articles/ux-pattern-analysis-enterprise-data-tables/)
 
 
 ## CSS Units

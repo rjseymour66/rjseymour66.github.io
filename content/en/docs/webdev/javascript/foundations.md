@@ -53,7 +53,7 @@ while (container.firstChild) {
     container.removeChild(container.firstChild);
 }
 ```
-So, while the container has a first child, remove the first child frm the container.
+So, while the container has a first child, remove the first child from the container.
 
 ### append() vs appendChild()
 
@@ -65,10 +65,6 @@ So, while the container has a first child, remove the first child frm the contai
 | Return value    | `undefined`               | The appended Node object |
 | Input           | Multiple Node Objects     | A single Node object     |
 | Parameter types | Accept Node and DOMString | Only Node                |
-
-### Text nodes
-
-A text node is the actual text inside an element or attribute.
 
 ### CSS
 
@@ -115,6 +111,8 @@ div.classList.toggle("active");
 ```
 
 ### Text
+
+A text node is the actual text inside an element or attribute.
 
 ```js
 div.textContent = "Hello World!";

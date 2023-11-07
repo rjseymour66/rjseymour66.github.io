@@ -85,12 +85,40 @@ Absolute positioning is used frequently with JS to build menus, tooltips, info b
 In this example, we will position a 'close' button for the modal described in the Fixed section. The 'close' icon looks like this:
 
 ```css
+/* positions the clickable area in the top-right
+of the modal. Indents it 10em to hide the <button>Close</button>
+while allowing a screenreader to read it*/
 .modal-close {
-    position: absolute;
-    top: 0.3em;
-    right: 0.3em;
-    padding: 0.3em;
-    cursor: pointer;
+  position: absolute;
+
+  top: 0.3rem;
+  right: 0.3rem;
+
+  padding: 1.75rem;
+  border: none;
+  height: 1rem;
+  width: 1rem;
+
+  text-indent: 10em;
+  overflow: hidden;
+  background-color: transparent;
+}
+
+/* Adds the X icon w black circle bg*/
+.modal-close::after {
+  position: absolute;
+  line-height: 0.5;
+  top: 0.5rem;
+  right: 0.5rem;
+  text-indent: 0;
+  font-size: 2.5rem;
+  cursor: pointer;
+
+  background-color: lightgray;
+  border-radius: 50%;
+  padding: 0.5rem;
+
+  content: "\00d7";
 }
 ```
 

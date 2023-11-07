@@ -380,6 +380,72 @@ input[type="search"]:not(:focus, :active)::-webkit-search-cancel-button {
 
 These elements are difficult to style bc of the default appearance. So, you should first remove that, then optionally style the checkbox appearance.
 
+[Pure CSS Custom Checkbox Style](https://moderncss.dev/pure-css-custom-checkbox-style/)
+
+The following example creates a circular checkbox, where the checked value is slightly smaller than the checkbox. The commented out portions use a checkmark as the content.
+
+First, the HTML:
+
+```html
+<form>
+  <div class="form-row checkbox">
+      <input type="checkbox" name="read" id="read" checked>
+      <label for="read">Read?</label>
+  </div>
+</form>
+```
+
+The CSS:
+```css
+.form-row.checkbox {
+  flex-direction: row;
+  gap: 0.5rem;
+}
+
+input[type="checkbox"] {
+  appearance: none;
+}
+
+input[type="checkbox"] {
+  position: relative;
+  width: 1.25rem;
+  height: 1.25rem;
+  align-self: center;
+
+  border: 2px solid var(--clr-form-border);
+  border-radius: 50%;
+
+  color: var(--clr-primary);
+}
+
+input[type="checkbox"]::before {
+  /* content: "✔"; */
+
+  content: " ";
+  background-color: var(--clr-form-border);
+  height: 0.9rem;
+  width: 0.9rem;
+  /* color: blue; */
+  position: absolute;
+  font-size: 1.5rem;
+
+  border-radius: 50%;
+
+  right: 1px;
+  top: 1px;
+
+  /* right: -5px;
+  top: -10px; */
+
+  visibility: hidden;
+}
+
+input[type="checkbox"]:checked::before {
+  /* Use `visibility` instead of `display` to avoid recalculating layout */
+  visibility: visible;
+}
+```
+
 For example, the following styles add a checkmark in the checkbox and apply other general styles:
 
 ```css

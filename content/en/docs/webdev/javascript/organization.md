@@ -523,3 +523,179 @@ Period.prototype.format = function () {
 
 const walkPeriod = new Period(2, 30);
 ```
+
+## Scope
+
+- `var` is _function-scoped_, which means they are available anywhere within a function. This complicates `var` usage in nested functions like closures.
+- `let` and `var` are _block-scoped_. This limits their scope to curly braces (`{ }`), which provides more control over scope and is optimal for nested functions.
+
+## Closures
+
+A closure is a combination of a function and its lexical environment (its surrounding state).
+
+```js
+let makeAdding = (firstNumber) => {
+  const first = firstNumber;
+
+  return function resulting(secondNumber) {
+    const second = secondNumber;
+    return first + second;
+  };
+};
+
+const add5 = makeAdding(5);
+console.log(add5(3)); // => 8
+```
+
+## Object shorthand notation
+
+The following factor function uses the object shorthand notation:
+
+```js
+let createUser = (name) => {
+  const discordName = `@${name}`;
+  return { name, discordName };
+};
+```
+
+When you have a variable with the same name as the object property that you are assigning it, you can use the shorthand. For example, these return statements are equivalent:
+
+```js
+// object initializer
+return { name: name, discordName: discordName }; // => {name: 'jack', discordName: '@jack'}
+
+// object shorthand
+return { name, discordName }; // => {name: 'jack', discordName: '@jack'}
+```
+
+Note that the longer method doesn't require quotes (`" "`) around the object key names.
+
+## Destructuring
+
+[MDN article](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment)
+
+Destructuring is when you extract values from an object or arrary.
+
+For objects, you can extract one of the object's properties into a variable that has the same name as that object property:
+
+```js
+const user = { name: "jack", age: 40 };
+
+const { name, age } = user;
+console.log(name); // => jack
+console.log(age); // => 40
+```
+
+For arrays, you can extract elements in the array into variables. The array element is assigned to the variable with the same index:
+
+```js
+const array = [1, 2, 3, 4, 5];
+
+const [zero, one, two, three, four] = array;
+
+console.log(zero); // => 0
+console.log(one); // => 1
+console.log(two); // => 2
+console.log(three); // => 3
+console.log(four); // => 4
+```
+
+## Factory functions
+
+### vs constructors
+
+Prefer a factory function over a constructor because:
+
+- A constructor looks like a normal JS function, but it does not behave like one. It requires the `new` keyword---if you forget to add this keyword, then you create hard-to-debug error messages.
+- How a constructor interacts with `instanceof`. `instanceof` checks the presence of an object's prototype in the entire prototype chain. This does not confirm if the object was created with that constructor because you can reassign a constructor's prototype.
+
+### Implementation
+
+Prefer _factory functions_ because of the following:
+
+- They do not use the `new` keyword--they're just functions that return objects.
+- They can levy the power of closures.
+- They do not use the prototype. The prototype model incurs a performance penalty when you create lots of objects.
+
+```js
+const User = function (name) {
+  this.name = name;
+  this.discordName = `@${name}`;
+};
+
+let createUser = (name) => {
+  const discordName = `@${name}`;
+  return { name, discordName };
+};
+
+let constructor = new User("jack");
+console.log(constructor); // => User {name: 'jack', discordName: '@jack'}
+
+let factoryFunc = createUser("jack");
+console.log(factoryFunc); // => {name: 'jack', discordName: '@jack'}
+```
+
+### Private variables and functions
+
+You can create private variables with closures. In the following factory function, the employee record keeps the salary information private. There are functions to retrieve the salary value (not the actual salary variable), and a function to increase the salary:
+
+```js
+let createEmployee = (name) => {
+  const email = `${name}@company.com`;
+
+  let salary = 100_000;
+  const getSalary = () => salary;
+  const giveMeritIncrease = () => (salary *= 1.05);
+
+  return { name, email, getSalary, giveMeritIncrease };
+};
+
+const jack = createEmployee("jack");
+jack.giveMeritIncrease();
+jack.giveMeritIncrease();
+
+const currentSalary = jack.getSalary();
+console.log(currentSalary); // => 110250
+```
+
+This is a closure because the `getMerit` and `giveMeritIncrease` have access to the `salary` variable becuase of lexical scope.
+
+### Inheritance and `Object.assign`
+
+You can leverage inheritance with factory functions without using prototypes.
+
+The following `createManager` function extends the the `createEmployee` function from the [Private variables and functions](#private-variables-and-functions) section. It accepts an additional argument, `pto`, and uses destructuring to extract the `email` and `getSalary` from the `createEmployee` function. Then, it adds a new function to increase the `pto`, `increasePTO`:
+
+```js
+let createManager = (name, pto) => {
+  const { email, getSalary, giveMeritIncrease } = createEmployee(name);
+
+  const increasePTO = () => (pto *= 1.1);
+  return { name, email, getSalary, giveMeritIncrease, increasePTO };
+};
+
+const boss = createManager("sally", 15);
+boss.giveMeritIncrease();
+boss.giveMeritIncrease();
+boss.giveMeritIncrease();
+boss.giveMeritIncrease();
+console.log(boss.getSalary()); // => 121550.625
+console.log(boss.increasePTO()); // 16.5
+```
+
+You can also use `Object.assign`, a static method that copies all properties from a source object to a target object:
+
+```js
+Object.assign(target, source1, source2, /* …, */ sourceN);
+```
+
+The following function accepts the same parameters, but it uses `createEmployee` to create an employee. Then, it uses `Object.assign()` to create an empty target object, and then copies the manager and public methods into the the empty object:
+
+```js
+let createManager = (name, pto) => {
+  const manager = createEmployee(name);
+
+  const increasePTO = () => (pto *= 1.1);
+  return Object.assign({}, manager, { increasePTO });
+};
+```

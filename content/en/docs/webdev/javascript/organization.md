@@ -6,6 +6,10 @@ description: >
   Different ways to organize your JS code.
 ---
 
+## Links
+
+- [Design patterns](https://www.patterns.dev/)
+
 ## Objects and object constructors
 
 ### Object literals
@@ -699,3 +703,106 @@ let createManager = (name, pto) => {
   return Object.assign({}, manager, { increasePTO });
 };
 ```
+
+## Module pattern (IIFEs)
+
+[MDN docs IIFE](https://developer.mozilla.org/en-US/docs/Glossary/IIFE)
+
+You can hide variables and functions by wrapping a factory function in an immediately-invoked function expression (IIFE). Its 'immediately-invoked' because you place the `()` right after the function definition:
+
+```js
+const employee = (function (name) {
+  const email = `${name}@company.com`;
+
+  let salary = 100_000;
+
+  const getName = () => name;
+  const getSalary = () => salary;
+  const giveMeritIncrease = () => (salary *= 1.05);
+
+  return { name, email, getName, getSalary, giveMeritIncrease };
+})("jack");
+
+employee.giveMeritIncrease();
+employee.giveMeritIncrease();
+
+const currentSalary = employee.getSalary();
+console.log(employee.getName()); // => jack
+console.log(currentSalary); // => 110250
+```
+
+To pass parameters to an IIFE, include it in the parentheses at the end. The previous example passes `jack` as an argument as the `name` parameter.
+
+## Scope
+
+Scope answers the question, _where are my variables and functions available to me?_
+
+### Global scope
+
+Anything that is in the global scope is attached to the window object, except for variables that are declared with `let` and `const`. These variables are global, but not attached to the `window` object.
+
+Also, you can't reassign `const`.
+
+`let` and `var` are block-scoped.
+`var` is function-scoped.
+
+## Closures
+
+A closure is _the ability to access a parent level scope from a child scope, even after the parent function has been terminated_.
+
+The following closures are equivalent:
+
+```js
+// Example 1
+function outer() {
+  const outerVar = "Hey I am the outer Var";
+
+  return function inner() {
+    const innerVar = "Hey I am an inner var";
+
+    console.log(outerVar);
+    console.log(innerVar);
+  };
+}
+
+// Example 2
+function outer() {
+  const outerVar = "Hey I am the outer Var";
+
+  function inner() {
+    const innerVar = "Hey I am an inner var";
+
+    console.log(outerVar);
+    console.log(innerVar);
+  }
+
+  return inner;
+}
+```
+
+Look at `Example 2`. Here is how you can invoke both functions:
+
+```js
+function outer() {
+  const outerVar = "Hey I am the outer Var";
+
+  function inner() {
+    const innerVar = "Hey I am an inner var";
+
+    console.log(outerVar);
+    console.log(innerVar);
+  }
+
+  return inner;
+}
+
+// invoke outer and save it in innerFn
+const innerFn = outer();
+
+// invoke innerFn()
+innerFn();
+```
+
+In the previous example, you stored the `outer()` function in a variable and executed it, and then called that function at a later time with `innerFn()`.
+
+Normally, anytime that a function executes, the variables that are scoped within that function are no longer accessible. With closures, variables in the outer function are available even after the function executes.

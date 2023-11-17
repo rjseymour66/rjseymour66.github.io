@@ -125,6 +125,10 @@ div.innerHTML = "<span>Hello World!</span>";
 
 > Use `textContent` to add text bc there are security issues with `innerHTML`.
 
+### Data attributes
+
+[Web dev simplified post](https://blog.webdevsimplified.com/2020-10/javascript-data-attributes/)
+
 ## Events
 
 [HTML DOM Events](https://www.w3schools.com/jsref/dom_obj_event.asp)

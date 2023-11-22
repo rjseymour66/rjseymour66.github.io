@@ -806,3 +806,187 @@ innerFn();
 In the previous example, you stored the `outer()` function in a variable and executed it, and then called that function at a later time with `innerFn()`.
 
 Normally, anytime that a function executes, the variables that are scoped within that function are no longer accessible. With closures, variables in the outer function are available even after the function executes.
+
+
+## Classes
+
+A class is a complex function definition. To illustrate, consider a class named `User`:
+
+```js
+class User {
+  constructor(name) {
+    this.name = name;
+  }
+  sayHi() {
+    alert(this.name);
+  }
+}
+
+// class is a function
+console.log(typeof User); // function
+
+// ...or, more precisely, the constructor method
+console.log(User === User.prototype.constructor); // true
+```
+
+This class creates a function named `User` and stores its class methods in the `User.prototype`.
+
+> Class constructors always use strict.
+
+### Syntax
+
+The following example shows the basic class syntax:
+
+```js
+class ClassName {
+  // class methods
+  constructor() { ... }
+  method1() { ... }
+  method2() { ... }
+  method3() { ... }
+  ...
+}
+```
+
+You create an object with the `new` syntax:
+
+```js
+const myObject = new ClassName();
+```
+
+### Constructors
+
+You can derive a class from another class with the `extends` keyword. If your derived class does not provide custom initialization, you do not have to call `super()` in the constructor. If it does use customization, then you have to call it:
+
+```js
+class Person {
+  constructor(name) {
+    this.name = name;
+  }
+
+  sayName() {
+    console.log(`Hi, my name is ${this.name}.`);
+  }
+}
+
+const a = new Person("jack");
+a.sayName(); // => Hi, my name is jack.
+
+class NotCustomPerson extends Person {
+  // nothing here
+}
+
+const b = new NotCustomPerson("rick");
+b.sayName(); // => Hi, my name is rick.
+
+class CustomPerson extends Person {
+  constructor(name, age) {
+    super(name);
+    this.age = age;
+  }
+
+  sayAge() {
+    console.log(`I am ${this.age} years old.`);
+  }
+}
+
+const c = new CustomPerson("steve", 40);
+c.sayName(); // => Hi, my name is steve.
+c.sayAge(); // => I am 40 years old.
+```
+
+You can call the getters and setters on the parent class, but you cannot use `this` when you call them. This is because `this` is initialized on the getters and setters before the constructor is called, but `this` is not fully initialized on the object (including the object constructor).
+
+#### Class fields
+
+Class fields are properties that are set on individual objects, not the prototype. They are enumerable, and they can be inherited in the prototype chain. Because of this, they cannot be named `prototype` or `constructor`. If you do not initialize the field with a value, it is `undefined`.
+
+Class fields might require a polyfill, because they are new to Javascript:
+
+```js
+class User {
+  name = "John";  // class field
+
+  sayHi() {...}
+}
+```
+
+`this` refers to the class instance that you created, while `super` refers to the `prototype` property of the base class. The `prototype` property contains the base class instance methods, but not its fields. This is because the instance fields are added before the constructor runs, but they are added _after_ `super` returns.
+
+Fields are added one-by-one, in order from top to bottom. So, the bottom field can reference the top field, but not vice versa.
+
+Derived classes do not invoke setters from the base class.
+
+#### Class expression
+
+You can also use a [class expression](https://javascript.info/class#class-expression) to define a class, but I do not see how this could be more useful than the standard syntax.
+
+### Methods
+
+Class methods are non-enumerable. This means that you cannot cycle through the methods with the `for...in` loop or `Ojbect.keys()` function.
+
+
+### Getters and setters
+
+There are _data_ properties and _accessor_ properties. Accessor properties look like normal functions, but they exist only to get or set a value.
+
+Add getters and setters with the `get` and `set` keywords on an object, or use the `Object.defineProperty()` method.
+
+#### `get` and `set`
+
+The following snippet includes field validation in the set accessor. Also, both accessors begin the variable with an underscore (`_name`), which is a Javascript convention that specifies a variable as an internal variable that should not be accessed from outside the object:
+
+```js
+let user = {
+  get name() {
+    return this._name;
+  },
+
+  set name(value) {
+    if (value.length < 4) {
+      alert("Name is too short, need at least 4 characters");
+      return;
+    }
+    this._name = value;
+  },
+};
+```
+
+#### `Object.defineProperty`
+
+You can use `Object.defineProperty` to get a value on the object's prototype. You cannot use it on an object.
+
+```js
+let user = {
+  name: "John",
+  surname: "Smith",
+};
+
+Object.defineProperty(user, "fullName", {
+  get() {
+    return `${this.name} ${this.surname}`;
+  },
+
+  set(value) {
+    [this.name, this.surname] = value.split(" ");
+  },
+});
+```
+
+
+### Private properties and methods
+
+Private properties cannot be referenced outside of the class. To create a private property, prefix the field name with a hash (`#`). For example, `#privateField` or `#privateMethod(){...}`. Constructors cannot be private. The old convention is to prefix the field or method with an underscore.
+
+Private properties are not part of prototypical inheritance.
+
+### static methods and properties
+
+[MDN docs](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes/static)
+
+Static methods are on the class itself--you cannot access them from an object of the class. Common use cases include the following:
+
+- methods: create or clone objects
+- properties: caches, fixed-configuration, other data that does not need to be replicated across instances.
+
+Think about how some string methods are accessed on the instance of a string itself--`someString.slice(0, 5)`--whereas some methods are called on the String constructor--`String.fromCharCode(79, 100, 105, 110)`.

@@ -859,6 +859,9 @@ const myObject = new ClassName();
 You can derive a class from another class with the `extends` keyword. If your derived class does not provide custom initialization, you do not have to call `super()` in the constructor. If it does use customization, then you have to call it:
 
 ```js
+//*********************************
+// Base class
+//*********************************
 class Person {
   constructor(name) {
     this.name = name;
@@ -872,6 +875,9 @@ class Person {
 const a = new Person("jack");
 a.sayName(); // => Hi, my name is jack.
 
+//*********************************
+// Straight inheritence
+//*********************************
 class NotCustomPerson extends Person {
   // nothing here
 }
@@ -879,6 +885,9 @@ class NotCustomPerson extends Person {
 const b = new NotCustomPerson("rick");
 b.sayName(); // => Hi, my name is rick.
 
+//*********************************
+// Inheritence with customizations
+//*********************************
 class CustomPerson extends Person {
   constructor(name, age) {
     super(name);

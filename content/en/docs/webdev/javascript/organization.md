@@ -989,7 +989,7 @@ Private properties cannot be referenced outside of the class. To create a privat
 
 Private properties are not part of prototypical inheritance.
 
-### static methods and properties
+### Static methods and properties
 
 [MDN docs](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes/static)
 
@@ -999,3 +999,54 @@ Static methods are on the class itself--you cannot access them from an object of
 - properties: caches, fixed-configuration, other data that does not need to be replicated across instances.
 
 Think about how some string methods are accessed on the instance of a string itself--`someString.slice(0, 5)`--whereas some methods are called on the String constructor--`String.fromCharCode(79, 100, 105, 110)`.
+
+## Modules
+
+> If you want to use modules, you should use a bundler like Webpack.
+
+Modules isolate code and promote reuse. You can export code in one file and then import it in another with the module syntax. Here is a simple example:
+
+```js
+// export.js
+const func = () => console.log("this function is exported");
+export { func };
+
+// import.js
+import { funct } from "./export.js";
+func();
+```
+
+If you are not using a bundler in your project, then you have to tell the browser through the HTML file that you are using the module syntax. To do this, add `type="module"` to the `<script>` tag:
+
+```html
+<head>
+  ...
+  <script type="module" src="../dist/main.js" defer></script>
+  ...
+</head>
+```
+
+### Exporting
+
+[MDN export docs](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/export) with good examples.
+[MDN import docs](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import) with good examples.
+
+You can use _named_ exports or _default_ exports. You can have multiple named exports but only one default export per file:
+
+```js
+export default function
+export { namedExport1, namedExport2 }
+```
+
+You can also declare exports inline:
+
+```js
+export default functionName () {
+  // code
+}
+
+export functionName() {
+  // code
+}
+```
+

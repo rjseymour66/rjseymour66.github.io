@@ -70,7 +70,7 @@ _`devDependencies`_ are added to `package.json` when a package is installed as a
 
 Webpack is a bundler. A bundler takes all of your application dependencies and "bundles" them up into a single static file that is available to your application at runtime. As a general rule, you should try to limit the number of production dependencies that your application relies on.
 
-A bundler takes an entry point and builds a dependency graph of your source files and third-party libraries. This is called **dependency resolution**.
+A bundler takes an entry point and builds a dependency graph of your source files and third-party libraries. This is called **dependency resolution**. This is beneficial because it only bundles modules that are in use.
 
 Node.js uses the `require()` statement to import libraries from the filesystem, but this does not work with Javascript in the browser because there is no file system access. The solution is a module bundler.
 
@@ -105,7 +105,7 @@ module.exports = {
 ```
 
 loaders
-: Transform and bundle non-JS files.
+: Transform and bundle non-JS files such as CSS or images. For example, you might link to images in your HTML, CSS, or JS files. You configure a loader so that Webpack doesn't bundle all these assets in with your minified JS.
 
 plugins
 : Webpack can perform more advanced features.
@@ -129,6 +129,9 @@ $ npm install webpack webpack-cli --save-dev
 
 # manually run webpack to convert
 $ ./node_modules/.bin/webpack <source-file>.js --mode=development
+
+# manually run with config file
+$ npx webpack --config webpack.config.js
 ```
 
 You can simplify the webpack command with the `webpack.config.js` file:
@@ -148,6 +151,114 @@ Now, the webpack command reads this config file, and you can run it with the fol
 
 ```shell
 $ ./node_modules/.bin/webpack
+```
+
+### Task runners
+
+A task runner is a tool that automates parts of the build process. This includes:
+
+- minifying code
+- optimizing images
+- running tests
+- automatically refreshing the browser
+
+We can execute task runners with npm directly in the `scripts` object in `package.json`:
+
+```js
+"scripts": {
+  "test": "echo \"Error: no test specified\" && exit 1",
+  // production minifies the js files
+  "build": "webpack --progress --mode=production",
+  // watch runs the webpack command when a .js file changes
+  "watch": "webpack --progress --watch"
+},
+```
+
+The script commands do not need to specify the full path to webpack (`./node_modules/.bin/webpack`) because npm knows the file system location of each node module.
+
+Execute these scripts with `npm run <script-key>`:
+
+```shell
+$ npm run build
+$ npm run watch
+```
+
+### Asset management
+
+Notes from [this tutorial](https://webpack.js.org/guides/asset-management/).
+
+#### CSS
+
+The following loaders let you import CSS within a JS module:
+```shell
+$ npm install --save-dev style-loader css-loader
+```
+Now, you have to update `webpack.config.js` to use the loaders. The `use` array chains loaders, so files are processed by `style-loader`, and then that processed information is passed to `css-loader`:
+
+```js
+module.exports = {
+    ...
+    module: {
+        rules: [
+            {
+                test: /\.css$/i,
+                use: ['style-loader', 'css-loader'],
+            },
+        ],
+    },
+};
+```
+
+After you import and use CSS in a JS file, a `<style>` tag is added to the HTML in the browser after you run webpack.
+
+#### Images
+
+Add the following rule to perform minimal image processing:
+
+```js
+    ...
+    module: {
+        rules: [
+            {
+                test: /\.css$/i,
+                use: ['style-loader', 'css-loader'],
+            },
+            {
+                test: /\.(png|svg|jpg|jpeg|gif)$/i,
+                type: 'asset/resource',
+            }
+        ],
+    },
+};
+```
+These rules process images from your `src/` directory and place the product in the output directory. When you import an image into your JS file or CSS, the `css-loader` replaces the path to your image with the final path in your `output.path` directory (defined in `module.exports`, not shown above).
+
+
+### Dev server
+
+> THIS DOES NOT WORK
+
+A better alternative to `npm run watch` is the webpack-dev-server. Install it with the following command:
+
+```shell
+$ npm install webpack-dev-server --save-dev
+```
+
+Then add it to `package.json`:
+
+```js
+"scripts": {
+  "test": "echo \"Error: no test specified\" && exit 1",
+  "build": "webpack --progress --mode=production",
+  "watch": "webpack --progress --watch",
+  "serve": "webpack-dev-server --open"
+},
+```
+
+Run the dev server with the following command to open your JS file on `localhost:8080`:
+
+```shell
+$ npm run serve
 ```
 
 ### babel
@@ -189,61 +300,4 @@ This configuration tells webpack to find any files ending in `.js` except for th
 
 ```js
 import library-name from 'library';
-```
-
-### Task runners
-
-A task runner is a tool that automates parts of the build process. This includes:
-
-- minifying code
-- optimizing images
-- running tests
-- automatically refreshing the browser
-
-We can execute task runners with npm directly in the `scripts` object in `package.json`:
-
-```js
-"scripts": {
-  "test": "echo \"Error: no test specified\" && exit 1",
-  // production minifies the js files
-  "build": "webpack --progress --mode=production",
-  // watch runs the webpack command when a .js file changes
-  "watch": "webpack --progress --watch"
-},
-```
-
-The script commands do not need to specify the full path to webpack (`./node_modules/.bin/webpack`) because npm knows the file system location of each node module.
-
-Execute these scripts with `npm run <script-key>`:
-
-```shell
-$ npm run build
-$ npm run watch
-```
-
-### dev server
-
-> THIS DOES NOT WORK
-
-A better alternative to `npm run watch` is the webpack-dev-server. Install it with the following command:
-
-```shell
-$ npm install webpack-dev-server --save-dev
-```
-
-Then add it to `package.json`:
-
-```js
-"scripts": {
-  "test": "echo \"Error: no test specified\" && exit 1",
-  "build": "webpack --progress --mode=production",
-  "watch": "webpack --progress --watch",
-  "serve": "webpack-dev-server --open"
-},
-```
-
-Run the dev server with the following command to open your JS file on `localhost:8080`:
-
-```shell
-$ npm run serve
 ```

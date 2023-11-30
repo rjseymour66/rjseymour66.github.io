@@ -57,6 +57,9 @@ $ npm install <package-name> --save-dev
 # install the dependencies lists in package.json
 $ npm install
 
+# uninstall a package
+$ npm uninstall <package-name>
+
 # install a specific version with a tag
 $ npm install <package-name>@<tag>
 
@@ -100,6 +103,7 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, "dist"),
     filename: "webpack-app.bundle.js",
+    clean: true,
   },
 };
 ```
@@ -182,10 +186,55 @@ Execute these scripts with `npm run <script-key>`:
 $ npm run build
 $ npm run watch
 ```
+### html-webpack-plugin
+
+[Helpful link](https://rapidevelop.org/webpack/setup-html-webpack-plugin)
+
+We only want to write code in the `src/` directory--we do not want to manually add the `index.html` file in the `dist/` directory.
+
+Webpack's `html-webpack-plugin` automatically builds the HTML file in the `dist/` during a build, which includes a script tag for the minified bundle.
+Install the package:
+
+```shell
+$ npm install --save-dev html-webpack-plugin
+```
+Now we can use the module as a plugin in `webpack.config.js`. The module accepts an object that defines the HTML file:
+
+```js
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+
+module.exports = {
+    ...,
+    plugins: [
+        new HtmlWebpackPlugin({
+            template: './src/index.html',
+            title: 'Webpack 5 Video Tutorials',
+            filename: 'index.html',
+            // inject: 'body',
+            inject: 'head',
+            // scriptLoading: 'defer', // this is the default
+        })
+    ]
+};
+```
+In the previous example:
+- `template` is the path to the HTML template that you provide.
+- `title` is the title of the HTML file
+- `filename` is the name of the HTML file output in `dist/`
+- `inject` is where you want the script tag. By default, it includes the `defer` option.
+
+
+The [GitHub repo lists](https://github.com/jantimon/html-webpack-plugin#options) the available options.
+
+#### Caching
+[Caching article](https://webpack.js.org/guides/caching/)
+
+To prevent caching, you can put hashes in the filename that Webpack generates.
 
 ### Asset management
 
 Notes from [this tutorial](https://webpack.js.org/guides/asset-management/).
+
 
 #### CSS
 
@@ -233,6 +282,12 @@ Add the following rule to perform minimal image processing:
 ```
 These rules process images from your `src/` directory and place the product in the output directory. When you import an image into your JS file or CSS, the `css-loader` replaces the path to your image with the final path in your `output.path` directory (defined in `module.exports`, not shown above).
 
+#### Data
+
+This [tutorial section](https://webpack.js.org/guides/asset-management/#loading-data) explains it well.
+
+
+This [tutorial section](https://webpack.js.org/guides/asset-management/#customize-parser-of-json-modules) covers toml, yaml, and json5.
 
 ### Dev server
 

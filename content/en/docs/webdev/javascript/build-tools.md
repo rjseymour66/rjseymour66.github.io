@@ -71,6 +71,8 @@ _`devDependencies`_ are added to `package.json` when a package is installed as a
 
 ## Webpack
 
+Read the [guides](https://webpack.js.org/guides/).
+
 Webpack is a bundler. A bundler takes all of your application dependencies and "bundles" them up into a single static file that is available to your application at runtime. As a general rule, you should try to limit the number of production dependencies that your application relies on.
 
 A bundler takes an entry point and builds a dependency graph of your source files and third-party libraries. This is called **dependency resolution**. This is beneficial because it only bundles modules that are in use.
@@ -107,6 +109,8 @@ module.exports = {
   },
 };
 ```
+
+> `clean` empties the `dist/` directory when you build the project. This helps make sure that the `dist/` directory contains only files that your project actively uses.
 
 loaders
 : Transform and bundle non-JS files such as CSS or images. For example, you might link to images in your HTML, CSS, or JS files. You configure a loader so that Webpack doesn't bundle all these assets in with your minified JS.
@@ -289,32 +293,211 @@ This [tutorial section](https://webpack.js.org/guides/asset-management/#loading-
 
 This [tutorial section](https://webpack.js.org/guides/asset-management/#customize-parser-of-json-modules) covers toml, yaml, and json5.
 
-### Dev server
+### Development
 
-> THIS DOES NOT WORK
+When you are in development mode, you want to have strong source maps and a local server that reloads with every change.
 
-A better alternative to `npm run watch` is the webpack-dev-server. Install it with the following command:
-
-```shell
-$ npm install webpack-dev-server --save-dev
-```
-
-Then add it to `package.json`:
+You can set your config file in development mode:
 
 ```js
-"scripts": {
-  "test": "echo \"Error: no test specified\" && exit 1",
-  "build": "webpack --progress --mode=production",
-  "watch": "webpack --progress --watch",
-  "serve": "webpack-dev-server --open"
-},
+module.exports = {
+    mode: 'development',
+    ...
+};
 ```
 
-Run the dev server with the following command to open your JS file on `localhost:8080`:
+#### Source maps
+
+A source map is tool that maps code in your bundle back to your source files. When Webpack bundles all source code, it makes it difficult to locate errors in your source files. You can use a source map so that the terminal tells you were errors occur in the source files, **not** in the bundled JS file:
+
+```js
+module.exports = {
+    mode: 'development',
+    entry: {
+        ...
+    },
+    devtool: 'inline-source-map',
+    plugins: [
+        ...
+    ],
+    output: {
+        ...
+    },
+};
+```
+Read the [devtool docs](https://webpack.js.org/configuration/devtool/) for more options.
+
+#### Watch 
+
+`Watch` watches your source files and recompiles them when there is a change. You can implement this by adding a script with the `--watch` option to your `package.json` file:
+
+```js
+  "scripts": {
+    ...
+    "watch": "webpack --watch",
+    "build": "webpack"
+```
+#### DevServer
+
+`Watch` is great, but you have to manually reload your browser when you make a change to your source files. `DevServer` provides a lightweight server that automatically refreshes your browser. Read the [`DevServer` docs here](https://webpack.js.org/configuration/dev-server/).
+
+Install it with the following command:
 
 ```shell
-$ npm run serve
+$ npm install --save-dev webpack-dev-server
 ```
+
+In `webpack.config.js`, tell the dev server where to serve the files from. Use `src/` because you will keep all your work in this directory:
+
+```js
+module.exports = {
+    mode: 'development',
+    ...
+    devServer: {
+        static: './src',
+    },
+    ...
+};
+```
+
+> If you have more than one entrypoint in your build, add the optimization object to your config file:
+> 
+> ```js
+> module.exports = {
+>   entry: {
+>       index: './src/index.js',
+>       print: './src/print.js'
+>   },
+>   ...
+>   optimization: {
+>       runtimeChunk: 'single',
+>   },
+> };
+> ```
+
+Finally, update `package.json` with the script to run the dev server:
+
+```js
+{
+  ...
+  "scripts": {
+    "start": "webpack serve --open",
+    "build": "webpack"
+  },
+  ...
+  "devDependencies": {
+    ...
+    "webpack": "^5.89.0",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^4.15.1"
+  },
+  ...
+}
+```
+
+### Production
+
+Read the [Webpack tutorial](https://webpack.js.org/guides/production/).
+
+In production builds, you want minified bundles, lightweight source maps, and opitimized assets. Set the mode to `production`:
+
+```js
+module.exports = merge(common, {
+    mode: 'production',
+});
+```
+One benefit of production mode is that it drops dead code (code that is not used in the final build in `dist/`). To better understand the plugins that make this possible, see the [tree shaking guide](https://webpack.js.org/guides/tree-shaking/).
+
+#### Minification
+
+Webpack ships with the [`TerserPlugin`](https://webpack.js.org/plugins/terser-webpack-plugin/) minification module, but another good option is [`ClosureWebpackPlugin`](https://github.com/webpack-contrib/closure-webpack-plugin).
+
+For CSS minification, see [Minimizing for prodcution](https://webpack.js.org/plugins/mini-css-extract-plugin/#minimizing-for-production).
+
+#### Source maps
+
+Source maps should build quickly. Use the `source-map` instead of the `inline-source-map` that is better for development:
+
+```js
+module.exports = merge(common, {
+    ...
+    devtool: 'source-map',
+});
+```
+
+### Dev + prod
+
+You can specify only one mode in `webpack.config.js`, which is an issue if you want to run both development and production builds from the same project. You can use `webpack-merge` to define the build processes across multiple configuration files:
+- `webpack.common.js`: Settings that both dev and prod share, such as entrypoints and output file locations.
+- `webpack.dev.js`: Development-specific settings
+- `webpack.prod.js`: Production-specific settings.
+
+> If you use `webpack-merge`, make sure you delete the `webpack.config.js` file from the project because Webpack looks for that file by default.
+
+First, install the tool:
+
+```js
+npm install --save-dev webpack-merge
+```
+
+Next, split up the files. `webpack-common.js` should look familiar:
+
+```js
+const path = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+
+module.exports = {
+    entry: {
+        index: './src/index.js',
+        print: './src/print.js'
+    },
+    plugins: [
+        new HtmlWebpackPlugin({
+            title: 'Development',
+        })
+    ],
+    output: {
+        filename: '[name].bundle.js',
+        path: path.resolve(__dirname, 'dist'),
+        clean: true,
+    },
+};
+```
+
+Next, create the `webpack.{dev | prod}.js` files. These files require that you import both the `merge` tool and the `webpack-common.js` file:
+
+When you define `module.exports`, use the `merge` tool. It accepts the common configuration and an object that defines the settings for that mode.
+
+`webpack.dev.js`:
+
+```js
+const { merge } = require('webpack-merge');
+const common = require('./webpack.common.js');
+
+module.exports = merge(common, {
+    mode: 'development',
+    devtool: 'inline-source-map',
+    devServer: {
+        static: './dist',
+    },
+    optimization: {
+        runtimeChunk: 'single',
+    },
+});
+```
+
+`webpack.prod.js`:
+
+```js
+const { merge } = require('webpack-merge');
+const common = require('./webpack.common.js');
+
+module.exports = merge(common, {
+    mode: 'production',
+    devtool: 'source-map',
+});
+```
+
 
 ### babel
 

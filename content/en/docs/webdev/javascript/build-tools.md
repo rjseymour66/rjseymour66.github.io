@@ -5,6 +5,41 @@ description: >
   Toolchains to manage your environments and distribute your code.
 ---
 
+## Project quickstart
+
+1. Generate the package.json file with npm:
+   ```shell
+   $ npm init -y
+   ```
+2. Install webpack and the webpack-cli as development dependencies:
+   ```shell
+   $ npm install webpack webpack-cli --save-dev
+   ```
+3. Create the following directory structure with src/ and dist/ directories:
+   ```shell
+   project-root
+   ├── dist
+   │   └── index.html
+   ├── package.json
+   ├── package-lock.json
+   ├── src
+   │   └── index.js
+   └── webpack.config.js
+   ```
+4. Create a webpack.config.js file with at least the following configuration:
+   ```js
+   const path = require('path');
+
+   module.exports = {
+       entry: './src/index.js',
+       output: {
+           filename: 'main.js',
+           path: path.resolve(__dirname, 'dist'),
+           // clean: true,
+       },
+   };
+   ```
+5. 
 
 ## History
 
@@ -83,6 +118,43 @@ A Javascript module bundler has a build step that accesses the file system and m
 
 Read the [Webpack docs](https://webpack.js.org/) and the [Webpack developer docs](https://webpack.js.org/guides/development/).
 
+### Commands
+
+```shell
+
+# start a project
+$ mkdir project-name
+$ cd project-name
+$ npm init -y
+$ npm install webpack webpack-cli --save-dev
+
+
+# manually run webpack to convert
+$ ./node_modules/.bin/webpack <source-file>.js --mode=development
+
+# manually run with config file
+$ npx webpack --config webpack.config.js
+```
+
+You can simplify the webpack command with the `webpack.config.js` file:
+
+```js
+module.exports = {
+  mode: "development",
+  entry: "./index.js",
+  output: {
+    filename: "main.js",
+    publicPath: "dist",
+  },
+};
+```
+
+Now, the webpack command reads this config file, and you can run it with the following format:
+
+```shell
+$ ./node_modules/.bin/webpack
+```
+
 ### Key concepts
 
 These concepts were taken from [this article](https://snipcart.com/blog/javascript-module-bundler) and defined in the [official docs](https://webpack.js.org/concepts/).
@@ -123,43 +195,6 @@ mode
 
 Browser compatiblity
 : Build bundles that support new and old browsers.
-
-### Commands
-
-```shell
-
-# start a project
-$ mkdir project-name
-$ cd project-name
-$ npm init -y
-$ npm install webpack webpack-cli --save-dev
-
-
-# manually run webpack to convert
-$ ./node_modules/.bin/webpack <source-file>.js --mode=development
-
-# manually run with config file
-$ npx webpack --config webpack.config.js
-```
-
-You can simplify the webpack command with the `webpack.config.js` file:
-
-```js
-module.exports = {
-  mode: "development",
-  entry: "./index.js",
-  output: {
-    filename: "main.js",
-    publicPath: "dist",
-  },
-};
-```
-
-Now, the webpack command reads this config file, and you can run it with the following format:
-
-```shell
-$ ./node_modules/.bin/webpack
-```
 
 ### Task runners
 

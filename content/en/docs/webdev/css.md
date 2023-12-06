@@ -79,7 +79,7 @@ body {
 /* Set core body defaults */
 body {
   text-rendering: optimizeSpeed;
-  line-height: 1.5;
+  line-height: 1.2;
 }
 
 /* A elements that don't have a class get default styles */
@@ -111,7 +111,7 @@ svg {
   }
 }
 
-button,
+/* button, */
 input,
 select,
 textarea {

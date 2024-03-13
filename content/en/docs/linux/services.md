@@ -1,6 +1,6 @@
 ---
 title: "Services overview"
-weight: 1
+weight: 20
 description: >
   Brief overview of Linux services.
 ---

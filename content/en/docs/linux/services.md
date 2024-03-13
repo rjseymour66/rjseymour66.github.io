@@ -83,11 +83,11 @@ First big milestone was the relational database that allowed multiple clients to
 ### Mail servers
 
 Linux uses multiple small programs to process email messages:
-- Mail transfer agent (MTA). Handles incoming and outgoing email on the server. Connects to other MTA agents if the email leaves the network
-  - `sendmail`: Very complex, but many very important features like virtual domains, message forwarding, user aliases, mail lists, and host masquerading. Complex config file.
-  - `postfix`: Simple. Multiple modular programs to implement MTA. Uses 2 small, plaintext config files.
-  - `exim`: One large program, attempts to avoid message queueing.
-- Mail delivery agent (MDA). Delivers email messages from the MTA to local users or locations defined by the user.
-  - `binmail`: Most popular and simple, located in `/bin/mail`. Reads messages stored in `/var/spool/mail` or points to alternative mailbox.
-  - `procmail`: Popular because of versatility, and sometimes installed by default. User can create a `.procmail` file in `$HOME` to direct incoming mail.
-- Mail user agent (MUA). Client-side apps that interact with users so that they can view and manipulate email messages
+- **Mail transfer agent (MTA)**. Handles incoming and outgoing email on the server. Connects to other MTA agents if the email leaves the network
+  - sendmail: Very complex, but many very important features like virtual domains, message forwarding, user aliases, mail lists, and host masquerading. Complex config file.
+  - postfix: Simple. Multiple modular programs to implement MTA. Uses 2 small, plaintext config files.
+  - exim: One large program, attempts to avoid message queueing.
+- **Mail delivery agent (MDA)**. Delivers email messages from the MTA to local users or locations defined by the user.
+  - binmail: Most popular and simple, located in `/bin/mail`. Reads messages stored in `/var/spool/mail` or points to alternative mailbox.
+  - procmail: Popular because of versatility, and sometimes installed by default. User can create a `.procmail` file in `$HOME` to direct incoming mail.
+- **Mail user agent (MUA)**. Client-side apps that interact with users so that they can view and manipulate email messages

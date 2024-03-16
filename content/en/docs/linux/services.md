@@ -163,3 +163,85 @@ Network devices run the SNMP service and listen to requests from SNMP clients. T
 #### Time
 
 Network Time Protocol (NTP) syncs internal clocks on network clients and servers. `ntpd` syncs Linux systems with NTP servers on the internet. Usually, one server syncs to remote time standard server, and then the other servers in the network sync to that server.
+
+## Security
+
+### Authentication server
+
+The core Linux security feature is username/password authentication and stored in `/etc/passwd` and `/etc/shadow`. When environments get large, it is difficult to maintain user accounts, so you can implement the following services.
+
+### NIS
+
+Network Information System lets clients and servers share a common naming directory that stores user accounts, hostnames, and email information on the local network. NIS+ has added security features.
+
+Implement NIS and NIS+ with `nis-utils`.
+
+### Kerberos
+
+Uses symmetric-key cryptography to authenticate users with a centralized server database. Many server applications have plug-in modules to interface with a Kerberos db for authenticating users.
+
+### LDAP
+
+- Lightweight Directory Access Protocol, an open-source network directory service, similar to MS Active Directory.
+- simple network auth services to multiple apps and devices on network
+- OpenLDAP is a populas OSS package
+  - Uses a hierarchival databse to store objects in your network
+  - Group objects by types, ex: users, servers, location, both
+  - Client and server programs. Client lets program access an OLDAP server to authenticate requests made by clients
+
+### Certificate authority
+
+- Certificate is an encrypted key that implements two-factor authentication:
+  - something they posses, like a certificate file
+  - something they know, like a pin
+- User should have the cert and a pin for the cert, but you need to trust the certificate. This is what a CA is for.
+- OpenSSL is common package
+
+### Access server (SSH)
+
+- Successor to Telnet or FTP
+- SSH adds layer of encryption around data sent over the network. This is called tunneling, even if the application doesn't support OpenSSH
+- OpenSSH is most common package.
+
+### Virtual Private Networks
+
+- When you need to connect to network resources over the internet
+- This protocol creates a secure point-to-point tunnel between client or server and VPN server on your network
+- OpenVPN is the most popular. Remote clients connect to the OpenVPN server to establish connectivity to the server. After they're on the server, they get access to the rest of the local network.
+
+### Proxy server
+
+- Intercepts web requests from local network clients
+- Can control how clients interact with remote web servers:
+  - block websites you don't want network clients to see
+  - cache common websites so future requests load faster
+- Squid package is most common/popular, can be filter or caching server
+- nginX is another popular one
+
+### Monitoring
+
+- Good to check on performance and monitor logs.
+- Nagios is popular. Uses SNMP to monitor logs and provides a GUI
+
+## Improving performance
+
+Three common ways to improve performance: clustering, load balancing, and containers.
+
+### Clustering
+
+- Improves performance by dividing application functions among multiple servers
+- Each server is configured the same and can perform the same functions
+- Provides fault tolerance
+- Cluster management software determings how to split the workloads
+  - Examples include Hadoop and Linux Vitrual Server (LVS)
+
+### Load balancing
+
+- Special application of clustering that redirects entire client requests to one of a cluster of servers
+- a single server processes entire request, but all client requests are distributed among servers automatically
+- Common LBs are HAProxy, Linux Virtual Server (LVS), and nginX.
+
+### Containers
+
+- Self-contained environments to encapsulate applications
+- Development environment mirrors the server environment that the apps run in

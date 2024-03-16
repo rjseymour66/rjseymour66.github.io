@@ -91,3 +91,75 @@ Linux uses multiple small programs to process email messages:
   - binmail: Most popular and simple, located in `/bin/mail`. Reads messages stored in `/var/spool/mail` or points to alternative mailbox.
   - procmail: Popular because of versatility, and sometimes installed by default. User can create a `.procmail` file in `$HOME` to direct incoming mail.
 - **Mail user agent (MUA)**. Client-side apps that interact with users so that they can view and manipulate email messages
+
+## Serving local networks
+
+Linux is often used to provide the following simple network services.
+
+### File servers
+
+Multiple people can create and edit files in a common folder. There are two basic methods for file sharing:
+- **peer-to-peer**: one workstation enables another workstation to access files stored locally on its hard drive. Good when you do not need to share between more than 2 people.
+- **client-server**: files are stored in a centralized file server for sharing files that multiple clients can access and modify as needed. The most common are **NFS** and **Samba**.
+
+#### NFS
+
+Network file system, shares a portion of its virtual directory in a network environment.
+
+Linux package is `nfs-utils`:
+- drivers to support NFS
+- underlying client and server software to both share local folders on the network and connect to remote folders shared by other linux system on the local network
+
+#### Samba
+
+Lets you share files on a network with Windows servers. Windows' default file sharing method is System Message Block (SMB) protocol, which was released as a network standard so you can create open-source software with it.
+
+Linux can act as either a client and connect to a Windows server to get shared folders, or as a server that allows Windows machines access to files on a Linux server.
+
+### Print servers
+
+Network printer standard is Common Unix Printing System (CUPS). You connect using a common API that operates over dedicated printer drivers. CUPS uses the Internet Printing Protocol (IPP).
+
+You can also share a locally connected printer to other linux systems.
+
+### Network resource servers
+
+A network needs to run different resources to keep clients and servers in sync.
+
+#### IP addresses
+
+The Dynamic Host Configuration Protocol (DHCP) assigns and tracks IP addresses for computers on the network. Each computer on a network must have a unique IP address so it can communicate with other resources on the network.
+
+Most common package is DHCPd. There are three popular versions of it:
+- `dhclient`, often used by Red Hat
+- `dhcpcd`
+- `pump`
+
+#### Logging
+
+Log files are normally stored in `/var/log`, but it might be helpful for Linux servers to store their system logs on a remote logging server. This provides a backup of the original log files and a storage location that is safe from crashes or hackers.
+
+Two main remote logging services that accept logging data from remote servers. Both services use config files to setup what is logged and which clients can connect:
+- `rsyslogd`: SysVinit and Upstart systems use this
+- `journald`: Systemd systems use this
+
+#### Name servers
+
+DNS maps IP addresses to a host naming scheme. Linux uses the BIND software package for DNS, which uses `named`, a server daemon that runs on Linux servers to resolve hostnames to IP addresses for clients on a local network. One BIND server can communicate with another on remote networks so you can resolve any IP address on the internet.
+
+BIND should support the DNSSEC security protocol to prevent attacks like hostname spoofing.
+
+#### Network management
+
+Monitors which devices are active or which servers are running at capacity. Most popular is `net-snmp`.
+
+Simple Network Management Protocol (SNMP) lets admins query remote network devices and servers to get the following info:
+- configuration
+- status
+- performance
+
+Network devices run the SNMP service and listen to requests from SNMP clients. There are 3 versions of SNMP, with each improving security. SNMPv3 uses strong password authentication and data encryption.
+
+#### Time
+
+Network Time Protocol (NTP) syncs internal clocks on network clients and servers. `ntpd` syncs Linux systems with NTP servers on the internet. Usually, one server syncs to remote time standard server, and then the other servers in the network sync to that server.

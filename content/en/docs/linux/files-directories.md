@@ -247,7 +247,7 @@ tail -f /var/log/auth.log
 
 ## Reading text file pages
 
-## pagers (`more` and `less`)
+### pagers (`more` and `less`)
 
 `more` won't let you go back, but `less` will (`less` is more):
 

@@ -210,6 +210,9 @@ Search for text patterns or a single string in a file.
 grep [OPTIONS] PATTERN [FILE...]
 
 grep -i ryan /etc/passwd
+
+# search for 'hosts:' in all /etc/ files, skipping dirs (-d skip)
+grep -d skip hosts: /etc/*
 ```
 
 ### head
@@ -260,4 +263,168 @@ less file.txt
 # q to exit
 ```
 
-## Finding information
+## Viewing file information
+
+### `file` and `stat`
+
+```bash
+# file provides basic info about the file type
+file testscript.sh 
+testscript.sh: Bourne-Again shell script, ASCII text executable
+
+# stat shows the file and history
+  stat testscript.sh 
+  File: testscript.sh
+  Size: 75        	Blocks: 8          IO Block: 4096   regular file
+Device: 10303h/66307d	Inode: 4873930     Links: 1
+Access: (0755/-rwxr-xr-x)  Uid: ( 1001/ryanseymour)   Gid: ( 1001/ryanseymour)
+Access: 2024-03-17 15:05:57.739663588 -0400
+Modify: 2024-03-17 15:05:56.439662366 -0400
+Change: 2024-03-17 15:05:56.443662370 -0400
+ Birth: 2024-03-17 15:05:56.439662366 -0400
+```
+
+### diff
+
+Compare two files, line by line.
+
+```bash
+diff [OPTION]... FILES
+-e # create ed script
+-q # brief message if files are different
+-r # recursive comparisons
+-s # report identical files, brief message if files are same
+-W n # width max of n chars for output
+-y # display output in 2 columns
+
+# no args
+diff numbers.txt random.txt 
+2,3c2,3 # to make numbers match random, change lines 2 and 3 (2,3 changes to 2,3)
+< 2A
+< 52
+---
+> Flat Land
+> Schrodinger\'s Cat
+5c5 # line 5 needs to be changed
+< *
+---
+> 0000 0010
+
+
+# see difference between files (with and w/o -W)
+diff -yW 35 numbers.txt random.txt 
+42		    42
+2A	      |	Flat Land
+52	      |	Schrodinger's
+0010 1010	0010 1010
+*	      |	0000 0010
+
+# w/o -W
+diff -y numbers.txt random.txt 
+42								    42
+2A							      |	Flat Land
+52							      |	Schrodinger's Cat
+0010 1010							0010 1010
+*							      |	0000 0010
+```
+
+## Pinpoint commands
+
+Quickly locate files to see if they're installed, locate a config file, find docs, etc.
+
+### which 
+
+Shows full path name of a shell command or if it is using an alias:
+
+```bash
+# utility
+which diff
+/usr/bin/diff
+# system binary
+which shutdown
+/usr/sbin/shutdown
+# not in system
+which line
+```
+
+### whereis
+
+Locate the binaries, source code files, and man pages:
+
+```bash
+# utility
+whereis diff
+diff: /usr/bin/diff /usr/share/man/man1/diff.1.gz
+# system binary
+whereis shutdown
+shutdown: /usr/sbin/shutdown /usr/share/man/man8/shutdown.8.gz /usr/share/man/man2/shutdown.2.gz
+# not in system
+whereis line
+line:
+```
+
+### locate
+
+Searches the `mlocate.db` database in `/var/lib/mlocate/` to see if the file exists on the system.
+
+> `locate` might not find newly created files because `mlocate.db` is usually updated once a day with a cron job:
+
+```bash
+locate [OPTION]... PATTERN...
+-A # matches all patterns in pattern list
+-b # only filenames that match pattern, not directory names
+-c # display count of files that match patterns
+-i # ignore case
+-q # quiet, do not display error messages
+-r # use regex arg, not pattern list
+-w # wholename, display filenames and direcories
+
+# separate patterns with a space
+locate -b '\passwd' '\group'
+/snap/core22/1033/usr/share/doc-base/base-passwd.users-and-groups
+/usr/share/doc-base/base-passwd.users-and-groups
+```
+
+### find 
+
+Locates files using data and metadata, such as:
+- file owner
+- last modified
+- permissions
+
+Specify the starting path for the command, and it will look through that tree.
+
+| Option | Expression | Description |
+|--------|------------|-------------|
+| -cmin  | _n_ | Display names of files that changed _n_ mins ago |
+| -empty |  | Display empty files or dirs |
+| -gid   | _n_ | Display files whos group id is _n_ |
+| -group | _name_ | Display files in group _name_ |
+| -inum | _n_ | Display files with _inode_ |
+| -maxdepth | _n_ | Search _n_ directory levels |
+| -mmin | _n_ | Files whose data changed _n_ mins ago |
+| -name | _pattern_ | Names of files that match _pattern_ |
+| -nogroup |  | No group name exists for the file's group ID |
+| -nouser |  | No username exists for the file's user ID |
+| -perm | _mode_ | Files whose permissions match _mode_ |
+| -size | _n_ | Files whose size matches _n_ |
+| -user | _name_ | Files whose owner is _name_ |
+
+```bash
+find [PATH...] [OPTION] [EXPRESSION]
+
+find . -name "*.txt"
+./numbers.txt
+./random.txt
+
+find . -maxdepth 2 -name "*.txt"
+
+# find binaries with SUID settings
+$ find /usr/bin/ -perm /4000
+/usr/bin/fusermount3
+/usr/bin/passwd
+/usr/bin/mount
+...
+
+```
+

@@ -250,7 +250,7 @@ tail -f /var/log/auth.log
 
 ## Reading text file pages
 
-### pagers (`more` and `less`)
+### pagers (more and less)
 
 `more` won't let you go back, but `less` will (`less` is more):
 
@@ -265,7 +265,7 @@ less file.txt
 
 ## Viewing file information
 
-### `file` and `stat`
+### file and stat
 
 ```bash
 # file provides basic info about the file type

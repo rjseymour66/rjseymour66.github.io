@@ -169,3 +169,95 @@ ls -iog
 total 0
 4868127 -rw-rw-r-- 1 0 Mar 17 09:32 original-file.txt
 ```
+
+## Reading entire text files
+
+### cat
+
+Also check out `bat`?
+
+```bash
+cat [OPTION]... [FILE]...
+-n # add numbers to output line
+```
+
+### pr
+
+Display file with special formatting.
+
+```bash
+pr [OPTION]... [FILE]...
+-n # display file in n columns
+-l <n> # default lines displayed
+-m # merge multiple files into one
+-s <c> # change default column separator to c
+-t # no file header or trailer
+-w <n> # change default page width to n
+
+pr -tl 15 filename.txt
+
+# great for comparing files (merging output)
+pr -mtl 15 file1.txt file2.txt
+```
+
+## Reading portions of text files
+
+### grep
+
+Search for text patterns or a single string in a file.
+
+```bash
+grep [OPTIONS] PATTERN [FILE...]
+
+grep -i ryan /etc/passwd
+```
+
+### head
+
+Display first lines of a file (10 by default).
+
+```bash
+head [OPTION]... [FILE]...
+
+# these two are equivalent
+head -n 2 file.txt
+head -2 file.txt
+
+# display all file lines except the last 40
+head -n -40 file.txt
+```
+
+### tail 
+
+Display last lines of a file (10 by default) and watching log files:
+
+```bash
+tail [OPTION]... [FILE]...
+
+# these are equivalent
+tail -n 2 file.txt
+tail -2 file.txt
+
+# begin display at line 40 of file
+tail -n +40 file.txt
+
+# Very useful to watch log files with `-f` (follow) option:
+tail -f /var/log/auth.log
+```
+
+## Reading text file pages
+
+## pagers (`more` and `less`)
+
+`more` won't let you go back, but `less` will (`less` is more):
+
+```bash
+less file.txt
+# up and down arrows
+# spacebar to move forward
+# ? to search backward for word in file
+# / to search forward for word in file
+# q to exit
+```
+
+## Finding information

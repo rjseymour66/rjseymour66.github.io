@@ -10,14 +10,16 @@ Files are stored within a structure called the _virtual directory_, a directory 
 - A directory is a special file used to locate other files. This directory 'file' stores file name and inode number.
 - 
 
-## Tips
+## Common commands
+
+### Tips
 
 - `alias` to see all your aliases
 - `tree` for pseudo-UI view
 - `mkdir -p` make all subdirs in path
 - `mkdir -v` verbal
 
-## ls
+### ls
 
 View files' and subdirectories' names and metadata.
 
@@ -33,7 +35,7 @@ ll # list long
 -R # recursive list
 ```
 
-## cp
+### cp
 
 Copy a file or directory locally.
 
@@ -43,12 +45,12 @@ cp [OPTION]... SOURCE DEST
 -f # force overwrite the DEST
 -i # interactive, ask before overwrite
 -n # no-clobber, no overwrite DEST
--r,R # recursive (for directories)
+-R,r # recursive (for directories)
 -u # update, only overwrite DEST files with same name
 -v # verbose
 ```
 
-## mv
+### mv
 
 Move or rename a file.
 
@@ -61,7 +63,7 @@ mv [OPTION]... SOURCE DEST
 -v # verbose
 ```
 
-## rsync
+### rsync
 
 Remote sync. Copies large files or a group of large files quickly, including:
 - copy files over a network
@@ -82,3 +84,19 @@ rsync [OPTION]... SOURCE DEST
 -t # retain file's modification time
 -v # verbose
 ```
+
+### rm
+
+Removes files and directories.
+
+```bash
+rm [OPTION]... FILE
+-d # delete empty directories
+-f # force
+-i # interactive
+-I # ask before deleting more than 3 files
+-R,r # recursive
+-v # verbose
+```
+
+## Linking files and directories

@@ -40,7 +40,7 @@ Uses regex, a pattern template that you define for a utility like grep that filt
 grep [OPTIONS] PATTERN [FILE...]
 -c # display record count that match PATTERN
 -d action # read, skip, or recurse on dirs
--E # Exended regex
+-E # Extended regex
 -i # ignore case
 -R,-r # recursive
 -v # match only files that do not match PATTERN
@@ -131,5 +131,93 @@ wc -L /etc/nsswitch.conf
 75 /etc/nsswitch.conf
 ```
 
-## Redirecting output
+## Redirecting input and output
 
+- In Linux, everything is a file, including the output process.
+- Each file object is identified with a _file descriptor_, which is an integer that classifies a process's open files.
+
+### Redirection operators
+
+General rules:
+- `>` is STDOUT
+- `<` is STDIN
+- `2>` is STDERR
+- `&>` is STDOUT & STDERR
+
+| Operator | Description | Example |
+|----------|-------------|---------|
+| `>` | STDOUT redirect | `grep nologin$ /etc/passwd > file.txt` |
+| `>>` | STDOUT redirect append | `grep nologin$ /etc/passwd >> file.txt` |
+| `2>` | STDERR | `grep -d skip hosts: /etc/* 2> /dev/null` |
+| `2>>` | STDERR redirect append | `grep -d skip hosts: /etc/* 2> /dev/null` |
+| `&>` | STDOUT and STDERR redirect |  |
+| `<` | STDIN redirect | `tr " " "," < file.txt ` |
+| `<>` | STDIN and STDOUT redirect | ...? |
+
+### STDOUT
+
+89,76,100,92,68,84,73
+
+
+- The file descriptor for output is 1.
+- Output is also called STDOUT
+- By default, STDOUT directs output to your current terminal, which is represented by the `/dev/tty` file
+
+### STDERR
+
+- File descriptor for STDERR is 2
+- By default, STDERR directs output to your current terminal, which is represented by the `/dev/tty` file
+
+### STDIN
+
+- File descriptor for STDIN is 0
+- `tr` requires STDIN redirect
+
+## Piping commands
+
+- Redirects STDOUT, STDIN, and STDERR on the command line
+- Any command in the pipeline has its STDOU redirected as STDIN for the next command
+
+### tee
+
+- Keep copy of command output to STDIN and view it
+- Based on a tee pipe fitting--the water flow is sent in multiple directions
+  - You can save output to a file _and_ view it in STDOUT
+
+```bash
+grep /bin/bash$ /etc/passwd | tee BashUsers.txt
+```
+
+## Here documents
+
+Also called 'here text' or 'heredoc'.
+
+- Redirects multiple items into a command
+- `<<` followed by keyword (often `EOF`)
+  - The keyword indicates that data entry is complete
+
+```bash
+sort << EOF
+> dog
+> cat
+> fish
+> EOF
+cat
+dog
+fish
+
+cat << EOF > cat.txt
+> This 
+> is
+> a
+> here document
+> EOF
+
+cat cat.txt 
+This 
+is
+a
+here document
+```
+
+## Creating command lines

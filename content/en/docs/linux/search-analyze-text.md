@@ -221,3 +221,121 @@ here document
 ```
 
 ## Creating command lines
+
+### xargs
+
+Accepts STDIN from other commands as arguments to the xa`rgs argument:
+
+```bash
+# find all empty files in /tmp and ask permission to remove them
+find tmp -size 0 | xargs -p /usr/bin/rm
+```
+
+### Shell expansion
+
+Expand commands by wrapping them in parentheses and preceding it with a `$`. This syntax doesn't display the output to STDOUT, it executes the command and replaces it with its output:
+
+```bash
+# find empty files in tmp/ dir
+ls $(find tmp -size 0)
+tmp/EmptyFile1.txt  tmp/EmptyFile2.txt  tmp/EmptyFile3.txt
+```
+
+## Editing text files
+
+### vim
+
+vim loads a file into a memory buffer and lets you edit. There are 3 standard modes:
+- **command mode**: Normal mode. You can move around the buffer area with the keyboard.
+- **insert mode**: Edit or entry mode. Press `I` or `i`, and `--Insert--` will appear in the message area. Leave by pressing `Esc` key.
+- **ex mode**: Colon command bc every command is preceded by a colon.
+
+[vim cheat sheet](https://vimsheet.com/)
+
+## Stream editors
+
+A stream editor modifies text that is passed to it from a file or output from a pipeline. The stream editor makes text changes as the text "streams" through the editor utility.
+
+### sed
+
+Short for "stream editor", it edits a stream of text data based on commands either entered into the command line or stored in a text file:
+1. Reads one line at a time from the input stream (STDIN by default)
+2. Matches input text with supplied editor commands
+3. Modifies the input text with editor commands
+4. Outputs modified text to STDOUT
+5. Reads the next line, and repeats
+
+```bash
+sed [OPTINS] [SCRIPT]... [FILENAME]
+-e script # add script to processing. script is on command line
+-f script # add script to processing. script is a file
+-r # use extended regex in script
+
+
+
+# s (substitute) command. everything after sed is [SCRIPT]
+echo "i like cake" | sed 's/cake/pie/'
+
+# doesn't modify all 'cake' occurrences
+echo "i like cake and more cake" | sed 's/cake/pie/'
+i like pie and more cake
+# global modify
+echo "i like cake and more cake" | sed 's/cake/pie/g'
+i like pie and more pie
+
+# replace all cake occurences in cake.txt in STDOUT only
+sed 's/cake/donuts/' cake.txt 
+
+# -e lets you use multiple scripts w sed. separate commands with ";"
+sed -e 's/cake/donuts/ ; s/like/love/' cake.txt
+
+# use a file with sed commands:
+cat script.sed 
+s/cake/donuts/
+s/like/love/
+# use -f command
+sed -f script.sed cake.txt 
+```
+
+### gawk
+
+`gawk` is more powerful than `sed` and can do the following:
+- define vars
+- use arithmetic and string operators
+- use loops and logic
+- create formatted reports from large datasets
+
+`awk` is from the UNIX days, `gawk` is `awk` that was rewritten for GNU. If you use `awk` on a modern distribution, it calls `gawk`.
+
+Easier to put `gawk` commands in a file:
+
+```bash
+gawk [OPTIONS] [PROGRAM]... [FILENAME]
+-F d # specify delimiter
+-f file # use file for gawk scripts
+-s # sandbox mode
+
+# $0 is entire line, $1 is first data field, etc
+echo 'hello world' | gawk '{print $0}'
+hello world
+echo 'hello world' | gawk '{print $1}'
+hello
+echo 'hello world' | gawk '{print $2}'
+world
+
+# print first data field
+gawk '{print $1}' cake.txt 
+# read cake.txt, if data field is 'cake' change to 'donuts' and print the line
+gawk '{if ($4 == "cake.") {$4="donuts"; print $0}}' cake.txt 
+
+gawk -F : '{print $1}' /etc/passwd
+
+# gawk in a file 
+cat script.gawk 
+{if ($4=="cake.")
+    {$4="donuts"; print $0}
+else if ($5=="cake.")
+    {$5="donuts"; print $0}}
+
+gawk -f script.gawk cake.txt 
+```

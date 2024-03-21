@@ -180,7 +180,7 @@ General rules:
 
 ### tee
 
-- Keep copy of command output to STDIN and view it
+- Keep copy of command output to send to STDIN and view in STDOUT
 - Based on a tee pipe fitting--the water flow is sent in multiple directions
   - You can save output to a file _and_ view it in STDOUT
 

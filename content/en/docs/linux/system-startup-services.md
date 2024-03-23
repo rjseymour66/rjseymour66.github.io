@@ -76,31 +76,6 @@ The twelve systemd unit types:
 - target
 - timer
 
-### systemctl
-
-How you manage systemd and services.:
-
-```bash
-# uses less pager by default (or --no-pager option)
-systemctl [OPTIONS...] COMMAND [NAME...]
-
-# list all units loaded in your system in <name>.<type> format
-systemctl list-units
-  UNIT                                      LOAD   ACTIVE     SUB       DESCRIPTION         >
-
-  dev-loop1.device                          loaded activating tentative /dev/loop1
-  dev-loop30.device                         loaded activating tentative /dev/loop30
-  sys-devices-virtual-block-loop0.device    loaded active     plugged   /sys/devices/virtual/block/loop0
-  sys-devices-virtual-block-loop10.device   loaded active     plugged   /sys/devices/virtual/block/loop10
-  ...
-
-LOAD   = Reflects whether the unit definition was properly loaded.
-ACTIVE = The high-level unit activation state, i.e. generalization of SUB.
-SUB    = The low-level unit activation state, values depend on unit type.
-307 loaded units listed. Pass --all to see loaded but inactive units, too.
-To show all installed unit files use 'systemctl list-unit-files'.
-
-```
 
 ### Target unit files
 
@@ -312,3 +287,54 @@ You can extend a service configuration with a _drop in_ file. Complete the follo
 2. Enter `systemctl restart <service>`.
 
 ## systemctl
+
+How you manage systemd and services:
+
+```bash
+# uses less pager by default (or --no-pager option)
+systemctl [OPTIONS...] COMMAND [NAME...]
+
+# list all units loaded in your system in <name>.<type> format
+systemctl list-units
+  UNIT                                      LOAD   ACTIVE     SUB       DESCRIPTION         >
+
+  dev-loop1.device                          loaded activating tentative /dev/loop1
+  dev-loop30.device                         loaded activating tentative /dev/loop30
+  sys-devices-virtual-block-loop0.device    loaded active     plugged   /sys/devices/virtual/block/loop0
+  sys-devices-virtual-block-loop10.device   loaded active     plugged   /sys/devices/virtual/block/loop10
+  ...
+
+LOAD   = Reflects whether the unit definition was properly loaded.
+ACTIVE = The high-level unit activation state, i.e. generalization of SUB.
+SUB    = The low-level unit activation state, values depend on unit type.
+307 loaded units listed. Pass --all to see loaded but inactive units, too.
+To show all installed unit files use 'systemctl list-unit-files'.
+
+```
+### Common commands
+
+```bash
+systemctl COMMAND UNIT_NAME...
+
+# view status
+systemctl status cron
+systemctl stop sshd
+systemctl is-active sshd
+systemctl start sshd
+```
+service vs unit file?
+
+| Command | Description |
+|---------|-------------|
+| daemon-reload | Load the unit config file withouth stopping the service. |
+| disable | Mark service to NOT start at boot time. |
+| enable | Mark service to start at boot time. |
+| mask | Prevent this service from starting. Links the service to `/dev/null`.
+
+ `--now` option stops this service immediately. `--running` makes the service until the next reboot or unmask operation. |
+| restart | Stop and restart the service. |
+| start | Start the service. |
+| status | Display the service's status. |
+| stop | Stop the service. |
+| reload | Load the modified service config file to make changes without stopping the service. |
+| unmask | Undo previous `mask` operation. |

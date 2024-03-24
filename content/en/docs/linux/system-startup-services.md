@@ -133,7 +133,7 @@ Common states:
 
 ```bash
 # state is when the service starts
-$ systemctl list-unit-files
+systemctl list-unit-files
 UNIT FILE                                      STATE           VENDOR PRESET
 proc-sys-fs-binfmt_misc.automount              static          -            
 -.mount                                        generated       -            
@@ -324,17 +324,136 @@ systemctl start sshd
 ```
 service vs unit file?
 
+#### Service management
+
 | Command | Description |
 |---------|-------------|
-| daemon-reload | Load the unit config file withouth stopping the service. |
-| disable | Mark service to NOT start at boot time. |
-| enable | Mark service to start at boot time. |
-| mask | Prevent this service from starting. Links the service to `/dev/null`.
+| `daemon-reload` | Load the unit config file withouth stopping the service. |
+| `disable` | Mark service to NOT start at boot time. |
+| `enable` | Mark service to start at boot time. |
+| `mask` | Prevent this service from starting. Links the service to `/dev/null`.
 
  `--now` option stops this service immediately. `--running` makes the service until the next reboot or unmask operation. |
-| restart | Stop and restart the service. |
-| start | Start the service. |
-| status | Display the service's status. |
-| stop | Stop the service. |
-| reload | Load the modified service config file to make changes without stopping the service. |
-| unmask | Undo previous `mask` operation. |
+| `restart` | Stop and restart the service. |
+| `start` | Start the service. |
+| `status` | Display the service's status. |
+| `stop` | Stop the service. |
+| `reload` | Load the modified service config file to make changes without stopping the service. |
+| `unmask` | Undo previous `mask` operation. |
+
+
+#### Service status
+
+```bash
+systemctl is-failed NetworkManager-wait-online.service
+```
+
+| Command | Description |
+|---------|-------------|
+| `is-active` | Shows if `active` or `failed` |
+| `is-enabled` | Shows `enabled` or `disabled` |
+| `is-failed` | Shows `failed` or `active` |
+
+#### systemctl is-system-running
+
+Learn the status of your system:
+
+```bash
+systemctl is-system-running
+degraded
+
+systemctl --failed
+  UNIT                    LOAD   ACTIVE SUB    DESCRIPTION                              
+● casper-md5check.service loaded failed failed casper-md5check Verify Live ISO checksums
+● fwupd-refresh.service   loaded failed failed Refresh fwupd metadata and update motd
+
+LOAD   = Reflects whether the unit definition was properly loaded.
+ACTIVE = The high-level unit activation state, i.e. generalization of SUB.
+SUB    = The low-level unit activation state, values depend on unit type.
+2 loaded units listed.
+```
+
+Possible responses:
+
+| Command | Description |
+|---------|-------------|
+| `running` | System is in full working order |
+| `degraded` | System has one or more failed units. Use `--failed` to figure out which one |
+| `maintenance` | In emergency or recovery mode |
+| `initializing` | Starting to boot |
+| `starting` | Starting is still booting |
+| `stopping` | Starting to shut down |
+
+### System target commands
+
+Jump to system targets
+
+- `get-default`: get the default system target
+- `set-default`: set a new default system target
+- `isolate`: jumping between system targets. All services and processes not enabled for the specified target are stopped. All services and processes enabled and not running for the target are stopped. 
+  
+  The target's unit file must have `AllowIsolate=yes` set to use this command.
+
+#### Rescue and Emergency targets
+
+- `Rescue`: Helpful when you want to run disk utilities to fix corrupted disks. Does the following:
+  - System mounts all local filesystems
+  - Only root can log in
+  - networking is turned off
+  - few other systems are started.
+- `Emergency`: Does the following:
+  - mounts only the root fs as read-only
+  - Only root can login
+  - networking is off
+  - few services are started
+
+Others that I need to research:
+- `reboot`
+- `poweroff`
+- `halt`
+
+#### GRUB2
+
+In emergencies, you can change the target during boot with GRUB2:
+
+1. Hold SHIFT to get GRUB2 boot menu:
+2. Press `E` key on boot option in GRUB boot menu
+3. Go to end of line that begins with `linux` or `linux16`.
+4. Add `systemd.unit=<target-name>.target` command to the end of the line in the boot menu commands.
+5. Press CTRL + X to save.
+
+### systemd-analyze
+
+Investigate your system's boot performance and check for potential system init issues.Might use `less` pager, so use `--no-pager` to turn off:
+
+```bash
+systemd-analyze verify
+Too few arguments.
+# check for service errors
+systemd-analyze verify sshd.service
+# see how long kernel, init, and fs took
+systemd-analyze time
+Startup finished in 10.269s (firmware) + 2.143s (loader) + 3.713s (kernel) + 7.479s (userspace) = 23.606s 
+graphical.target reached after 7.472s in userspace
+# see how long each running unit took to init (slowest to fastest)
+systemd-analyze --no-pager blame
+1d 18h 5min 13.198s dev-loop29.device
+ 1d 18h 5min 1.643s dev-loop7.device
+1d 11h 35min 2.223s dev-loop2.device
+  16h 44min 57.400s dev-loop3.device
+   3h 54min 51.938s dev-loop34.device
+            21.717s plocate-updatedb.service
+            14.927s apt-daily.service
+            12.359s fstrim.service
+             8.781s dev-loop14.device
+             ...
+```
+
+| Command | Description |
+|---------|-------------|
+| `blame` | Time each running unit took to initialize. |
+| `time` | Default utility action. Time system init spend for the kernel and RAM, and time for user space to init |
+| `critical-chain` | Displays time-critical units in tree format. Accepts a unit file as ar so you can focus on one. |
+| `dump` | Displays info about all units. |
+| `verify` | Scans units and files and displays any errors. |
+

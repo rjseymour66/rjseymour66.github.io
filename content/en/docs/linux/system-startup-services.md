@@ -331,9 +331,7 @@ service vs unit file?
 | `daemon-reload` | Load the unit config file withouth stopping the service. |
 | `disable` | Mark service to NOT start at boot time. |
 | `enable` | Mark service to start at boot time. |
-| `mask` | Prevent this service from starting. Links the service to `/dev/null`.
-
- `--now` option stops this service immediately. `--running` makes the service until the next reboot or unmask operation. |
+| `mask` | Prevent this service from starting. Links the service to `/dev/null`. `--now` option stops this service immediately. `--running` makes the service until the next reboot or unmask operation. |
 | `restart` | Stop and restart the service. |
 | `start` | Start the service. |
 | `status` | Display the service's status. |

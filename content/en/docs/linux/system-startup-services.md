@@ -455,3 +455,68 @@ systemd-analyze --no-pager blame
 | `dump` | Displays info about all units. |
 | `verify` | Scans units and files and displays any errors. |
 
+### Mount and automount units
+
+> You should NOT mount files with systemctl. Use `/etc/fstab`
+
+You can attach filesystems with one of the following:
+- `/etc/fstab` file. This is preferred. The mount points listed here are converted into native units after a reboot or systemd reload.
+- mount unit file. This provides config info for systemd to mount and control the fs
+- `.mount` and `.automount` extension
+
+#### Example
+
+`home-temp.mount` mounts a file in `/home/temp/`:
+
+```bash
+cat /etc/systemd/system/home-temp.mount
+[Unit]
+Description=Test Mount Units
+
+[Mount]
+What=/dev/sdo1
+Where=/home/temp
+Type=ext4
+Options=defaults
+# when on, it ignores any mount options not supported by the fs type
+SloppyOptions=on
+# mount fails if not complete after 4 seconds
+TimeOutSec=4
+
+# required, must have WantedBy or RequiredBy
+[Install]
+WantedBy=multi-user.target
+
+# snap file comparisons
+cat /etc/systemd/system/snap-cups-1024.mount 
+[Unit]
+Description=Mount unit for cups, revision 1024
+After=snapd.mounts-pre.target
+Before=snapd.mounts.target
+Before=local-fs.target
+
+[Mount]
+What=/var/lib/snapd/snaps/cups_1024.snap
+Where=/snap/cups/1024
+Type=squashfs
+Options=nodev,ro,x-gdu.hide,x-gvfs-hide
+LazyUnmount=yes
+
+[Install]
+WantedBy=snapd.mounts.target
+WantedBy=multi-user.target
+```
+
+Load and unload the file:
+```bash
+systemctl daemon-reload
+systemctl start <mount-file-name>
+# mount file at boot
+systemctl enable <mount-file-name>
+```
+
+### Timer unit files
+
+Timer unit files use the `.timer` extension and let you define events that occur at specific dates or times, like `cron`, but with finer control. Bc `cron` is probably what you want to use, I will not go in depth on timer unit files, but here is a link:
+
+[systemd timers](https://opensource.com/article/20/7/systemd-timers)

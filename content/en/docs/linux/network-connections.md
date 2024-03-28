@@ -164,9 +164,64 @@ ip link set enp0s3
 
 The net-tools package is the old way to work on linux systems:
 
-| Command | Description |
-|---------|-------------|
-| `ethtool` | Ethernet settings for the network interface |
+| Command    | Description |
+|------------|-------------|
+| `ethtool`  | Ethernet settings for the network interface |
 | `ifconfig` | Displays or sets IP addr and netmask values for a network interface |
 | `iwconfig` | Sets SSID and encryption key for a wireless interface |
-| `route` | Sets default router address |
+| `route`    | Sets default router address |
+
+
+## Advanced network features
+
+If your network uses dynamic host configuration protocol (DHCP), you need a DHCP client program running on your computer. Common programs:
+- `dhcpd` (most popular)
+- `dhclient`
+- `pump`
+
+### Bonding
+
+_Bonding_ is when you aggregate multiple interfaces into one virtual network device. You must load it as a kernel module:
+
+```bash
+# load the kernel module, creates bond0 network interface
+modprobe bonding
+# define bond0 interface
+ip link add bond0 type bond mode 4
+# add network interfaces to the bond
+ip link set eth0 master bond0
+ip link set eth1 master bond0
+```
+
+### netcat
+
+`netcat` can act like either a network server or client, sending TCP or UDP packets. Its either `netcat` or `nc`:
+
+```bash
+nc host port
+# nc and netcat link to the same location
+readlink -f /usr/bin/nc
+/usr/bin/nc.openbsd
+readlink -f /usr/bin/netcat
+/usr/bin/nc.openbsd
+# HTTP re to server and see HTTP response and HTML code
+$ printf "GET / HTTP/1.0\r\n\r\n" | nc website.com 80
+
+######################
+# simple chat app
+# first host with -l (listen) option
+nc -l 8000
+# second host
+nc <hostname> 8000
+
+
+######################
+# file transfers
+# first host (receives file):
+nc -l 8000 > file.txt
+# second host (sends file):
+nc hostname 8000 < file.txt
+```
+
+## Basic network troubleshooting
+

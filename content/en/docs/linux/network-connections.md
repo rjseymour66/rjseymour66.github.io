@@ -139,16 +139,6 @@ ip route del 169.254.0.0/16 dev enp0s3
 
 #### Assign network address
 
-ip route
-default via 10.0.2.2 dev enp0s3 proto dhcp metric 100 
-10.0.2.0/24 dev enp0s3 proto kernel scope link src 10.0.2.15 metric 100 
-169.254.0.0/16 dev enp0s3 scope link metric 1000 
-
-ip route
-default via 10.0.0.1 dev wlp59s0 proto dhcp metric 600 
-10.0.0.0/24 dev wlp59s0 proto kernel scope link src 10.0.0.111 metric 600 
-169.254.0.0/16 dev wlp59s0 scope link metric 1000 
-
 ```bash
 # 1. specify host addr and netmask for the interface
 ip address add 10.0.2.15/24 dev enp0s3
@@ -225,3 +215,116 @@ nc hostname 8000 < file.txt
 
 ## Basic network troubleshooting
 
+### ping or ping6
+
+Send Internet Control Message Protocol (ICMP) packets to remote hosts. These packets work behind the scenes to track connectivity and provide control messages btwn systems:
+
+```bash
+ping 10.20.30.40
+# send 8 packets
+ping -c 8 www.google.com
+
+# ping6 requires you specify the inteface
+ping6 -c 4 fe80::c418:2ed0:aead:cbce%enp0s3
+```
+### traceroute
+
+`traceroute` lets you see the network routers from client to server. It uses a feature of ICMP packets that restrict the number of network hops:
+
+```bash
+traceroute www.google.com
+```
+
+### mtr
+
+mtr (my traceroute) combines `traceroute` and `ping` to document network availability and latency in a real-time chart:
+
+```bash
+mtr linux.org
+```
+### host
+
+Tests a hostname. Queries the DNS server to determine the IP addresses assigned to the hostname:
+
+```bash
+# hostname
+host www.linux.org
+www.linux.org has address 172.67.73.26
+www.linux.org has address 104.26.14.72
+www.linux.org has address 104.26.15.72
+www.linux.org has IPv6 address 2606:4700:20::681a:f48
+www.linux.org has IPv6 address 2606:4700:20::ac43:491a
+www.linux.org has IPv6 address 2606:4700:20::681a:e48
+
+# IP address
+host 69.147.82.60
+```
+
+### dig
+
+`dig` displays all DNS data records associated wtih a host or network:
+
+```bash
+dig www.linux.org
+```
+
+### nslookup
+
+`nslookup` is a network administration command-line tool for querying the Domain Name System to obtain the mapping between domain name and IP address, or other DNS records:
+
+```bash
+nslookup
+> www.google.com
+Server:		127.0.0.53
+Address:	127.0.0.53#53
+...
+> www.wikipedia.org
+Server:		127.0.0.53
+Address:	127.0.0.53#53
+...
+> exit
+```
+
+### whois
+
+`whois` attempts to connect to the centralized Internet domain registry at `http://whois.networksolutions.com` to retrieve who registered the domain name:
+
+```bash
+whois linux.com
+```
+
+## Advanced network troubleshooting
+
+### netstat
+
+Part of the net-tools package, can provide a lot of info about your machine's network connections:
+
+```bash
+# list all open network connections
+netstat
+# tcp connections
+netstat -t
+# udp connections
+netstat -u
+# apps and their ports
+netstat -l
+# statistics for different types of packets (determine if there are issues with a protocol)
+netstat -s
+```
+
+### ss 
+
+`ss` links which system processes are using which network sockets that are active. A program connection to a port is a _socket_:
+
+```bash
+# listening and est. tcp sessions and their process
+ss -anpt
+```
+
+### tcpdump
+
+Legacy tool, captures network data on the system and can do rudimentary packet decoding, packet filtering.
+
+### wireshark and tshark
+
+Wireshark is the GUI version of tshark, which performs advanced network packet analysis.

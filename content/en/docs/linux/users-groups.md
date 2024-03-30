@@ -67,3 +67,20 @@ gawk -F: '{print $3, $1}' /etc/passwd | sort -n
   - Humans use account names, Linux uses UIDs.
 - System accounts proide services (daemons) or perform special tasks.
 - root always has UID = 0.
+
+### /etc/default/useradd
+
+Contains default values for `useradd` command:
+
+```bash
+# list all active directives
+useradd -D
+GROUP=100
+HOME=/home              # Must set CREATE_HOME in /etc/login.defs to 'yes'
+INACTIVE=-1             # Num of days after passwd expiration that the acct is deactivated
+EXPIRE=
+SHELL=/bin/sh           # default shell program
+SKEL=/etc/skel          # skeleton directory
+CREATE_MAIL_SPOOL=no
+
+```

@@ -9,11 +9,13 @@ _Authentication_ is when you determine that a user is authentic - they are who t
 
 ## Managing user accounts
 
-### Adding accounts
+## Adding accounts
 
 A few files are used to create accounts (files on the same line are not linked):
 
 ```
+Account creation files:                                 Built or modified after acct creation
+
 /etc/default/useradd    -->                             --> /home/userid
 
 /etc/login.defs         -->                             --> /etc/passwd
@@ -24,7 +26,10 @@ A few files are used to create accounts (files on the same line are not linked):
 
 admin input             -->                             --> /etc/group
 ```
-#### `/etc/login.defs`
+
+## Account creation files
+
+### /etc/login.defs
 
 Config file that contains directives for various shadow password suite commands. These settings are created after the OS installation.
 - _shadow password suite_: commands that deal with account credentials, including:
@@ -82,5 +87,77 @@ EXPIRE=
 SHELL=/bin/sh           # default shell program
 SKEL=/etc/skel          # skeleton directory
 CREATE_MAIL_SPOOL=no
-
 ```
+
+### /etc/skel
+
+Contains files. If you set up users to have a HOME directory, these files are copied to `/user/home/`:
+
+```bash
+ls -laog /etc/skel/
+total 44
+drwxr-xr-x   2  4096 Mar 20 20:51 .
+drwxr-xr-x 168 12288 Mar 20 20:55 ..
+-rw-r--r--   1   220 Apr  4  2018 .bash_logout
+-rw-r--r--   1  3771 Apr  4  2018 .bashrc
+-rw-r--r--   1  8980 Apr 16  2018 examples.desktop
+-rw-r--r--   1  2078 Dec  6  2021 .kshrc
+-rw-r--r--   1   807 Apr  4  2018 .profile
+```
+
+## Files built or modified when acct created
+
+These files are built or modified after a user account is created. Does not include group files.
+
+### /etc/passwd
+
+Stores account information. When account is created, it is added to this file.
+
+> This file does not hold passwords due to security concerns. If it does, you can migrate passwords to the correct `/etc/shadow` file with the `pwconv` command.
+
+
+```bash
+cat /etc/passwd
+root:x:0:0:root:/root:/bin/bash
+daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
+bin:x:2:2:bin:/bin:/usr/sbin/nologin
+sys:x:3:3:sys:/dev:/usr/sbin/nologin
+```
+
+| Field num | Description |
+|-----------|-------------|
+| 1 | username |
+| 2 | password field. `x` indicates there is a passwd in `/etc/shadow` |
+| 3 | UID |
+| 4 | GID |
+| 5 | Comment field, traditionally contains user's full name |
+| 6 | user HOME dir |
+| 7 | user default shell. `/sbin/nologin` and `/bin/false` prevents an acct from logging in to shell, usually for system service accounts. If you attempt to login, you get a message and the session terminates. Edit/create `/etc/nologin.txt` to customize the message. `/bin/false` just logs you out, no message. |
+
+
+### /etc/shadow
+
+Contains info about account's password, even if one does not yet exist.
+
+```bash
+sudo cat /etc/shadow
+root:$y$j9T$EDErVNwiCEqd1Nm5W26d..$aFG6ZaS4.iri2wuCLwuzcexksaNNYDpm1ntYDOGTb03:19804:0:99999:7:::
+daemon:*:19773:0:99999:7:::
+bin:*:19773:0:99999:7:::
+sys:*:19773:0:99999:7:::
+...
+<username>:$y$j9T$qQNRlSwnLVRW/liifd7HW/$w22t73yRHnNvpqsSgDChfEucV825MollmauAvtbeYp9:19804:0:99999:7:::
+```
+| Field num | Description |
+|-----------|-------------|
+| 1 | username. Only field shared with `/etc/passwd` |
+| 2 | passwd, salted and hashed. `!` or `!!` indicates no password. `*` indicates account cannot log in with a password. `!<password-hash>` indicates account is locked. |
+| 3 | Date of passwd change in Unix Epoch time |
+| 4 | Num of days after a passwd is changed that it can be changed again. |
+| 5 | Num of days before passwd change is required. Password expiration date |
+| 6 | Num of days prior to passwd expiration that a warning is issued. |
+| 7 | Num of days after a passwd expires that the account is deactivated |
+| 8 | Date account expired in Unix Epoch time |
+| 9 | _special flag_ field for a special future use. It is blank. |
+
+> Unix Epoch time is the number of seconds since Jan 1, 1970. `etc/shadow` expresses it in days, not seconds.

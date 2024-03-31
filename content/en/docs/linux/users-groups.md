@@ -427,3 +427,139 @@ sudo find / -gid 1966 2>/dev/null
 
 ## Environment setup
 
+- After user authenticates to the system and before the bash shell prompt displays, the user environment is configured.
+- When you start a bash shell, bash checks several files for configuration, called environment files (also called startup files)
+- Can start a shell in 3 ways:
+  - Default login (login to server w no GUI)
+  - Interactive shell spawned as subshell (such as from a GUI)
+  - non-interactive shell, such as when running a script
+
+### Environment variables
+
+Store info about the current shell session
+
+```bash
+# user less pager
+set
+env
+printenv
+# view what is stored in env var
+$ENVVARNAME
+```
+### Environment files
+
+- Generally populated from the `/etc/skel` file. Users can edit these files after they are in their user account.
+- The first file found in the following order is ran, and the rest are ignored:
+  - `.bash_profile`
+  - `.bash_login`
+  - `.profile`
+    > `.bashrc` is run from a file in the preceding list. It is also always run when there is a non-interactive shell started
+
+### Global files
+
+Global files:
+- `/etc/profile`
+- `/etc/profile.d` files
+- `/etc/bash` or `/etc/bash.bashrc` file (depends on distro)
+
+> Do not change global files. You can create a custom env file with an `.sh` extension and place it in `/etc/profile.d`. Files in this directory are run during bash login.
+
+## Querying users
+
+You can audit user access history and other account information.
+
+### whoami
+
+Displays current user name:
+
+```bash
+whoami
+```
+
+### who
+
+Displays info about every account on the system:
+
+```bash
+who
+<username> tty2         2024-03-24 16:48 (tty2)
+```
+
+### w
+
+Like `who`, but more verbose:
+
+```bash
+# load average: 1m, 5m, 15m
+# JCPU: total CPU time acct has used
+# PCPU: CPU time current command has used
+# WHAT: what the acct is currently running
+w
+ 08:59:08 up 14:54,  1 user,  load average: 0.19, 0.13, 0.10
+USER       TTY      FROM             LOGIN@   IDLE   JCPU   PCPU WHAT
+<username> tty2     tty2             24Mar24 23:24m  0.01s  0.01s /usr/libexec/gnome-session-binary --session=ubuntu
+```
+
+### id
+
+Useful in shell scripts.
+
+Gather various data about the current user process or info about the provided user id:
+
+```bash
+id [username|UID]
+-g # Display acct's current group's GID
+-G # Display all grou membership GIDs
+-n # Display acct name instead of UID
+-u # Display acct UID
+
+# current user
+id
+uid=1000(<current-user>) gid=1000(<current-user>) groups=1000(<current-user>),27(sudo),999(vboxsf)
+# specified user
+id linuxuser 
+uid=1001(linuxuser) gid=1001(linuxuser) groups=1001(linuxuser)
+# specified user
+id -un 1001
+linuxuser
+
+# script example
+grep USER /etc/profile
+USER="`/usr/bin/id -un`"
+```
+
+### last
+
+Pulls info from the `/var/log/wtmp` file and shows a list of accounts and the last login/logout times:
+
+```bash
+# pull from /var/log/wtmp
+last
+<username> tty2         tty2             Sun Mar 24 16:48    gone - no logout
+reboot     system boot  6.5.0-26-generic Sun Mar 24 16:47   still running
+<username> tty2         tty2             Sat Mar 23 09:19 - crash (1+07:27)
+reboot     system boot  6.5.0-26-generic Sat Mar 23 09:04   still running
+<username> tty2         tty2             Thu Mar 21 23:09 - down   (00:05)
+reboot     system boot  6.5.0-26-generic Thu Mar 21 23:07 - 23:14  (00:06)
+reboot     system boot  6.5.0-26-generic Thu Mar 21 23:07 - 23:07  (00:00)
+<username> tty2         tty2             Thu Mar 21 23:06 - down   (00:00)
+reboot     system boot  6.5.0-26-generic Thu Mar 21 23:05 - 23:06  (00:01)
+...
+
+# pull from specific file (wtmp.1):
+last -f /var/log/wtmp.1
+```
+
+## Disk quotas (NEED TO FIGURE OUT)
+
+You can limit the number of files a user can create and restrict the total fs space available to them to prevent users from filling up the hard drive with files.
+
+Has four steps:
+1. Modify `/etc/fstab` to enable fs quotas
+2. Mount the fs. If it was already mounted, unmount it and mount it again.
+3. Create the file quota.
+4. Establish user or group quota limits and grace periods.
+
+```bash
+
+```

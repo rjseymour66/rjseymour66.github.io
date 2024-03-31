@@ -32,10 +32,11 @@ admin input             -->                             --> /etc/group
 ### /etc/login.defs
 
 Config file that contains directives for various shadow password suite commands. These settings are created after the OS installation.
-- _shadow password suite_: commands that deal with account credentials, including:
-  - `useradd`
-  - `userdel`
-  - `passwd`
+
+_shadow password suite_: commands that deal with account credentials, including:
+- `useradd`
+- `userdel`
+- `passwd`
 
 
 Directives include passwd length, how long before you have to change passwd, whether home dir is created by default, etc. Common directives include:
@@ -161,3 +162,156 @@ sys:*:19773:0:99999:7:::
 | 9 | _special flag_ field for a special future use. It is blank. |
 
 > Unix Epoch time is the number of seconds since Jan 1, 1970. `etc/shadow` expresses it in days, not seconds.
+
+## Create accounts
+
+### useradd
+
+```bash
+useradd <username>
+-c # comment field, traditionally includes user's full name
+-d # home dir specification
+-D # display directives in /etc/default/useradd
+-e # acct expirtaion date, set by EXPIRE directive
+-f # num of days passwd expired before acct deactivated. -1 means never deactivate. INACTIVE directive
+-g # group membership
+-G # additional group membership
+-m # create user acct /home. CREATE_HOME directive
+-M # do NOT create /home
+-s # acct shell. SHELL directive
+-u # UID
+-r # create system acct, not user acct
+```
+
+### Rocky
+
+```bash
+# check directive settings
+grep CREATE_HOME /etc/login.defs 
+CREATE_HOME     yes
+useradd -D | grep -i shell
+SHELL=/bin/bash
+# create user
+sudo useradd <username>
+```
+
+### Ubuntu
+
+You have to add more options in Ubunutu bc `/etc/login.defs` does not have the same defaults as other distros:
+
+```bash
+# check directive settings
+grep CREATE_HOME /etc/login.defs 
+useradd -D | grep -i shell
+SHELL=/bin/sh
+# create user with home dir and bash shell
+sudo useradd -md /home/linuxuser -s /bin/bash linuxuser
+# check user files were created
+grep ^linuxuser /etc/passwd
+linuxuser:x:1001:1001::/home/linuxuser:/bin/bash
+sudo grep ^linuxuser /etc/shadow
+linuxuser:!:19813:0:99999:7:::  # no password yet
+sudo ls -a /home/linuxuser/
+.  ..  .bash_logout  .bashrc  .profile
+sudo ls -a /etc/skel/
+.  ..  .bash_logout  .bashrc  .profile
+```
+
+### getent
+
+View account records:
+
+```bash
+getend <filename> <username>
+
+getent passwd linuxuser
+linuxuser:x:1001:1001::/home/linuxuser:/bin/bash
+# honors security settings on /etc/shadow
+getent shadow linuxuser
+sudo getent shadow linuxuser
+linuxuser:!:19813:0:99999:7:::
+```
+
+## Passwords
+
+### passwd
+
+Set or modify the user password with `passwd`:
+
+```bash
+sudo password <username>
+-d # rm acct passwd
+-e # set passwd as expired, must change it at next login
+-i # sets num of days for acct to become inactive after passwd expiration
+-l # lock, places '!' in front of passwd in /etc/shadow
+-n # num of days after passwd change that user can change passwd again
+-S # display password status
+-u # unlock, rm '!' in front of passwd in /etc/shadow
+-w # num of days to issue warning before password expiration
+-x # num of days until a passwd change is required
+
+# get passwd status
+# P usable
+# NP no password
+# L locked
+sudo passwd -S linuxuser
+linuxuser P 03/31/2024 0 99999 7 -1
+```
+
+### chage
+
+Same as `passwd -S <username>` but more human readable:
+
+```bash
+# view acct passwd status
+sudo chage -l <username>
+# interactively update passwd settings
+sudo chage <username>
+```
+
+## Modifying accounts
+
+### usermod
+
+Utility to modify accounts, useful when you forget to check the distro's account creation directives:
+
+```bash
+usermod [FLAG...] <username>
+-c # modify comment field
+-d # set new home dir. use -m option to move contents of current /home to new /home
+-e # modify acct expiration date
+-f # modify num of days for acct to become inactive after passwd expiration
+-g # modify default group
+-G # update additional group membership
+-l # modify account username (login)
+-L # lock acct, (!) in shadow file
+-s # change acct shell
+-u # change UID
+-U # Unlock acct, rm (!) in shadow file
+
+# lock account
+sudo usermod -L linuxuser 
+# display status
+sudo passwd -S linuxuser 
+linuxuser L 03/31/2024 0 99999 7 -1
+# display shadow file entry- (!)
+sudo getent shadow linuxuser
+linuxuser:!$y$j9T$f4O7G12v7ecON6j8SAfiQ.$7kRt7qYpxngkDPaHATTNBlDGc6hHQc7sPuAW9iMKAJ.:19813:0:99999:7:::
+# unlock and display status again
+sudo usermod -U linuxuser 
+sudo passwd -S linuxuser 
+linuxuser P 03/31/2024 0 99999 7 -1
+```
+
+## Deleting accounts
+
+### userdel
+
+Deletes an account and all account files:
+
+```bash
+# -r deletes user /home dir and its contents
+sudo userdel -r <username>
+```
+
+## Groups

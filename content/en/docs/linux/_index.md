@@ -1,7 +1,7 @@
 ---
 title: "Linux"
 linkTitle: "Linux"
-# weight: 90
+weight: 10
 description: >
   How to use Linux
 ---

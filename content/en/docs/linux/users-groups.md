@@ -315,3 +315,115 @@ sudo userdel -r <username>
 ```
 
 ## Groups
+
+- Groups are part of Linux's discretionary access control (DAC).
+- DAC: Traditional Linux security control where access to a file or any object is based on the user's identity and current group membership.
+- _Default group_: When you create a user, it is given a _default group_.
+  - A process can have only one group at a time
+  - Users can be members of many groups but have only one default
+  - Default group is the acct's current group when first logged in
+  - If default group is not designated when a user acct is created, a new group is created with same name as username and new GID
+- Have name and group identification number (GID). Names are for humans to read, GIDs are for linux to read
+- tracked in `/etc/group`
+- Group passwds stored in `/etc/gshadow` file
+
+> DO NOT allow access to groups with group passwords. Set user acct passwords, and grant access to groups via membership, not passwords.
+
+### View group membership
+
+```bash
+# GID is 4th field
+grep linuxuser /etc/passwd | gawk -F : '{print $4}'
+1001
+# GID, but not group name
+getent passwd linuxuser 
+linuxuser:x:1001:1001::/home/linuxuser:/bin/bash
+# display account name
+sudo groups linuxuser 
+linuxuser : linuxuser
+# display GID
+getent group linuxuser
+linuxuser:x:1001:
+# confirm GID
+grep 1001 /etc/group
+linuxuser:x:1001:
+```
+
+### groupadd
+
+Creates a group, tracked in `/etc/group`. Group must exist before you can add a user to it.
+
+> Debian prefers that you use `addgroup` 
+
+```bash
+# -g specifies group number
+sudo groupadd -g 1966 cream
+# view group
+getent group cream
+cream:x:1966:
+# <groupname>:<password-in-/etc/gshadow>:GID:<group-members>
+grep cream /etc/group
+cream:x:1966:
+# check for passwd
+sudo getent gshadow cream
+cream:!::
+```
+
+### Add user to group
+
+Add users to groups with `usermod`:
+
+```bash
+# -a preserves existing group membership
+# -G add the user acct to the group
+sudo usermod -aG <groupname>
+# view groups
+sudo groups linuxuser 
+linuxuser : linuxuser
+# add user to group
+sudo usermod -aG cream linuxuser 
+# view user groups
+sudo groups linuxuser 
+linuxuser : linuxuser cream
+# view user group membership
+getent group cream
+cream:x:1966:linuxuser
+```
+
+### groupmod
+
+Modifies a group:
+
+```bash
+groupmod [OPTIONS...] <groupname>
+-g # modify GID
+-n # modify name
+
+# view group info
+getent group cream
+cream:x:1966:linuxuser
+# change group name
+sudo groupmod -n Cream cream
+# confirm /etc/group was updated
+getent group Cream
+Cream:x:1966:linuxuser
+```
+
+### groupdel
+
+Deletes a group:
+
+```bash
+# delete group
+sudo groupdel Cream
+# check /etc/group cleanup
+getent group Cream
+# check user was removed from group
+sudo groups linuxuser 
+linuxuser : linuxuser
+# check fs for files associated with deleted group
+sudo find / -gid 1966 2>/dev/null
+```
+
+## Environment setup
+

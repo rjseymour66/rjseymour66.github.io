@@ -58,7 +58,7 @@ sudo dmesg | tail
 [501250.130299] sd 3:0:0:0: [sda] 120176640 512-byte logical blocks: (61.5 GB/57.3 GiB)
 [501250.131154] sd 3:0:0:0: [sda] Write Protect is off
 [501250.131161] sd 3:0:0:0: [sda] Mode Sense: 43 00 00 00
-[501250.131545] sd 3:0:0:0: [sda] Write cache: disabled, read cache: enabled, doesn't support DPO or FUA
+[501250.131545] sd 3:0:0:0: [sda] Write cache: disabled, read cache: enabled, doesn\'t support DPO or FUA
 [501250.144239]  sda: sda1  # device: partition
 
 # 3. Unmount the device

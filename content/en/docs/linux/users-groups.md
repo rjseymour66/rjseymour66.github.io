@@ -552,6 +552,8 @@ last -f /var/log/wtmp.1
 
 ## Disk quotas (NEED TO FIGURE OUT)
 
+https://www.linode.com/docs/guides/file-system-quotas/
+
 You can limit the number of files a user can create and restrict the total fs space available to them to prevent users from filling up the hard drive with files.
 
 Has four steps:

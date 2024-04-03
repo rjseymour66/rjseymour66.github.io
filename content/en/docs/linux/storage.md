@@ -37,7 +37,7 @@ Must be tracked by a indexing system on the drive
 ### Automatic drive detection
 
 Linux systems used to detect new drives at boot, but now you can insert or remove USB drives all the time. Now, `udev` application runs in the background and detects new hardware and assigns device filenames in `/dev`
-- Createslinks to the `/dev` storage device files to the `/dev/disk` folder. This way if the `/dev/` name changes as you add or remove devices, you can still access the correct storage.
+- Creates links to the `/dev` storage device files to the `/dev/disk` folder. This way if the `/dev/` name changes as you add or remove devices, you can still access the correct storage.
 - `/dev/disk` has four folders:
   - `/dev/disk/by-id`: manufacturer details
   - `/dev/disk/by-label`: label assigned to them
@@ -174,7 +174,7 @@ Number  Start   End     Size    File system  Name                  Flags
 | `/opt` | Data for optional third-party programs |
 | `/proc` | Virtual filesystem that provides kernel and processing information as files, updated in real time |
 | `/root` | Home dir for root user |
-| `/sbin` | Executable programs that the systm requires |
+| `/sbin` | Executable programs that the system requires |
 | `/sys` | Virtual filesystem providind device, driver, and some kernel information as files, updated in real time |
 | `/tmp` | Contains temporary files created by system users |
 | `/usr` | Data for standard Linux programs |
@@ -185,6 +185,134 @@ Number  Start   End     Size    File system  Name                  Flags
 
 ## Formatting filesystems
 
+To assign a drive partition to a mount point in the virtual filesystem, you have to format it using a filesystem
+
+### Linux filesystems
+
+Most linux systems use ext4 as default, but RHEL uses XFS. 
+- Both use journaling, which tracks data not yet written to disk in a log file, called the journal
+- If system crashes, journal can be recovered and stored on next system boot
+
+Common linux filesystems:
+- btrfs: Newer, high-performance.
+  - Supports files up to 16 exbibytes (EiB) and total fs size of 16 EiB.
+  - Can perform it own Redundant Array of Inexpensive Disks (RAID) and logical volume management (LVM).
+  - Built-in snapshots improved fault tolerance, on demand data compression
+- eCryptfs: Enterproce Cryptographic File System
+  - Applies POSIX-compliant encryption to data before it is saved on the device.
+  - Only the OS that created the fs can read data from it
+- ext3: Descendant of original Linux ext fs.
+  - Supports files up to 2 tebibites (TiB) and total fs of 16 TiB
+  - Supports journaling, faster startup and recovery
+- ext4: Current version of original Linux fs
+  - Supports files up to 16 TiB and total fs of 1 EiB
+  - Supports journaling, performance features
+- XFS: 64-bit high-performance journaling fs
+  - Supports fs up to 8 exibibytes
+- swap: Create virtual memory for your system using space on physical disk
+  - System swaps data out of normal memory into swap space, which adds additional memory to your system
+  - Not for persistent data
+
+### Non-linux filesystems
+
+Linux can read data off filesystems created by other OSes:
+- CIFS: Common Internet Filesystem.
+- HFS: Hierarchical File System
+- ISO-9660: Staandard used for creating filesystms on CD-ROM devices.
+- NFS: Network File System. Open-source standard for reading and writing data across a network using a network storage device.
+- NTFS: New Technology File System (NTFS). Used by Microsoft NT operating system.
+- SMB: Server Message Block fs, created by MS
+- UDF: Universal Disc Format, used on DVD-ROM devices for storing data
+- VFAT: Virtual File Allocation Table, extension of original MS FAT system.
+  - Commonly used on removable storage like USB memory sticks
+- ZFS: Zettabyte File Stystem, created by Sun for Unix workstations and servers. 
+  - Similar to btrfs
+
+## Creating filesystems
+
+### mkfs
+
+```bash
+mkfs -t <fs-type> <drive-partition>
+
+# format partition sda1 on device sda
+sudo mkfs -t ext4 /dev/sda1
+mke2fs 1.46.5 (30-Dec-2021)
+Creating filesystem with 15021824 4k blocks and 3760128 inodes
+Filesystem UUID: 66fe4850-1158-4305-ac07-7c13e9f6736a
+Superblock backups stored on blocks: 
+	32768, 98304, 163840, 229376, 294912, 819200, 884736, 1605632, 2654208, 
+	4096000, 7962624, 11239424
+
+Allocating group tables: done                            
+Writing inode tables: done                            
+Creating journal (65536 blocks): done
+Writing superblocks and filesystem accounting information: done   
+```
+## Mounting filesystems
+
+After you format a drive partition, you add it to the virtual filesystem. This is called _mounting_.
+
+### mount (manual mounting)
+
+Temporarily mounts the device in the virtual directory.
+- Good for removable/USB devices
+
+```bash
+mount -t <fstype> <device> <mountpoint>
+
+# create mountpoint dir
+mkdir mount_here
+# mount /dev/sda1 to mountpoint
+sudo mount -t ext4 /dev/sda1 mount_here/
+
+# by itself, mount displays all devices currently mounted in the fs
+mount
+sysfs on /sys type sysfs (rw,nosuid,nodev,noexec,relatime)
+proc on /proc type proc (rw,nosuid,nodev,noexec,relatime)
+udev on /dev type devtmpfs (rw,nosuid,relatime,size=16150204k,nr_inodes=4037551,mode=755,inode64)
+devpts on /dev/pts type devpts (rw,nosuid,noexec,relatime,gid=5,mode=620,ptmxmode=000)
+...
+```
+
+### umount
+
+Remove device from the virtual filesystem:
+
+```bash
+umount [<device-filename> | <mount-point-dir>]
+sudo umount /dev/sda1
+```
+
+## Automatically mounting devices
+
+`/etc/fstab` indicates which devices should be mounted at boot.
+- Drive device file is either the raw file or one of its permanent `udev` filenames:
+  ```bash
+  <drive-device-file> <mount point> <fstype> <options>
+  ```
+- `<drive-device-file>` is usually the `udev` UUID value to ensure that the correct drive partition is accessed, regardless of the order that it appears in the raw device table.
+- `systemd` manages mounted filesystems. All mount points in `/etc/fstab` are converted into native units when server is booted or systemd reloads.
+
+> If you add a device to `/etc/fstab` and it is not available at boot time, you get a boot error.
+
+```bash
+cat /etc/fstab
+# /etc/fstab: static file system information.
+#
+# Use 'blkid' to print the universally unique identifier for a
+# device; this may be used with UUID= as a more robust way to name devices
+# that works even if disks are added and removed. See fstab(5).
+#
+# <file system> <mount point>   <type>  <options>       <dump>  <pass>
+# / was on /dev/nvme0n1p3 during installation
+UUID=9b2aa8ce-a32d-44eb-9178-18f77a7d9039 /               ext4    errors=remount-ro 0       1
+# /boot/efi was on /dev/nvme0n1p1 during installation
+UUID=AEAA-7165  /boot/efi       vfat    umask=0077      0       1
+/swapfile                                 none            swap    sw              0       0
+```
+
+## Managing filesystems
 
 
 

@@ -312,7 +312,124 @@ UUID=AEAA-7165  /boot/efi       vfat    umask=0077      0       1
 /swapfile                                 none            swap    sw              0       0
 ```
 
-## Managing filesystems
+## Retrieving filesystem stats
+
+### df
+
+Displays disk usage by partition. Use the `-i` option to see the number of inodes left in the fs. ext3 and ext4 filesystems allocate a specific number of inodes, and you can't make more files when you run out of inodes.
+
+```bash
+df -t <fstype> -i -h 
+# all disk partitions, human-readable
+df -ih
+Filesystem     Inodes IUsed IFree IUse% Mounted on
+tmpfs            3.9M  1.6K  3.9M    1% /run
+/dev/nvme0n1p3    30M  1.7M   28M    6% /
+tmpfs            3.9M   323  3.9M    1% /dev/shm
+tmpfs            3.9M     6  3.9M    1% /run/lock
+/dev/nvme0n1p1      0     0     0     - /boot/efi
+tmpfs            793K   178  793K    1% /run/user/1001
+# ext4 disk partitions
+df -it ext4 -h
+Filesystem     Inodes IUsed IFree IUse% Mounted on
+/dev/nvme0n1p3    30M  1.7M   28M    6% /
+# tmpfs partitions
+df -it tmpfs -h
+Filesystem     Inodes IUsed IFree IUse% Mounted on
+tmpfs            3.9M  1.6K  3.9M    1% /run
+tmpfs            3.9M   323  3.9M    1% /dev/shm
+tmpfs            3.9M     6  3.9M    1% /run/lock
+tmpfs            793K   178  793K    1% /run/user/1001
+```
+
+### du
+
+Displays disk usage by directory. Good for finding users or apps that take up the most disk space:
+
+```bash
+# -d is directory depth
+du -d 1
+12	./assets
+8	./layouts
+788	./resources
+6460	./.git
+1288	./content
+11012	./node_modules
+12	./.github
+8	./themes
+19700	.
+```
+
+### iostat
+
+Real-time chart of disk statistics by partition:
+
+```bash
+iostat
+Linux 5.15.0-91-generic (precision-5540) 	04/03/2024 	_x86_64_	(12 CPU)
+
+avg-cpu:  %user   %nice %system %iowait  %steal   %idle
+          24.94    0.26    9.50    0.03    0.00   65.27
+
+Device             tps    kB_read/s    kB_wrtn/s    kB_dscd/s    kB_read    kB_wrtn    kB_dscd
+loop0             0.00         0.00         0.00         0.00         34          0          0
+loop1             0.00         0.00         0.00         0.00       3708          0          0
+
+```
+
+### lsblk
+
+Current partition sizes and mount points:
+
+```bash
+lsblk
+NAME        MAJ:MIN RM   SIZE RO TYPE MOUNTPOINTS
+loop0         7:0    0     4K  1 loop /snap/bare/5
+loop1         7:1    0  12.9M  1 loop /snap/snap-store/1113
+...
+loop36        7:36   0 504.2M  1 loop /snap/gnome-42-2204/172
+nvme0n1     259:0    0 476.9G  0 disk 
+├─nvme0n1p1 259:1    0   790M  0 part /boot/efi
+├─nvme0n1p2 259:2    0     5G  0 part 
+└─nvme0n1p3 259:3    0 471.2G  0 part /var/snap/firefox/common/host-hunspell
+```
+
+### /proc/partitions, /proc/mounts
+
+The kernel uses `/proc` to record process statistics:
+- `/proc/partitions`: info on system partitions
+- `/proc/mounts`: info on system mount points
+
+
+### /sys/block
+
+The kernel uses `/sys` to record system statistics. `/sys/block` contains separate folders for eah mounted drive, showing partitions and kernel-level stats.
+
+
+### e2fsprogs package
+
+This pacakge provides utilities for working with ext3 and ext4 filesystems:
+- blkid: Displays info about block devices
+- chattr: Changes file attributes on the fs
+- debugfs: Manually views and modifies the fs structure, such as undeleting a file
+- dumpe2fs: Displays block and superblock group information
+- e2lable: Changes the fs lable
+- resize2fs: Expands or shrinks the fs
+- tune2fs: modifies fs params
+
+### fsck
+
+Checks and repairs an fs. The fs must be unmounted:
+
+```bash
+sudo fsck -f /dev/sda1
+```
+If it returns an error, run it in repair mode.
+
+
+## Storage alternatives
+
+
 
 
 

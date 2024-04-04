@@ -409,13 +409,13 @@ The kernel uses `/sys` to record system statistics. `/sys/block` contains separa
 ### e2fsprogs package
 
 This pacakge provides utilities for working with ext3 and ext4 filesystems:
-- blkid: Displays info about block devices
-- chattr: Changes file attributes on the fs
-- debugfs: Manually views and modifies the fs structure, such as undeleting a file
-- dumpe2fs: Displays block and superblock group information
-- e2lable: Changes the fs lable
-- resize2fs: Expands or shrinks the fs
-- tune2fs: modifies fs params
+- `blkid`: Displays info about block devices
+- `chattr`: Changes file attributes on the fs
+- `debugfs`: Manually views and modifies the fs structure, such as undeleting a file
+- `dumpe2fs`: Displays block and superblock group information
+- `e2lable`: Changes the fs lable
+- `resize2fs`: Expands or shrinks the fs
+- `tune2fs`: modifies fs params
 
 ### fsck
 
@@ -429,9 +429,184 @@ If it returns an error, run it in repair mode.
 
 ## Storage alternatives
 
+Standard parition layouts have limitations: you can't resize them, andn they are susceptible to failures. Linux provides more storage options that are more dynamic.
 
+### Multipath
 
+- Device Mapper Multipathing (DM-multipathing) lets you configure multiple paths between Linux and network storage devices.
+- Uses `/dev/mapper` device folder
+  - `/dev/mapper/mpath`_`N`_ for each multipath drive (N is the number that represents the drive)
+  - Device file acts as normal device file: you can partition it 
+- Increases throughput when all paths are active
+- Provides fault tolerance when one or more paths are inactive
+- Tools:
+  - `dm-multipath`: Kernel module that supports multipathing
+  - `multipath`: command line command for viewing multipath devices
+  - `multipathd`: daemon for monitoring, activating, and deactivating paths
+  - `kpartx`: command line tool for creating device entries for multipath storage
 
+### Logical Volume Manager (LVM)
+
+- Aggregates multiple physical drive partitions into virtual volumes that you can treat as a single partition on your system
+  - For example, if you have physical drives `/dev/sda` and `/dev/sdb`, and each volume has 3 partitions, you can create 2 logical partitions by mixing the partitions:
+    - `/dev/sda1` and `/dev/sda2`
+    - `/dev/sda3`, `/dev/sdb1`, `/dev/sdb2`, `/dev/sdb3`
+  - You can add or remove phusical partitions from the logical volume as needed
+- Creates virtual drive devices
+- Uses `/dev/mapper` device folder
+  - Format these with a filesystem like a normal partition
+
+#### Creating an LVM
+
+[LVM commands](https://man7.org/linux/man-pages/man8/lvm.8.html#COMMANDS)
+
+```bash
+# create a lvm partition from a USB drive
+sudo gdisk /dev/sda
+GPT fdisk (gdisk) version 1.0.8
+
+Partition table scan:
+  MBR: protective
+  BSD: not present
+  APM: not present
+  GPT: present
+
+Found valid GPT with protective MBR; using GPT.
+
+Command (? for help): n   # new partition
+Partition number (1-128, default 1): 1
+First sector (34-120176606, default = 2048) or {+-}size{KMGTP}: 
+Last sector (2048-120176606, default = 120176606) or {+-}size{KMGTP}: 
+Current type is 8300 (Linux filesystem)
+Hex code or GUID (L to show codes, Enter = 8300): 8e00    # code for LVM
+Changed type of partition to 'Linux LVM'
+
+Command (? for help): w     # write it
+
+Final checks complete. About to write GPT data. THIS WILL OVERWRITE EXISTING
+PARTITIONS!!
+
+Do you want to proceed? (Y/N): Y
+OK; writing new GUID partition table (GPT) to /dev/sda.
+Warning: The kernel is still using the old partition table.
+The new table will be used at the next reboot or after you
+run partprobe(8) or kpartx(8)
+The operation has completed successfully.
+
+# create the physical volume
+sudo pvcreate /dev/sda1
+WARNING: ext4 signature detected on /dev/sda1 at offset 1080. Wipe it? [y/n]: y
+  Wiping ext4 signature on /dev/sda1.
+  Physical volume "/dev/sda1" successfully created.
+# combine physical volume into volume group
+sudo vgcreate newvol /dev/sda1
+  Volume group "newvol" successfully created
+# create a logical volume
+sudo lvcreate -l 100%FREE -n lvdisk newvol
+  Logical volume "lvdisk" created.
+# format the logical volume w ext4
+sudo mkfs -t ext4 /dev/mapper/newvol-lvdisk 
+mke2fs 1.46.5 (30-Dec-2021)
+Creating filesystem with 15021056 4k blocks and 3760128 inodes
+Filesystem UUID: 0b2b523d-b54f-4c0c-b74b-2a6267b83b05
+Superblock backups stored on blocks: 
+	32768, 98304, 163840, 229376, 294912, 819200, 884736, 1605632, 2654208, 
+	4096000, 7962624, 11239424
+
+Allocating group tables: done                            
+Writing inode tables: done                            
+Creating journal (65536 blocks): done
+Writing superblocks and filesystem accounting information: done   
+
+# make mount point 
+sudo mkdir /media/newdisk
+# mount the logical volume to mount point
+sudo mount /dev/mapper/newvol-lvdisk /media/newdisk/
+# view mount point contents
+cd /media/newdisk/
+ll -a
+total 24
+drwxr-xr-x 3 root root  4096 Apr  3 23:02 ./
+drwxr-xr-x 4 root root  4096 Apr  3 23:03 ../
+drwx------ 2 root root 16384 Apr  3 23:02 lost+found/
+```
+
+## RAID technology
+
+[Digital Ocean](https://www.digitalocean.com/community/tutorials/an-introduction-to-raid-terminology-and-concepts)
+
+- Redundant Array of Inexpensive Disks (RAID) lets you combine multiple drives into a single virtual drive to improve data access performance and implement data redundancy for fault tolerance
+- [Common versions of RAID](https://en.wikipedia.org/wiki/Standard_RAID_levels):
+  - RAID-0
+  - RAID-1
+  - RAID-10
+  - RAID-4
+  - RAID-5
+  - RAID-6
+- Despite its name, RAID can be expensive and impractical
+
+### mdadm
+
+[Digital Ocean](https://www.digitalocean.com/community/tutorials/how-to-create-raid-arrays-with-mdadm-on-ubuntu-22-04)
+
+- Lets you specify multiple partitions to use in RAID environment.
+- RAID device appears in `/dev/mapper`
+  - You can partition and format with an fs
+- `/proc/mdstat` contains current status of kernel RAID state
+
+## Encrypting partitions
+
+- File encryption can be tedius, so you can encrypt entire partitions.
+- Linux Unified Key Setup (LUKS) has utility `cryptsetup`
+  - Create encrypted partitions, then open them to format them with an fs and mount
+
+```bash
+# format a partition for encryption
+sudo cryptsetup -y -v luksFormat /dev/sda1
+
+WARNING!
+========
+This will overwrite data on /dev/sda1 irrevocably.
+
+Are you sure? (Type 'yes' in capital letters): YES
+Enter passphrase for /dev/sda1: 
+Verify passphrase: 
+Key slot 0 created.
+Command successful.
+# make it avialable for use with luksOpen
+sudo cryptsetup -v luksOpen /dev/sda1 safedata
+No usable token is available.
+Enter passphrase for /dev/sda1: 
+Key slot 0 unlocked.
+Command successful.
+# safedata references opened encrypted partition
+ls /dev/mapper/ -l
+total 0
+crw------- 1 root root 10, 236 Mar 16 09:39 control
+lrwxrwxrwx 1 root root       7 Apr  3 23:32 safedata -> ../dm-0
+# format with an fs
+sudo mkfs -t ext4 /dev/mapper/safedata
+mke2fs 1.46.5 (30-Dec-2021)
+Creating filesystem with 15017723 4k blocks and 3760128 inodes
+Filesystem UUID: fa3f9078-2873-4d67-b199-63b6f3236ed5
+Superblock backups stored on blocks: 
+	32768, 98304, 163840, 229376, 294912, 819200, 884736, 1605632, 2654208, 
+	4096000, 7962624, 11239424
+
+Allocating group tables: done                            
+Writing inode tables: done                            
+Creating journal (65536 blocks): done
+Writing superblocks and filesystem accounting information: done   
+
+# mount it 
+sudo mount /dev/mapper/safedata /mnt/mydata
+# close the encrypted partition and remove it from /dev/mapper
+sudo cryptsetup -v luksClose /dev/mapper/safedata
+Device /dev/mapper/safedata is still in use.
+Command failed with code -5 (device already exists or device is busy).
+
+# to access the partition again, remount it with luksOpen 
+```
 
 ## Formatting a USB drive
 

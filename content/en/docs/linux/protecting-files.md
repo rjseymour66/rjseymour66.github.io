@@ -36,3 +36,123 @@ _Snapshot clone_
 
 ## Compression methods
 
+The following compression methods all provide lossless compression: 
+_gzip_
+: Replaced old `compress` program. Replaces original file with a compressed version and .gz file extension. `gunzip` to reverse the operation.
+
+_bzip2_
+: Compressed Linux kernel until 2013. Replaces original file.
+
+_xz_
+: Popular with Linux admins. Compresses Linux Kernel since 2013. Replaces original file
+
+_zip_
+: Can operate on multiple files, packs them together in 'folder' or 'archive'. Does not replace original file--places copy of the file into an archive.
+
+
+
+```bash
+# use the -<n> option with all but zip to control compression.
+# -1 is fast but lowest compression
+# -9 is slow but highest compression
+# -6 is default 
+$ ls -lh wtmp?
+-rw-rw-r-- 1 137K Apr  4 22:08 wtmp1
+-rw-rw-r-- 1 137K Apr  4 22:08 wtmp2
+-rw-rw-r-- 1 137K Apr  4 22:08 wtmp3
+-rw-rw-r-- 1 137K Apr  4 22:08 wtmp4
+
+# compress each file
+gzip wtmp1      # gunzip <compressed-file> to reverse
+bzip2 wtmp2     # bunzip2 <compressed-file> to reverse
+xz wtmp3        # unxz <compressed-file> to reverse 
+zip wtmp4.zip wtmp4     # unzip <compressed-file> to reverse
+  adding: wtmp4 (deflated 96%)
+
+# xz compresses the best
+ls -lh wtmp?.*
+-rw-rw-r-- 1 5.6K Apr  4 22:08 wtmp1.gz
+-rw-rw-r-- 1 4.4K Apr  4 22:08 wtmp2.bz2
+-rw-rw-r-- 1 3.9K Apr  4 22:08 wtmp3.xz
+-rw-rw-r-- 1 5.7K Apr  4 22:18 wtmp4.zip
+
+# zip did not replace the file, still there
+$ ls wtmp?
+wtmp4
+```
+
+## Archive and restore utilities
+
+### cpio
+
+_copy in and copy out_, gathers together file copies and stores them in an archive file. Good for system image and full backup bc it maintains each file's absolute directory path/reference.
+
+```bash
+# Pipe list of files into cpio
+ls file-list | cpio -ov > output.cpio 
+-I # specifies the archive file to use
+-i # extract, copies files from archive or displays files within the archive
+--no-absolute-filenames # only relative path names allowed
+-o # copy-out mode, creates archive by copying files into it
+-t # displays list of files within the archive
+-v # verbose
+
+# view files
+ls
+Project42.txt  Project43.txt  Project44.txt  Project45.txt  Project46.txt
+# pipe files into cpio
+ls Project4?.txt | cpio -ov > Project4x.cpio
+Project42.txt
+Project43.txt
+Project44.txt
+Project45.txt
+Project46.txt
+1 block
+# view files
+ls Project4?.*
+Project42.txt  Project43.txt  Project44.txt  Project45.txt  Project46.txt  Project4x.cpio
+
+# create archive of all files owned by <username>
+find / -user <username> | cpio -ov > archive.cpio
+
+# list archive contents
+cpio -itvI Project4x.cpio 
+-rw-rw-r--   1 ryanseym ryanseym        0 Apr  4 22:48 Project42.txt
+-rw-rw-r--   1 ryanseym ryanseym        0 Apr  4 22:48 Project43.txt
+-rw-rw-r--   1 ryanseym ryanseym        0 Apr  4 22:48 Project44.txt
+-rw-rw-r--   1 ryanseym ryanseym        0 Apr  4 22:48 Project45.txt
+-rw-rw-r--   1 ryanseym ryanseym        0 Apr  4 22:48 Project46.txt
+1 block
+
+# restore files
+ls
+Project4x.cpio
+# to restore files to original location, use -ivI options
+# use -no-absolute-filename option to restore to different directory
+cpio -iv --no-absolute-filenames -I Project4x.cpio 
+Project42.txt
+Project43.txt
+Project44.txt
+Project45.txt
+Project46.txt
+1 block
+# all files including .cpio
+ls
+Project42.txt  Project43.txt  Project44.txt  Project45.txt  Project46.txt  Project4x.cpio
+```
+
+### tar
+
+_tape archiver_, popular for creating data backups. Creates a single file called a _tar file_. If the tar file is compressed, it is called a _tarball_.
+
+```bash
+tar <filename>
+-c # create a tar file
+-u # update, appends files to an existing tar file, but only ones that  
+   # were modified since original archive file was created.
+-g # creates incremental or full archive based on metadata stored in provided file
+-z # compresses using gzip
+-j # compresses using bzip2
+-J # compresses using xz
+-v # verbose
+```

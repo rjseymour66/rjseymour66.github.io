@@ -420,5 +420,46 @@ Project4x.tar
 sftp> bye
 ```
 
-## Backup integrity
+## Verify backup integrity
 
+You need to check that your archives or files were not corrupted during transfer.
+
+### md5sum
+
+`md5sum` uses the MD5 message digest algorithm. Was used in cryptography, but now mostly for file checking bc of vulnerabilities.
+- Produces 128-bit hash value
+
+```bash
+md5sum FILE
+md5sum Project4x.tar 
+b1b68da5c780424b4e6949305b76541d  Project4x.tar
+
+```
+
+### Other hash algorithms
+
+SHA-512 is the best for security purposes and used to hash passwords:
+
+```bash
+# find all algorithms on system (-1 lists 1 per line)
+ls -1 /usr/bin/sha???sum
+/usr/bin/sha224sum
+/usr/bin/sha256sum
+/usr/bin/sha384sum
+/usr/bin/sha512sum
+
+md5sum Project4x.tar 
+b1b68da5c780424b4e6949305b76541d  Project4x.tar
+# sha224sum
+sha224sum Project4x.tar 
+d3db117bb61330e6ed409d9d7c6f56c0db158c6e0dbf02784380a077  Project4x.tar
+# sha256sum
+sha256sum Project4x.tar 
+d8c1332f37299100d2c2f6e69f4e7efe41cfd56986deedd439dd194b75d9a0ce  Project4x.tar
+# sha384sum
+sha384sum Project4x.tar 
+e3f430cfecee455fb31b575421cff6ae438132e633a6446aa1bbf0e3dedbd28c5a56a810e51efbb8951a4a308a22d1d6  Project4x.tar
+# sha512sum
+sha512sum Project4x.tar 
+6deb50480ff3b9c4b4205147b8376ce84e28be875a6ed9fde24937f6287975bd31d0e51412e7cb5647185b2cedea5973e1ca91c2e89a5c4638213384464e69c6  Project4x.tar
+```

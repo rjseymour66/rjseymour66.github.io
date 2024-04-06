@@ -143,11 +143,18 @@ Project42.txt  Project43.txt  Project44.txt  Project45.txt  Project46.txt  Proje
 
 ### tar
 
-_tape archiver_, popular for creating data backups. Creates a single file called a _tar file_. If the tar file is compressed, it is called a _tarball_.
+_tape archiver_, popular for creating data backups. Collects files and stores them in a an arvhice called a _tar file_. If the tar file is compressed, it is called a _tarball_.
+
+Because it is a tape archiver, you can place tarballs or archive files on tape, such as an SCSI tape device. Replace the `-f <filename>` with the device filename, such as `/dev/st0`.
+
+- Good practice to use `.tar` extension.
+- When you use compression, add compression method to extension: `.tar.gz` or `.tgz` for gzip.
+- `.snar` for tarball snapshot file
 
 ```bash
-tar <filename>
+tar [OPTIONS...] [FILENAME]...
 -c # create a tar file
+-f # archive file name, should use .tar extension
 -u # update, appends files to an existing tar file, but only ones that  
    # were modified since original archive file was created.
 -g # creates incremental or full archive based on metadata stored in provided file
@@ -155,4 +162,105 @@ tar <filename>
 -j # compresses using bzip2
 -J # compresses using xz
 -v # verbose
+
+# create tar file
+$ tar -cvf Project4x.tar Project4?.txt
+Project42.txttar -g FullArchive.snar -Jcvf Project42.txz Project4?.txt
+Project42.txt
+Project43.txt
+Project44.txt
+Project45.txt
+Project46.txt
+ryanseymour:~/linux-playground/archives 
+$ ls FullArchive.snar Project42.txz
+FullArchive.snar  Project42.txz
+
+Project43.txt
+Project44.txt
+Project45.txt
+Project46.txt
+
+# tar file with gzip compression (tar)
+$ tar -zcvf Project4x.tar.gz Project4?.txt
+Project42.txt
+Project43.txt
+Project44.txt
+Project45.txt
+Project46.txt
 ```
+
+### tar full and incremental backups
+
+`tar` views full and incremental backups in levels:
+- level 0 includes all files
+- level 1 is first incremental backup
+- level 2 is second incremental backup, etc...
+
+```bash
+tar [OPTIONS...] [FILENAME]...
+-d # compare tar archive file members with external files 
+-t # display tar archive file's contents (members)
+-W # verify each file as it is processed. Can't use with compression.
+
+# 1. creates snapshot .snar file w timestamp metadata to create backups
+tar -g FullArchive.snar -Jcvf Project42.txz Project4?.txt
+Project42.txt
+Project43.txt
+Project44.txt
+Project45.txt
+Project46.txt
+
+# 2. verify created
+ls FullArchive.snar Project42.txz
+FullArchive.snar  Project42.txz
+
+# 3. Update file
+echo 'Answer to everything' >> Project42.txt 
+
+# 4. create incremental backup. Project42_Inc.txz contains only Project42.txt
+#    because its the only file that was modified since the previous backup.
+tar -g FullArchive.snar -Jcvf Project42_Inc.txz Project4?.txt
+Project42.txt
+
+# view tarball files/members
+tar -tf Project4x.tar.gz 
+Project42.txt
+Project43.txt
+Project44.txt
+Project45.txt
+Project46.txt
+
+# compare archive files against current files
+$ tar -df Project4x.tar.gz 
+Project42.txt: Mod time differs
+Project42.txt: Size differs
+
+# verify backup after archive is created. can't compress, must
+# be in next step.
+tar -Wcvf ProjectVerify.tar Project4?.txt
+Project42.txt
+...
+Verify Project42.txt
+...
+```
+### tar restore options
+
+Basically same as compress command, but sub the `-c` for `-x`:
+
+```bash
+tar [OPTIONS...] [FILENAME]...
+-x # extract files from tarball or archive and place in cwd
+-z # decompresses with gunzip
+-j # decompresses with bunzip2
+-J # decompresses with unxz
+
+# extract gzip tarball (tarball is not removed)
+tar -zxvf Project4x.tar.gz 
+Project42.txt
+Project43.txt
+Project44.txt
+Project45.txt
+Project46.txt
+```
+
+### dd

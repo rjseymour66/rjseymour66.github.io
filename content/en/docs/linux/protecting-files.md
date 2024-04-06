@@ -5,7 +5,11 @@ description: >
   "Protecting files"
 ---
 
-A backup is sometimes called an _archive_, and it is a copy of data that can be restored sometime in the future if the data becomes corrupted. You need to consider the following:
+Backup Rule of Three: always have 3 copies:
+- 1 remote system in case of disaster
+- 2 local copies, on different media
+
+A backup is sometimes called an _archive_. An archive is a group of files with associated metadata. It is a copy of data that can be restored sometime in the future if the data becomes corrupted. You need to consider the following:
 - Backup type
 - Compression methods
 - Utilities that will help the most
@@ -243,7 +247,7 @@ Project42.txt
 Verify Project42.txt
 ...
 ```
-### tar restore options
+### tar restore
 
 Basically same as compress command, but sub the `-c` for `-x`:
 
@@ -264,3 +268,157 @@ Project46.txt
 ```
 
 ### dd
+
+Creates low-level copies of an entire hard drive or partition (including MBR), such as:
+- creating system images for forensics
+- copying damaged disks
+- wiping partitions
+
+```bash
+# input- and output-device is either entire drive or partition
+dd if=<input-device> of=<output-device> [OPERANDS]
+dd if=[SOURCE] of=[TARGET] [OPERANDS]
+bs=BYTES        # sets max block size to read and write. Default is 512
+count=N         # sets number of input blocks to copy
+status=level    # sets amount of info to display to STDERR. Set to one of the following:
+                #   none: displays only error messages
+                #   noxfer: does not display final transfer stats
+                #   progress: displays periodic transfer stats
+
+# copy entire disk
+# 1. list all block devices to make sure that drives are not mounted
+lsblk
+NAME        MAJ:MIN RM   SIZE RO TYPE MOUNTPOINTS
+...
+# 2. copy /dev/sdb to /dev/sdc
+dd if=/dev/sdb of=/dev/sdc status=progress
+
+# zero (wipe) a disk if you are throwing it away
+# /dev/zero device file writes zeroes to the disk
+dd if=/dev/zero of=/dev/sdc status=progress
+```
+
+## Replication
+
+### rsync
+
+Better than `scp` for large files.
+
+Great at backing up larger files over the network. Also, backup files locally:
+
+```bash
+rsync [OPTION]... SOURCE DEST
+-e # changes the program for network connection, OpenSSH by default
+-z # compresses the data with zlib during transfer, good for bad network connections
+# previously discussed options
+-a # archive mode, equivalent to -rlptgoD (dir tree backups)
+-D # retain Device and special files
+-g # retain file group
+-h # human-readable numeric output
+-l # copy symbolic links
+-o # retain file owner
+-p # retain file perms
+-P, --progress # display progress of file copy
+-r # recursive
+--stats # display file transfer stats
+-t # retain file's modification time
+-v # verbose
+
+# backup files locally
+rsync -avh *.tar TarStorage/
+sending incremental file list
+Project4x.tar
+ProjectVerify.tar
+
+sent 20.67K bytes  received 54 bytes  41.46K bytes/sec
+total size is 20.48K  speedup is 0.99
+
+ls TarStorage/
+Project4x.tar  ProjectVerify.tar
+
+# securely over the network (-e option uses OpenSSH)
+rsync -avP -e ssh *.tar user1@10.20.30.40:~/path/to/target_dir
+```
+
+## Offsite/Off-System backups
+
+### scp
+
+Secure Copy Protocol
+
+- Quickly transfers files in a noninteractive mannger between two systems on a network
+- Uses SSH
+- Best for small copies you need on the fly, bc if it gets interrupted, you cannot pick back up where you left off
+- Will overwrite files on remote host if they have the same name:
+
+```bash
+scp [FILE] user@10.20.30.40:/absolute/path/to/target-dir
+-C # compresses the file during transfer
+-p # preserves file access, modification times, and perms
+-r # recursive copy
+-v # verbose
+
+# copy from remote to remote
+scp user@10.20.30.40:~/home user2@10.20.30.41:~/home/files
+```
+
+### sftp
+
+SSH File Transfer Protocol.
+
+Good for transferring larger files or archives. Provides interactive experience, for example:
+- create directories as needed
+- immediately check on transferred files,
+- determine remote systems pwd
+
+```bash
+sftp username@localhost
+username@localhosts password: 
+Connected to localhost.
+sftp> 
+
+# common commands
+bye # exits and quits sftp
+exit # exits and quits sftp
+get # gets file (downloads) from remote to local machine
+reget # resumes interrupted get operation
+put # sends (uploads) files from local to remote
+reput # resumes interruped put operation
+ls # list files in remote pwd
+lls # list files in local pwd
+mkdir # create dir on remote
+lmkdir # create dir on local
+progress # toggle progress display on/off (default is on)
+
+# upload file to remote (localhost, here)
+sftp username@localhost
+username@localhosts password: 
+Connected to localhost.
+# check remote pwd
+sftp> ls
+Desktop                  Development              Documents                Downloads                
+...
+# check local pwd  
+sftp> lls
+Extract		  Project42_Inc.txz  Project43.txt  Project46.txt      TarStorage
+FullArchive.snar  Project42.txt      Project44.txt  Project4x.tar
+not-absolute	  Project42.txz      Project45.txt  ProjectVerify.tar
+# make directory on local (would normally be remote, but we use localhost)
+sftp> lmkdir sftp_files
+# verify the dir was made (would be 'ls' on remote)
+sftp> lls
+Extract		  Project42_Inc.txz  Project43.txt  Project46.txt      sftp_files
+...
+# upload file
+sftp> put Project4x.tar
+Uploading Project4x.tar to /home/username/linux-playground/archives/sftp_files/Project4x.tar
+Project4x.tar                                                     100%   10KB   7.5MB/s   00:00
+# check for file on remote
+sftp> ls
+Project4x.tar   
+# exit
+sftp> bye
+```
+
+## Backup integrity
+

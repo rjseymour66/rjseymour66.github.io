@@ -73,3 +73,22 @@ drwxrwxr-x 8 ryanseymour ryanseymour 4096 Apr  7 08:46 ../
 ```
 
 ## Compiling source code
+
+You need to install the GNU C compiler (`gcc`) on fresh installs:
+- Debian: install the `build-essential` program
+- Rocky: install `Development Tools` program
+
+```bash
+# Debian
+sudo apt update && sudo apt install build-essential
+```
+
+### make
+
+Allows developers to create scripts that guide compiling and installation process of application source code:
+
+1. Run `configure`, which analyzes the Linux system and customizes the `make` script.
+2. Run `make` to build library files and executable.
+3. Run `make install` as root to install the application files in the correct directories on your system.
+
+## Packaging applications

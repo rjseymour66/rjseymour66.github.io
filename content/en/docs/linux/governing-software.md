@@ -218,3 +218,110 @@ show # displays info about the package
 update # downloads package info from all configured repositories
 upgrade # installs available upgrades from all installed packages
 ```
+
+### Red Hat repository tools
+
+- Previous tool was `yum` (YellowDog Update Manager), developed for YellowDog Linux distro
+- Replaced by `dnf`, which is updated version of `yum`
+  - Query, install, and remove software packages on your system
+- `dnf` and `yum` use `/etc/yum.repos.d/` directory to hold fils that list the different repos to check for packages
+  - files in this folder contain URL of repo and location of additional package files within the repo
+
+### dnf
+
+```bash
+dnf <action> <program>
+alias # define alias that points to list of other dnf commands
+autoremove # rm any unneeded packages installed as dependeney
+check # examine local package db and report problems
+check-update # check repo for update to specified package
+clean # perform cleanup of temporary files kept for repos
+deplist # deprecated alisas for the repoquery command
+distro-sync # downgrade or install packages to place the system in sync w current repos
+downgrade # downgrade package to version in the repo
+group # manage a set of packages as a single entity
+help # displays help
+history # display previous dnf commands
+info # info about installed and available packages
+install # install current version of package
+list # displays installed and available packages
+makecache # download metadata for the repos
+mark # marks specified package as installed
+module # manages module packages
+provides # displays package that installed specified file
+reinstall # attempts to reinstall the specified package
+remove # rms the specified package, including packages that depend on it
+repoinfo # displays info about the configured repo
+repolist # displays a list of currently configured repos
+repoquery # searches the configured repos for the specified package
+repository-packages # runs commands on all packages in the repo
+search # search pacakge metadata for specified keywords
+shell # display interactive shell for entering multiple dnf commands
+swap # rm and install the specified package
+updateinfo # display update advisory msgs
+upgrade # install latest version of specified packages, or all pkgs if none are specified
+upgrade-minimal # install only latest package versions that provide bugfix or security fix
+```
+
+## Application containers
+
+- Containers bundle all files required for an application, including dependencies, into one distro package (the container)
+- Each app has exactly the correct dependencies and versions
+  - Caveat: dependencies shared among multiple applications are duplicated for each application
+
+### snap containers
+
+- Created and maintained by Canonical
+- `snap` is an application container format 
+- `snapd` app manages the snap packages
+- has CLI tool:
+
+```bash
+# get snap version
+snap version
+snap    2.61.3+22.04
+snapd   2.61.3+22.04
+series  16
+ubuntu  22.04
+kernel  5.15.0-91-generic
+# list currently installed snap packages
+snap list
+Name                       Version           Rev    Tracking         Publisher      Notes
+bare                       1.0               5      latest/stable    canonical✓     base
+chromium                   123.0.6312.86     2805   latest/stable    canonical✓     -
+core                       16-2.61.2         16928  latest/stable    canonical✓     core
+...
+# find specific package
+snap find cups
+Name                              Version                Publisher             Notes  Summary
+cups                              2.4.7-8                openprinting✓         -      The CUPS Snap - The Printing Stack for Linux
+musescore                         3.6.2                  musescore✓            -      Create, play and print beautiful sheet music.
+...
+# install snap package
+sudo snap install stress-ng
+# remove snap pacakge
+sudo snap remove stress-ng
+snap "stress-ng" is not installed
+# disable
+sudo snap disable <package>
+# enable
+sudo snap enable <package>
+```
+
+### flatpak containers
+
+- Opensource, not tied to a specific distro
+- RHEL uses often uses this
+
+```bash
+# list packages
+flatpack list
+# add remote (repository)
+sudo flatpak remote-add --if-not-exists flathub
+# search for application
+sudo flatpack search mosh
+# install package with application ID 
+sudo flatpak install org.mosh.mosh
+# unistall package
+sudo flatpak uninstall org.mosh.mosh
+```

@@ -121,18 +121,23 @@ unlink LINKED-FILE
 # create original
 touch original-file.txt
 original-file.txt
+
 # link files
 ln original-file.txt hard-link-file.txt 
+
 # different file for comparison
 touch single-file.txt
+
 # view inode and links
 ls -iog
 total 0           (*)
 4868127 -rw-rw-r-- 2 0 Mar 17 09:32 hard-link-file.txt
 4868127 -rw-rw-r-- 2 0 Mar 17 09:32 original-file.txt
 4868128 -rw-rw-r-- 1 0 Mar 17 09:33 single-file.txt
+
 # unlink
 unlink hard-link-file.txt 
+
 # linked file is gone
 ls -iog
 total 0           (*)
@@ -155,15 +160,19 @@ ln -s ORIGINAL LINKED-FILE
 ls -iog
 total 0
 4868127 -rw-rw-r-- 1 0 Mar 17 09:32 original-file.txt
+
 # create soft link
 ln -s original-file.txt soft-link-file.txt
+
 # linked, but different inode and link numbers
 ls -iog
 total 0           (*)
 4868127 -rw-rw-r-- 1  0 Mar 17 09:32 original-file.txt
 4868128 lrwxrwxrwx 1 17 Mar 17 09:45 soft-link-file.txt -> original-file.txt
+
 # rm link
 unlink soft-link-file.txt
+
 # linked file is deleted
 ls -iog
 total 0
@@ -340,9 +349,11 @@ Shows full path name of a shell command or if it is using an alias:
 # utility
 which diff
 /usr/bin/diff
+
 # system binary
 which shutdown
 /usr/sbin/shutdown
+
 # not in system
 which line
 ```
@@ -355,9 +366,11 @@ Locate the binaries, source code files, and man pages:
 # utility
 whereis diff
 diff: /usr/bin/diff /usr/share/man/man1/diff.1.gz
+
 # system binary
 whereis shutdown
 shutdown: /usr/sbin/shutdown /usr/share/man/man8/shutdown.8.gz /usr/share/man/man2/shutdown.2.gz
+
 # not in system
 whereis line
 line:

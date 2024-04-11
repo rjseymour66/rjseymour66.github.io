@@ -27,6 +27,7 @@ which init
 # see if init is linked
 sudo readlink -f /usr/sbin/init 
 [sudo] password for ryanseymour: 
+
 # linked to systemd
 /usr/lib/systemd/systemd
 
@@ -88,6 +89,7 @@ find / -name default.target 2>/dev/null
 ...
 /usr/lib/systemd/system/default.target
 ...
+
 # 2. follow the link
 readlink -f /usr/lib/systemd/system/default.target 
 /usr/lib/systemd/system/graphical.target
@@ -157,6 +159,7 @@ acpid.service                                  disabled        enabled
 
 # find systemd unit file
 systemctl cat cron.service 
+
 # /lib/systemd/system/cron.service
 [Unit]
 Description=Regular background program processing daemon
@@ -427,12 +430,15 @@ Investigate your system's boot performance and check for potential system init i
 ```bash
 systemd-analyze verify
 Too few arguments.
+
 # check for service errors
 systemd-analyze verify sshd.service
+
 # see how long kernel, init, and fs took
 systemd-analyze time
 Startup finished in 10.269s (firmware) + 2.143s (loader) + 3.713s (kernel) + 7.479s (userspace) = 23.606s 
 graphical.target reached after 7.472s in userspace
+
 # see how long each running unit took to init (slowest to fastest)
 systemd-analyze --no-pager blame
 1d 18h 5min 13.198s dev-loop29.device
@@ -478,8 +484,10 @@ What=/dev/sdo1
 Where=/home/temp
 Type=ext4
 Options=defaults
+
 # when on, it ignores any mount options not supported by the fs type
 SloppyOptions=on
+
 # mount fails if not complete after 4 seconds
 TimeOutSec=4
 
@@ -511,6 +519,7 @@ Load and unload the file:
 ```bash
 systemctl daemon-reload
 systemctl start <mount-file-name>
+
 # mount file at boot
 systemctl enable <mount-file-name>
 ```

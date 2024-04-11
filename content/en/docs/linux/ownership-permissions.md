@@ -256,7 +256,8 @@ umask
 ls -l
 drwxrwxr-x 2 linuxuser linuxuser 4096 Apr 10 23:50 test1
 -rw-rw-r-- 1 linuxuser linuxuser    0 Apr 10 23:50 test2
-# change umash
+
+# change umask
 umask 027
 touch test3
 ls -l

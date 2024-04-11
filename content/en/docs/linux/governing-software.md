@@ -38,11 +38,13 @@ tar -cvf test.tar test1.txt test2.txt test3.txt
 test1.txt
 test2.txt
 test3.txt
+
 # Display contents of tar file
 tar -tvf test.tar 
 -rw-rw-r-- ryanseymour/ryanseymour 14 2024-04-07 08:48 test1.txt
 -rw-rw-r-- ryanseymour/ryanseymour 14 2024-04-07 08:48 test2.txt
 -rw-rw-r-- ryanseymour/ryanseymour 16 2024-04-07 08:48 test3.txt
+
 # Extract contents of tar file
 tar -xvf test.tar 
 test1.txt
@@ -284,6 +286,7 @@ snapd   2.61.3+22.04
 series  16
 ubuntu  22.04
 kernel  5.15.0-91-generic
+
 # list currently installed snap packages
 snap list
 Name                       Version           Rev    Tracking         Publisher      Notes
@@ -291,6 +294,7 @@ bare                       1.0               5      latest/stable    canonical�
 chromium                   123.0.6312.86     2805   latest/stable    canonical✓     -
 core                       16-2.61.2         16928  latest/stable    canonical✓     core
 ...
+
 # find specific package
 snap find cups
 Name                              Version                Publisher             Notes  Summary
@@ -299,11 +303,14 @@ musescore                         3.6.2                  musescore✓           
 ...
 # install snap package
 sudo snap install stress-ng
+
 # remove snap pacakge
 sudo snap remove stress-ng
 snap "stress-ng" is not installed
+
 # disable
 sudo snap disable <package>
+
 # enable
 sudo snap enable <package>
 ```
@@ -316,12 +323,16 @@ sudo snap enable <package>
 ```bash
 # list packages
 flatpack list
+
 # add remote (repository)
 sudo flatpak remote-add --if-not-exists flathub
+
 # search for application
 sudo flatpack search mosh
+
 # install package with application ID 
 sudo flatpak install org.mosh.mosh
+
 # unistall package
 sudo flatpak uninstall org.mosh.mosh
 ```

@@ -150,8 +150,10 @@ GRUB_DISABLE_OS_PROBER=true
 ```bash
 # update config (debian). -o option writes to a file, stdout by default
 grub-mkconfig -o /boot/grub/grub.cfg
+
 # find grub version (debian)
 grub-mkconfig -V
+
 # reinstall onto the primary hard disk
 grub2-install /dev/sda
 ```

@@ -25,6 +25,7 @@ Stored in `/lib/modules/` directory:
 # view kernel versions
 ls -F /lib/modules 
 6.5.0-18-generic/  6.5.0-26-generic/
+
 # config files generated during install or by sys admin
 ls -hogl /etc/modprobe.d/
 total 40K
@@ -39,11 +40,13 @@ lrwxrwxrwx 1   41 Mar 21 20:12 blacklist-oss.conf -> /lib/linux-sound-base/noOSS
 -rw-r--r-- 1  583 Aug 17  2021 blacklist-rare-network.conf
 -rw-r--r-- 1  154 Nov 14 20:03 intel-microcode-blacklist.conf
 -rw-r--r-- 1  347 Aug 17  2021 iwlwifi.conf
+
 # config files for 3rd party packages
 ls -hogl /etc/modules-load.d/
 total 4.0K
 -rw-r--r-- 1 119 May 15  2023 cups-filters.conf
 lrwxrwxrwx 1  10 Mar 21 20:12 modules.conf -> ../modules
+
 # same as /lib/modprobe.d/
 ls -hogl /usr/lib/modprobe.d/
 total 20K
@@ -57,6 +60,7 @@ total 20K
 sudo dmesg | grep -i driver
 [501249.099477] usbcore: registered new interface driver usb-storage
 [501249.101243] usbcore: registered new interface driver uas
+
 # status of modules currently within linux kernel
 # Used by is number of processes or modules currently using that Module
 lsmod
@@ -68,6 +72,7 @@ tcp_diag               16384  0
 inet_diag              24576  1 tcp_diag
 sctp                  393216  10
 ...
+
 # get detailed info about specific module
 sudo modinfo bridge
 filename:       /lib/modules/5.15.0-91-generic/kernel/net/bridge/bridge.ko
@@ -106,11 +111,13 @@ sudo modprobe -v dm_mirror
 insmod /lib/modules/6.5.0-26-generic/kernel/drivers/md/dm-log.ko 
 insmod /lib/modules/6.5.0-26-generic/kernel/drivers/md/dm-region-hash.ko 
 insmod /lib/modules/6.5.0-26-generic/kernel/drivers/md/dm-mirror.ko 
+
 # get status of dm_mirror
 lsmod | grep -i dm_mirror
 dm_mirror              24576  0
 dm_region_hash         24576  1 dm_mirror
 dm_log                 20480  2 dm_region_hash,dm_mirror
+
 # get infor about dm_mirror
 sudo modinfo dm_mirror
 filename:       /lib/modules/6.5.0-26-generic/kernel/drivers/md/dm-mirror.ko
@@ -146,6 +153,7 @@ sudo depmod -v
 ```bash
 # rm module but not its dependencies
 sudo rmmod -v <module-name>
+
 # remove module and its dependencies
 # -r recursive
 # -v verbose

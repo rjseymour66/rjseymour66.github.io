@@ -94,6 +94,7 @@ For drives that use the GPT indexing method:
 
 ```bash
 sudo gdisk /dev/<drive-file>
+
 # example
 sudo gdisk /dev/sda
 
@@ -263,6 +264,7 @@ mount -t <fstype> <device> <mountpoint>
 
 # create mountpoint dir
 mkdir mount_here
+
 # mount /dev/sda1 to mountpoint
 sudo mount -t ext4 /dev/sda1 mount_here/
 
@@ -320,6 +322,7 @@ Displays disk usage by partition. Use the `-i` option to see the number of inode
 
 ```bash
 df -t <fstype> -i -h 
+
 # all disk partitions, human-readable
 df -ih
 Filesystem     Inodes IUsed IFree IUse% Mounted on
@@ -329,10 +332,12 @@ tmpfs            3.9M   323  3.9M    1% /dev/shm
 tmpfs            3.9M     6  3.9M    1% /run/lock
 /dev/nvme0n1p1      0     0     0     - /boot/efi
 tmpfs            793K   178  793K    1% /run/user/1001
+
 # ext4 disk partitions
 df -it ext4 -h
 Filesystem     Inodes IUsed IFree IUse% Mounted on
 /dev/nvme0n1p3    30M  1.7M   28M    6% /
+
 # tmpfs partitions
 df -it tmpfs -h
 Filesystem     Inodes IUsed IFree IUse% Mounted on
@@ -498,12 +503,15 @@ sudo pvcreate /dev/sda1
 WARNING: ext4 signature detected on /dev/sda1 at offset 1080. Wipe it? [y/n]: y
   Wiping ext4 signature on /dev/sda1.
   Physical volume "/dev/sda1" successfully created.
+
 # combine physical volume into volume group
 sudo vgcreate newvol /dev/sda1
   Volume group "newvol" successfully created
+
 # create a logical volume
 sudo lvcreate -l 100%FREE -n lvdisk newvol
   Logical volume "lvdisk" created.
+
 # format the logical volume w ext4
 sudo mkfs -t ext4 /dev/mapper/newvol-lvdisk 
 mke2fs 1.46.5 (30-Dec-2021)
@@ -520,8 +528,10 @@ Writing superblocks and filesystem accounting information: done
 
 # make mount point 
 sudo mkdir /media/newdisk
+
 # mount the logical volume to mount point
 sudo mount /dev/mapper/newvol-lvdisk /media/newdisk/
+
 # view mount point contents
 cd /media/newdisk/
 ll -a
@@ -573,17 +583,20 @@ Enter passphrase for /dev/sda1:
 Verify passphrase: 
 Key slot 0 created.
 Command successful.
+
 # make it avialable for use with luksOpen
 sudo cryptsetup -v luksOpen /dev/sda1 safedata
 No usable token is available.
 Enter passphrase for /dev/sda1: 
 Key slot 0 unlocked.
 Command successful.
+
 # safedata references opened encrypted partition
 ls /dev/mapper/ -l
 total 0
 crw------- 1 root root 10, 236 Mar 16 09:39 control
 lrwxrwxrwx 1 root root       7 Apr  3 23:32 safedata -> ../dm-0
+
 # format with an fs
 sudo mkfs -t ext4 /dev/mapper/safedata
 mke2fs 1.46.5 (30-Dec-2021)
@@ -600,6 +613,7 @@ Writing superblocks and filesystem accounting information: done
 
 # mount it 
 sudo mount /dev/mapper/safedata /mnt/mydata
+
 # close the encrypted partition and remove it from /dev/mapper
 sudo cryptsetup -v luksClose /dev/mapper/safedata
 Device /dev/mapper/safedata is still in use.

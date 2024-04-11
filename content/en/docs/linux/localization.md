@@ -35,10 +35,13 @@ abday="Sun;Mon;Tue;Wed;Thu;Fri;Sat"
 ```bash
 # set all LC_* env vars at once
 export LANG=en_GB.UTF-8
+
 # display current settings
 locale
+
 # list locales
 localectl list-locales
+
 # set locale
 localectl set-locale LANG=en_GB.UTF-8
 ```
@@ -59,6 +62,7 @@ Time zone information is set in the following locations, but you cant edit it di
 # view current TZ template file
 ls -al /etc/localtime 
 lrwxrwxrwx 1 root root 36 Mar 20 20:53 /etc/localtime -> /usr/share/zoneinfo/America/New_York
+
 # view TZ template dirs and files
 ls /usr/share/zoneinfo
 
@@ -69,10 +73,13 @@ lrwxrwxrwx 1 root root 35 Mar 29 23:16 /etc/localtime -> /usr/share/zoneinfo/Ame
 # check date
 date
 Fri Mar 29 11:16:51 PM CDT 2024
+
 # 2. rm softlink 
 sudo unlink /etc/localtime 
+
 # 3. create new softlink to tz file
 sudo ln -s /usr/share/zoneinfo/America/New_York /etc/localtime
+
 # 4. verify
 date
 Sat Mar 30 12:17:37 AM EDT 2024

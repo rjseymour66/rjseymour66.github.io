@@ -28,6 +28,7 @@ cut OPTION... [FILE]...
 
 # display fields 1 and 7, delimited by colon
 cut -d ":" -f 1,7 /etc/passwd
+
 # display chars 1-5 from file
 cut -c 1-5 /etc/passwd
 ```
@@ -48,12 +49,15 @@ grep [OPTIONS] PATTERN [FILE...]
 # BREs
 
 grep daemon.*nologin /etc/passwd
+
 # any line with root
 grep root /etc/passwd
 root:x:0:0:root:/root:/bin/bash
+
 # any line that begins with root
 grep ^root /etc/passwd
 root:x:0:0:root:/root:/bin/bash
+
 # any line that does not end in nologin
 grep -v nologin$ /etc/passwd
 
@@ -279,6 +283,7 @@ echo "i like cake" | sed 's/cake/pie/'
 # doesn't modify all 'cake' occurrences
 echo "i like cake and more cake" | sed 's/cake/pie/'
 i like pie and more cake
+
 # global modify
 echo "i like cake and more cake" | sed 's/cake/pie/g'
 i like pie and more pie
@@ -293,6 +298,7 @@ sed -e 's/cake/donuts/ ; s/like/love/' cake.txt
 cat script.sed 
 s/cake/donuts/
 s/like/love/
+
 # use -f command
 sed -f script.sed cake.txt 
 ```
@@ -325,6 +331,7 @@ world
 
 # print first data field
 gawk '{print $1}' cake.txt 
+
 # read cake.txt, if data field is 'cake' change to 'donuts' and print the line
 gawk '{if ($4 == "cake.") {$4="donuts"; print $0}}' cake.txt 
 

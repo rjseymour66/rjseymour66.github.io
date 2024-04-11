@@ -104,6 +104,7 @@ ls file-list | cpio -ov > output.cpio
 # view files
 ls
 Project42.txt  Project43.txt  Project44.txt  Project45.txt  Project46.txt
+
 # pipe files into cpio
 ls Project4?.txt | cpio -ov > Project4x.cpio
 Project42.txt
@@ -112,6 +113,7 @@ Project44.txt
 Project45.txt
 Project46.txt
 1 block
+
 # view files
 ls Project4?.*
 Project42.txt  Project43.txt  Project44.txt  Project45.txt  Project46.txt  Project4x.cpio
@@ -131,6 +133,7 @@ cpio -itvI Project4x.cpio
 # restore files
 ls
 Project4x.cpio
+
 # to restore files to original location, use -ivI options
 # use -no-absolute-filename option to restore to different directory
 cpio -iv --no-absolute-filenames -I Project4x.cpio 
@@ -140,6 +143,7 @@ Project44.txt
 Project45.txt
 Project46.txt
 1 block
+
 # all files including .cpio
 ls
 Project42.txt  Project43.txt  Project44.txt  Project45.txt  Project46.txt  Project4x.cpio
@@ -290,6 +294,7 @@ status=level    # sets amount of info to display to STDERR. Set to one of the fo
 lsblk
 NAME        MAJ:MIN RM   SIZE RO TYPE MOUNTPOINTS
 ...
+
 # 2. copy /dev/sdb to /dev/sdc
 dd if=/dev/sdb of=/dev/sdc status=progress
 
@@ -310,6 +315,7 @@ Great at backing up larger files over the network. Also, backup files locally:
 rsync [OPTION]... SOURCE DEST
 -e # changes the program for network connection, OpenSSH by default
 -z # compresses the data with zlib during transfer, good for bad network connections
+
 # previously discussed options
 -a # archive mode, equivalent to -rlptgoD (dir tree backups)
 -D # retain Device and special files
@@ -394,28 +400,35 @@ progress # toggle progress display on/off (default is on)
 sftp username@localhost
 username@localhosts password: 
 Connected to localhost.
+
 # check remote pwd
 sftp> ls
 Desktop                  Development              Documents                Downloads                
 ...
+
 # check local pwd  
 sftp> lls
 Extract		  Project42_Inc.txz  Project43.txt  Project46.txt      TarStorage
 FullArchive.snar  Project42.txt      Project44.txt  Project4x.tar
 not-absolute	  Project42.txz      Project45.txt  ProjectVerify.tar
+
 # make directory on local (would normally be remote, but we use localhost)
 sftp> lmkdir sftp_files
+
 # verify the dir was made (would be 'ls' on remote)
 sftp> lls
 Extract		  Project42_Inc.txz  Project43.txt  Project46.txt      sftp_files
 ...
+
 # upload file
 sftp> put Project4x.tar
 Uploading Project4x.tar to /home/username/linux-playground/archives/sftp_files/Project4x.tar
 Project4x.tar                                                     100%   10KB   7.5MB/s   00:00
+
 # check for file on remote
 sftp> ls
 Project4x.tar   
+
 # exit
 sftp> bye
 ```
@@ -450,15 +463,19 @@ ls -1 /usr/bin/sha???sum
 
 md5sum Project4x.tar 
 b1b68da5c780424b4e6949305b76541d  Project4x.tar
+
 # sha224sum
 sha224sum Project4x.tar 
 d3db117bb61330e6ed409d9d7c6f56c0db158c6e0dbf02784380a077  Project4x.tar
+
 # sha256sum
 sha256sum Project4x.tar 
 d8c1332f37299100d2c2f6e69f4e7efe41cfd56986deedd439dd194b75d9a0ce  Project4x.tar
+
 # sha384sum
 sha384sum Project4x.tar 
 e3f430cfecee455fb31b575421cff6ae438132e633a6446aa1bbf0e3dedbd28c5a56a810e51efbb8951a4a308a22d1d6  Project4x.tar
+
 # sha512sum
 sha512sum Project4x.tar 
 6deb50480ff3b9c4b4205147b8376ce84e28be875a6ed9fde24937f6287975bd31d0e51412e7cb5647185b2cedea5973e1ca91c2e89a5c4638213384464e69c6  Project4x.tar

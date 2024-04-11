@@ -100,10 +100,13 @@ ip link
 3: docker0: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc noqueue state DOWN mode DEFAULT group default 
     link/ether 02:42:f4:af:5c:07 brd ff:ff:ff:ff:ff:ff
 
+
 # only IP4
 ip -4 addr
+
 # only IP6
 ip -6 addr
+
 # show a specific device
 ip addr show dev wlp59s0
 
@@ -124,12 +127,14 @@ ip link show
 # view routing table
 ip route
 ip route list
+
 # view specific routing table entry
 ip route list 169.254.0.0/16
 169.254.0.0/16 dev enp0s3 scope link metric 1000 
 
 # add IP to routing table
 ip route add 169.254.0.0/16 dev enp0s3
+
 # delete IP to routing table
 ip route del 169.254.0.0/16 dev enp0s3
 ```
@@ -176,8 +181,10 @@ _Bonding_ is when you aggregate multiple interfaces into one virtual network dev
 ```bash
 # load the kernel module, creates bond0 network interface
 modprobe bonding
+
 # define bond0 interface
 ip link add bond0 type bond mode 4
+
 # add network interfaces to the bond
 ip link set eth0 master bond0
 ip link set eth1 master bond0
@@ -194,6 +201,7 @@ readlink -f /usr/bin/nc
 /usr/bin/nc.openbsd
 readlink -f /usr/bin/netcat
 /usr/bin/nc.openbsd
+
 # HTTP re to server and see HTTP response and HTML code
 $ printf "GET / HTTP/1.0\r\n\r\n" | nc website.com 80
 
@@ -201,6 +209,7 @@ $ printf "GET / HTTP/1.0\r\n\r\n" | nc website.com 80
 # simple chat app
 # first host with -l (listen) option
 nc -l 8000
+
 # second host
 nc <hostname> 8000
 
@@ -209,6 +218,7 @@ nc <hostname> 8000
 # file transfers
 # first host (receives file):
 nc -l 8000 > file.txt
+
 # second host (sends file):
 nc hostname 8000 < file.txt
 ```
@@ -302,12 +312,16 @@ Part of the net-tools package, can provide a lot of info about your machine's ne
 ```bash
 # list all open network connections
 netstat
+
 # tcp connections
 netstat -t
+
 # udp connections
 netstat -u
+
 # apps and their ports
 netstat -l
+
 # statistics for different types of packets (determine if there are issues with a protocol)
 netstat -s
 ```

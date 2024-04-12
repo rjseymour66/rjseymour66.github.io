@@ -356,3 +356,79 @@ _Mandatory access control_ (MAC) lets the system administrator define securty ba
 ### SELinux for RHEL
 
 ### AppArmor for Ubuntu
+
+Controls files and network ports that applications can access. Installed by default, but you need to install a few packages:
+
+```bash
+# install pacakges
+sudo apt install apparmor-utils
+sudo apt install apparmor-profiles
+```
+
+Calls policies _profiles_, defined in `/etc/apparmor.d`:
+
+```bash
+# file names are path.to.app (replace '/' with '.')
+ls -l /etc/apparmor.d/
+total 188
+-rw-r--r-- 1 root root   879 Jun  5  2023 bin.ping
+drwxr-xr-x 5 root root  4096 Feb 20 14:23 tunables
+
+# variables are defined in tunables
+cat /etc/apparmor.d/tunables/apparmorfs 
+#    Copyright (C) 2012 Canonical Ltd.
+#
+#    This program is free software; you can redistribute it and/or
+#    modify it under the terms of version 2 of the GNU General Public
+#    License published by the Free Software Foundation.
+#
+# ------------------------------------------------------------------
+
+include <tunables/securityfs>
+
+@{apparmorfs}=@{securityfs}/apparmor/
+
+
+# get AppArmor status
+sudo aa-status
+apparmor module is loaded.
+65 profiles are loaded.
+46 profiles are in enforce mode.
+   /snap/snapd/20671/usr/lib/snapd/snap-confine
+   /snap/snapd/20671/usr/lib/snapd/snap-confine//mount-namespace-capture-helper
+
+# list active ports without AppArmor profile
+sudo aa-unconfined
+500 /usr/lib/systemd/systemd-resolved (/lib/systemd/systemd-resolved) not confined
+668 /usr/sbin/avahi-daemon not confined
+673 /usr/sbin/NetworkManager not confined
+22828 /usr/sbin/cupsd confined by '/usr/sbin/cupsd (enforce)'
+22830 /usr/sbin/cups-browsed confined by '/usr/sbin/cups-browsed (enforce)'
+
+# turn off a profile with complain mode
+sudo aa-complain /usr/sbin/tcpdump
+
+# disable a profile
+sudo aa-disable /usr/sbin/tcpdump
+
+# turn profile back on
+sudo aa-enforce /usr/bin/tcpdump
+```
+
+## Linux user types
+
+**Root**
+: Main admin on the system. Special user value `0`. Can access all files and dirs.
+
+**Standard**
+: Perform standard tasks, like run desktop applications or shell commands. Assigned `$HOME` dir, and can store files and create subdirectories. Usually cannot access files or dirs outside of `$HOME` dir unless given permission. 
+
+ User account IDs are over 1000.
+
+**Service**
+: Used for applications that start in the background, like Apache web server or MySQL. Password in shadow file is usually set to `*`, so these accts cannot log into the system. Also, `etc/passwd` login shell is set to `nologin` value.
+
+  Service account IDs are less than 1000.
+
+
+### Escalating privileges

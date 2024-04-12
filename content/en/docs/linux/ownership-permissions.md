@@ -265,3 +265,94 @@ drwxrwxr-x 2 linuxuser linuxuser 4096 Apr 10 23:50 test1
 -rw-rw-r-- 1 linuxuser linuxuser    0 Apr 10 23:50 test2
 -rw-r----- 1 linuxuser linuxuser    0 Apr 10 23:51 test3
 ```
+
+## Access Control Lists
+
+You can only assign file or directory permissions to a single user or group. 
+- ACL lets you specifiy a list of multiple users or groups and the permissions that are assigned to them.
+- ACL permissionns use the same r,w, and x permission bits but you can assign to multiple users.
+
+### getfacl
+
+View ACLs assigned to a file or directory:
+
+```bash
+getfacl test 
+# file: test
+# owner: linuxuser
+# group: linuxuser
+user::rw-
+group::rw-
+other::r--
+```
+
+### setfacl
+
+Modify permissions assigned to a file or directory:
+
+```bash
+# Define rule:
+# u[ser]:uid:perms
+# g[roup]:gid:perms
+# o[ther]::perms
+setfacl [options] rule filenames
+-m # modify permissions to file or dir
+-x # rm permissions
+
+# add rw perms for sales group to test file
+setfacl -m g:sales:rw test
+
+# (+) sign next to perms indicates ACL 
+-rw-rw-r--+ 1 linuxuser linuxuser 0 Apr 11 21:54 test
+
+# check ACL perms
+getfacl test 
+# file: test
+# owner: linuxuser
+# group: linuxuser
+user::rw-
+group::rw-
+group:sales:rw-
+mask::rw-
+other::r--
+
+# remove sales group perms
+setfacl -x g:sales test
+
+# verify
+getfacl test
+# file: test
+# owner: linuxuser
+# group: linuxuser
+user::rw-
+group::rw-
+mask::rw-
+other::r--
+
+# use d: option to set default ACL on dir that is inherited
+# by any file in the directory.
+sudo setfacl -m d:g:sales:rw $(pwd)
+touch sales-test
+
+# verify
+getfacl sales-test 
+# file: sales-test
+# owner: linuxuser
+# group: linuxuser
+user::rw-
+group::rwx			#effective:rw-
+group:sales:rw-
+mask::rw-
+other::r--
+```
+
+## Context-based permissions
+
+Linux permissions and ACLs are _discretionary access control_ (DAC). They are set by file or directory owner.
+
+_Mandatory access control_ (MAC) lets the system administrator define securty based on the context of an object in the system, which overrides the DAC permissions.
+- _Role-based access control_ (RBAC) is a subcategory of MAC, which bases perms on the roles users and processes play in the Linux system.
+
+### SELinux for RHEL
+
+### AppArmor for Ubuntu

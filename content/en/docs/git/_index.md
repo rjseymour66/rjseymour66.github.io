@@ -410,3 +410,275 @@ hello.go  move.md  PROJECTS.md  README.md
 ```
 
 ## Commit history
+
+### git log
+
+[Common options](https://git-scm.com/book/en/v2/Git-Basics-Viewing-the-Commit-History#log_options)
+
+Lists commits in reverse chronological order:
+
+```bash
+# view difference in each commit - patch command (-p or --patch)
+git log -p
+commit ca82a6dff817ec66f44342007202690a93763949 (HEAD -> master, origin/master, origin/HEAD)
+Author: Scott Chacon <schacon@gmail.com>
+Date:   Mon Mar 17 21:52:11 2008 -0700
+
+    changed the verison number
+
+diff --git a/Rakefile b/Rakefile
+index a874b73..8f94139 100644
+--- a/Rakefile
++++ b/Rakefile
+@@ -5,7 +5,7 @@ require 'rake/gempackagetask'
+ spec = Gem::Specification.new do |s|
+     s.platform  =   Gem::Platform::RUBY
+     s.name      =   "simplegit"
+-    s.version   =   "0.1.0"
++    s.version   =   "0.1.1"
+     s.author    =   "Scott Chacon"
+     s.email     =   "schacon@gmail.com"
+     s.summary   =   "A simple gem for using Git in Ruby code."
+
+# view patch for -N past commits, here just 1
+git log -p -1
+commit ca82a6dff817ec66f44342007202690a93763949 (HEAD -> master, origin/master, origin/HEAD)
+Author: Scott Chacon <schacon@gmail.com>
+Date:   Mon Mar 17 21:52:11 2008 -0700
+
+    changed the verison number
+...
+
+# view abbreviated stats
+$ git log --stat
+...
+commit a11bef06a3f659402fe7563abf99ad00de2209e6
+Author: Scott Chacon <schacon@gmail.com>
+Date:   Sat Mar 15 10:31:28 2008 -0700
+
+    first commit
+
+ README           |  6 ++++++
+ Rakefile         | 23 +++++++++++++++++++++++
+ lib/simplegit.rb | 25 +++++++++++++++++++++++++
+ 3 files changed, 54 insertions(+)
+
+# pretty w log on oneline
+$ git log --pretty=oneline
+ca82a6dff817ec66f44342007202690a93763949 (HEAD -> master, origin/master, origin/HEAD) changed the verison number
+085bb3bcb608e1e8451d4b2432f8ecbe6306e7e7 removed unnecessary test code
+a11bef06a3f659402fe7563abf99ad00de2209e6 first commit
+
+# short
+$ git log --pretty=short
+commit ca82a6dff817ec66f44342007202690a93763949 (HEAD -> master, origin/master, origin/HEAD)
+Author: Scott Chacon <schacon@gmail.com>
+
+    changed the verison number
+
+# full
+$ git log --pretty=full
+commit ca82a6dff817ec66f44342007202690a93763949 (HEAD -> master, origin/master, origin/HEAD)
+Author: Scott Chacon <schacon@gmail.com>
+Commit: Scott Chacon <schacon@gmail.com>
+
+    changed the verison number
+
+# fuller
+$ git log --pretty=fuller
+commit ca82a6dff817ec66f44342007202690a93763949 (HEAD -> master, origin/master, origin/HEAD)
+Author:     Scott Chacon <schacon@gmail.com>
+AuthorDate: Mon Mar 17 21:52:11 2008 -0700
+Commit:     Scott Chacon <schacon@gmail.com>
+CommitDate: Fri Apr 17 21:56:31 2009 -0700
+
+    changed the verison number
+
+# format
+$ git log --pretty=format:"%h - %an, %ar : %s"
+ca82a6d - Scott Chacon, 16 years ago : changed the verison number
+085bb3b - Scott Chacon, 16 years ago : removed unnecessary test code
+a11bef0 - Scott Chacon, 16 years ago : first commit
+
+# graph to see branch and merge history
+$ git log --pretty=format:"%h %s" --graph
+* ca82a6d changed the verison number
+* 085bb3b removed unnecessary test code
+* a11bef0 first commit
+
+# git log since the specified date
+$ git log --since=2.weeks
+
+# since YYYY-MM-DD format
+$ git log --since="2008-01-15"
+commit ca82a6dff817ec66f44342007202690a93763949 (HEAD -> master, origin/master, origin/HEAD)
+Author: Scott Chacon <schacon@gmail.com>
+Date:   Mon Mar 17 21:52:11 2008 -0700
+
+    changed the verison number
+...
+
+# by author
+$ git log --author="Scott Chacon"
+commit ca82a6dff817ec66f44342007202690a93763949 (HEAD -> master, origin/master, origin/HEAD)
+Author: Scott Chacon <schacon@gmail.com>
+Date:   Mon Mar 17 21:52:11 2008 -0700
+...
+
+# pickaxe option - takes a string
+$ git log -S function_name
+
+# by path or file
+$ git log -- path/to/file
+
+# exclude merges
+$ git log --no-merges
+```
+
+### Formatting options
+
+[Useful specifiers](https://git-scm.com/book/en/v2/Git-Basics-Viewing-the-Commit-History#pretty_format)
+
+## Undoing things
+
+### amend
+
+Replaces previous commit with new commit, including a new hash. Best when it is a local commit: 
+
+```bash 
+# original commit
+$ git log --oneline
+07c2519 (HEAD -> master) amend setup
+...
+
+$ git commit -am 'updated amend commit' --amend
+[master 9a22606] updated amend commit
+ Date: Thu Apr 11 15:11:43 2024 -0400
+ 2 files changed, 132 insertions(+), 2 deletions(-)
+ rename m.txt => move.txt (100%)
+
+# view new commit message
+$ git log --oneline
+9a22606 (HEAD -> master) updated amend commit
+bf731a2 renamed
+...
+
+
+# add forgotten file to previous commit
+$ gs
+On branch master
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+        modified:   move.txt
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+        forgot.file
+
+$ git commit -am 'forgot a file'
+$ git add forgot.file
+$ git commit -am 'update previous commit' --amend
+```
+
+### git restore
+
+Unstages a file but keeps modifications:
+
+```bash
+$ git status
+On branch master
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage) # tells you how
+        modified:   README.md
+        new file:   unstage.md
+
+# If you already committed a file and then made changes, you can 
+# revert back to the what it looked like in the last snapshot:
+git restore <file>
+```
+
+## Remotes
+
+Versions of your project that are hosted somewhere else (on the same host, on the network, etc).
+
+
+### git remote
+
+```bash 
+# view remote servers
+$ git remote
+origin          # default name that git gives to cloned server
+
+# verbose view
+$ git remote -v
+origin  https://github.com/schacon/ticgit (fetch)
+origin  https://github.com/schacon/ticgit (push)
+
+# inspect the remote
+$ git remote show origin
+warning: redirecting to https://path/to/hugo-vertica-doc.git/
+* remote origin
+  Fetch URL: http://path/to/hugo-vertica-doc.git
+  Push  URL: http://path/to/hugo-vertica-doc.git
+  HEAD branch: master
+  Remote branches:
+    bugfix/K8s-arch-image-overlap_rjs                                                                              tracked
+    ...
+    refs/remotes/origin/VER-86181-K8s-demote-operatorhub_rjs                                                       stale (use 'git remote prune' to remove)
+    ...
+  Local branches configured for 'git pull':
+    bugfix/SCSS-partials_rjs                       merges with remote bugfix/SCSS-partials_rjs
+    ...
+    master                                         merges with remote master
+    ...
+  Local refs configured for 'git push':
+    bugfix/SCSS-partials_rjs                       pushes to bugfix/SCSS-partials_rjs                       (up to date)
+    ...
+    release/24.1.0-hotfix                          pushes to release/24.1.0-hotfix                          (local out of date)
+
+# rename remote
+$ git remote rename pb paul
+Renaming remote references: 100% (2/2), done.
+$ git remote
+origin
+paul
+
+# remove remote
+$ git remote
+origin
+paul
+$ git remote remove paul
+$ git remote
+origin
+```
+
+### git fetch 
+
+- Pulls all data from remote project that was pushed to the server since you cloned or the last `fetch`.
+- Does not merge data into existing branches.
+
+```bash
+$ git fetch <remote>
+```
+
+
+### git pull 
+
+When a branch is tracking a remote branch, fetches and merges data from remote branch into local branch.
+
+```bash
+$ git pull
+```
+
+### git push 
+
+Pushes the project upstream if the following are true:
+- You have write access 
+- No one has pushed to the branch since you last fetched the data. You have to merge their work into yours
+
+```bash 
+$ git push <remote> <branch>
+$ git push origin master
+```
+
+## Tagging

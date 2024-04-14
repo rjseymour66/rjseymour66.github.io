@@ -448,3 +448,102 @@ Users and groups with supperuser privileges are stored in `/etc/sudoers`. Common
 
 
 ## Restrict users and files
+
+### ulimit
+
+Restricts access to CPU and memory system resources for each user account:
+
+[List of common flags](https://phoenixnap.com/kb/ulimit-linux-command#flags)
+
+### lsattr
+
+Display current attributes applied to a file or directory:
+
+```bash
+lsattr test1.txt 
+--------------e------- test1.txt
+linuxuser@ubuntu22:~/linux-playg
+```
+
+### chattr
+
+Modifies attributes assigned to a file or directory, which define actions that the filestysm can allow or block on the file directory:
+
+
+To assign an attribute:
+- To add, precede with `+`
+- To remove, precede with `-`
+
+```bash
+# mode is the attribute you modify
+chattr [ mode ] files...
+a # only open in append mode when writing
+A # access time for file is not modified when file is opened
+c # automatically compress file on disk
+C # not automatically copied on write for journaling filesystems
+d # do not backup with dump program
+D # write synchronously to disk without caching
+e # system uses extents for mapping blocks on disk
+E # file is encrypted
+F # all path lookups in the directory are case-sensitive
+i # file cannot be modified or deleted
+I # index dir using hash tree
+j # if fs uses journaling, data written to file is written to journal before file
+N # file contains data stored in inode table
+P # for dirs, files in dir inherit project ID of the dir
+s # if file is deleted, blocks are zeroed and written back to disk
+S # file changes are written synchronously to disk and not stored in a buffer
+t # if file contains partial block fragment at the end, it is not merged w other files
+T # dir is deemed (?) topo of a dir hierarchy for storage purposes
+U # save file contents when deleted so you can use undelete feature
+V # apply file auth to file
+
+# view attributes
+lsattr test1.txt 
+--------------e------- test1.txt
+linuxuser@ubuntu22:~/linux-playg
+
+# assign attribute
+sudo chattr +i test1.txt 
+lsattr test1.txt 
+----i---------e------- test1.txt
+
+# remove attribute
+sudo chattr -i test1.txt 
+lsattr test1.txt 
+--------------e------- test1.txt
+```
+
+
+### Create shared directory
+
+```bash
+# add user
+sudo useradd -m test1
+# set user passwd
+sudo passwd test1
+
+# add user
+sudo useradd -m test2
+# set user passwd
+sudo passwd test2 
+
+# create group 
+sudo groupadd sales
+# add user to group
+sudo usermod -G sales test1
+# add user to group
+sudo usermod -G sales test2
+# verify group assignments
+cat /etc/group | grep sales
+sales:x:1005:test1,test2
+
+# create shared dir
+sudo mkdir sales
+# change default group for shared dir
+sudo chgrp sales sales/
+# grant write privs to sales group
+sudo chmod g+w sales/
+# set GUID bit for shared dir (all files created in dir are assigned to sales group)
+sudo chmod g+s sales/
+```

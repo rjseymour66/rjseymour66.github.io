@@ -432,3 +432,19 @@ sudo aa-enforce /usr/bin/tcpdump
 
 
 ### Escalating privileges
+
+Users and groups with supperuser privileges are stored in `/etc/sudoers`. Common groups with these privilegs:
+- Debian: `sudo` group
+- RHEL: `wheel` group (short for big wheel)
+
+**su** (_substitute user_)
+: Lets standard user account run commands as another user account, including root. Requires passwd for other account.
+
+**sudo** (_substitute user do_)
+: Lets standard user account run commands as another user account, including root. Requires passwd for own user account.
+
+**sudoedit**
+: Lets standard user account open a file in a text editor with privileges of another user, including root. Requires passwd for own user account.
+
+
+## Restrict users and files

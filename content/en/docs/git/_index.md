@@ -682,3 +682,197 @@ $ git push origin master
 ```
 
 ## Tagging
+
+Mark a specific point in a repo's history as signficant, such as a release point (v1.0). git has `lightweight` and `annotated` tags:
+
+```bash
+# list all tags
+$ git tag
+$ git tag -l
+$ git tag --list
+```
+
+### Lightweight tags 
+
+Like a branch that doesn't change, a pointer to a specific commit. It is a commit checksum that is stored in a file:
+
+```bash
+# create lightweight tag (no flags)
+$ git tag v1.4-lw
+
+# view tags
+$ git tag
+v1.4
+v1.4-lw
+
+# git show <tag> just shows the commit
+$ git show v1.4-lw
+commit 3ecedf1e2e6554581fc298926090a10b1e89bfcd (HEAD -> master, tag: v1.4-lw, tag: v1.4)
+Author: rseymour <rseymour@opentext.com>
+Date:   Fri Apr 12 08:56:35 2024 -0400
+
+    add to commit
+
+...
+```
+
+### Annotated tags 
+
+Stored as a full object in the git database:
+- Checksummed
+- tagger name, email, and date 
+- tagging message 
+- signed and verified with GNU Privacy Guard (GPG)
+
+
+```bash 
+# create annotated tag
+$ git tag -a v1.4 -m 'my version 1.4'
+
+# view tag
+$ git show v1.4
+tag v1.4
+Tagger: rseymour <rseymour@opentext.com>
+Date:   Mon Apr 15 09:30:00 2024 -0400
+
+my version 1.4
+
+commit 3ecedf1e2e6554581fc298926090a10b1e89bfcd (HEAD -> master, tag: v1.4)
+Author: rseymour <rseymour@opentext.com>
+Date:   Fri Apr 12 08:56:35 2024 -0400
+
+    add to commit
+...
+```
+
+### Tagging later 
+
+Add a tag to an older commit:
+
+```bash 
+# get checksum
+$ git tag -a v1.2 ff612a9 -m 'tag older commit'
+
+# view tags
+$ git tag
+v1.2
+v1.4
+v1.4-lw
+
+# view commit
+$ git show v1.2
+tag v1.2
+Tagger: rseymour <rseymour@opentext.com>
+Date:   Mon Apr 15 09:36:55 2024 -0400
+
+tag older commit
+
+commit ff612a95b393dc8b8f36ada8394d16b265c31611 (tag: v1.2)
+Author: rseymour <rseymour@opentext.com>
+Date:   Thu Apr 11 09:09:41 2024 -0400
+
+    rm rmfile
+
+diff --git a/rmfile b/rmfile
+deleted file mode 100644
+index e69de29..0000000
+```
+
+### Push tags to remote
+
+You have to explicitly push tags:
+
+```bash 
+# push single tag
+$ git push origin <tagname>
+
+# push all tags (lightweight and annotated)
+$ git push origin --tags
+
+# push only annotated tags
+git push <remote> --follow-tags
+```
+
+### Deleting tags 
+
+```bash 
+$ git tag -d <tagname>
+
+$ git tag
+v1.2
+v1.4
+v1.4-lw
+
+# delete tag
+$ git tag -d v1.4-lw
+Deleted tag 'v1.4-lw' (was 3ecedf1)
+
+# verify
+$ git tag
+v1.2
+v1.4
+
+# delete tag in remote
+$ git push origin --delete <tagname>
+```
+
+### Checkout tags 
+
+You can checkout versions of files that the tag points to. This puts your repo in 'detached HEAD' state:
+
+```bash 
+$ git checkout v1.0.2.1
+Note: switching to 'v1.0.2.1'.
+
+You are in 'detached HEAD' state. You can look around, make experimental
+changes and commit them, and you can discard any commits you make in this
+state without impacting any branches by switching back to a branch.
+
+If you want to create a new branch to retain commits you create, you may
+do so (now or later) by using -c with the switch command. Example:
+
+  git switch -c <new-branch-name>
+
+Or undo this operation with:
+
+  git switch -
+
+Turn off this advice by setting config variable advice.detachedHead to false
+
+HEAD is now at 871eb64 Bumped version to 1.0.2.1
+```
+
+This means that if you create a commit, the tag stays the same, but the new commit won't belong to a branch and will be unreachable, except by the exact commit hash. If you're fixing a bug on an older version, you probably need to create a branch.
+
+
+## git aliases
+
+You can add aliases to often-used git commands. Similar to bash aliases:
+
+```bash 
+git config --global alias.<alias> <command>
+
+# $ git config --global alias.co checkout
+$ git config --global alias.br branch
+$ git config --global alias.ci commit
+$ git config --global alias.st status
+
+# alias for last commit
+$ git config --global alias.last 'log -1 HEAD'
+
+# alias
+$ git last
+commit 871eb64b61414d9633b8056ddb3d66e77609f8a6 (HEAD, tag: v1.0.2.1)
+Author: Jeff Welling <jeff.welling@gmail.com>
+Date:   Sun Apr 3 16:50:10 2011 -0400
+
+    Bumped version to 1.0.2.1
+
+# original
+$ git log -1 HEAD
+commit 871eb64b61414d9633b8056ddb3d66e77609f8a6 (HEAD, tag: v1.0.2.1)
+Author: Jeff Welling <jeff.welling@gmail.com>
+Date:   Sun Apr 3 16:50:10 2011 -0400
+
+    Bumped version to 1.0.2.1
+```

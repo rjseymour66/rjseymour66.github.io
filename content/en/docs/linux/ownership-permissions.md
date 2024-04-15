@@ -518,19 +518,20 @@ lsattr test1.txt
 ### Create shared directory
 
 ```bash
-# add user
+# 1. add user
 sudo useradd -m test1
 # set user passwd
 sudo passwd test1
 
-# add user
+# 2. add user
 sudo useradd -m test2
 # set user passwd
 sudo passwd test2 
 
-# create group 
+# 3. create group 
 sudo groupadd sales
-# add user to group
+
+# 4. add user to group
 sudo usermod -G sales test1
 # add user to group
 sudo usermod -G sales test2
@@ -538,7 +539,7 @@ sudo usermod -G sales test2
 cat /etc/group | grep sales
 sales:x:1005:test1,test2
 
-# create shared dir
+# 5. create shared dir
 sudo mkdir sales
 # change default group for shared dir
 sudo chgrp sales sales/

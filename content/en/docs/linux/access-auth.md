@@ -1,5 +1,5 @@
 ---
-title: "Access and authorization methods"
+title: "Access and authorization"
 weight: 150
 ---
 

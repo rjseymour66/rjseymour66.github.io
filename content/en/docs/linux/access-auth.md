@@ -187,3 +187,17 @@ ssh-copy-id -n -p 2223 username@localhost
 You must use a passphrase on the keys.
 
 > Example in the book wasn't great, need a better tutorial or just authenticate with keys.
+
+
+## VPN
+
+A Virtual Private Network (VPN) establishes a secure encrypted connection between two systems on separate networks with a public network in between.
+- OpenVPN is a popular OSS package
+- Don't implement a VPN client that uses the PPTP protocol
+
+Data packet transportation methods:
+- UDP-based systems have better performance than TCP-based systems
+  - SSL/TLS: provides secure data encryption over a network between systems
+  - TLS (Transport Layer Security): Symmetric encryption, prevents on path attacks and replay attacks
+  - DTLS: Datagram TLS, uses UDP packets (faster than TCP) so sometimes called UDP TLS.
+  - IPSec: Internet Protocol Security (IPSec) is a framework that operates at the network level. Has two modes; tunnel and transport

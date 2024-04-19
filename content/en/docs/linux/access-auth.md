@@ -127,3 +127,63 @@ rsync <filename> username@hostname:~/path/to/destination
 ```
 
 ### Configuring SSH
+
+SSH uses the following config files:
+- `~/.ssh/config`: Individual user overrides. OpenSSH client config options. Can override with `ssh` command-line options.
+- `/etc/ssh/ssh_config`: System overrides (all users). OpenSSH client config options. Can override with `ssh` command-line options or `~/.ssh/config`
+- `/etc/ssh/sshd_config`: System overrides (all users). OpenSSH daemon config options.
+  
+Common directives:
+- `AllowTcpForwarding`
+- `ForwardX11`
+- `PermitRootLogin`
+- `Port`
+
+```bash
+# remote SSH is listening on 1138
+ssh -p 1138 10.20.30.40
+```
+
+### Generating SSH keys
+
+Keys use format ssh_host_KeyType_key, where KeyType is the digital signature algorithm used to create the keys.
+- Private keys should have `0640` or `0600` perms
+- Public keys should be world-readable
+- Keys that identify the server and their configuration files are in `/etc/ssh`
+
+```bash
+# generate keys
+# -t is the KeyType
+# -f names the private key file (public key is same with '.pub' extension)
+ssh-keygen -t rsa -f /etc/ssh/ssh_host_rsa_key
+
+# ssh keys are stored in /etc/ssh
+ls -log /etc/ssh/*key*
+-rw------- 1  505 Apr 18 22:00 /etc/ssh/ssh_host_ecdsa_key
+-rw-r--r-- 1  175 Apr 18 22:00 /etc/ssh/ssh_host_ecdsa_key.pub
+-rw------- 1  399 Apr 18 22:00 /etc/ssh/ssh_host_ed25519_key
+-rw-r--r-- 1   95 Apr 18 22:00 /etc/ssh/ssh_host_ed25519_key.pub
+-rw------- 1 2602 Apr 18 22:00 /etc/ssh/ssh_host_rsa_key
+-rw-r--r-- 1  567 Apr 18 22:00 /etc/ssh/ssh_host_rsa_key.pub
+```
+
+### Authenticating with SSH keys
+
+You don't have to use your password each time you authenticate to a remote system--you can use your SSH keys:
+
+```bash
+# 1. If you don't already have SSH keys on the client, generate them:
+ssh-keygen -t rsa -f /.ssh/id_rsa
+
+# 2. Copy client public key to ~/.ssh/authorized_keys
+ssh-copy-id -p 2223 username@localhost
+
+# dry run w -n option
+ssh-copy-id -n -p 2223 username@localhost
+```
+
+### Authenticating with the authentication agent
+
+You must use a passphrase on the keys.
+
+> Example in the book wasn't great, need a better tutorial or just authenticate with keys.

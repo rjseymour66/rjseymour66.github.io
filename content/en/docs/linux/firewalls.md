@@ -201,3 +201,78 @@ sudo firewall-cmd --panic-off
 
 ## iptables
 
+The `iptables` firewall uses a series process called _chains_ that determines the path each packet takes as it enters the system and gets to the correct application. It also handles the path as the application sends data outside the system.
+
+RHEL `iptables` are stored at these locations:
+- `/etc/sysconfig/iptables`
+- `/etc/sysconfig/ip6tables`
+
+Debian `iptables` are stored at these locations:
+- `/etc/iptables/rules.v4`
+- `/etc/iptables/rules.v6`
+
+`iptables` rules are not persistent, you must run the `iptables-save` command. To revert, use `iptables-restore`.
+
+| Chain  | Description |
+|--------|--|
+| `PREROUTING`  | Handles packets before routing process |
+| `INPUT`       | Handles packets going to local system |
+| `FORWARD`     | Handles packets forwarded to remote system |
+| `POSTROUTING` | Handles packets being sent to remote system, after the forward filter |
+| `OUTPUT`      | Handles packets from local system |
+
+Each chain contains tables that defines rules for packet handling:
+
+| Table    | Description |
+|----------|--|
+| `filter`   | applies rules to allow or block packets from exiting the chain |
+| `mangle`   | applies rules to change packet features before exiting the chain |
+| `nat`      | applies rules to change packet address exiting the chain |
+| `raw`      | applies a `NOTRACK` setting on packets that should not be tracked |
+| `security` | applies mandatory access rules |
+
+Each chain has a policy value that defines how a packet is handled by default, when no rules apply to the packet:
+- `ACCEPT`: Pass packet to next chain
+- `DROP`: Don't pass the packet to the next chain
+
+### iptables
+
+View and alter chains in `iptables`:
+
+```bash
+iptables [OPTION]
+-L [chain] # list rules for the chain, all rules if no chain
+-S [chain] # list rules details for the chain, all rules details if no chain
+[-t table] # apply command to table. If no table, applied to filter table
+-A chain rule #  add this new rule to this chain
+-I chain index rule # insert this new rule to this chain at this index location
+-D chain rule # delete this rule from this chain
+-R chain index rule # remove this rule from this chain at this index location
+-F [chain] # remove (flush) all rules from this chain
+-P chain policy # sets as default this policy for this chain
+
+# common options
+-d address # apply rule to packets w dest address  
+-s address # apply rule to packets w source address
+-i name # apply rule to packets coming through name network interface
+-o name # apply rule to packets going out through name network interface
+-p protocol # apply rule to packets using this protocol
+-j target   # apply the target action to the selected packets
+            # target values:
+            # ACCEPT
+            # DROP
+            # REJECT
+# list all rules
+iptables -L
+Chain INPUT (policy ACCEPT)
+target     prot opt source               destination         
+
+Chain FORWARD (policy ACCEPT)
+target     prot opt source               destination         
+
+Chain OUTPUT (policy ACCEPT)
+target     prot opt source               destination 
+```
+
+
+## nftables

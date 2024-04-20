@@ -168,7 +168,7 @@ firewall-cmd --get-default-zone
 public
 
 # set default zone
-sudo firewall-cmd --set-default-zone=home
+firewall-cmd --set-default-zone=home
 success
 firewall-cmd --get-default-zone
 home
@@ -185,17 +185,17 @@ RH-Satellite-6 RH-Satellite-6-capsule amanda-client amanda-k5-client amqp amqps 
 ...
 
 # get services by zone
-sudo firewall-cmd --list-services --zone=dmz
+firewall-cmd --list-services --zone=dmz
 ssh
 
 # assign service to zone
-sudo firewall-cmd --add-service=<service> --zone=<zone>
+firewall-cmd --add-service=<service> --zone=<zone>
 
 # disable all network traffic
-sudo firewall-cmd --panic-on
+firewall-cmd --panic-on
 
 # re-enable all network traffic
-sudo firewall-cmd --panic-off
+firewall-cmd --panic-off
 ```
 
 
@@ -276,3 +276,206 @@ target     prot opt source               destination
 
 
 ## nftables
+
+`nftables` syntax is less complicated than `iptables` but uses the same concepts, such as tables, chains, policies, and rules.
+
+> This is all unnecessarily complicated, so I will learn it if I ever have the need. Prefer `firewalld` for Red Hat-based distros.
+
+```bash
+# list nft tables
+nft list tables
+table ip filter
+table ip6 filter
+table bridge filter
+table ip security
+table ip raw
+table ip mangle
+table ip nat
+table ip6 security
+table ip6 raw
+table ip6 mangle
+table ip6 nat
+table bridge nat
+table inet firewalld
+table ip firewalld
+table ip6 firewalld
+
+# add new table
+nft add table ip rocky
+
+# view table
+nft list table ip rocky
+table ip rocky {
+}
+
+# create a chain that contains the rules for firewall definition
+nft 'add chain ip rocky test { type filter hook input priority 0; policy drop; }'
+```
+
+## UFW
+
+- Default firewall service for Ubuntu.
+- Cannot run with `firewalld` or `iptables`
+- If you specify a service name, `ufw` checks the `/etc/services` file for the port and other protocol information
+- Default rules are stored in `/etc/ufw/`
+- User-added rules are stored in `/etc/ufw/user.rules`
+
+You do not control `ufw` with `systemd`, you use the `ufw` command:
+
+```bash
+# start and set to start at boot
+ufw enable
+
+# stop and disable at boot
+ufw disable
+
+# disable and reset to system default
+ufw reset
+
+# reload service (not necessary, changes automatically take effect)
+ufw reload
+
+# get current state
+ufw status [verbose]
+
+# verbose status to figure out configuration
+ufw status verbose
+Status: active      # active or disabled, both on boot
+Logging: on (low)   # off, low, medium, high, full. low is default
+Default: deny (incoming), allow (outgoing), disabled (routed)   # default policies for packets
+New profiles: skip  # accept, drop, reject, or skip. default policy for automatically loading new profiles.
+
+To                         Action      From
+--                         ------      ----
+22/tcp                     ALLOW IN    Anywhere                  
+22/tcp (OpenSSH)           ALLOW IN    Anywhere                  
+22/tcp (v6)                ALLOW IN    Anywhere (v6)             
+22/tcp (OpenSSH (v6))      ALLOW IN    Anywhere (v6)
+
+# default policy location
+cat /etc/default/ufw 
+# /etc/default/ufw
+#
+
+# Set to yes to apply rules to support IPv6 (no means only IPv6 on loopback
+# accepted). You will need to 'disable' and then 'enable' the firewall for
+# the changes to take affect.
+IPV6=yes
+
+# Set the default input policy to ACCEPT, DROP, or REJECT. Please note that if
+# you change this you will most likely want to adjust your rules.
+DEFAULT_INPUT_POLICY="DROP"
+...
+```
+
+### Common arguments
+
+- allow _Identifiers_
+- deny _Identifiers_
+- reject _Identifiers_
+- delete _RULE_ | _NUM_
+- insert _NUM RULE_
+- default _POLICY DIRECTION_
+- logging _LEVEL_
+
+### Simple syntax
+
+Designate the rule using only the port number or service name:
+
+```bash
+# add ACL rule
+ufw allow 22/tcp
+
+# check status
+ufw status
+```
+
+### Full syntax
+
+Full syntax gives you more options:
+
+| Setting | Description |
+|---------|-------------|
+| comment "<string>" | Displays <string> for rejected traffic |
+| in | Applies to incoming only |
+| out | Applies to outgoing only |
+| proto _protocol_ | Applies to _protocol_ |
+| port _port#_ | Applies to _port#_ |
+| from _source_ | Applies rule to traffic from _source_ |
+| on _interface_ | Applies rule to traffic on this network _interface_ |
+| to _destination_ | Applies rule to traffic going to _destination_ |
+
+```bash
+
+ufw deny from 192.168.0.0/24 to any port 80
+
+
+ufw show added
+
+# deny packets access to port 80 from this class C subnet
+sudo ufw deny from 192.168.0.0/24 to any port 80
+Rule added
+
+# confirm  
+sudo ufw show added
+Added user rules (see 'ufw status' for running firewall):
+ufw allow 22/tcp
+ufw allow OpenSSH
+ufw deny from 192.168.0.0/24 to any port 80
+
+# view rules
+ls /etc/ufw/
+after6.rules  after.rules     before6.rules  before.rules  ufw.conf     user.rules
+after.init    applications.d  before.init    sysctl.conf   user6.rules
+
+# get rule number (to delete rule)
+ufw status numbered
+Status: active
+
+     To                         Action      From
+     --                         ------      ----
+[ 1] 22/tcp                     ALLOW IN    Anywhere                  
+[ 2] OpenSSH                    ALLOW IN    Anywhere                  
+[ 3] 80                         DENY IN     192.168.0.0/24            
+[ 4] 22/tcp (v6)                ALLOW IN    Anywhere (v6)             
+[ 5] OpenSSH (v6)               ALLOW IN    Anywhere (v6)             
+
+# delete the rule by number
+ufw delete 3
+Deleting:
+ deny from 192.168.0.0/24 to any port 80
+Proceed with operation (y|n)? y
+Rule deleted
+```
+
+### Application profiles
+
+`ufw` stores application information in `/etc/ufw/applications.d`
+- Do not modify profiles in `/etc/ufw/applications.d`, create a new `/etc/ufw/custom.d` to prevent ufw from missing package updates
+
+```bash
+# view profile for apps or daemons
+ls -1 /etc/ufw/applications.d/
+cups
+openssh-server
+
+# view profile for apps or daemons with ufw
+ufw app list
+Available applications:
+  CUPS
+  OpenSSH
+
+# get application details
+ufw app info OpenSSH
+Profile: OpenSSH
+Title: Secure shell server, an rshd replacement
+Description: OpenSSH is a free implementation of the Secure Shell protocol.
+
+Port:
+  22/tcp
+
+# add new or update existing profile
+ufw app update all
+Rules updated for profile 'OpenSSH'
+Skipped reloading firewall
+```

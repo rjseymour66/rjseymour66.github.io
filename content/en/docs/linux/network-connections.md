@@ -402,4 +402,57 @@ Timeouts are preset time periods for handling issues/unplanned events. Common re
 - A firewall is blocking the traffic
 - Network traffic is congested which causes packet loss
 
-### Resolving the Names
+### Name resolution
+
+Translating a systems fully qualified domain name (FQDN) and its IP address is called _name resolution_.
+- Domain Name System (DNS) is a network protocol that uses a distributed database to provide the needed name resolutions
+- Client-side DNS is when a system asks another server for name resolution information
+  - configure client-side DNS with `/etc/resolv.conf` and `/etc/hosts`
+
+Things to consider with name resolution:
+- **Name server location**: If the client-side DNS name server that you set in `/etc/resolv.conf` is physically far away, your system will resolve names slowly
+- **Caching**: A caching-only name server holds recent name resolutions in memory. Consider using software like `dnsmasq` to improve resolution speeds with caching.
+- **Secondary server**: For enterprise-level DNS, consider a secondary server that receives its info from the first DNS server. This can increase name resolution speeds by offloading the burden from the first server.
+
+### Configuration troubleshooting
+
+#### Interface configurations
+
+- NIC config and status is important
+- Does the NIC have a static or DHCP-provided IP address?
+- For `firewalld` systems, NetworkManager automatically adds a new device to the `default` zone
+
+#### Ports and sockets
+
+port
+: A number used by protocols (ex: TCP or UDP) to identify which service or application is transmitting data.
+
+socket
+: A program connection to a port is a _socket_. A _network socket_ is one of the endpoints in the network connections two endpoints. The single endpoint is on the local system and bound to a port, so the network socket uses both an IP address (local system) and a port number
+
+#### Localhost vs Unix socket
+
+localhost
+: Hostname for _local loopback interface_. Allows programs on current system to test or implement networking services with TCP.
+  - IPv4 address 127.0.0.1
+  - IPv6 address of ::1
+
+unix socket
+: Also called Unix domain socket. Similar to network socket, but the unix socket connects two endpoints on the same system.
+  - Perform interprocess communications (IPC), which is similar to TCP/IP
+  - Also called IPC sockets
+  - Better performance than localhost because localhost uses standard network behavior that consume resources, like handshaking
+  - Unix sockets and socket files understand linux permissions, so you can use access control
+
+#### Adapters
+
+Network adapters are system hardwaree that allows network communications
+- Wired or wireless
+- Not typically used in enterprise envs
+- Commonly have faulty or failing hardware, or inefficient drivers
+
+#### RDMA
+
+Remote Direct Memory Access allows direct access between a client's and server's memory.
+- Greatly reduces latency.
+- Requires special hardware, such as soft-RoCE (RDMA over Converged Ethernet)

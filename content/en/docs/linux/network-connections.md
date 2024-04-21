@@ -342,3 +342,64 @@ Legacy tool, captures network data on the system and can do rudimentary packet d
 ### wireshark and tshark
 
 Wireshark is the GUI version of tshark, which performs advanced network packet analysis.
+
+## Exploring network issues
+
+When you run into issues, develop a troubleshooting plan:
+1. Identify symptoms
+2. Review recent network config changes
+3. Formulate potential problem cause theories
+4. Work your way up the OSI model:
+   - Physical
+   - Data link
+   - Network
+   - Transport
+   - Session
+   - Presentation
+   - Application
+
+### Terms
+
+Bandwidth
+: Measurement of the maximum data amount that can be transferred between two network points over a period of time, usually bytes per second (bps)
+
+Throughput
+: Measurement of the actual data amount that is transferred between two network points over a period of time. Bandwidth is the _maximum_ rate, while throughput is the _actual_ rate.
+  
+  As an analogy, a road might be able to handle traffic at 65 mph (bandwidth), but bad potholes slow traffic to 55 mph (throughput).
+
+Saturation
+: Also called _bandwidth saturation_ or _congestion_. When network traffic exceeds capacity.
+
+  As an analogy, its when too many cars are on the roadway and traffic slows down.
+
+Latency
+: Time between a source sending a packet and the packet's destination receiving it. High latency is slow (an issue), and low latency is fast (desired).
+
+  _Jitter_ describes when there is high deviation from a network's average latency. Often, high latency is caused by low bandwidth or saturation.
+
+Routing
+: Routers connect network segments and forward IP packets to the appropriate network segment, and eventually their final destination.
+  
+  A router has a buffer that holds network packets when the outbound queues become too long. If the network is saturated for too long, the router might drop the packets instead of delivering them. If the buffer is too large, that can cause buffer bloat, which is an increase in network latency in congested segments due to packets staying too long in the router's buffer.
+
+### Timeouts and losses
+
+Packet drop/packet loss is when a packet fails to reach its final destination. Common causes:
+- unreliable network cables
+- failing adapters
+- network traffic congestion
+- underperforming devices
+
+UDP does not guarantee packet delivery. That's why there can be choppiness during a VoIP call.
+TCP guarantees packet delivery, so drops/losses cause network delays. TCP retransmits packets, which can worsen congestion.
+- Denial of service (DoS) attacks can target routers and cause them to drop packets.
+
+Timeouts are preset time periods for handling issues/unplanned events. Common reasons:
+- A system is down
+- Incorrect IP address was used
+- Service is not running or not offered on the system
+- A firewall is blocking the traffic
+- Network traffic is congested which causes packet loss
+
+### Resolving the Names

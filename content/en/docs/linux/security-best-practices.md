@@ -139,4 +139,122 @@ cat /etc/ssh/sshd_config
 ## System security
 
 
+### Separation of data
+
+- By default, Linux creates a single partition for the root of the virtual directory.
+- This might be an issue if users overuse storage. The system halts if there is no available disk space.
+- In multiuser enviornment, you should separate system and user storage:
+  - Create two partitions on disk, and assign one to root (`/`) and the other to home (`username/home`)
+
+### Data encryption
+
+Encrypting files is tedious because you have to encrypt and decrypt each time you want to read the file data. You can encrypt an entire partition:
+- Encrypt every file on the partition at the kernel level
+- Automatically encrypts and decrypts as you read or write to the disk
+- _Linux Unified Key Setup_ (LUKS) is the app that lets you interact with an encrypted partition, and uses these two components:
+  - `dm-crypt`: plugs into kernel and provides interface between virtual mapped drive and actual physical disk
+  - `cryptmount`: creates virtual mapped drive and interfaces it w the physical drive to ensure all data passed to virtual drive is encrypted before it is written to disk
+
+### chroot jail to restrict apps
+
+In a multiuser environment, there might be collisions between applications. You can prevent this with a _chroot jail_.
+- `chroot` runs a command in a new root directory structure within the virtual filesystem
+- All disk access is restricted to this new root dir
+- Apps in chroot jail are unaware of the real directory structure, so you must copy any utilities or libraries into the new root dir
+
+```bash
+# starting-dir: location to start new dir
+# command: command to run within new dir structure
+chroot <starting-dir> <command>
+```
+
+### Unauthorized reboots
+
+If your Linux server is publically accessible, you need to make sure unauthorized users can't reboot the server and take control.
+
+#### BIOS/UEFI
+
+Add password to either BIOS or UEFI.
+
+#### GRUB bootloader
+
+Add password on the GRUB bootloader. GRUB files are plaintext, so encrypt it before you store it in a config file:
+
+```bash
+# Debian systems
+# 1. Generate the password
+grub-mkpasswd-pbkdf2
+
+# 2. Add the following to /etc/grub.d/40_custom
+# userid: acct you use to log into GRUB
+# password: value provided in step 1
+set superuser "<userid>"
+password_pbkdf2 <userid> <password>
+
+# RHEL systems
+# 1. Generate the password
+grub-md5-crypt
+
+# 2. Add the following to /etc/grub.d/40_custom
+password -md5 <password>
+```
+
+#### Disable CTRL + ALT + DEL
+
+Disable on `systemd` distros:
+
+```bash
+systemctl mask ctrl-alt-del.target
+```
+
+### Unapproved jobs
+
+Users can schedule jobs with `at` and `cron`, which use the following allow and deny lists:
+- `/etc/at.allow`
+- `/etc/at.deny`
+- `/etc/cron.allow`
+- `/etc/cron.allow`
+
+Workflow:
+- If user is not found in `*.allow` file, system checks `*.deny` file.
+- If user is not found in `*.deny` file, system lets the user create job.
+
+### Banners and messages
+
+Present canned information to users after they log in to system, usually located in these files:
+- `/etc/login.warn`: Displayed before login prompt at console. Usually for legal disclaimers and warnings to potential attackers.
+- `/etc/motd`: Message of the Day. Displays info like hardware failures or upcoming scheduled maintenance.
+
+
+### USB devices
+
+Use `modprobe`:
+- When a device is inserted, the kernel looks for a module to support the device.
+- If there isn't one, it calls `modprobe` to load the kernel module that can support the device.
+  1. Edit `/etc/modprobe.d/blacklist.conf` config files to block the modules required to interface with USB devices
+  2. Then, save and reboot
+
+
+```bash
+# view file
+cat /etc/modprobe.d/blacklist.conf 
+# This file lists those modules which we don't want to be loaded by
+# alias expansion, usually so some other driver will be loaded for the
+# device instead.
+
+# evbug is a debug tool that should be loaded explicitly
+blacklist evbug
+...
+
+# block USB modules
+blacklist uas
+blacklist usb:storage
+```
+
+### Auditing
+
+The `auditd` package provides logging features not available with just `rsyslog`. Define rules with:
+- `/etc/audit/audit.rules` file for persistent rules
+- `auditctl` utility only valid until there is a reboot
+
 ## Network security

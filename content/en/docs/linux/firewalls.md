@@ -479,3 +479,44 @@ ufw app update all
 Rules updated for profile 'OpenSSH'
 Skipped reloading firewall
 ```
+
+## Forwarding IP packets
+
+You can forward IP packets from one network interface to the other by setting a few values in the kernel, and then using routing tables to determine which network interface to forward to:
+
+```bash
+# set kernel properties
+sysctl -w net.ipv4.ip_forward=1
+sysctl -w net.ipv6.conf.all.forwarding=1
+
+# verify changes
+cat /proc/sys/net/ipv4/ip_forward
+0
+cat /proc/sys/net/ipv6/conf/all/forwarding 
+0
+
+# check routing table
+ip route list
+default via 10.0.2.2 dev enp0s3 proto dhcp metric 100 
+10.0.2.0/24 dev enp0s3 proto kernel scope link src 10.0.2.15 metric 100 
+169.254.0.0/16 dev enp0s3 scope link metric 1000 
+```
+
+## Dynamically setting rules
+
+Intrusion detection systems (IDSs) are software monitors the network and applications running on the system. Some let you dynamically change rules so that these attacks are blocked.
+
+### DenyHosts
+
+> Some distro repos claim this tool is no longer being developed, so install with caution.
+
+A Python script that helps protect against brute-force attacks coming through OpenSSH. Configure as a service or cron job.
+
+### Fail2Ban
+
+Monitors system logs, looking for repeated failures from the same host.
+
+### IPset
+
+Lets you create a named set of IP addresses, network interfaces, ports, MAC addresses, or subnets. You can manage the groupings through your firewall or any app that supports IPset.
+

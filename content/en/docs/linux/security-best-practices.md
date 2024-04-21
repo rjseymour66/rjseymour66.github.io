@@ -155,6 +155,7 @@ Encrypting files is tedious because you have to encrypt and decrypt each time yo
   - `dm-crypt`: plugs into kernel and provides interface between virtual mapped drive and actual physical disk
   - `cryptmount`: creates virtual mapped drive and interfaces it w the physical drive to ensure all data passed to virtual drive is encrypted before it is written to disk
 
+
 ### chroot jail to restrict apps
 
 In a multiuser environment, there might be collisions between applications. You can prevent this with a _chroot jail_.
@@ -258,3 +259,40 @@ The `auditd` package provides logging features not available with just `rsyslog`
 - `auditctl` utility only valid until there is a reboot
 
 ## Network security
+
+### Deny hosts
+
+- `/etc/hosts.deny`: Create a list of hosts that you want to deny access to your system 
+  - TCP Wrappers program reads this file and blocks the hosts
+  - accepts host name or IP address
+- `/etc/hosts.allow`: Create list of hosts that can access your system
+  - More extreme than `*.deny` list
+- If both `*.deny` and `*.allow` lists are empty, then system lets every host access
+
+### Unused services
+
+You might not use some of the legacy Linux services that are still included in distros. Examples include the following:
+- FTP, file transfer protocol.
+  Ports 21 and 22
+- Telnet, uses plaintext.
+  Port 23
+- Finger, remote lookup services to find users.
+  Port 79.
+- Mail services, good practice to uninstall if the system does not send or receive email. Common apps are sendmail and Postfix.
+  Port 25.
+
+### Default ports
+
+A port is a unique number assigned to an application so that when a remote client communicates with the server, the server knows which application to send the connection to.
+- Might want to move apps that use well-known ports to private ports, but hackers use port scanners.
+
+Most popular network application ports are listed in `/etc/services`. You can change the port here and restart the application.
+
+_Well-known ports_ (0 - 1023)
+: Formerly assigned by the Internet Assigned Numbers Authority (IANA).
+
+_Registered ports_ (1024 - 49151)
+: Registered with IANA but not formerly assigned
+
+_Private ports_ (> 49151)
+: Used by anny application

@@ -1,4 +1,5 @@
 ---
-title: "Analyzing system properties and remediation"
+title: "System property troubleshooting"
+linkTitle: "Analyzing system properties and remediation"
 weight: 190
 ---

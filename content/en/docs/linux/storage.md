@@ -718,5 +718,190 @@ sudo mount -t ext4 /dev/sda1 mediatest1/
 
 # 13. Unmount the USB stick
 sudo umount /dev/sda1
-
 ```
+
+## Troubleshooting
+
+### Filesystem space
+
+You need filesystem space. If you run out, add more with LVM.
+
+This section uses these commands:
+- `df` displays overall space usage
+- `du` displays usage by directory
+
+```bash
+# view ext4 usage, human-readable
+df -ht ext4
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/nvme0n1p3  463G  256G  184G  59% /
+
+# view disk usage by directory, starting at root
+sudo du -d 1 /
+19804038	/snap
+31676	/root
+...
+2728	/run
+...
+0	/proc
+1034748	/opt
+420	/tmp
+4	/cdrom
+13588708	/usr
+20	/target
+377328	/boot
+60	/dev
+16	/lost+found
+168366840	/home
+0	/sys
+8	/mnt
+4	/srv
+21828	/etc
+17593112	/var
+8	/media
+287930426	/
+
+# drill down into a specific subdir
+sudo du -d 1 /snap
+85815	/snap/snap-store
+742578	/snap/gtk-common-themes
+10178	/snap/gnome-system-monitor
+507308	/snap/core22
+1459713	/snap/firefox
+396587	/snap/cups
+4210	/snap/snapd-desktop-integration
+248417	/snap/ffmpeg
+596618	/snap/core
+4	/snap/bin
+2568216	/snap/gnome-42-2204
+1746599	/snap/gnome-3-34-1804
+428069	/snap/core20
+1847998	/snap/gnome-3-38-2004
+1151578	/snap/gnome-3-26-1604
+6933472	/snap/intellij-idea-ultimate
+729770	/snap/chromium
+5	/snap/bare
+346899	/snap/core18
+19804038	/snap
+```
+
+### I/O wait with iostat
+
+I/O wait is a performance statistic that shows the amount of time a processor must wait on disk I/O:
+
+> `iostat` is available in the `sysstat` package.
+
+```bash
+iostat [OPTION] [INTERVAL] [COUNT]
+-y # exclude 'since system booted' stats
+-N # display registered device mapper names for logical vols
+-z # exclude devices w/no activity
+-p device # 
+
+# by itself, displays summary stats
+iostat
+Linux 5.15.0-105-generic (precision-5540) 	04/22/2024 	_x86_64_	(12 CPU)
+
+avg-cpu:  %user   %nice %system %iowait  %steal   %idle
+           3.02    0.12    1.56    0.03    0.00   95.26
+
+Device             tps    kB_read/s    kB_wrtn/s    kB_dscd/s    kB_read    kB_wrtn    kB_dscd
+loop0             0.00         0.00         0.00         0.00         17          0          0
+...
+
+# view two iostat calls, five seconds apart
+iostat -yNz 5 2
+Linux 5.15.0-105-generic (precision-5540) 	04/22/2024 	_x86_64_	(12 CPU)
+
+
+avg-cpu:  %user   %nice %system %iowait  %steal   %idle
+           0.59    0.05    0.79    0.02    0.00   98.56
+
+Device             tps    kB_read/s    kB_wrtn/s    kB_dscd/s    kB_read    kB_wrtn    kB_dscd
+nvme0n1           5.00         0.00       281.60         0.00          0       1408          0
+
+
+avg-cpu:  %user   %nice %system %iowait  %steal   %idle
+           0.82    0.03    0.69    0.02    0.00   98.44
+
+Device             tps    kB_read/s    kB_wrtn/s    kB_dscd/s    kB_read    kB_wrtn    kB_dscd
+nvme0n1           4.20         0.00        20.00         0.00          0        100          0
+```
+
+## I/O scheduling
+
+For high I/O issues, you need to investigate the kernel's defined I/O scheduling. I/O scheduling is a series of kernel actions that handle I/O requests and their related activities. 
+
+| Scheduler | Description |
+|---|---|
+| `cfq` | Creates queues for each process and handles the various queues in a loop. Prioritizes read requests over write requests. Good for more balance I/O is needed and/or a multiprocessor. |
+| `deadline` | Batches disk I/O requests and attempts to handle each request by a specified time. Good where increased db I/O and overall reduced I/O is needed, and/or SSD is employed, and/or real-time apps are in use. |
+| `noop` | Puts all I/O requests in FIFO queue and handles them in order. Good where less CPU usage is needed and/or SSD is in use. |
+
+The configuration file for the disk scheduler is in a directory associated with the disk:
+
+```bash
+# view disks
+ls /sys/block/
+loop0  loop10  loop12  loop2  loop4  loop6  loop8  sda
+loop1  loop11  loop13  loop3  loop5  loop7  loop9  sr0
+
+# view scheduler file
+cat /sys/block/sda/queue/scheduler 
+none [mq-deadline]
+```
+
+### fio
+
+I/O operations per second (IOPS) is the number of input or output operations that a storage device can perform in a second. Measure this with `fio`:
+
+```bash
+# look for read and write vals and compare to other disks. Writes are always significantly lower than reads.
+\# fio \
+> --randrepeat=1 \
+> --ioengine=libaio \
+> --direct=1 \
+> --gtod_reduce=1 \
+> --name=fiotest \
+> --filename=fiotest \
+> --bs=4k \
+> --iodepth=64 \
+> -size=1G \
+> -readwrite=randrw \
+> -rwmixread=75
+fiotest: (g=0): rw=randrw, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=libaio, iodepth=64
+fio-3.28
+Starting 1 process
+fiotest: Laying out IO file (1 file / 1024MiB)
+Jobs: 1 (f=1): [m(1)][100.0%][r=102MiB/s,w=34.4MiB/s][r=26.1k,w=8803 IOPS][eta 00m:00s]
+fiotest: (groupid=0, jobs=1): err= 0: pid=14101: Mon Apr 22 14:06:40 2024
+  read: IOPS=25.8k, BW=101MiB/s (106MB/s)(768MiB/7616msec)    # important
+   bw (  KiB/s): min=75760, max=118968, per=100.00%, avg=103337.53, stdev=14946.47, samples=15
+   iops        : min=18940, max=29742, avg=25834.20, stdev=3736.69, samples=15
+  write: IOPS=8619, BW=33.7MiB/s (35.3MB/s)(256MiB/7616msec); 0 zone resets     # important
+   bw (  KiB/s): min=25373, max=40440, per=100.00%, avg=34524.20, stdev=4956.99, samples=15
+   iops        : min= 6343, max=10110, avg=8630.87, stdev=1239.25, samples=15
+  cpu          : usr=2.43%, sys=87.50%, ctx=54501, majf=0, minf=8
+  IO depths    : 1=0.1%, 2=0.1%, 4=0.1%, 8=0.1%, 16=0.1%, 32=0.1%, >=64=100.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.1%, >=64=0.0%
+     issued rwts: total=196498,65646,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=64
+
+Run status group 0 (all jobs):
+   READ: bw=101MiB/s (106MB/s), 101MiB/s-101MiB/s (106MB/s-106MB/s), io=768MiB (805MB), run=7616-7616msec
+  WRITE: bw=33.7MiB/s (35.3MB/s), 33.7MiB/s-33.7MiB/s (35.3MB/s-35.3MB/s), io=256MiB (269MB), run=7616-7616msec
+
+Disk stats (read/write):
+  sda: ios=193366/64635, merge=5/16, ticks=67138/8912, in_queue=76056, util=98.89%
+```
+
+### fstrim
+
+`fstrim` recovers memory locations for solid-state devices (SSDs). When you delete data on an SSD, the system needs to recover these locations that are now empty because they can slow down the read and write access to the SSD device.
+
+### Failing disk
+
+If a chunk of HDD or SSD does not respond to I/O requests, then it is marked as a bad sector, and the firmware will move any data from it to a new location. If you see bad sectors, replace the disk.
+
+Unmount the disk, then use `fsck` to check and repair the disk.

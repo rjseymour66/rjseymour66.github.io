@@ -26,7 +26,6 @@ cat /etc/resolv.conf
 nameserver 127.0.0.53       # DNS server assigned to your network
 options edns0 trust-ad      # 
 search hsd1.ma.comcast.net  # additional domains used to search for hostnames
-
 ```
 
 ## Network manager CLI
@@ -339,10 +338,6 @@ ss -anpt
 
 Legacy tool, captures network data on the system and can do rudimentary packet decoding, packet filtering.
 
-### wireshark and tshark
-
-Wireshark is the GUI version of tshark, which performs advanced network packet analysis.
-
 ## Exploring network issues
 
 When you run into issues, develop a troubleshooting plan:
@@ -456,3 +451,226 @@ Network adapters are system hardwaree that allows network communications
 Remote Direct Memory Access allows direct access between a client's and server's memory.
 - Greatly reduces latency.
 - Requires special hardware, such as soft-RoCE (RDMA over Converged Ethernet)
+
+## Network performance
+
+Commands to check for high latency and saturation:
+
+| Command | Description |
+|----|----|
+| `iperf`, `iperf3` | Network throughput tests |
+| `iftop -i <adaptor>` | Displays network bandwidth usage (throughput) for <adapter> in continuous graph |
+| `mrt` | Displays approximate travel times and packet loss percentages between the first 10 routers in the path from the source to the destination in a continuous graph or report format |
+| `nc` (`netcat`) | Network throughput tests |
+| `netstat -s` | DEPRECATED. Displays summary stats that are broken down by protocol and contain packet rates, but not throughput. |
+| `ping`, `ping6` | Simple ICMP packet throughput tests and display stats on items such as round-trip times. |
+| `ss -s` | Displays summary stats that are broken down by socket type and contain packet rates but not throughput. |
+| `tracepath`, `tracepath6` | Display approximate travel times between each router from the source to the destination, discovering the maximum transmission unit (MTU) along the way. |
+| `traceroute`, `tracerout6` | Display approximate travel times between each router from the source to the destination. |
+
+### iperf
+
+```bash
+iperf [OPTIONS]
+-s # run as server
+-c <server-address> # creates client that connects to server at <server-address>
+-b size # sets bandwidth to size bps (default is 1 Mb)
+-d # perform bidirectional test between client and server
+-P n # creates and runs n parallel client threads
+-e # provides enhanced output
+-i n # pauses between periodic bandwidth reports for n seconds
+-t n # stop server after n seconds
+# server
+iperf -s -t 120
+------------------------------------------------------------
+Server listening on TCP port 5001
+TCP window size:  128 KByte (default)
+------------------------------------------------------------
+```
+
+### Overloaded routers
+
+Sometimes routers get overloaded, like when the MTU is set too low. Use `tracepath` or `traceroute` to view this.
+
+### mtr
+
+Graphical display showing packets path, travel time, and optionally jitter.
+
+```bash
+mtr
+-o # what stats to view
+-c # num of times a packet is sent through
+-r # provide a static report
+# L (loss) D (drop) A (time travel avg) J (jitter)
+
+# continuous graph display
+mtr -o "L D A J" google.com
+
+# produce a static report
+mtr -o "L D A J" -c 20 -r google.com
+Start: 2024-04-22T08:45:33-0400
+HOST: precision-5540              Loss%  Drop    Avg  Jttr
+  1.|-- 2601:184:4881:68c0:9258:5  0.0%     0    5.3   0.2
+  2.|-- 2001:558:4023:65::1        0.0%     0   21.7   1.7
+  3.|-- po-302-1209-rur01.cambrid  0.0%     0   13.0   1.5
+  4.|-- ???                       100.0    20    0.0   0.0
+  5.|-- be-501-ar01.needham.ma.bo 80.0%    16   14.4   0.1
+  6.|-- be-32021-cs02.newyork.ny.  0.0%     0   21.8   3.7
+  7.|-- be-3211-pe11.111eighthave  0.0%     0   18.9   2.2
+  8.|-- 2001:559:0:19::a          15.0%     3   19.0   2.4
+  9.|-- 2607:f8b0:8009::1          0.0%     0   19.2   0.2
+ 10.|-- 2001:4860:0:1::5716        5.0%     1   19.9   2.1
+ 11.|-- 2001:4860:0:1::858e        0.0%     0   22.2   1.9
+ 12.|-- 2001:4860::c:4002:6522     0.0%     0   19.6   0.4
+ 13.|-- 2001:4860::9:4003:205c     0.0%     0   19.9   3.8
+ 14.|-- 2001:4860:0:1::83ed        0.0%     0   18.6   4.4
+ 15.|-- 2001:4860:0:1::3bbf        0.0%     0   19.5   0.6
+ 16.|-- lga34s40-in-x0e.1e100.net  0.0%     0   20.1   1.4
+```
+
+### Faulty adapter
+
+The following commands show summary stats for the specified `<adapter>`:
+
+- `ethtool -S <adapter>`
+- `ip -s link show <adapter>`
+- `ifconfig <adapter>` (DEPRECATED)
+- `netstat -i <adapter>` (DEPRECATED)
+
+```bash
+# view network adaptor stats
+ip -s link show wlp59s0
+2: wlp59s0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DORMANT group default qlen 1000
+    link/ether 78:2b:46:1e:3c:aa brd ff:ff:ff:ff:ff:ff
+    RX:  bytes packets errors dropped  missed   mcast           
+    3277201789 3021878      0       0       0       0 
+    TX:  bytes packets errors dropped carrier collsns           
+     495625792 1134010      0       0       0       0 
+```
+
+### tshark
+
+Wireshark is the GUI version of tshark, which performs advanced network packet analysis.
+
+```bash
+tshark
+-i # specify the interface
+-c # number of packets to capture
+
+sudo tshark -i enp0s3 -c 10
+Running as user "root" and group "root". This could be dangerous.
+Capturing on 'enp0s3'
+ ** (tshark:12322) 09:00:34.300736 [Main MESSAGE] -- Capture started.
+ ** (tshark:12322) 09:00:34.300813 [Main MESSAGE] -- File: "/tmp/wireshark_enp0s3GEQHM2.pcapng"
+    1 0.000000000    10.0.2.15 → 10.0.2.2     SSH 274 Server: Encrypted packet (len=220)
+    2 0.000351255     10.0.2.2 → 10.0.2.15    TCP 60 58878 → 22 [ACK] Seq=1 Ack=221 Win=65535 Len=0
+    3 0.512374174    10.0.2.15 → 10.0.2.2     SSH 290 Server: Encrypted packet (len=236)
+    4 0.513037781     10.0.2.2 → 10.0.2.15    TCP 60 58878 → 22 [ACK] Seq=1 Ack=457 Win=65535 Len=0
+    5 1.022202390    10.0.2.15 → 10.0.2.2     SSH 290 Server: Encrypted packet (len=236)
+    6 1.022858936     10.0.2.2 → 10.0.2.15    TCP 60 58878 → 22 [ACK] Seq=1 Ack=693 Win=65535 Len=0
+    7 1.566309211    10.0.2.15 → 10.0.2.2     SSH 290 Server: Encrypted packet (len=236)
+    8 1.566886379     10.0.2.2 → 10.0.2.15    TCP 60 58878 → 22 [ACK] Seq=1 Ack=929 Win=65535 Len=0
+    9 2.078744764    10.0.2.15 → 10.0.2.2     SSH 290 Server: Encrypted packet (len=236)
+   10 2.079461178     10.0.2.2 → 10.0.2.15    TCP 60 58878 → 22 [ACK] Seq=1 Ack=1165 Win=65535 Len=0
+10 packets captured
+
+```
+
+## Network configuration
+
+You can use `nmcli` to view and troubleshoot adaptor settings.
+
+### MAC addresses
+
+On the local network, routers use MAC addresses to locate local systems (not IPs).
+- IPv4 mapping: MACs are mapped with the Address Resolution Protocol (ARP) table
+- IPv6 mapping: MACs are mapped with the Neighborhodd Discovery (NDisk) table
+
+| Command | Description |
+|----|----|
+| `arp` | Displays the ARP table for network's neighborhood. |
+| `ip neigh` | Displays ARP and NDisk tables for network's neighborhood, and checks for incorrect or duplicate MAC addresses. |
+
+```bash
+# arp
+arp
+Address                  HWtype  HWaddress           Flags Mask            Iface
+_gateway                 ether   10::20:30:40:50     C                     wlp59s0
+
+# ip neigh
+ip neigh
+10.0.0.1 dev wlp59s0 lladdr 10::20:30:40:50 REACHABLE
+100::200:300:400:500 dev wlp59s0 lladdr 10::20:30:40:50 router REACHABLE
+```
+
+### DNS configuration
+
+| Command | Description |
+|----|----|
+| `host <FQDN>` | Queries DNS server for FQDN and displays IP addr. |
+| `dig <FQDN>` | Performs queries on DNS server for FQDN and displays all associated IP addresses. |
+| `nslookup` | Executes DNS queries in interactive or noninteractive mode. |
+| `whois` | Queries Whois servers and displays FQDN info. |
+
+```bash
+# test DNS lookup speeds
+time nslookup www.linux.org 8.8.8.8
+Server:		8.8.8.8
+Address:	8.8.8.8#53
+
+Non-authoritative answer:
+Name:	www.linux.org
+Address: 104.26.15.72
+Name:	www.linux.org
+Address: 104.26.14.72
+Name:	www.linux.org
+Address: 172.67.73.26
+Name:	www.linux.org
+Address: 2606:4700:20::ac43:491a
+Name:	www.linux.org
+Address: 2606:4700:20::681a:e48
+Name:	www.linux.org
+Address: 2606:4700:20::681a:f48
+
+
+real	0m0.104s
+user	0m0.004s
+sys	0m0.008s
+```
+
+### nmap
+
+Network Mapper (`nmap`) is usually used in pen testing but is helpful for network troubleshooting:
+
+```bash
+# view ports and their services
+nmap -sT localhost
+Starting Nmap 7.80 ( https://nmap.org ) at 2024-04-22 09:44 EDT
+Nmap scan report for localhost (127.0.0.1)
+Host is up (0.00011s latency).
+Not shown: 991 closed ports
+PORT     STATE SERVICE
+22/tcp   open  ssh
+80/tcp   open  http
+631/tcp  open  ipp
+...
+
+Nmap done: 1 IP address (1 host up) scanned in 0.11 seconds
+
+# scan network segments and detect each OS
+nmap -O localhost
+Starting Nmap 7.80 ( https://nmap.org ) at 2024-04-22 09:47 EDT
+Nmap scan report for localhost (127.0.0.1)
+Host is up (0.000086s latency).
+Not shown: 991 closed ports
+PORT     STATE SERVICE
+...
+Device type: general purpose
+Running: Linux 2.6.X
+OS CPE: cpe:/o:linux:linux_kernel:2.6.32
+OS details: Linux 2.6.32
+Network Distance: 0 hops
+
+OS detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 1.62 seconds
+```

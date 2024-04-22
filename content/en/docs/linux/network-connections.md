@@ -244,13 +244,6 @@ ping6 -c 4 fe80::c418:2ed0:aead:cbce%enp0s3
 traceroute www.google.com
 ```
 
-### mtr
-
-mtr (my traceroute) combines `traceroute` and `ping` to document network availability and latency in a real-time chart:
-
-```bash
-mtr linux.org
-```
 ### host
 
 Tests a hostname. Queries the DNS server to determine the IP addresses assigned to the hostname:
@@ -494,10 +487,10 @@ Sometimes routers get overloaded, like when the MTU is set too low. Use `tracepa
 
 ### mtr
 
-Graphical display showing packets path, travel time, and optionally jitter.
+`mtr` (my traceroute) combines `traceroute` and `ping` to document network availability and latency in a real-time chart, including packets path, travel time, and optionally jitter.
 
 ```bash
-mtr
+mtr <hostname-or-ip>
 -o # what stats to view
 -c # num of times a packet is sent through
 -r # provide a static report

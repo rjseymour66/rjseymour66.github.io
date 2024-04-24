@@ -114,6 +114,9 @@ A _digital signature_ is a message digest of the original plaintext data, which 
 ```bash
 ssh [options] username@hostname
 
+# very verbose
+ssh -vvv username@hostname
+
 # send commands to remote system
 ssh username@hostname "ls -lsogh ~/home/dirname"
 ```

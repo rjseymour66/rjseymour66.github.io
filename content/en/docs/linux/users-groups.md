@@ -488,6 +488,23 @@ Maximum number of days between password change		: 99999
 Number of days of warning before password expires	: 7
 ```
 
+### Authentication
+
+Check or run the following:
+- PAM modules
+- `pam_tally2`
+- `faillock`
+- IdP config (LDAP, Kerberos)
+- SELinux or AppArmor
+
+You can use `sealert` for SELinux machines:
+
+```bash
+# checks for policy violations
+sealert -a /var/log/audit/audit.log
+100% done
+found 0 alerts in /var/log/audit/audit.log
+```
 
 
 

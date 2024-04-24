@@ -222,7 +222,7 @@ sudo ls -a /etc/skel/
 View account records:
 
 ```bash
-getend <filename> <username>
+getent <filename> <username>
 
 getent passwd linuxuser
 linuxuser:x:1001:1001::/home/linuxuser:/bin/bash
@@ -313,6 +313,198 @@ Deletes an account and all account files:
 # -r deletes user /home dir and its contents
 sudo userdel -r <username>
 ```
+
+## Troubleshooting
+
+### Check password
+
+```bash
+# check password
+sudo getent passwd linuxuser 
+linuxuser:x:1001:1001::/home/linuxuser:/bin/bash
+
+# check shadow file, make sure no '!'
+sudo getent shadow linuxuser
+linuxuser:$y$j9T$f4O7G12v7ecON6j8SAfiQ.$7kRt7qYpxngkDPaHATTNBlDGc6hHQc7sPuAW9iMKAJ.:19813:0:99999:7:::
+```
+
+
+### last, lastlog, and lastb
+
+`last` and `lastlog` check when an account was last accessed:
+- `last` maintains more login in `/var/log/wtmp` and `/var/log/wtmp.*` files
+- `lastlog` maintains only most recent login in `/var/log/lastlog`
+- `lastb` searches for failed login attempts in `/var/log/btmp`
+
+```bash
+# all logins, specify additional files with -f option
+sudo last -f /var/log/wtmp | grep linuxus
+linuxuse pts/1        10.0.2.2         Mon Apr 22 08:31 - 08:34  (00:03)
+linuxuse pts/0        10.0.2.2         Fri Apr 19 20:44    gone - no logout
+linuxuse pts/0        10.0.2.2         Thu Apr 18 23:06 - 23:49  (00:42)
+linuxuse pts/0        10.0.2.2         Thu Apr 18 22:13 - 23:06  (00:53)
+linuxuse pts/0        10.0.2.2         Thu Apr 18 22:09 - 22:09  (00:00)
+linuxuse tty2         tty2             Thu Apr 18 22:00 - down   (00:05)
+linuxuse tty2         tty2             Thu Apr 18 21:55 - down   (00:03)
+linuxuse tty2         tty2             Sun Apr 14 10:39 - crash (4+11:15)
+linuxuse tty2         tty2             Sun Apr 14 10:34 - 10:35  (00:01)
+linuxuse tty2         tty2             Thu Apr 11 22:02 - 10:31 (2+12:28)
+linuxuse tty2         tty2             Thu Apr 11 21:53 - 22:01  (00:08)
+
+# most recent login
+lastlog
+Username         Port     From             Latest
+root                                       **Never logged in**
+...
+linuxuser        pts/1    10.0.2.2         Mon Apr 22 08:31:02 -0400 2024   # in last output
+...
+
+# failed login attempts
+sudo lastb -f /var/log/btmp 
+linuxuse ssh:notty    127.0.0.1        Thu Apr 18 23:04 - 23:04  (00:00)
+linuxuse ssh:notty    127.0.0.1        Thu Apr 18 23:04 - 23:04  (00:00)
+linuxuse ssh:notty    127.0.0.1        Thu Apr 18 23:04 - 23:04  (00:00)
+linuxuse ssh:notty    127.0.0.1        Thu Apr 18 23:04 - 23:04  (00:00)
+
+btmp begins Thu Apr 18 23:04:27 2024
+```
+
+### Privilege issues
+
+Check to make sure the users have the correct `su` privileges:
+
+```bash
+# members of admin can become su
+# members of sudoers can execute any command as any user
+sudo cat /etc/sudoers
+...
+# Members of the admin group may gain root privileges
+%admin ALL=(ALL) ALL
+
+# Allow members of group sudo to execute any command
+%sudo	ALL=(ALL:ALL) ALL
+```
+
+Check which groups the user belongs to with `id`:
+
+```bash
+id linuxuser
+uid=1001(linuxuser) gid=1001(linuxuser) groups=1001(linuxuser),27(sudo)
+```
+### GUI status
+
+If a user can log into the terminal but cannot log into the GUI, check the GUI with `systemctl`:
+
+```bash
+# check GUI status
+sudo systemctl status graphical.target
+● graphical.target - Graphical Interface
+     Loaded: loaded (/lib/systemd/system/graphical.target; static)
+     Active: active since Thu 2024-04-18 22:12:54 EDT; 5 days ago
+       Docs: man:systemd.special(7)
+
+Apr 18 22:12:54 ubuntu22 systemd[1]: Reached target Graphical Interface.
+```
+
+### Terminal status
+
+You should check:
+- multiple users can log into the terminal
+- whether the terminal is corrupted
+- getty services are running. These services provide the login prompts for text-based terminals
+
+```bash
+# verify multiple users can log in
+sudo systemctl status multi-user.target
+● multi-user.target - Multi-User System
+     Loaded: loaded (/lib/systemd/system/multi-user.target; static)
+     Active: active since Thu 2024-04-18 22:12:54 EDT; 5 days ago
+       Docs: man:systemd.special(7)
+
+Apr 18 22:12:54 ubuntu22 systemd[1]: Reached target Multi-User System.
+
+# check whether terminal is corrupted
+c # means its a character file
+- # means terminal is corrupted, rebuild with mknod command
+ls -l /dev/tty?
+crw--w---- 1 root tty 4, 0 Apr 21 09:44 /dev/tty0
+crw--w---- 1 gdm  tty 4, 1 Apr 21 09:44 /dev/tty1
+crw--w---- 1 root tty 4, 2 Apr 21 09:44 /dev/tty2
+crw--w---- 1 root tty 4, 3 Apr 21 09:44 /dev/tty3
+crw--w---- 1 root tty 4, 4 Apr 21 09:44 /dev/tty4
+crw--w---- 1 root tty 4, 5 Apr 21 09:44 /dev/tty5
+crw--w---- 1 root tty 4, 6 Apr 21 09:44 /dev/tty6
+crw--w---- 1 root tty 4, 7 Apr 21 09:44 /dev/tty7
+crw--w---- 1 root tty 4, 8 Apr 21 09:44 /dev/tty8
+crw--w---- 1 root tty 4, 9 Apr 21 09:44 /dev/tty9
+
+# check getty services
+sudo systemctl status getty.target
+● getty.target - Login Prompts
+     Loaded: loaded (/lib/systemd/system/getty.target; static)
+     Active: active since Thu 2024-04-18 22:12:29 EDT; 5 days ago
+       Docs: man:systemd.special(7)
+             man:systemd-getty-generator(8)
+             http://0pointer.de/blog/projects/serial-console.html
+
+Apr 18 22:12:29 ubuntu22 systemd[1]: Reached target Login Prompts.
+```
+
+### Locked accounts
+
+```bash
+# check status of linuxuser. 'L' means 'locked'
+sudo passwd -S linuxuser 
+linuxuser L 03/31/2024 0 99999 7 -1
+
+# verify locked w getent. '!' before passwd means its locked
+sudo getent shadow linuxuser
+linuxuser:!$y$j9T$f4O7G12v7ecON6j8SAfiQ.$7kRt7qYpxngkDPaHATTNBlDGc6hHQc7sPuAW9iMKAJ.:19813:0:99999:7:::
+
+# unlock user
+sudo usermod -U linuxuser 
+
+# verify unlocked
+sudo passwd -S linuxuser 
+linuxuser P 03/31/2024 0 99999 7 -1
+```
+
+### Expired accounts
+
+Check account expiration with `chage`:
+
+```bash
+date
+Wed Apr 24 02:51:34 PM EDT 2024
+
+# view account status
+sudo chage -l linuxuser
+Last password change					: Mar 31, 2024
+Password expires					: never
+Password inactive					: never
+Account expires						: never                           # never expires
+Minimum number of days between password change		: 0
+Maximum number of days between password change		: 99999
+Number of days of warning before password expires	: 7
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ## Groups
 

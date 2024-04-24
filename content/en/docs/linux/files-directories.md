@@ -438,6 +438,7 @@ $ find /usr/bin/ -perm /4000
 /usr/bin/passwd
 /usr/bin/mount
 ...
-
 ```
+
+## Troubleshooting
 

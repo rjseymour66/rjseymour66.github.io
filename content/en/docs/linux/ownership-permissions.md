@@ -84,7 +84,7 @@ Write
 : Modify data stored in the file or directory
 
 Execute
-: Run the file on the system, or to list the files in the directory
+: Run the file on the system, or to `cd` into the directory. If a subdirectory does grant execute permission but one of its parent dirs does not, the user cannot `cd` into that directory. All dirs in the path must have `x` set on them.
 
 ```bash
 ll
@@ -355,6 +355,28 @@ _Mandatory access control_ (MAC) lets the system administrator define securty ba
 
 ### SELinux for RHEL
 
+```bash
+# check if SELinux is active:
+sudo sestatus
+SELinux status:                 enabled
+SELinuxfs mount:                /sys/fs/selinux
+SELinux root directory:         /etc/selinux
+Loaded policy name:             targeted
+Current mode:                   enforcing
+Mode from config file:          enforcing
+Policy MLS status:              enabled
+Policy deny_unknown status:     allowed
+Memory protection checking:     actual (secure)
+Max kernel policy version:      33
+
+# view additional context perms for files and dirs
+ls -Z test1.txt 
+unconfined_u:object_r:user_home_t:s0 test1.txt
+
+# change file security context
+chcon -u <new-user> -r <new-role> -t <new-type> <filename>
+```
+
 ### AppArmor for Ubuntu
 
 Controls files and network ports that applications can access. Installed by default, but you need to install a few packages:
@@ -515,7 +537,7 @@ lsattr test1.txt
 ```
 
 
-### Create shared directory
+## Create shared directory
 
 ```bash
 # 1. add user

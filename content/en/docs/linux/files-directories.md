@@ -442,3 +442,13 @@ $ find /usr/bin/ -perm /4000
 
 ## Troubleshooting
 
+If a user creates a file and is denied, check the following:
+1. directory perms
+2. does the partition have quotas?
+   - check `/etc/fstab` for `usrquota` or `grpquota`, or use `repquota`
+   - if there are quotas, use `quota`
+   - turn off quotas with `quotaoff`
+1. disk space with `df`
+2. inode exhaustion with `df -i`. You can't extend inodes after fs creation. Delete useless files.
+   - during fs creation, increase inode counts with `mke2fs -i`
+3. `umask` setting

@@ -327,3 +327,64 @@ app-defaults             fonts    xkb          Xreset.d    Xsession.d        XvM
 cursors                  rgb.txt  xorg.conf.d  Xresources  Xsession.options  Xwrapper.config
 default-display-manager  xinit    Xreset       Xsession    xsm
 ```
+
+## Printers
+
+Linux manages printer drivers with the Common Unix Printing System (CUPS), available on the workstation at port 361 (`localhost:631`). You can configure printers using different protocols.
+
+### Print queue commands
+
+```bash
+# start, stop or pause print queue
+lpc -P <printer>
+
+# display print queue status and pending jobs
+lpq -P <printer>
+
+# submit new print job
+lpr -P <printer> <file>
+
+# rm specific print job from queue
+lprm -P <printer>
+```
+
+## Hot-pluggable devices
+
+Hardware is generally categorized in one of two ways:
+- **Cold-pluggable devices**: Must be connected when the system is off. Generally found in the computer case, such as:
+  - memory
+  - PCI cards
+  - hard drives
+- **Hot-pluggable devices**: External components, can add or remove at any time, such as:
+  - network connections
+  - monitors
+  - USB devices
+
+## Detecting dynamic devices
+
+_`udev device manager`_ listens to kernel notifications about hardware devices that are plugged in or removed. Its started at boot time by the `init` process and always runs in the background.
+
+`udev device manager` listens to notifications and compares the messages against rules set in `/etc/udev/rules.d`:
+
+```bash
+# virtualbox udev rules file
+cat /etc/udev/rules.d/60-vboxadd.rules 
+KERNEL=="vboxguest", NAME="vboxguest", OWNER="vboxadd", MODE="0660"
+KERNEL=="vboxuser", NAME="vboxuser", OWNER="vboxadd", MODE="0666"
+```
+### udevadm
+
+Interacts with the `udev device manager`:
+
+```bash
+udevadm command [OPTIONS]
+
+# view info about USD drive
+udevadm info /dev/sda
+P: /devices/pci0000:00/0000:00:0d.0/ata3/host2/target2:0:0/2:0:0:0/block/sda
+N: sda
+L: 0
+S: disk/by-path/pci-0000:00:0d.0-ata-1.0
+S: disk/by-id/ata-VBOX_HARDDISK_VBc96b84e1-50baf623
+...
+```

@@ -1,6 +1,6 @@
 ---
 title: "tmux"
-weight: 200
+weight: 400
 description: >
   tmux cheatsheet.
 ---

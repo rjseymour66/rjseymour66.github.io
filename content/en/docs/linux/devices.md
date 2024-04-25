@@ -52,11 +52,8 @@ Stores device files. A device file is a special file that linux uses to interfac
 
 Two types of device files:
 
-Character
-: Transfers data one char at a time. Often used for serial devices such as terminals or USB devices
-
-Block
-: Transfers large blocks of data. Used for high-speed data transfer devices like hard drives or network cards.
+- **Character**: Transfers data one char at a time. Often used for serial devices such as terminals or USB devices
+- **Block**: Transfers large blocks of data. Used for high-speed data transfer devices like hard drives or network cards.
 
 
 Block starts with `b`, character starts with `c`:
@@ -177,3 +174,156 @@ drwxr-xr-x   3 root root    0 Apr 18 21:53 power
 ## Working with devices
 
 ### lsdev
+
+Displays informatin about the hardware devices installed on the system. Combines info from the following files:
+- `/proc/interrupts`
+- `/proc/ioports`
+- `/proc/dma`
+
+```bash
+lsdev
+Device            DMA   IRQ  I/O Ports
+------------------------------------------------
+0000:00:02.0                   0000-0000
+0000:00:17.0                   0000-0000   0000-0000   0000-0000
+0000:00:1f.4                   0000-0000
+0000:01:00.0                     0000-0000
+acpi                      9 
+ACPI                           0000-0000   0000-0000   0000-0000   0000-0000   0000-0000
+ahci                             0000-0000     0000-0000     0000-0000
+ahci[0000:00:17.0]        131 
+cascade             4       
+dma                            0000-0000
+...
+```
+
+### lsblk
+
+Displays information about the block devices installed on the system. Has command-line options:
+
+```bash
+# view all block devices
+lsblk
+NAME        MAJ:MIN RM   SIZE RO TYPE MOUNTPOINTS
+loop0         7:0    0     4K  1 loop /snap/bare/5
+loop1         7:1    0  66.1M  1 loop /snap/cups/1044
+loop2         7:2    0 160.6M  1 loop /snap/chromium/2805
+loop3         7:3    0 105.4M  1 loop /snap/core/16574
+...
+
+# view SCSI block devices only
+lsblk -S
+NAME HCTL       TYPE VENDOR   MODEL      REV SERIAL                                                  TRAN
+sda  3:0:0:0    disk  USB     SanDisk 3 1.00 0401095f84926a9e2f38e3ecb97f3b66fe6dc10ae15b2eb3fee86e9 usb
+```
+
+### dmesg
+
+View kernel ring buffer records, which are kernel-level events. Because it is a ring, this file overwrites older messages with new ones. Great for troubleshooting kernel modules.
+
+```bash
+# verify USB connection
+sudo dmesg | tail -20
+[91877.590512] [UFW BLOCK] IN=wlp59s0 OUT= MAC=01:00:5e:00:00:01:90:58:51:d4:02:6a:08:00 SRC=10.0.0.1 DST=224.0.0.1 LEN=28 TOS=0x00 PREC=0xC0 TTL=1 ID=12912 PROTO=2 
+[91883.121258] [UFW BLOCK] IN=wlp59s0 OUT= MAC=01:00:5e:00:00:fb:84:c5:a6:17:8b:58:08:00 SRC=10.0.0.145 DST=224.0.0.251 LEN=32 TOS=0x00 PREC=0x00 TTL=1 ID=17897 PROTO=2 
+[91906.743226] [UFW BLOCK] IN=wlp59s0 OUT= MAC=01:00:5e:00:00:fb:90:58:51:d4:02:6a:08:00 SRC=10.0.0.1 DST=224.0.0.251 LEN=28 TOS=0x00 PREC=0xC0 TTL=1 ID=18127 PROTO=2 
+[91906.743262] [UFW BLOCK] IN=wlp59s0 OUT= MAC=01:00:5e:00:00:fb:90:58:51:d4:02:6a:08:00 SRC=10.0.0.1 DST=224.0.0.251 LEN=28 TOS=0x00 PREC=0xC0 TTL=1 ID=18128 PROTO=2 
+[91913.497411] usb 2-1: new SuperSpeed USB device number 5 using xhci_hcd
+[91913.518503] usb 2-1: New USB device found, idVendor=0781, idProduct=5581, bcdDevice= 1.00
+[91913.518515] usb 2-1: New USB device strings: Mfr=1, Product=2, SerialNumber=3
+[91913.518521] usb 2-1: Product:  SanDisk 3.2Gen1
+[91913.518526] usb 2-1: Manufacturer:  USB
+[91913.518530] usb 2-1: SerialNumber: 0401095f84926a9e2f38e3ecb97f3b66fe6dc10ae15b2eb3fee86e909773f274bd93000000000000000000002d440ab8ff025e18815581076da82bb8
+[91913.521064] usb-storage 2-1:1.0: USB Mass Storage device detected
+[91913.521752] scsi host3: usb-storage 2-1:1.0
+[91914.547750] scsi 3:0:0:0: Direct-Access      USB      SanDisk 3.2Gen1 1.00 PQ: 0 ANSI: 6
+[91914.548442] sd 3:0:0:0: Attached scsi generic sg0 type 0
+[91914.548960] sd 3:0:0:0: [sda] 120176640 512-byte logical blocks: (61.5 GB/57.3 GiB)
+[91914.550065] sd 3:0:0:0: [sda] Write Protect is off
+[91914.550074] sd 3:0:0:0: [sda] Mode Sense: 43 00 00 00
+[91914.550545] sd 3:0:0:0: [sda] Write cache: disabled, read cache: enabled, doesn\'t support DPO or FUA
+[91914.587927]  sda:
+[91914.590460] sd 3:0:0:0: [sda] Attached SCSI removable disk
+```
+
+### lspci
+
+View the currently installed and recognized PCI and PCIe devices.Useful to troubleshoot PCI card issues, like when it is not recognized by the system.
+
+[lspci useful options](https://phoenixnap.com/kb/lspci-command#ftoc-heading-3)
+
+```bash
+lspci
+00:00.0 Host bridge: Intel Corporation 8th Gen Core Processor Host Bridge/DRAM Registers (rev 07)
+00:01.0 PCI bridge: Intel Corporation 6th-10th Gen Core Processor PCIe Controller (x16) (rev 07)
+00:02.0 VGA compatible controller: Intel Corporation CoffeeLake-H GT2 [UHD Graphics 630]
+00:04.0 Signal processing controller: Intel Corporation Xeon E3-1200 v5/E3-1500 v5/6th Gen Core Processor Thermal Subsystem (rev 07)
+00:08.0 System peripheral: Intel Corporation Xeon E3-1200 v5/v6 / E3-1500 v5 / 6th/7th/8th Gen Core Processor Gaussian Mixture Model
+00:12.0 Signal processing controller: Intel Corporation Cannon Lake PCH Thermal Controller (rev 10)
+00:14.0 USB controller: Intel Corporation Cannon Lake PCH USB 3.1 xHCI Host Controller (rev 10)
+00:14.2 RAM memory: Intel Corporation Cannon Lake PCH Shared SRAM (rev 10)
+00:15.0 Serial bus controller: Intel Corporation Cannon Lake PCH Serial IO I2C Controller #0 (rev 10)
+00:15.1 Serial bus controller: Intel Corporation Cannon Lake PCH Serial IO I2C Controller #1 (rev 10)
+...
+```
+
+### lsusb
+
+View basic info about USB devices connected to the system:
+
+```bash
+lsb [OPTIONS]
+-d # specify vendor ID
+-D # specify device file
+-s # specify bus
+-t # display in tree format, showing related devices
+-v # verbose
+-V # version
+
+# standard output
+lsusb
+Bus 004 Device 001: ID 1d6b:0003 Linux Foundation 3.0 root hub
+Bus 003 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+Bus 002 Device 005: ID 0781:5581 SanDisk Corp. Ultra
+Bus 002 Device 001: ID 1d6b:0003 Linux Foundation 3.0 root hub
+Bus 001 Device 003: ID 27c6:5395 Shenzhen Goodix Technology Co.,Ltd. Fingerprint Reader
+Bus 001 Device 038: ID 8087:0029 Intel Corp. AX200 Bluetooth
+Bus 001 Device 004: ID 0c45:6723 Microdia Integrated_Webcam_HD
+Bus 001 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+
+# tree view
+lsusb -t
+/:  Bus 04.Port 1: Dev 1, Class=root_hub, Driver=xhci_hcd/2p, 10000M
+/:  Bus 03.Port 1: Dev 1, Class=root_hub, Driver=xhci_hcd/2p, 480M
+/:  Bus 02.Port 1: Dev 1, Class=root_hub, Driver=xhci_hcd/10p, 10000M
+    |__ Port 1: Dev 5, If 0, Class=Mass Storage, Driver=usb-storage, 5000M
+/:  Bus 01.Port 1: Dev 1, Class=root_hub, Driver=xhci_hcd/16p, 480M
+    |__ Port 4: Dev 38, If 1, Class=Wireless, Driver=btusb, 12M
+    |__ Port 4: Dev 38, If 0, Class=Wireless, Driver=btusb, 12M
+    |__ Port 7: Dev 3, If 0, Class=Communications, Driver=, 12M
+    |__ Port 7: Dev 3, If 1, Class=CDC Data, Driver=, 12M
+    |__ Port 12: Dev 4, If 1, Class=Video, Driver=uvcvideo, 480M
+    |__ Port 12: Dev 4, If 0, Class=Video, Driver=uvcvideo, 480M
+```
+
+## Monitor support
+
+Linux controls the video environment with two components:
+- video card
+- monitor
+
+### X Window System 
+
+_X Window System_ is a standard protocol for interacting with displays. Commonly referred to as X or X11 (latest version). Newest software pacakges:
+- **X.org**: Uses simple text-based config files in `/etc/X11`
+- **Wayland**: Simple and secure, developed by Red Hat. Uses separate config files for each user in the `~/.config/weston.ini` config file in each user home dir.
+
+Both softwares detect the video card at boot time and make changes. They can also detect video equiptment on the fly and make changes as needed.
+
+```bash
+# X.org config files
+ls /etc/X11/
+app-defaults             fonts    xkb          Xreset.d    Xsession.d        XvMCConfig
+cursors                  rgb.txt  xorg.conf.d  Xresources  Xsession.options  Xwrapper.config
+default-display-manager  xinit    Xreset       Xsession    xsm
+```

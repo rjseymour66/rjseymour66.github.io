@@ -310,6 +310,9 @@ table ip rocky {
 
 # create a chain that contains the rules for firewall definition
 nft 'add chain ip rocky test { type filter hook input priority 0; policy drop; }'
+
+# allow incoming traffic on port 443
+iptables -A INPUT -p tcp --dport 443 -j ACCEPT
 ```
 
 ## UFW

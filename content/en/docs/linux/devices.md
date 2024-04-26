@@ -330,6 +330,11 @@ default-display-manager  xinit    Xreset       Xsession    xsm
 
 ## Printers
 
+> Find linux-compatible printers:
+> - [Open Printing](https://openprinting.org/printers)
+> - [The Printing HOWTO](https://tldp.org/HOWTO/Printing-HOWTO/printers.html)
+
+
 Linux manages printer drivers with the Common Unix Printing System (CUPS), available on the workstation at port 361 (`localhost:631`). You can configure printers using different protocols.
 
 ### Print queue commands
@@ -387,4 +392,233 @@ L: 0
 S: disk/by-path/pci-0000:00:0d.0-ata-1.0
 S: disk/by-id/ata-VBOX_HARDDISK_VBc96b84e1-50baf623
 ...
+```
+
+## Troubleshooting
+
+### dmidecode
+
+> DO NOT rely on `dmidecode` alone for hardware information, especially when running a virtual machine.
+
+The Distributed Management Task Force (DMTF) is a nonprofit whose goal is to simplify the management of network-accessible technologies through standards. Created the following standards:
+- **Desktop Management Interface (DMI)**: Consists of four components that provide information about the hardware being used on a computer.
+- **System Management BIOS (SMBIOS)**: items such as datastructures that read management info produces by a system's BIOS.
+
+You can interact with these standards with the `dmidecode` utility. It pulls info from the `sysfs` filesystem, specifically the `/sys/firmware/dmi/tables/` dir:
+
+```bash
+# view sysfs tables
+ls /sys/firmware/dmi/tables/
+DMI  smbios_entry_point
+
+# view help
+dmidecode -h
+Usage: dmidecode [OPTIONS]
+Options are:
+ -d, --dev-mem FILE     Read memory from device FILE (default: /dev/mem)
+ -h, --help             Display this help text and exit
+ -q, --quiet            Less verbose output
+ -s, --string KEYWORD   Only display the value of the given DMI string
+ -t, --type TYPE        Only display the entries of given type
+ -H, --handle HANDLE    Only display the entry of given handle
+ -u, --dump             Do not decode the entries
+     --dump-bin FILE    Dump the DMI data to a binary file
+     --from-dump FILE   Read the DMI data from a binary file
+     --no-sysfs         Do not attempt to read DMI data from sysfs files
+     --oem-string N     Only display the value of the given OEM string
+ -V, --version          Display the version and exit
+```
+
+`-t, --type TYPE` arguments:
+- `baseboard`
+- `bios`
+- `cache`
+- `chassis`
+- `connector`
+- `memory`
+- `processor`
+- `slot`
+- `system`
+
+```bash
+# view memory info
+sudo dmidecode -t memory
+# dmidecode 3.3
+Getting SMBIOS data from sysfs.
+SMBIOS 3.2.0 present.
+
+Handle 0x0037, DMI type 16, 23 bytes
+Physical Memory Array
+	Location: System Board Or Motherboard
+	Use: System Memory
+	Error Correction Type: None
+	Maximum Capacity: 32 GB
+	Error Information Handle: Not Provided
+	Number Of Devices: 2
+
+Handle 0x0044, DMI type 17, 84 bytes
+Memory Device
+	Array Handle: 0x0037
+	Error Information Handle: Not Provided
+	Total Width: 64 bits
+	Data Width: 64 bits
+	Size: 16 GB
+...
+
+# view system table info
+sudo dmidecode -t system
+# dmidecode 3.3
+Getting SMBIOS data from sysfs.
+SMBIOS 3.2.0 present.
+
+Handle 0x0001, DMI type 1, 27 bytes
+System Information
+	Manufacturer: Dell Inc.
+	Product Name: Precision 5540
+	Version: Not Specified
+	Serial Number: GHWCP73
+...
+```
+
+### lshw
+
+Retrieves information about your hardware from the `/proc` directory files. Useful options include `-short`, `-businfo`, and `-class`:
+
+```bash
+# table-formatted hardware data
+lshw -short
+H/W path           Device          Class          Description
+=============================================================
+                                   system         Precision 5540 (0906)
+/0                                 bus            07C17G
+/0/0                               memory         64KiB BIOS
+/0/37                              memory         32GiB System Memory
+/0/37/0                            memory         16GiB SODIMM DDR4 Synchronous 2667 MHz (0.4 ns)
+/0/37/1                            memory         16GiB SODIMM DDR4 Synchronous 2667 MHz (0.4 ns)
+/0/40                              memory         384KiB L1 cache
+/0/41                              memory         1536KiB L2 cache
+/0/42                              memory         12MiB L3 cache
+/0/43                              processor      Intel(R) Core(TM) i7-9750H CPU @ 2.60GHz
+/0/100                             bridge         8th Gen Core Processor Host Bridge/DRAM Registers
+/0/100/1                           bridge         6th-10th Gen Core Processor PCIe Controller (x16)
+/0/100/1/0                         display        TU117GLM [Quadro T1000 Mobile]
+/0/100/2           /dev/fb0        display        CoffeeLake-H GT2 [UHD Graphics 630]
+/0/100/4                           generic        Xeon E3-1200 v5/E3-1500 v5/6th Gen Core Processor Therm
+/0/100/8                           generic        Xeon E3-1200 v5/v6 / E3-1500 v5 / 6th/7th/8th Gen Core 
+/0/100/12                          generic        Cannon Lake PCH Thermal Controller
+/0/100/14                          bus            Cannon Lake PCH USB 3.1 xHCI Host Controller
+/0/100/14/0        usb1            bus            xHCI Host Controller
+/0/100/14/0/4                      communication  AX200 Bluetooth
+/0/100/14/0/7                      communication  Goodix Fingerprint Device
+/0/100/14/0/c                      multimedia     Integrated_Webcam_HD
+/0/100/14/1        usb2            bus            xHCI Host Controller
+/0/100/14.2                        memory         RAM memory
+...
+
+# view SCSI, USB, IDE, PCI device data
+lshw -businfo
+Bus info          Device          Class          Description
+============================================================
+                                  system         Precision 5540 (0906)
+                                  bus            07C17G
+                                  memory         64KiB BIOS
+                                  memory         32GiB System Memory
+                                  memory         16GiB SODIMM DDR4 Synchronous 2667 MHz (0.4 ns)
+                                  memory         16GiB SODIMM DDR4 Synchronous 2667 MHz (0.4 ns)
+                                  memory         384KiB L1 cache
+                                  memory         1536KiB L2 cache
+                                  memory         12MiB L3 cache
+cpu@0                             processor      Intel(R) Core(TM) i7-9750H CPU @ 2.60GHz
+...
+
+# view class info (get class from -short cmd)
+lshw -class display
+  *-display UNCLAIMED       
+       description: 3D controller
+       product: TU117GLM [Quadro T1000 Mobile]
+       vendor: NVIDIA Corporation
+       physical id: 0
+       bus info: pci@0000:01:00.0
+
+# view RAM information
+lshw -class memory
+  *-firmware                
+       description: BIOS
+       vendor: Dell Inc.
+       physical id: 0
+       version: 1.20.0
+       date: 12/23/2022
+       size: 64KiB
+       capacity: 32MiB
+       capabilities: pci pnp upgrade shadowing cdboot bootselect edd int13floppynec int13floppy1200 int13floppy720 int13floppy2880 int5printscreen int9keyboard int14serial int17printer acpi usb smartbattery biosbootspecification netboot uefi
+  *-memory
+       description: System Memory
+       physical id: 37
+       slot: System board or motherboard
+       size: 32GiB
+     *-bank:0
+          description: SODIMM DDR4 Synchronous 2667 MHz (0.4 ns)
+          product: AO1P26KCST2-BZISHC
+          vendor: Fujitsu
+          physical id: 0
+          serial: EAB80200
+          slot: DIMM A
+          size: 16GiB
+          width: 64 bits
+          clock: 2667MHz (0.4ns)
+     *-bank:1
+     ...
+  *-cache:0
+       description: L1 cache
+       physical id: 40
+       slot: L1 Cache
+       size: 384KiB
+       capacity: 384KiB
+       capabilities: synchronous internal write-back unified
+       configuration: level=1
+  *-cache:1
+  ...
+  *-memory UNCLAIMED
+       description: RAM memory
+       product: Cannon Lake PCH Shared SRAM
+       vendor: Intel Corporation
+       physical id: 14.2
+       bus info: pci@0000:00:14.2
+       version: 10
+       width: 64 bits
+       clock: 33MHz (30.3ns)
+       capabilities: pm cap_list
+       configuration: latency=0
+       resources: memory:ed51e000-ed51ffff memory:ed526000-ed526fff
+...
+```
+
+### Keyboard mappings
+
+Check your distro mappings for correctness:
+
+```bash
+# RHEL
+localectl
+   System Locale: LANG=en_US.UTF-8
+       VC Keymap: us
+      X11 Layout: us
+
+# view keymappings
+localectl list-keymaps
+ANSI-dvorak
+al
+al-plisi
+amiga-de
+amiga-us
+applkey
+at
+at-mac
+
+# change keymappings
+localctl set-keymap <keymap-name>
+
+# -------
+# Debian
+dpkg-reconfigure keyboard-configuration
 ```

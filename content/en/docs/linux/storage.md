@@ -905,3 +905,89 @@ Disk stats (read/write):
 If a chunk of HDD or SSD does not respond to I/O requests, then it is marked as a bad sector, and the firmware will move any data from it to a new location. If you see bad sectors, replace the disk.
 
 Unmount the disk, then use `fsck` to check and repair the disk.
+
+## Troubleshooting
+
+### Common issues
+
+Degraded storage/mode
+: _Degraded storage_ is a storage's gradual decay due to time or misuse. SSD degrades if you erase it a lot, which means that you should not use it for your swap space.
+
+  _Degraded mode_ is when one or more disks in a RAID array failed. Use `mdadm -D` to view the array's detailed status, and look for the word `degraded`.
+
+Missing devices
+: If you can't find a device, check the following:
+  - `lsblk` to view all block devices
+  - `lspci -M` to perform a detailed scan of all PCI-attached devices
+  - Look at the device file in `/dev/`. For example, `/dev/sda`.
+    - Whole disk is referred to by the device filename with no numbers. Ex: `/dev/sda`
+    - Disk partition is device filename and number. Ex: `/dev/sda1`
+    - NvME SSD includes a namespace. Ex:
+      ```bash
+      nvme0n1     259:0    0 476.9G  0 disk             # device name is 'nvme0', namespace 1
+      ├─nvme0n1p1 259:1    0   790M  0 part /boot/efi   # namespace 1, partition 1
+      ├─nvme0n1p2 259:2    0     5G  0 part 
+      └─nvme0n1p3 259:3    0 471.2G  0 part /var/snap/firefox/common/host-hunspell
+      ```
+ 
+Missing volumes
+: If you can't ID a physical volume that makes up part of the logical volume:
+  - `pvscan` to verify whether it was lost
+  - `pvcreate` to replace the volume
+  - `vgcfgrestore` to restore the group's metadata
+  - `vgscan` to recover the group
+  - `vgchange` to activate the new volume
+
+Missing mount points
+: If you see 'Mount point does not exist', create the mount point with `mkdir`.
+
+Storage integrity
+: A _bad block_ is a small chunk of a disk drive that does not respond to I/O requests due to corruption or physical damage. Run `badblocks -nsv <partition-device-file>` to monitor the drive. It focuses on a partition and does not perfom repairs.
+
+Performance issues
+: Poor storage performance can affect your apps.
+  - `hdparm` determines read speeds.
+  - `dstat` is similar to `iostat` but provides additional helpful data for troubleshooting performance problems.
+  - `dmstats` allows the setup and management of stats for any devices charted by the device mapper
+  - `lsblk -p` to determine device mapper filenames associated with logical volumes
+
+Resource exhaustion
+: When you run out of resources such as disk space or inode numbers.
+
+### Check device driver
+
+```bash
+# THIS DID NOT WORK, TODO
+# find the device in the kernel buffer ring
+dmesg | grep sda
+[91914.548960] sd 3:0:0:0: [sda] 120176640 512-byte logical blocks: (61.5 GB/57.3 GiB)
+[91914.550065] sd 3:0:0:0: [sda] Write Protect is off
+[91914.550074] sd 3:0:0:0: [sda] Mode Sense: 43 00 00 00
+[91914.550545] sd 3:0:0:0: [sda] Write cache: disabled, read cache: enabled, doesn't support DPO or FUA
+[91914.587927]  sda:
+[91914.590460] sd 3:0:0:0: [sda] Attached SCSI removable disk
+[95002.730995] sd 3:0:0:0: [sda] 120176640 512-byte logical blocks: (61.5 GB/57.3 GiB)
+[95002.731675] sd 3:0:0:0: [sda] Write Protect is off
+[95002.731676] sd 3:0:0:0: [sda] Mode Sense: 43 00 00 00
+[95002.732082] sd 3:0:0:0: [sda] Write cache: disabled, read cache: enabled, doesn't support DPO or FUA
+
+# find the driver
+ls /sys/bus/scsi/drivers
+sd  sr
+
+# confirm which driver is used for sd devices
+udevadm info -an /dev/sda | grep DRIVERS | grep sd
+    DRIVERS=="sd"
+
+# determine if the module is loaded 
+lsmod | grep sd
+snd_intel_sdw_acpi     20480  2 snd_sof_intel_hda_common,snd_intel_dspcfg
+rtsx_pci_sdmmc         32768  0
+rtsx_pci               98304  1 rtsx_pci_sdmmc
+```
+
+## SATA drives
+
+SATA drives are self-configuring and are typically connected to the SCSI bus and denoted by `/dev/sd*` files.
+- can fail earlier than others due to frequent head loads and unloads
+- check on these drives with the self-monitoring analysis and reporting technology (SMART)

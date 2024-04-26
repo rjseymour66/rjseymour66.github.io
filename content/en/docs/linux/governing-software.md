@@ -336,3 +336,7 @@ sudo flatpak install org.mosh.mosh
 # unistall package
 sudo flatpak uninstall org.mosh.mosh
 ```
+
+## Analyzing application dependencies
+
+### Versioning

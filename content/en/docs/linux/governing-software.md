@@ -74,6 +74,23 @@ drwxrwxr-x 8 ryanseymour ryanseymour 4096 Apr  7 08:46 ../
 -rw-rw-r-- 1 ryanseymour ryanseymour  193 Apr  7 08:49 test.tar.gz
 ```
 
+### ldd
+
+Check which libraries a program uses:
+
+```bash
+# find the executable
+which ssh
+/usr/bin/ssh
+
+# check the libraries it uses
+ldd /usr/bin/ssh
+	linux-vdso.so.1 (0x00007ffc92ab8000)
+	libcrypto.so.3 => /lib/x86_64-linux-gnu/libcrypto.so.3 (0x0000751246200000)
+	libz.so.1 => /lib/x86_64-linux-gnu/libz.so.1 (0x00007512461e4000)
+	...
+```
+
 ## Compiling source code
 
 You need to install the GNU C compiler (`gcc`) on fresh installs:
@@ -184,10 +201,34 @@ If you use `dpkg` or `rpm`, you have to find the packages to install them and an
 
 ### Debian repository tools
 
-Core tool is `apt`. The `/etc/apt/sources.list` file contains address of other repos that the `apt` tool is configured to use.
+Core tool is `apt`:
 - `apt-cache`: 
 - `apt-get`: installs, updates, and removes packages
 - `apt`: front end script that can call either `apt-cache` or `apt-get`
+
+The `/etc/apt/sources.list` file contains address of other repos that the `apt` tool is configured to use.
+
+```bash
+# view nonstandard repositories
+grep -v "#" /etc/apt/sources.list
+
+deb http://gb.archive.ubuntu.com/ubuntu/ jammy main restricted
+
+deb http://gb.archive.ubuntu.com/ubuntu/ jammy-updates main restricted
+
+deb http://gb.archive.ubuntu.com/ubuntu/ jammy universe
+deb http://gb.archive.ubuntu.com/ubuntu/ jammy-updates universe
+
+deb http://gb.archive.ubuntu.com/ubuntu/ jammy multiverse
+deb http://gb.archive.ubuntu.com/ubuntu/ jammy-updates multiverse
+
+deb http://gb.archive.ubuntu.com/ubuntu/ jammy-backports main restricted universe multiverse
+
+deb http://security.ubuntu.com/ubuntu jammy-security main restricted
+deb http://security.ubuntu.com/ubuntu jammy-security universe
+deb http://security.ubuntu.com/ubuntu jammy-security multiverse
+
+```
 
 ### apt-cache
 
@@ -199,6 +240,22 @@ pkgnames # displays all packages installed on system
 showpkg # displays info about specified package
 stats # displays package stats for the system
 unmet # displays any unmet dependencies for the installed packages
+```
+
+### apt-get
+
+```bash
+# check for broken dependencies
+apt-get check
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+
+# clean up database and any tempory download files
+apt-get clean
+
+# retrieve updated information about pacakges in the repo
+apt-get update
 ```
 
 ### apt
@@ -340,3 +397,5 @@ sudo flatpak uninstall org.mosh.mosh
 ## Analyzing application dependencies
 
 ### Versioning
+
+Versioning is the management of multiple application software updates through a numbering process.

@@ -100,12 +100,19 @@ d<owner><group><others>
 drwxrwxr-x  2 linuxuser   testgroup   4096 Apr  7 09:10 tar_tests/
 ```
 
+### chmod
+
+Changes the file or directory permissions based on the provided mode:
+
+```bash
+chmod <mode><action><permission>
+```
+
 ### Symbolic mode
 
 Denote permissions with a letter code:
 
 ```bash
-# 
 u # owner
 g # group
 o # other

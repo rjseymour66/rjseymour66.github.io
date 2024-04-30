@@ -1,7 +1,7 @@
 ---
 title: "git"
 linkTitle: "git"
-# weight: 40
+weight: 10
 description: >
   Notes about basic git.
 ---
@@ -605,6 +605,9 @@ Versions of your project that are hosted somewhere else (on the same host, on th
 ### git remote
 
 ```bash 
+# add a remote
+git remote add origin https://github.com/path/to/repo.git
+
 # view remote servers
 $ git remote
 origin          # default name that git gives to cloned server

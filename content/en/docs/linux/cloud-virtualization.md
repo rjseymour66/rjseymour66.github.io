@@ -134,3 +134,89 @@ Untagged: httpd@sha256:36c8c79f900108f0f09fd4148ad35ade57cba0dc19d13f3d15be24ce9
 
 ## VM tools
 
+VM utilities let you create, destroy, boot, shut down, and configure your guest VMs.
+
+### libvirt
+
+A primary goal of the `libvirt` roject is t provide a single way to manage VMs. Supports the following hypervisors:
+- KVM
+- QEMU
+- Xen
+- VMware
+- ESXi
+
+```bash
+virsh
+Welcome to virsh, the virtualization interactive terminal.
+
+Type:  'help' for help with commands
+       'quit' to quit
+
+virsh # help
+Grouped commands:
+
+ Domain Management (help keyword 'domain'):
+    attach-device                  attach device from an XML file
+    attach-disk                    attach disk device
+    attach-interface               attach network interface
+    autostart                      autostart a domain
+    ...
+```
+
+### virt-manager
+
+Virtual Machine Manager (VMM)--_not_ the hypervisor--is a lightweight desktop app for creating and managing virtual machines.
+
+## Storage issues
+
+Provisioning
+: When you create a VM, you have to select the amount of disk storage. Virtual disks are either thin or thick provisioned:
+  - **Thick provisioning**: Static, and the physical files created on the physical disk are preallocated. If you select 500GB as the virtual disk size, 500GB of physical disk space is reserved.
+  - **Thin provisioning**: Dynamic, so the VM can consume for the virtual drive the disk space that it uses. If you select 500GB as the virtual disk size but then only use 100GB, then 100GB of physical disk space is used. As you use more data, you take up more physical disk space until you reach 500GB.
+    
+    When you thin provision, you might _overprovision_, which means assign more virtual disk space than you have available physical disk.
+
+Persistent volumes
+: Similar to a physical disk--data is kept on disk until deleted or overwritten and persists even after VM is destroyed.
+
+Blobs
+: Azure cloud platform term for unstructured data that can be manipulated with .NET code. Blob data can be of the following types:
+  - Block blob: Blocks of binary and text data, where each block is limited to 4.7TB.
+  - Append blob: Blocks of binary and text data, and storage is enhanced for appending operations, which makes these good for logging.
+  - Page blobs: Random access files up to 8TB. Used as virtual disks for Azure VMs.
+
+## Network configurations
+
+VMs can have any number of virtualized NICs, virtualized switches, firewalls, load balancers, etc. Important concepts are VLANs and overlay networks:
+
+VLAN
+: Think of LANs (local area networks), which are systems and various devices typically located in a small area, like a building. They share common communications line or wireless link and are often broken up into different netowrk segments. Network traffic is fast.
+  
+  VLANs are systems and devices that are located across various LAN subnets. VLANs are not based on physical location, they use logical and virtualized connections and use layer 2 to broadcast messages (LANs use routers on layer 3 for broadcasting).
+
+Overlay network
+: Cheap and scalable virtualization method that uses encapsulation and channel tunneling. A network connection (wired or wireless) is virtually split into different channels, and each channel is assigned to a service or device. Packets in the channel are encapsulated in a packet, which is removed when the packet reaches its destination. 
+
+  Applications manage the network ifrastructure. There are virtual switches, tunneling protocols, and softare-defined-networking (SDN), which is a method for controlling and managing network communications via software. There is an SDN controller program and two APIs called northbound and southbound that control traffic.
+
+### Virtualized NICs
+
+Sometimes the VM is connected to the host NIC, and sometimes it is connected to a virtualized switch. You have lots of options:
+
+Host-Only
+: Sometimes called _local adapter_, connects to a virtual netowrk contained withi the VMs host system. There is no connection to any external network that the host is attached to.
+
+  This is fast, bc traffic travels through RAM, not network components. Example is a proxy server.
+
+Bridged
+: The VM is like a node on the LAN or VLAN that the host system is attached. The VM gets its own IP address and is available on the network.
+
+NAT
+: Network Address Translation adapter, which uses a network device like a router to 'hide' a LAN computer's IP address when it sends traffic to antoher network. ALl LAN addresses are translated into a single IP address through the NAT device. When data is received, the NAT router sends it to the correct LAN host.
+
+  In VMs, NAT tables are maintained by the hypevisor, not a router or network device. The host IP is sent out to external networks, and the VMs have an IP address withi the host's virtual network.
+
+Dual-Homed
+: A computer with one or more active network adapters (multiple NICs) for redundancy.
+
+  A virtual prozy server is dual-homed: one internal network NIC (host-only) and a bridged adapter to send data over the external network.

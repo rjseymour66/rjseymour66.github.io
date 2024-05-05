@@ -3,7 +3,6 @@ title: "Intro to networks"
 weight: 10
 ---
 
-
 A network is two or more connected computers that can share resources such as data and applications, office machines, an internet connection, or any combination of the previous things.
 - Hosts on a network communicate through binary code
 

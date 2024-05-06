@@ -68,7 +68,7 @@ Segments and reassembles data into a data stream for upper-level applications
 - provide e2e data transport services
 - can establish logical connection between the sending host and destination host 
 - provides mechanisms for multiplexing upper-layer applications, establishing virtual connections, and tearing down virtual circuits
-- TCP and UDP work at the Rransport layer
+- TCP and UDP work at the Transport layer
 - _Reliable networking_ means that the Transport layer employs acknowledgements, sequencing, and flow control
 
 #### Connection-oriented communication

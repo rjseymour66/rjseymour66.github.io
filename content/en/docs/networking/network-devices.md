@@ -159,4 +159,52 @@ A _contention method_ is a way to manage access to the medium to prevent or reco
 
 ### CSMA/CA
 
+Carrier Sense Multiple Access with Collision Avoidance.
+
+For wireless networks, device checks the radio frequency for _physical carrier sense_ when sending a frame. Very involved process, so actual throughput on wireless LAN is about 1/2 advertised rate.
+
+Process desciption between wireless and wired:
+1. Machine sends frame on wireless frequency
+2. Frame goes to access point (AP)
+   1. If frame is going to another wireless device on the LAN, the frame is forwarded and uses the same process.
+   2. If frame is going to a wired station on the LAN:
+      1. AP drops the 802.11 MAC header
+      2. AP builds new Ethernet MAC header. AP is source addr, gateway is destination addr
+      3. LAN router receives frame, performs CSMA/CD
+   3. If frame is returned, AP receives them and creates 802.11 MAC header to send back to wireless device
+
+CSMA/CA operation process when Laptop A sends frame to Laptop B:
+1. A performs carrier sense to see if anything is being received on its transmitter
+   - If traffic is not clear, A decrements the random back-off algorithm counter. Sends when this counter is down to zero.
+   - If traffic is clear, A sends the frame
+1. Frame goes to AP
+2. AP sends ACK to A. All stations are silent until A receives the ACK
+3. AP caches the frame with other frames, and sends when its turn
+4. AP sends frame from A to B
+5. B sends ACK back to AP. All stations are silent until AP receives the ACK
+
 ### CSMA/CD
+
+Carrier Sense Multiple Access with Collision Detection.
+
+For wired networks, similar to CSMA/CA but no backoff timer. Instead, listens and sends jam signal so all stations stop transmitting. Computers involved in the collision wait a random amount of time (timer) and resend. So, ethernet lets you only use timers when required.
+
+Device checks wire, called carrier sense:
+1. If clear, device transmits. Performs carrier sense entire time
+2. If not clear, there is a collision that is detected by both machines through carrier sense
+   1. Both devices issue a jam signal to all other devices on the network
+   2. Both devices increment a retransmission counter, and abort if it reaches a threshold
+   3. Both devices calculate a random amount of time and backoff, if necessary
+   4. Random times mean that another collision will not occur.
+
+## DHCP server
+
+Dynamic Host Configuration Protocol servers assign IP addresses to hosts. Easier than static IP assignment.
+
+Process:
+1. DHCP server gets IP info req from DHCP client using a broadcast
+2. DHCP server is configured by an admin with a pool of addresses that it can use for this purpose
+   1. This pool includes addresses that are off limits, called IP exclusions or _exclusion ranges_. Ex: router interface address
+
+- DHCP server has to be on the same segment as the DHCP client bc routers don't forward broadcasts.
+- 

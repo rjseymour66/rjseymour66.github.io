@@ -366,5 +366,125 @@ DNS over TLS (DoT)
   Uses TCP on port 853 and UDP on port 8853.
 
 
-## Network time protocols
+### Network time protocols
 
+NTP synchoronizes clocks on networking devices and computers on a network.
+- For distributed computing that require tasks are processed in the correct sequence and recorded properly
+- Needed for security and log tracking to correlate based on time
+- UDP on port 123
+
+Important terms:
+
+Stratum
+: Stratum levels are how accurate the time source is. Nuclear clock is stratum 0, and a stratum 1 takes its time from stratum 0, stratum 2 from stratum 3, and so on.
+
+Clients
+: Clients query NTP servers to set their clocks. After synchronized, it checks every 10 minutes to make sure it is still in sync.
+
+Servers
+: Can be specialized hardware that syncs to a stratum 0 device.
+
+### Network Time Security (NTS)
+
+Cryptographic security for client-server mode of NTP to make sure you don't receive your time from an unauthorized server. Does not increase latency in NTP time sychronization.
+
+### Proxy server
+
+A type of server that handles its client-machine reqs by forwarding them to other servers. This allows granualr control over the traffic between the local LAN and the internet.
+- Application layer of OSI
+- Receives a req, connects to the server that can fulfill the request
+- Might modify the cleint request or server response
+- Caches (remembers) which server provides which service
+- Limits the types of sites that users on a LAN can access
+
+
+Forward proxy
+: takes client reqs and sends them to the internet (discussed in this section)
+
+Reverse proxy
+: taskes requests from the internet and forwards them to servers in the internal network
+
+Two main types of forward proxy servers:
+
+Web proxy server
+: Used to create a web cache that "remembers you" and loads the site faster, recalls your personal info such as username, billing, shipping, etc.
+
+Caching proxy server
+: Speeds up the network service request by recovering info from a client's earlier request. Enchance network performance by keeping local copy often-requested resources to minimize bandwidth use.
+
+
+### Encryption
+
+Many network devices perform encryption, but it is an intensive task so it makes sense to offload it onto dedicated machines.
+- Sometimes called 'encryption gateways'
+- Can be in line with server or local network, encrypting/decrypt all traffic
+- Can function as an application server that encrypts any file sent to it within a network
+
+### Content filter
+
+Scans content and filters out specific content or content types
+- Dedicating a service to this offloads the work from servers or routers
+- Usually more control over dedicated filters
+- Email is a good example. Might want to filter out spam. Also blocked websites.
+
+### Analog modem
+
+A device that modulates analog carrier signals to encode digital info, and demodulates the signal to decode the transmitted information.
+- Info is sent over telephone lines. One end connected to a phone line and one connected to a computer or modem bank.
+- Operates at layer 1, like a repeater
+
+### Packet sharper
+
+Traffic management technique that delays some or all packets to bring them into compliance with your company's traffic profile.
+- Optimizes performance
+- Improves latency
+- increases usable bandwidth for some packets while delaying others
+
+### VPN concentrator/headend
+
+A device that accepts multiple VPN connections from remote locations.
+- Can be performed by a router or server, but a dedicated device increases performance
+
+### Media converter
+
+Used when you need to convert from one type of cabling to another type.
+
+### VoIP PBX
+
+Private branch exchange is a telephone switch that is on the customer premises with a direct connection to the telecommunication provider's switch.
+- Performs call routing within the internal phone system, which allows multiple internal lines with minimal outside lines.
+  - For example, can have 2 'outside' lines that route to 50 'inside' lines.
+
+### VoIP endpoint
+
+Desktop or wireless phone systems that are part of networks where data and voice traffic are combined.
+- Allows more freedome in location and installation of these systems
+
+### NGFW/Layer 7 firewall
+
+Next-generation firewalls address traffic inspectino and application awareness shortcomings of the traditional stateful firewall without losing performance.
+- Unified thread management (UTM) devices address some issues but use separate components to examine traffice
+  - This means that the same packet might be inspected multiple times
+  - NGFWs examine packets one time during the deep packet inspection phase
+- NGFWs are application aware, so they can distinguish between app traffic and traffic coming in through ports
+
+### VoIP gateway
+
+Network device that converts voice and fax calls between an IP netwrok and a public switched telephone network (PSTN) in real time.
+- Usually have 1 ethernet and 1 phone port
+- Uses various protocols:
+  - Media Gateway Control Protocol (MGCP)
+  - Session Initiation Protocol (SIP)
+  - Lightweight Telephony Protocol (LTP)
+
+### Cable modem
+
+Allows voice, video, and data to connect from home or small business to providers network.
+- Data Over Cable Service Interface Specifications (DOCSIS) standards allow voice and data share cable with standard cable TV
+
+### DSL modem
+
+Digital subscriber Line used by traditional phone companies that have twisted-pair copper as local connection to homes and businesses
+- Allows for voice, video, and data to travel on copper line as a high-frequency carrier above standard voice frequencies.
+
+## Networked devices

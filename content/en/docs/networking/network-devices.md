@@ -200,11 +200,171 @@ Device checks wire, called carrier sense:
 ## DHCP server
 
 Dynamic Host Configuration Protocol servers assign IP addresses to hosts. Easier than static IP assignment.
+- Application layer protocol
+  - uses UDP ports 67 and 68
+- DHCP server has to be on the same segment as the DHCP client bc routers don't forward broadcasts.
+- Can configure the router to forward DHCP requests directly to the DHCP server
+- DHCP server can be configured with a reservation list so a host always gets the same IP address
+- reservation is made using the router interface MAC address. Sometimes called a MAC reservation
+- 
+
 
 Process:
 1. DHCP server gets IP info req from DHCP client using a broadcast
 2. DHCP server is configured by an admin with a pool of addresses that it can use for this purpose
    1. This pool includes addresses that are off limits, called IP exclusions or _exclusion ranges_. Ex: router interface address
 
-- DHCP server has to be on the same segment as the DHCP client bc routers don't forward broadcasts.
-- 
+
+_Scope options_ define IP configuration for hosts on a specific subnet.
+  - _Server options_ provide IP information for all scopes configured on the server
+  - So if you have a single DNS server for the network, configure server options with DNS server info. The DNS server info shows up automatically in all scopes configured on the server
+
+Scope options also define what info a DHCP server can provide to DHCP clients:
+- TTL
+- DNS server
+- TFTP
+- Lease time. Cna indicate a DHCP problem or if that server is no longer giving IP addresses to hosts
+
+### DHCP Relay
+
+If you need to provide IP addresses from a DHCP server to hosts that are not on the same LAN as the DHCP server, you can configure your router interfaece to relay or forward DHCP client requests 
+- If hosts off a router can't access DHCP servers bc the router doesn't forward broadcast addresses, you can configure a router interface to forward DHCP requests to a DCHP server
+
+### IPAM
+
+IP address management software that plans, tracks, and manages IP addresses.
+
+## Specialized devices
+
+There are several devices that are not directly connected to a network that actively participate in moving network data.
+
+### Multilayer switch
+
+MLS switches on OSI layer 2 like a normal network switch but also provides routing
+- 24-port MLS operates at layer 3 (routing) and provides 24 collision domains, which a router can't do
+- MLS uses application-specific integrated circuit (ASIC) hardware, instead of a microprocessor used in standard routers.
+
+### Domain name system server
+
+Phone book of the internet, performs _name resolution_ to to find the IP address for any given hostname.
+- hostname is the name of a device that has a specific IP address
+  - Part of fully qualified domain name (FQDN), which consists of hostname and domain name
+- Application layer protocol
+- DNS queries are made on UDP on port 53
+- name resolution is performed in several ways:
+  - hosts file on the host
+  - request broadcast on local network
+  - DNS
+- Domains are hierarchical tree structure. Examples:
+  - .com - commercial org
+  - .edu - educational establishment
+  - .gov - branch of the US gov't
+  - .int - international org, such as NATO
+  - .mil - branch of US military
+  - .net - network organization
+  - .org - nonprofit
+- DNS zones:
+  - forward: resolve names to IP addresses
+  - reverse: resolve IP addresses to names
+- CLients cache DNS server replies to reduce the number of DNS lookups
+  - Each reply has a field called TTL, or time to live, which tells the client how long to cache the DNS info before requesting again
+
+```bash
+# get DNS info for www.wiley.com
+nslookup www.wiley.com
+Server:		127.0.0.53
+Address:	127.0.0.53#53
+
+Non-authoritative answer:
+www.wiley.com	canonical name = www.wiley.com.cdn.cloudflare.net.
+Name:	www.wiley.com.cdn.cloudflare.net
+Address: 104.18.42.79
+Name:	www.wiley.com.cdn.cloudflare.net
+Address: 172.64.145.177
+Name:	www.wiley.com.cdn.cloudflare.net
+Address: 2606:4700:4400::ac40:91b1
+Name:	www.wiley.com.cdn.cloudflare.net
+Address: 2606:4700:4400::6812:2a4f
+
+# get CNAME info for wiley.com
+$ nslookup -q=cname www.wiley.com
+Server:		127.0.0.53
+Address:	127.0.0.53#53
+
+Non-authoritative answer:
+www.wiley.com	canonical name = www.wiley.com.cdn.cloudflare.net.
+
+Authoritative answers can be found from:
+www.wiley.com.cdn.cloudflare.net	internet address = 104.18.42.79
+www.wiley.com.cdn.cloudflare.net	internet address = 172.64.145.177
+
+# get mail exchange info from wiley.com
+$ nslookup -q=mx www.wiley.com
+Server:		127.0.0.53
+Address:	127.0.0.53#53
+
+Non-authoritative answer:
+www.wiley.com	canonical name = www.wiley.com.cdn.cloudflare.net.
+
+Authoritative answers can be found from:
+cloudflare.net
+	origin = ns1.cloudflare.net
+	mail addr = dns.cloudflare.com
+	serial = 2338653898
+	refresh = 10000
+	retry = 2400
+	expire = 604800
+	minimum = 1800
+www.wiley.com.cdn.cloudflare.net	internet address = 104.18.42.79
+www.wiley.com.cdn.cloudflare.net	internet address = 172.64.145.177
+```
+
+#### DNS record types
+
+| Record Type | Description |
+|---|---|
+| A | Address record. Returns the IP address of the domain. |
+| AAAA | Maps hostnames to an IPv6 host address |
+| TXT (DKIM) | Domain Keys Identified Mail. Provides authentication of mail sent and received by teh same email system. Also prevents spam. |
+| SRV | DNS service or generalized service location record. Specifies port and IP address. |
+| CAA | Certificate Authority Authorization, which allows domain name owners to specify authorized CAs. |
+| CNAME | Canonical name records. Alias one domain name to another, such as firstlastname.com to lastname.com. Also, if a web server has hostname `www` and you wnat to allow FTP access to parts of the machine, you can add the name `ftp` to the server.|
+| SOA | Start of authority. Provides administrative informaton about the domain or zone, such as admin email, last date domain was updated, and refresh intervals. |
+| PTR | Pointer record. Used for reverse DNS loookup, which returns the domain name when given the IP address |
+| MX | Mail exchanger record specifes how email messages should be routed. |
+| NS | Name Server. Authoritive DNS server for the domain. These servers store and manage the offical DNS records. Other servers are intermediaries, which forward and cache DNS queries to improve performance. |
+
+### Dynamic DNS
+
+DNS used to be manually added into a DNS server, and edited when changes occurred. Now DNS uses dynamic assignment and works with the DHCP function. Hosts register their names with the DNS server when they receive IP address configuration from the DHCP server.
+- MX and CNAME records must be created manually.
+
+### Internal and external DNS
+
+DNS servers can be located in the screened subnet/DMZ or inside the intranet:
+- In the DMX, DNS server only contains records of devices in the DMZ
+
+### Third-party or cloud-hosted DNS
+
+Cloud providers provide DNS as a service.
+
+### DNSSEC
+
+Domain Name System Security Extensions, a suite of new extensions created by Extension Mechanisms for DNS (EDNS). EDNS was created to expand the size of DNS protocol params
+- THis led to the IETF to create a new secure protocol called DNSSEC
+- Provides cytopgraphic authentication, authenticated denial of existence, and data integrity
+
+### DNS over HTTPS, DNS over TLS
+
+DNS over HTTPS (DoH)
+: Sends encrypted DNS info over HTTPS connections. DNS queries and responses are encrypted, which prevents attackers from altering the traffic.
+  Uses TCP on port 443, which is used by other HTTPS traffic, so it is harder to distinguish (and hack)
+  Firefox uses this by default.
+
+DNS over TLS (DoT)
+: Standard that encrypts DNS queries to provide security and privacy.
+  Uses TCP on port 853 and UDP on port 8853.
+
+
+## Network time protocols
+

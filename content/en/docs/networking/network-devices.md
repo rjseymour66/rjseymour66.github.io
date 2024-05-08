@@ -488,3 +488,96 @@ Digital subscriber Line used by traditional phone companies that have twisted-pa
 - Allows for voice, video, and data to travel on copper line as a high-frequency carrier above standard voice frequencies.
 
 ## Networked devices
+
+VoIP phones
+: Low bandwidth, sensitive to delay and jitter. Requires some sort of QoS.
+
+Printers
+: Printers can connect through Ethernet, and they have NIC cards that can connect to the network so machines can access it.
+
+Physical access control devices
+: Access control systems open doors and gates, in an office, for example. They are connected to an authorization server on the network that can connect back to a service like MS Active Directory.
+
+Cameras
+: Use TCP/IP and send video feeds to a central server for processing and recording.
+
+Heating Ventilation, and AC (HVAC) sensors
+: Buildings have intelligent HVAC systems that use sensors to monitor and control AC and heat. 
+
+IoT
+: Wearable devices, digital home assistants, doorbells, refrigerators, lights, etc.
+
+Industrial control systems
+: ICS tech uses sensors for monitoring and controlling anything from powergrids to machines on a factory floor. Helps flag problems and prevent downtime.
+
+  The supervisory control and data acquisition (SCADA) architecture is an industry standard for monitoring and collecting industrial data that includes computers, sensors, and networks that display graphical data about monitor systems.
+
+## SOHO network
+
+Small office home office.
+
+### Routers
+Layer 3 machines (routers) need to locate networks
+
+Routers can perform the following:
+- Routers (also called layer 3 switches) break up broadcast and collision domains, hubs do not. Routers do not forward broadcast messages.
+- Routers filter the network based on layer 3 info, like an IP addr
+- Packet switching
+- Packet filtering
+- Internetwork communication
+- Path selection
+- Each interface on a router represents a separate network
+  - each interface has a unique network number
+  - each host on a network connected to the router uses the same network number
+
+Things to remember:
+- Do not forward broadcast or multicast packets, by default
+- Use logical address in Network layer header to determine the next hop router to forward packets to
+- Use access lists created by an admin that control security on types of packets allwed to enter or exit the interface
+- Can provide layer 2 bridging functions, as needed
+- Layer 3 devices connect VLANs
+- Can provide QoS for specific types of network traffic
+
+### Switches
+
+- Layer 2 machines (switches) need to locate devices
+- Essentially a multiport bridge, but bridges only have 2-4 ports. Switches can have hundreds.
+  - Commonly called _bridges_. Bridges are outdated technology that act the same as switches
+- Cannot create networks, they optimize a network LAN performance and create more bandwidth for users
+- They switch frames from one port to another
+- Cannot breakup broadcast domains
+- Can break up collision domains
+  - Switches segment networks, but cannot isolate broadcast or multicast packets
+  - Each used switch port equals a collision domain
+
+#### Data link layer switches
+
+- Layer 2 switching is called hardware-based bridging bc it uses an application-specific integrated circuit (ASIC) that provide low latency
+- latency is measure from when a frame enters a port to when it exits
+- Process:
+  - Read each frame as it passes through
+  - Puts the source hardware addr in a filter table to track which port the frame was received on. The filter table helps the machine determine the location of the specific sending device. similar to routing table.
+  - Forwards frames to the segment where the destination hardware address is located. If located on the same segment, the layer 2 device blocks the frame from leaving. This forwarding and blocking is called _transparent bridging_.
+  - If the frame has a destingation address that isn't in the filter table, it forwards the frame to all connected segments
+    - If the device replies, it is added to the filtering table
+    - If the address is a broadcast device, the switch forwards all broadcasts to every connected segment
+- Better than hubs bc each switch port is its own collision domain and each connected device can transmit simultaneously
+  - A hub creates one large collision domain
+  - A hub allows only one device per network to communicate at a time
+
+### Hubs
+
+Multiple-port repeater, which creates a single collision domain:
+- it receives a digital signal
+- reamplifies or regenerates it
+- forwards the digital signal out all active ports without looking at the data
+
+## Environmental considerations
+
+Temperature
+: Routers, switches, and hubs need a cool area to operate correctly. In high temps, servers reboot and CPUs start overworking.
+
+Humidity
+: Air can't be too damp or too dry. Has to be just right. Dry creates static electricity, which can fry some electrical compoents.
+
+  Too damp corrodes electrical components and can lead to shorts.

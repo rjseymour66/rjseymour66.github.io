@@ -366,3 +366,294 @@ Payload (Data)
 ### UDP
 
 User Datagram Protocol.
+
+Transports information that doesn't require reliable delivery. An _unreliable_ protocol:
+- _connectionless protocol_ bc it doesn't create a virtual circuit or contact the destination before sending data
+- Also called a _thin protocol_ because it doesn't take up much bandwidth
+- SNMP uses this to send status messages and alerts
+- DNS handles its own reliability issues, so TCP is redundant
+- Does not sequence segments and does not send ACKs
+  - discards segments after received
+
+```
+__________________________________________________________________
+|       Source port (16)           |    Destination port (16)    |
+|       Length (16)                |    Checksum (16)            |
+|                       Data/payload (varies)                    |
+------------------------------------------------------------------
+```
+
+### Port numbers
+
+TCP and UDP use _port numbers_ to communicate with the upper layers because that is how the local host tracks different simultaneous conversations that it started or accepted.
+- Originating source port numbers are dynamically assigned by the source host and have a value of 1024 and higher
+- Ports 1023 and lower are _well-known port numbers_, defined in RFC 3232.
+- Virtual circuits that don't use an application with a well-known port number are assigned port numbers randomly from a specific range
+  - used by upper layers to set up sessions with other hosts and by TCP as source and destination identifiers in the TCP segment
+
+
+## Internet layer
+
+In the DoD model, the Internet layer provides the following:
+- routing
+- single network interface for the upper layers
+  - without the single interface, app devs would need to write hooks into the application for each different network access protocol
+    - Ex: hook for wired ethernet, hook for wireless ethernet
+
+All paths in the internet layer go through the IP
+
+### Internet Protocol
+
+The IP is aware of all interconnected networks
+- each machine has a software (logical) address called IP address
+- IP looks at the destination address, then uses routing table to find the best path to the destination
+  - Layers at the bottom only know about physical links on local networks
+- To ID devices on networks:
+  - Which network is it on? The software address, or logical address
+  - What is its ID on the network? The hardware address, the logical ID is the IP address
+
+#### IPv4 header
+
+1. IP receives segments from host-to-host layer
+2. Fragments segments into packets, if necessary
+   1. Each packet is assigned IP addr of the sender and recipient so that each layer 3 router that receives the packet can make routing decisions based on the destination address
+3. On receiving side, IP reassembles packets into segments
+
+
+```
+____________________________________________________________________________
+|  Version (4) | Header length (4) | Priority and Type | Total length (16)  |
+|              |                   |   of Service (8)  |                    |
+|           Identification (16)    | Flags (3) |    Fragment offset (13)    |
+| Time to live (8)  | Protocol (8) |        Header checksum (16)            |
+|                        Source IP address (32)                             |
+|                       Destination IP address (32)                         |
+|                         Options (0 or 32 if any)                          |
+|                           Data (varies if any)                            |
+-----------------------------------------------------------------------------
+```
+
+Version
+: IP version number
+
+Header length
+: (HLEN) in 32-bit words
+
+Priority and Type of Service
+: Tells how the datagram should be handled. First 3 bits are priority bits, also called the differentiated services bits.
+
+Total length
+: Length of packet, including header and data
+
+Identification
+: Unique IP-packet value used to differentiate fragmented packets from different datagrams
+
+Flags
+: Specifies whether packet should be fragmented
+
+Fragment offset
+: Provides fragmentation and reassembly if the packet is too large for a single frame. Allows different maximum transmission units (MTUs) on the internet
+
+Time to live
+: Set when packet is generated, if the packet doesn't arrive at its destination before the TTL expires, it disappears. Stops packets from circling the network forever.
+
+Protocol
+: Port number for upper-layer protocol
+
+Header checksum
+: CRC on header only
+
+Source IP address
+: 32-bit address of sending station
+
+Destination IP address
+: 32-bit address of the station that this packet is destined for
+
+Options
+: Used for network testing, debugging, security, and more
+
+Data
+: Upper-layer data
+
+##### Protocol field
+
+This table describes how the protocol field tells the IP to send data to the transport layer (ex: TCP or UDP):
+
+| Protocol | Protocol number |
+|---|---|
+| ICMP | 1 |
+| IP in IP (tunneling) | 4 |
+| TCP | 6 |
+| UDP | 17 |
+| EIGRP | 88 |
+| OSPF | 89 |
+| IPv6 | 41 |
+| GRE | 47 |
+| Layer 2 tunnel (L2TP) | 115 |
+
+### ICMP
+
+Internet control message protocol
+
+Works at the network layer as a management protocol and messaging service provider for IP. Messages are carried as IP packets:
+- Provide hosts with info about network problems
+- Encapsulated within IP datagrams
+
+#### Use cases
+
+Destination unreachable
+: If a router can't send a datagram any further, it uses ICMP to send a Destination unreachable message back to the sender.
+
+Buffer full
+: If a router's memory buffer for receiving datagrams is full, it sends Buffer full messages until it can receive more datagrams in the buffer.
+
+Hops
+: Each IP datagram is alloted a specific number of routers (hops) to pass through. When it reaches its limit, the last router deletes it and sends an ICMP message to the sender.
+
+Ping
+: Uses ICMP echo request and reply messages to check the physical and logical connectivity of machines on the internet.
+
+Traceroute
+: Uses IP packet time to live time-outs to discover the path that a packet takes to traverse the internet.
+
+### ARP
+
+Address resolution protocol
+
+Translates the software (IP) address int a hardware address of a host using a known IP address:
+- When IP has datagram to send, it must inform a Network Access protocol (like Ethernet) of the destination's hardware address on the local network.
+- If IP doesn't find the destination host's hardware address in the ARP cache, it sends out a broadcast asking for a reply from the machine with the hardware address
+
+### RARP
+
+Reverse address resolution protocol
+
+Sends out MAC address and a request for an IP address for a diskless machine:
+- When an IP machine is diskless, it cannot know its IP address, but it knows its MAC address.
+  - Designated RARP server replies
+
+### GRE
+
+Generic Routing Encapsulation
+
+Tunneling protocol that can encapsulate many protocols inside IP tunnels
+- example protocols include EIGRP, OSPF, and IPv6
+- does not provide security
+
+### IPSec
+
+Internet Protocol Security
+
+More secure than GRE for tunneling information across the internet. Uses two primary protocols: AH and ESP. Has some limitations:
+- Does not support IP broadcast or multicast, so can't use routing protocols that need them
+- No support for multiprotocol traffic
+  - Called GRE over IPSec, Used with GRE to run a routing protocol, IP multicast, and multiprotocl traffic across network
+
+#### Authentication Header (AH)
+
+Provides authentication for the data and the IP header of a packet using a one-way hash for packet authentication:
+- Guarantees authenticity
+  - Sender generates a one-way hash
+  - receiver generates the same hash
+  - If the packet is changed in any way, it is dropped
+- Checks packet, but no encryption services
+
+#### Encapsulating Security Payload (ESP)
+
+Provides the following:
+
+Confidentiality
+: Sending device encrypts packets before transmitting with symmetric encryption algorithm. Both endpoints must use the same confidentiality encryption:
+  - HMAC-SHA1/SHA2 for integrity protection and authenticity
+  - TripleDES-CBC for confidentiality
+  - AES-CBC and AES-CBC for confidentiality
+  - AES-GCM and CHaCha20-Poly1305 for confidentiality and authentication 
+
+Data integrity
+: Receiver verifies that the data was not altered in any way. Uses checksums.
+
+Authentication
+: Connection is made with the correct partner.
+
+Anti-Replay Service
+: Based upon the receiver, the service is effective only if the receiver checks the sequence number.
+  - Replay attack: Hacker copies an authenticated packet and transmits it to the intended destination. Sequence number field is meant to stop this type of attack.
+
+Traffic flow
+: Need at least tunnel mode selectd.
+  - Most effective at a security gateway w tons of traffic because its easier for you to mask the true source-destination patterns from people that want to break into your network
+
+#### Internet Key Exchange (IKE)
+
+Management protocol that negotiates security associations (SA) between endpoints:
+- SA defines authentication, encryption, and IPSec protocols used for the IPSec connection
+
+Has two phases that are managed by the Internet Security Association and Key Management Protocol (ISAKMP):
+- Phase 1 (Main mode): WHere parameters (policies) are agreed upon by the endpoints, known as HAGLE:
+  - hash
+  - authentication
+  - group
+  - lifetime
+  - encryption
+  After agreed upon, both endpoints authenticate and calculate a shared secret symmetrical encryption key and create the encryption tunnel.
+- Phase 2 (Quick mode): Negotiation and connection of IPSec, called the IPSec transform set:
+  - Contains details about the AH and ESP protocols used, encryption, hashing, and mode that the IPSec tunnel operates in
+
+### Data encapsulation
+
+When data is transmitted across a network to another device, it goes through _encapsulation_, which means that it is wrapped with protocol information at each layer of the OSI model.
+- Each layer communicates with its peer layer on the receiving device
+- Each layer uses _protocol data units_ (PDUs) that hold the control info attahced to the data at each layer
+  - Usually attached to the header in front of the data field, but can also be at the end, or the _trailer_.
+  - PDUs are attached at each layer and has a specific name depending on the header information
+  - PDU info is read only by the peer layer on the receiving devices. After its read, it is stripped off, then the data is handed to the next layer up
+
+
+
+```
+Application                 --------------
+Presentation                | Datagrams  |  (data stream)
+Session              _______|____________|
+Transport            | TCP header | Data |  (segment)
+                     --------------------|
+Network              |  IP header | Data |  (packet or datagram)
+              ----------------------------
+Data link     | Frame | LLC | Data | FCS |  (frame)
+              ----------------------------
+Physical      | Transmitted as 1s and 0s |  (bits)
+              ----------------------------
+```
+
+#### PDU life cycle
+
+User information > data stream > segments > packets/datagrams > frames > bits
+
+1. Data stream is handed to the Transport layer
+2. Transport layer sets up virtual circuit with sync packet
+3. Data stream is broken into smaller pieces
+4. Transport layer header (PDU) is created and attached to the header field
+   1. Now the data is called a segment, sequenced so the data stream can be reassembled by the receiver
+5. Segment is handed off to network layer for logical addressing and routing through internet
+6. Network layer adds controlheader to segment.
+   1. Now it is called a packet or datagram
+   2. Locates destination hardware address with ARP to either local machine or router for transmission over the internet
+7. Data link takes packets and puts them on network medium, such as cable or wireless
+   1. Encapulates each packet in a frame. Called frame because there is a header and trailer that bookends it.
+   2. Frame header carries hardware address of source and destination
+   3. After it is routed to destination network, a new frame is added to get it to the host
+8. Physical layer encodes digits into a digital signal
+   1. Recieving physical layer decodes the digital signal into digits
+9. Receiver builds frames
+10. Receiver runs the cyclical redundancy check (CRC)
+11. Receiver hecks the CRC answer against the frames Frame Check Squence (FCS) field
+    1.  If this matches, the packet is pulled from the frame in a process called _de-encapsulation_. Rest is discarded.
+12. Packet is handed to network layer where IP address is checked
+13. If IP address matches, segment is pulled from packet and rest is discarded.
+14. Transport layer processes the segment and rebuilds the data stream for the upper layers
+
+#### Ports
+
+- Transport layer users port numbers to define the virtual circuit and upper-layer process
+  - Turns the data stream into segments and creates a reliable session
+  - TCP: virtual circuit is defined by source port number
+    - Destination port defines the upper-layer process (application) that the data stream is handed to

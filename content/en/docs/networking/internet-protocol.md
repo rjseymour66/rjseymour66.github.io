@@ -36,9 +36,10 @@ Condensed version of OSI model:
 | Internet | ICMP, ARP, RARP, IP |
 | Network Access | Ethernet, Fast Ethernet, Gigabit Ethernet, Wireless 802.11 |
 
-## Process/Application
+## Process/Application layer
 
-### FTP (TCP 20,21)
+### FTP
+(TCP 20,21)
 
 File Transfer Protocol lets you transfer files across an IP network. Also a program:
 - limited to listing and maniuplating directories, typing file contents, and copying files between hosts
@@ -47,14 +48,16 @@ File Transfer Protocol lets you transfer files across an IP network. Also a prog
 - as a program, perform file transfer tasks manually
 - requires that you authenticate
 
-### Secure Shell (TCP 22)
+### SSH
+Secure Shell (TCP 22)
 
 SSH sets up a secure Telnet session over TCP/IP connection:
 - Logging into remote systems
 - running programs on remote systems
 - Moving files from one system to another
 
-### Secure File Transfer Protocol (TCP 22)
+### SFTP
+Secure File Transfer Protocol (TCP 22)
 
 SFTP transfers files over an encrypted connection with SSH
 - Same as FTP, just secure. Transfers files between computers on an IP network
@@ -65,7 +68,8 @@ Uses terminal emulation to allow a user on a remote client machine (Telnet clien
 - Makes the server think that the client machine is using a termnal attached to the local network
 - Plain text only, no security. Replaced by SSH
   
-### Simple Mail Transfer Protocol (TCP 25)
+### SMTP
+Simple Mail Transfer Protocol (TCP 25)
 
 SMTP delivers email with a spooled, or queued, method of delivery:
 - After a message is sent to a destination, the message is _spooled_ to a device
@@ -74,5 +78,291 @@ SMTP delivers email with a spooled, or queued, method of delivery:
 - SMTP sends mail
 - POP3 receives mail
 
-### Domain Name System (TCP and UDP 53)
+### DNS
+Domain Name System (TCP and UDP 53)
 
+DNS resolves an internet hostname to its corresponding IP address
+- If you move your website to a different internet provider, DNS helps resolve the new IP addr
+- Fully qualified domain name (also called DNS namespace) is a hierarchy that can logically locate a system based on its domain identifier.
+  - Must type in the FQDN to resolve an address
+- If you can ping a device with its IP addr but can't use the FQDN, you have a DNS issue
+
+### DHCP/BootP
+Dynamic Host Configuration Protocol/Bootstrap Protocol (UDP 67/68)
+
+#### DHCP
+
+DHCP assigns IP addresses to hosts with information provided by a server
+- routers can be used as DHCP server
+- Can provide the following info to a host when the host is requesting an IP addr
+  - IP addr
+  - subnet mask
+  - domain name
+  - default gateway (routers)
+  - DNS
+- DHCP client discover broadcast > DHCP server offer to client unicast > DHCP client request broadcast > DHCP server ACK to finalize exchange
+  - Client sends out DHCP discover message as a broadcast at layer 2 and layer 3
+  - Layer 2 broadcast is all _f_ in hex: FF:FF:FF:FF:FF:FF.
+  - Layer 3 broadcast is 255.255.255.255, which means all networks and all hosts
+  - Uses UDP at transport layer
+
+#### BootP
+
+Bootstrap protocol (BootP) assigns an IP address but the host hardware address must be entered manually in a BootP table
+- Can send an OS that a host can boot from (?)
+
+### TFTP
+Trivial File Transfer Protocol (UDP 69)
+
+TFTP is a stripped-down version of FTP. Cannot browse dirs, can only send and receive files
+- Sends much smaller blocks of data than FTP
+- No authentication
+- Few sites support it
+
+### HTTP
+Hypertext Transfer Protocol (TCP 80)
+
+HTTP managees communications between web browsers and web servers
+- Opens te right resource when you click a link
+
+### POP3
+Post Office Protocol v3 (TCP 110)
+
+POP3 provides a storage facility for incoming mail
+- When a client connects to a POP3 server, messages addressed to that client are released for downloading
+- Cannot download messages selectively
+- Being replaced by the more secure IMAP
+
+### NTP
+Network Time Protocol (UDP 123)
+
+Sychronizes the clocks on computers to one standard time source.
+- Works with other utilities to make sure that all computers on a network agree on time
+- Synchronized clocks prevent system failures
+
+### IMAP
+Internet Message Access Protocol (TCP 143)
+
+IMAP4 lets you control how you download your mail
+- can peek at message header or partially download 
+- store messages on the email server hierarchically and link to documents and user groups too
+- provides search commands to use to hunt for messages based on subject, header, content, etc
+- authentication features
+  - supports Kerberos
+
+### SNMP 
+Simple Network Management Protocol (UDP 161/162)
+
+Collects and manipulates valuable network information
+- SNMPv3 is the standard and uses TCP and UDP with enhanced security and authentication
+- gathers data by polling the devices on the network from a management station or at fixed intervals
+- SNMP receives a _baseline_, which is a report delimiting the operational traits of a healthy network
+- Can serve as a watchdog over the network
+  - 'watchdogs' are called _agents_
+  - agents send a _trap_ to management station
+  - Network Management System (NMS) polls agents through the Management Information Base (MIB)
+  - MIB is a db with predefined questions for agents to investigate the health of the network or device
+
+### LDAP
+Lightweight Directory Access Protocol (TCP 389)
+
+Admins have a directory that tracks all network resources, like devices and users. Use LDAP to query directory services like MS Active Directory.
+
+### HTTPS
+(TCP 443)
+
+Hypertext Transfer Protocol Secure. Secure version of HTTP that provides security tools for securing transactions bwetween a web browser and a server.
+- Securely fill out forms, sign in, authenticate, and send encrypted messages
+
+### TLS/SSL
+(TCP 995/465)
+
+Transport Layer Security and Secure Sockets Layer. Cryptographic protocols that secure online data-transfer activities like browsing the web, IMing, etc.
+- Often referenced interchangeably
+- Both use X.509 certificates and asymmetric cryptography to authenticate to host and exchange a key
+  - key encrypts data flow between hosts
+- Isn't really tied down to any specific port
+
+### SMB
+(TCP 445)
+
+Server Message Block. Shares access to files and printers and other communications between hosts on a Windows network. Can also run on these ports:
+- UDP 137, 138
+- TCP 137, 139 using NetBIOS
+
+### Syslog
+(UDP 514)
+
+[syslog severity levels](https://en.wikipedia.org/wiki/Syslog#Severity_level)
+
+Log system messages to a syslog server, which stores, time-stamps, and squence messages. (You can also read them from a switch or router buffer, but syslog is easier.)
+- Can search messages
+- send emails based on severity
+- devices can forward a syslog message to various destinations:
+  - logging buffer
+  - console line
+  - terminal lines
+  - syslog server
+  
+
+### SMTPS 
+(TCP 587)
+
+Simple Mail Transfer Protocol Secure. Same as SMTP but encrypted:
+- TLS encrypted
+- Port 587 is sometimes enforced
+
+### LDAPS
+(TCP 636)
+
+Lightweight Directory Access Protocol Secure. Requires a CA cert.
+
+### IMAP over SSL
+(TCP 993)
+
+IMAP traffic travels over a secure socket to a security port (TCP 993, usually).
+
+### POP3 over SSL
+(TCP 995)
+
+POP provides a storage facility for incoming mail. THis is the encrypted version.
+
+### SQL Server
+(TCP 1433)
+
+Structured Query Language Server. Relational database engine
+- clients connect to port 1433, the official IANA socket number for SQL server
+
+### SQLnet
+(TCP 1521)
+
+Also called SQL*Net and Net8. Oracle's networking software that allows remote data access between programs that use the Oracle Database.
+- Apps and dbs are shared with different machines and continue communicating as if they were local
+- Based on Oracle's Transparent Network Substrate (TNS) that provides a generic interface to all network protocols. This is no longer needed bc of TCP/IP
+- Used by client and server to communicate with one another
+
+### MySQL
+(TCP 3306)
+
+MySQL is a relational db management system based on SQL:
+- most commonly used for cloud-based dbs
+- used for data warehousing, e-commerce, logging apps
+
+### RDP
+(TCP 3389)
+
+Remote Desktop Protocol. Designed by Microsoft, allows you to connect to another computer to run programs.
+- Operates like Telnet, but gives you a GUI instead of terminal
+- Macs have preinstalled RDP client
+- Official server software is called Remote Desktop Services
+- Official client software is called Remote Desktop Connection
+
+### SIP (VoIP)
+(TCP or UDP 5060/TCP 5061)
+
+Session Initiation Protocol. Singaling protocol that constructs and deconstructs multimedia communication sessions for voice and video calls, videoconferencing, streaming multimedia, IMs, presence info, and online games
+- often works with RTP (VoIP) to set up connections between endpoints
+
+### RTP (VoIP)
+(UDP 5004/TCP 5005)
+
+Real-time Transport Protocol (RTP) is a packet-formatting standard for delivering audio and video over the internet.
+- Originally multicast, but now unicast too
+- de facto VoIP protocol
+- Used for Streaming media, video conferencing, and push-to-talk systems
+
+### MGCP (Multimedia)
+(TCP 2427/2727)
+
+Media Gateway Control Protocol. Standard protocol for handling the signaling and session managment needed during a multimedia conference.
+- defines means of communications between a media gateway and the media gateway controller
+- media gateway converts data from circuit switched network to packet switched network formats
+
+### H.323
+(TCP 1720)
+
+Provides a standard for video on an IP network that defines how real-time audio, ideo, and data information is transmitted.
+- provides signaling, multimedia, and bandwidth control mechanisms
+
+### IGMP
+
+Internet Group Management Protocol. The TCP/IP protocol used for managing IP multicast sessions.
+- works at the Network layer and does not use port numbers
+- sends out unique IGMP messages over the network to reveal the multi-cast group landscape, and to figure out which hosts belong to which multicast group
+- host machines in an IP netowrk se IGMP to become members of the group and to quit the group
+
+### NetBIOS
+
+Network Basic Input/Output System. Works only in the upper layers of OSI model
+- allows interface on separate computers to communicate over a network
+
+## Host-to-Host layer
+
+Host-to-host protocols handle the network. Takes data stream from the upper layer and any instructions, and prepares the information to be sent over the network.
+
+### TCP
+
+Transmission Control Protocol:
+- takes large blocks of information from the upper layers and breaks it into segments for transmission over the Internet Layer
+  - numbers and sequences each segment so that the destination's TCP process can put the segments back together in the correct order
+  - TCP client sends the segments, then waits for an ACK from the receiver
+  - client retransmits segments that it didn't receive an ACK for
+- connection-oriented, must first set up a three-way handshake
+- full-duplex, reliable, and accurate but complicated and costly in terms of network overhead
+  - UDP is much less overhead
+- When data is all sent, there is a call to tear down the virtual circuit
+
+#### TCP segment
+
+```
+__________________________________________________________________
+|       Source port (16)           |    Destination port (16)    |
+|                           Sequence number (32)                 |
+|                       Acknowledgement number (32)              |
+| Header length (4) | Reserved (6) | Code bits (6) | Window (16) |
+|            Checksum (16)         |        Urgent (16)          |
+|                       Options (0 or 32 if any)                 |
+|                         Data/payload (varies)                  |
+------------------------------------------------------------------
+```
+
+Source port
+: Port number of the app on the host sending the data
+
+Destination port
+: Port number of the app requested on the destination host
+
+Sequence number
+: Number TCP uses to put data back in the correct order or retransmits missing or damaged data during sequencing
+
+Acknowledgement number
+: TCP octet that is expected next
+
+Header length
+: Number of 32-bit words in the TCP header, which indicates where the data begins.
+
+Reserved
+: Always set to 0
+
+Code bits/TCP flags
+: Controls functions that set up and terminate a session
+
+Window
+: Window size that the sender is willing to accept, in octets
+
+Checksum
+: Cyclic redundancy check (CRC) on the header and data fields. TCP doesn't trust the lower layers, so it checks everything
+
+Urgent
+: Valid only if the Urgent pointer in the code bits is set. If set, this value indicates the offset (in octets) from the current sequence number where the segment of non-urgent data begins
+
+Options
+: Can be 0 or a multiple of 32 bits. If an option is used but the field doesn't total 32 bits, you must pad it with 0s
+
+Payload (Data)
+: Handed down to the TCP protocol at the transport layer, which includes upper-layer headers.
+
+
+### UDP
+
+User Datagram Protocol.

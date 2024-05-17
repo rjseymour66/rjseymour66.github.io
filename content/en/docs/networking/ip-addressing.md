@@ -83,6 +83,7 @@ Class E: Research
 | Entire IP set to 0s | Cisco routers designate the default route, or can mean any network |
 | Entire IP set to 1s | Broadcast to all hosts on the current network | 
 
+
 ### Class A
 
 Uses the following format:
@@ -91,19 +92,122 @@ _network_._host_._host_._host_
 
 Network address is 1 byte long:
 - first bit is reserved and remaining 7 bits can be used for addressing
-- first bit must always be "off", or 0
-  - Class A address must be between 0 and 127 in the first byte, inclusive:
-    00000000 = 0
-    01111111 = 127
+- first bit must always be "off", or `0`
+  - Class A address must be between `0` and `127` in the first byte, inclusive:
+    `00000000` = 0
+    `01111111` = 127
   - All 0s is the default route
-  - 127 is reserved for diagnostics
+  - `127` is reserved for diagnostics
   - actual number of usable Class A network addresses is 126
 - 3 bytes for the host address of the machine
-- All host bits off is the network address: 10.0.0.0
-- All host bits on is the broadcast address: 10.255.255.255
+- Network address - all host bits off: `10.0.0.0`
+- Broadcast address - all host bits on: `10.255.255.255`
 
 ### Class B
 
 Uses the following format:
 
 _network_._network_._host_._host_
+
+All CLass B network addresses start with `10`. First bit on, second bit off. This gives the following range:
+- `10000000` = 128
+- `10111111` = 191
+- Uses 2 bytes for host addresses
+- Network address - all host bits off: `176.16.0.0`
+- Broadcast address - all host bits on: `176.16.255.255`
+
+### Class C
+
+Uses the following format:
+
+_network_._network_._network_._host_
+
+All Class C network addresses start with `110`. First and second bits on, third bit off. This gives the following range:
+- `11000000` = 192
+- `11011111` = 223
+- Network address - all host bits off: `192.168.100.0`
+- Broadcast address - all host bits on: `192.168.100.255`
+
+### Class D and E
+
+First octet `224` - `255` are reserved for D and E:
+- Class D multicast: `224`-`239`
+  - Multicast range is `244.0.0.0` through `239.255.255.255`
+- Class E scientific: `240`-`255`
+
+### Private IPs
+
+Private IP addresses can be used on a private network, but they're not routable through the internet
+- provides security but also saves address space
+- This requires Network Address Translation (NAT)
+  - takes a private IP address and converts it for use on the internet
+  - provides security in that these IP addresses cannot be seen by external users - external users only see the public IP addr that the private IP is mapped to
+  - multiple devices in a private network can be mapped to a single external, public IP address
+
+### Reserved private address space
+
+| Class | Start | End |
+|---|---|---|
+| A | `10.0.0.0` | `10.255.255.255` |
+| B | `172.16.0.0` | `172.31.255.255` |
+| C | `192.168.0.0` | `192.168.255.255` |
+
+
+### Virtual IP (VIP)
+
+Virtual IPs do not correspond to an actual physical network interface. For example:
+- when a public IP address is substituted for the actual private IP address that was assigned to the network interface of the device, the public IP address is the _virtual address_.
+- a subinterface configured on a physical router interface that allows you to create multiple IPs or subnets on one interface
+- Whena  web proxy server substitutes its IP address for the sender's IP address before sending a packet to the internet
+
+### APIPA
+
+Automatic Private IP Addressing. 
+
+When a DHCP server isn't avaialable, clients can automatically self-configure an IP address and subnet mask
+- APIPA IP address range is `169.254.0.1` - `169.254.255.254`
+- Client uses Class B subnet mask of `255.255.0.0`
+- Hosts that use APIPA can communicate with each other, but not addresses that were statically configured
+- Used as a fallback to DHCP
+  - If your computer has an address in the APIPA range, then there is a DHCP issue
+
+## IPv4 address types
+
+Four IPv4 address types.
+
+### Layer 2 broadcasts
+
+Sent to all nodes on a LAN.
+- Also called hardware broadcasts
+- Only go out on a LAN and don't go past the LAN boundary (router)
+
+Typical hardware address is 6 bytes and looks like this:
+`0c.43.a4.f3.12.c2`
+
+Broadcast is all 1s in binary, which is all Fs in hex:
+`FF.FF.FF.FF.FF.FF`
+
+### Broadcasts (Layer 3)
+
+Sent to all nodes on the network. Its the address with all host bits on. For example:
+- ARP request
+  - When a host has a packet it has the logical IP address of the dest
+  - Sends to default gateway if IP address is not on local network
+  - If on local network, needs MAC address, so sends out a broadcast message that says 'if you are owner of IP address X, please forward your MAC address'
+
+### Unicast
+
+Address for a single interface, used to send packets to a single destination.
+
+### Multicast (Class D)
+
+Packets sent from a single source to many devices on different networks, referred to as _one-to-many_.
+- Multicast allows point-to-multipoint communication, which is similar to broadcasts but lets multiple recipients receive messages without flooding messages to all hosts on a broadcast domain
+- packets are sent to only hosts that subscribe to a group address
+- Multicast addresses are `244.0.0.0` - `239.255.255.255` (Class D)
+
+1. Sends messages or data to IP multicast group addresses
+2. Routers forward copies of the packet out every interface that has hosts subscribed to a particular group address
+
+## IPv6
+

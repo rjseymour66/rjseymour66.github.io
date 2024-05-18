@@ -84,6 +84,14 @@ Class E: Research
 | Entire IP set to 1s | Broadcast to all hosts on the current network | 
 
 
+### Address space
+
+| Class | Start | End |
+|---|---|---|
+| A | `10.0.0.0` | `10.255.255.255` |
+| B | `176.16.0.0` | `176.16.255.255` |
+| C | `192.168.100.0` | `192.168.100.255` |
+
 ### Class A
 
 Uses the following format:
@@ -94,8 +102,8 @@ Network address is 1 byte long:
 - first bit is reserved and remaining 7 bits can be used for addressing
 - first bit must always be "off", or `0`
   - Class A address must be between `0` and `127` in the first byte, inclusive:
-    `00000000` = 0
-    `01111111` = 127
+    - `00000000` = 0
+    - `01111111` = 127
   - All 0s is the default route
   - `127` is reserved for diagnostics
   - actual number of usable Class A network addresses is 126
@@ -210,4 +218,81 @@ Packets sent from a single source to many devices on different networks, referre
 2. Routers forward copies of the packet out every interface that has hosts subscribed to a particular group address
 
 ## IPv6
+
+We need IPv6 because we are running out of IP addresses. By default, IPv6 has the following features:
+- IPSec for e2e security
+- mobility, which means that a device can roam from one network to another without dropping connection
+- packet header has 1/2 the fields at 64 bits
+- 128 bits in length
+- routing is more efficient
+- doesn't use broadcast, uses multicast
+  - also has unicast and anycast, which allows the same address to be placed on more than one device so that when the traffic is sent to one device addressed in this way, it is routed to the nearest host that shares the same address
+
+### IPv6 addressing and expressions
+
+- Eight groups of hex numbers and the groups are separated by colons
+- 16-bit colon-delimited blocks
+
+```
+              subnet
+               /  \
+2001:0db8:2a3b:0016:0000:0000:1234:5678
+|_____________|____|__________________|
+ \ global prefix  /\  interface ID    /
+  \-- 64-bits ---/  \---- 64-bits ---/
+```
+When you want to use IPv6 in a browser, you have to wrap it in brackets:
+
+```
+https://[2001:0db8:2a3b:0016:0000:0000:1234:5678]/page-name.html
+```
+
+### Shortened expression
+
+You can leave out parts of the address to abbreviate it:
+- drop any leading zeroes in each individual block: `2001:db8:2a3b:16:0:0:1234:5678`
+- remove two blocks of zeroes by replacing them with double colons: `2001:db8:2a3b:16::1234:5678`
+  - You CANNOT use double colons twice in the same address. When the router comes to the double colon, it replaces it with enough zeroes to reach 128 bits. It would not know how many zeros go in the first set or second.
+
+### Address types
+
+A single interface can have multiple types of IPv6 addresses assigned:
+
+Unicast
+: Packets addressed to unicast are delivered to a single interface. For load balancing, multiple addresses can use the same address.
+
+Global unicast address
+: These are your typical publicly routable addresses, same as in IPv4.
+
+Link-local address
+: Like APIPA addresses in IPv4, not meant to be routed and are unique for each LAN. For example, you can create a small LAN that does not need to be routed but still needs to share and access files and services locally.
+
+  Link-local address is an `FE80::/10 address`.
+
+Unique local address
+: Nonrouting purposes, nearly globally unique. Designed to replace site-local addresses, so very similar to private IPv4 addresses: allow communication throughout a site while being routable to multiple local networks. Unique local can be routed within your organization or company.
+
+Multicast
+: Same as IPv4, packets addressed to multicast address are delivered to all interfaces identified by the multicast address.
+
+Anycast
+: identifies multiple intefaces, but the anycast packet is delivered to only one address--the first IPv6 address it finds in terms of routing distance. Could be called one-to-one-of-many addresses, or one-to-nearest.
+
+### Special addresses
+
+| Address | Description |
+|---|---|
+| `0:0:0:0:0:0:0:0` | Equal to `::`. Source address of host before assigned an IP with DHCP. |
+| `0:0:0:0:0:0:0:1` | Equals `::1`. Loopback address, like `127.0.0.1` in IPv4. |
+| `0::FFFF:192:168:100.1` | Format for a mixed IPv4/IPv6 mixed network environment. |
+| `2000::/3` | Global unicast address range allocated for internet access. |
+| `FC00::/7` | Unique local unicast range. |
+| `FE80::/10` | Link-local unicast range. |
+| `FF00::/8` | Multicast range. |
+| `3FFF:FFF::/32` | Reserved for examples and documentation. |
+| `2001:0DB8::/32` | Reserved for examples and documentation. |
+| `2002::/16` | Used with 6to4 tunneling, which is an IPv4-to-IPv6 transistion system. You can send IPv6 packets over an IPv4 network without configuring explicit tunnels. |
+
+
+### Stateless Address Autoconfiguration (SLAAC)
 

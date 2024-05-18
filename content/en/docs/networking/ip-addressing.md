@@ -296,3 +296,41 @@ Anycast
 
 ### Stateless Address Autoconfiguration (SLAAC)
 
+Autoconfig is useful bc it lets devices on a network address themselves with a link-local and global unicast address. Creates an Extended Unique Identifier (EUI-64) address:
+- Takes the prefix info from the router, adds 16-bits of padding, and then appends the devices own interface (MAC) address as the interface ID
+- Padded bc it must be 128-bits long, and the 
+  - IPv6 address = 64 bits
+  - padding = 16 bits
+  - MAC address = 64 bits
+- 7th bit in the first byte is the Universal/Local bit (U/L) that signifies a locally unique or global address. 
+
+> Read into this more, not clear in the book
+
+### DHCPv6 (stateful)
+
+Works the same as in IPv4, except that it addresses using IPv6 format.
+
+Autoconfiguration does not provide the following, which makes DHCP more useful:
+- no DNS servers
+- no domain names
+
+
+## Migrating to IPv6
+
+### Dual stacking
+
+Lets both IPv4 and IPv6 protocol stacks run simultaneously so that its capable of continuing on with its existing communications and running newer IPv6 communications as they're introduced.
+- Easiest migration strategy
+- Upgrade devices and apps on network one at a time
+- Remove old IPv4 protocol stacks as needed
+
+### 6to4 tunneling
+
+Carries IPv6 packets over a network that runs IPv4:
+- Ex: IPv6 subnets that need to communicate with a WAN that you do not control
+- Grabs IPv6 packet that is traveling across the network and attach an IPv4 header on the front of it
+  - Requires dual-stacked routers
+  - Create a tunnel, which means tell routers where the tunnel begins and ends
+- NAT translation points would break the tunnel encapsulation
+  - Can use _Teredo_, which places all tunneled traffic in UDP packets, which NAT does not inspect
+  - _Miredo_ is a very rare tunneling technique on native IPv6 linux and BSD unix machines to communicate on IPv4 internet directly without a dual-stack router or 6to4 tunnel.

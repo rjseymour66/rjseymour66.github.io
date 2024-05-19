@@ -120,6 +120,16 @@ Examples of subordinating conjunctions:
 
 The number of clauses in a sentence and how they relate to each other determine whether the sentence is simple, compound, or complex.
 
+### Five basic sentence structures
+
+| Structure | Example | Description |
+|---|---|---|
+| _subject_ + _verb_ | Sara smiled. | The verb is intransitive, which means that it does not take an object. |
+| _subject_ + _verb_ + _direct object_ | Jane sang songs. | The verb is transitive, so it needs an object. The object is a noun phrase that receives the action of the verb--it is acted upon by the verb. |
+| _subject_ + _verb_ + _indirect object_ + _direct object_ | Jane sang John a love song. | An _indirect object_ is a prepositional phrase with the preposition removed, and the remainder moved directly preceding the direct object. You can rewrite the example sentence as "Jane sang a love song _to John_". The omitted prepositional phrase is commonly _to_ or _for_.|
+| _subject_ + _verb_ + _subject predicative_ | Sara is fancy. | A subject predicative, also known as a subject complement, is a grammatical component that follows a linking/copular verb that appears in the predicate and provides additional information about the subject of the sentence. The subject predicative does not receive the action of the verb, it is commonly an adjective phrase or a noun phrase. Main copular verbs are _be_, verbs of seeming, becoming, and the seven senses. |
+| _subject_ + _verb_ + _direct object_ + _object predicative_ | Jan found the movie boring. | The predicate describes the action or state of the subject, but the object predicative--also called the object complement--describes or modifies the object of the verb, not the subject of the verb. |
+
 ### Simple sentence
 
 A simple sentence has one clause, with or without other elements:
@@ -145,12 +155,22 @@ A complex sentence has two or more clauses that are not of equal grammatical sta
 
 [Because you paid for tickets to the game], _I'll buy the beer_.
 
-## Five basic sentence structures
 
-| Structure | Example |
-|---|---|
-| _subject_ + _verb_ | Sara smiled. |
-| _subject_ + _verb_ + _direct object_ | Jane sang songs. |
-| _subject_ + _verb_ + _indirect object_ + _direct object_ | Jane sang John a love song. |
-| _subject_ + _verb_ + _subject predicative_ | Sara is fancy. |
-| _subject_ + _verb_ + _direct object_ + _object predicative_ | Jan found the movie boring. |
+### Imperative sentences
+
+Imperatives are commands that imply the subject, which is always _you_:
+- Go. (_You_ go.)
+- Stop. (_You_ stop.)
+
+### Adverbials
+
+Optional items consisting of words (commonly adverbs), phrases (commonly prepositional phrases), or clauses that you can remove from the sentence without harming its core structure or changing its grammatical status. 
+- The band played a concert _in Panama_.
+- David ate his lunch _at the table_.
+- Barney reads books _slowly_.
+- I saw Jane _yesterday_. (_yesterday_ is an adverb)
+
+> Adverbials are optional and distinct from the main clause. They are not _adjunct adverbs_, adverbs that modify actions. Adjunct adverbs are part of phrases that make up the clause and refer directly to a word or phrase:
+> - When the speaker began, John _quickly_ stopped talking and _closely_ listened. (adjunct adverbs)
+> - John stopped talking _at some point today_. (adverbial)
+

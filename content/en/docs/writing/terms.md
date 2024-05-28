@@ -3,6 +3,7 @@ title: "Terms and definitions"
 weight: 5
 ---
 
+
 adjective
 : Describes things.
 
@@ -11,6 +12,9 @@ adverb
 
 article
 : Points to or modifies a noun or pronoun. Articles specify the definiteness, indefiniteness, or quantity of the noun they modify. There are two main types: definite and indefinite.
+
+complement
+: Completes the meaning of a verb by providing additional information about the subject or object.
 
 complex transitive verb
 : Not common. A verb that has both an object and an object predicative.
@@ -57,6 +61,9 @@ object predicative
 : Describes the object of the verb, not the subject of the verb. Can be an adjective or a noun:
   - I thought the concert was _exciting_.
   - Stan makes _guitars_.
+
+predicate
+: Tells what the subject does or is. It includes the main verb and any objects, complements, or modifiers related to the action or state.
 
 preposition
 : Shows or describes spatial relationships. They shows the relationship between a noun or pronoun (the object of the preposition) and other words in a sentence. Prepositions often indicate relationships involving time, place, direction, cause, manner, and possession.

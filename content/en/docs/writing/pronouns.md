@@ -103,3 +103,30 @@ Objective pronouns act as the direct or indirect object of a transitive verb or 
 - That is between you and _me_. (object of preposition)
 
 ## It
+
+Sometimes there is no noun functioning as an antecedent of 'it'. _It_ is called a number of things:
+- prop it: Also called the 'empty it', when a phrase needs a subject, even though the subject is meaningless. For example:
+  
+  _It_ is cold outside.
+
+  The verb phrase "is cold outside" contains all the information that we need, but it cannot stand alone and needs a subject.
+- cleft it: Mainly for emphasis in a cleft sentence. A cleft sentence doesn't have a strong main clause. Instead, it uses a copular verb like _is_, then a relative pronoun before the verb:
+  
+  The thought counts.
+  _It_ is the thought that counts. (_It is_ _noun phrase_ _relative pronoun_ _verb phrase_.)
+
+  You can turn a regular sentence into a cleft sentence with _it_ and a copular/linking verb:
+
+  Steve stole my hat. (_Steve stole_ is the main clause)
+  _It was_ Steve that stole my hat. (_It was_ is the main clause, and _that_ precedes the verb _stole_).
+- anticipatory it: Combines _it_ and a form of the verb _be_ as the main clause. It generally uses the following format:
+  
+  _It is_ _description_ _clause-being-described_. For example, you can structure the sentence this way:
+
+  That you don't understand is embarrassing.
+
+  And the same sentence as an anticipatory it:
+
+  _It is_ embarrassing (that) you don't understand. (With an implied relative pronoun 'that')
+ 
+ ## Existential _There_

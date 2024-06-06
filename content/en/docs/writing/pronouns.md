@@ -130,3 +130,55 @@ Sometimes there is no noun functioning as an antecedent of 'it'. _It_ is called 
   _It is_ embarrassing (that) you don't understand. (With an implied relative pronoun 'that')
  
  ## Existential _There_
+
+ There is usually an adverb, but it can be a pronoun:
+
+ _There_ are dogs in the house.
+ 
+ This is the same as _Dogs are in the house_, but _there_ provides an entire phrase explaining that dogs exist ("There are dogs"). After the existenial phrase, you put a verb followed by the noun phrase that would have been the grammatical subject:
+
+ _Cats are_ in the hat. (_Cats_ is the subject of the verb.)
+ 
+ _There are_ cats in the hat. (_There_ is the existential subject of the verb.)
+
+ ## Reflexive pronouns
+
+ Pronouns that refer back to the subject or add emphasis, and they end in _self_ or _selves_:
+ - my self
+ - yourself
+ - himself
+ - herself
+ - ourselves
+ - themselves
+ - itself
+ - oneself
+
+Adding emphasis:
+- The promotion reflected on Ricky himself.
+- I'm moving the piano myself.
+
+Refer back to the subject. The subject of the sentence is also the object of either a verb or preposition:
+- I can walk myself home.
+- Steve gave himself a raise.
+
+## Indefinite pronouns
+
+These pronouns stand in for unspecified people or things and function as a noun phrase:
+- anybody
+- anyone
+- everybody
+- everyone
+- everything
+- somebody
+- someone
+- something
+- anything
+- all
+- another
+- each
+- few
+- many
+- none
+- one
+- several
+- enough

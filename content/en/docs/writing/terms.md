@@ -33,6 +33,9 @@ copular verb
 
   Jack _became_ jealous.
 
+determiner
+: a word that introduces a noun and provides information about its reference in terms of definiteness, quantity, possession, or other aspects. Determiners help clarify which noun is being referred to and specify details about the noun. They precede nouns and are essential in forming clear and specific noun phrases.
+
 direct object
 : Takes or accepts the action of a transitive verb.
 

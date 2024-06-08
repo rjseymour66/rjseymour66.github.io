@@ -182,3 +182,147 @@ These pronouns stand in for unspecified people or things and function as a noun 
 - one
 - several
 - enough
+
+Can work as determiner (qualifier of adjectives) that precedes nouns and adds info about things like proximity, quantity, and definiteness:
+
+Example:
+- Enough is enough. (_enough_ is the noun phrase)
+- Enough people voted for him. (Enough is a determiner of the noun _people_)
+- You can't do it all. (_all_ is a noun phrase)
+- All students need support. (_All_ is a determiner of _students_)
+
+### "of the" phrases
+
+In the following phrases, the pronouns are part of a noun phrase that is modified by a prepositional phrase:
+- All of the dogs were barking.
+- Some of the men helped us.
+
+In the following phrases, the pronouns act as determiners:
+- All dogs were barking.
+- Some men helped us.
+
+### Quantifiers
+
+Indefinite pronouns address the number or quantity of things:
+- There's _some_ pie on the counter.
+- We couldn't find _any_ beer.
+- _Many_ people think the world is round.
+
+Pronouns that end in _-body_ or _-one_ refer to people:
+- Can anyone hear me?
+- Anybody will do.
+
+Pronouns that end in _-thing_ cannot refer to people:
+- Don't you know _anything_?
+- _Something_ is better than nothing.
+
+### Assertives vs non-assertives
+
+Assertive pronouns indicate that at least one or some of the thing being referenced is represented by the pronoun:
+- I'll have _some_ pie.
+- There's _something_ in the corner.
+
+Non-assertive pronouns indicate that there is none or maybe none of the thing:
+- _None_ is happy with the outcome.
+- _Anything_ can happen. (doesn't confirm that something will happen)
+
+## Generic pronouns
+
+Some pronouns refer to unspecified people:
+- you - It doesn't matter what you do.
+- we - We can't win all the time.
+- they - They say its a losing game.
+- one - One cannot live on ice cream alone.
+
+_One_ can also function as the substitute one, where it stands in for a noun phrase that's already understood by the speaker and the listener:
+- My brother doesn't have a birth mark, but I have one and my sister has one.
+
+## Relative pronouns
+
+Relative pronouns introduce relative clauses. Relative clauses postmodify nouns--they come after nouns and add some sort of description to them. This means that relative pronouns function adjectively:
+- that
+- which
+- who/hom
+
+And sometimes:
+- where
+- when
+
+There are two types of relative clauses: restrictive and nonrestrictive. Restrictive clauses add information about the noun that you cannot remove, while nonrestrictive can be removed without changing the meaning of the sentence:
+
+Examples:
+- The dog _that was barking_ was brown. (restrictive)
+- The lie, _which was mean_, really hurt her reputation. (nonrestrictive)
+- The teacher, _who is great_, is the reason I succeeded. (nonrestrictive)
+- The lady, _whom was in the car_, was wearing sunglasses. (restrictive)
+
+Relative pronouns can also be the subject of the clause:
+- The person _that yelled_ was annoying.
+- The team _that wins_ goes to the championship.
+
+### Zero relatives
+
+A _zero relative_ pronoun is where you can drop the pronoun from a restrictive clause:
+- The food _that_ we ate was delicious.
+- The food we ate was delicious.
+
+## Nominal relative
+
+This pronoun introduces a whole clause that functions as a noun phrase:
+- what
+- whatever
+- whatsoever
+- which
+- whichever
+- whichsoever
+- who
+- whoever
+- whosoever
+- whom
+- whomever
+- whomsoever
+
+Examples:
+
+- _Whatever_ works for you, works for me.
+- I don't know _what to think_.
+- We couldn't tell _who was singing_ harmony.
+
+They can also act as a determiner:
+- I'll sing _whatever_ song you want me to sing.
+
+## Conditional pronouns
+
+These pronouns offer a range of choices and usually head up clauses:
+- whatever
+- whichever
+- whoever (subject pronoun like _who_)
+- whomever (object pronoun like _whom_)
+
+Examples:
+- I'll say _whatever_ you want.
+
+## Demonstrative pronouns
+
+These pronouns stand in for a noun phrase. They point toward the specific thing that you're talking about:
+- this
+- that
+- these
+- those
+
+Example:
+- I like _these_.
+
+They can also function as determiners:
+- I hate _that_ movie. (determiner)
+- I hate _that_. (demonstrative)
+
+## Reciprocal pronouns
+
+These pronouns show you that two or more people did the same thing or had the same experience. There are two:
+- each other
+- one another
+
+They are an efficient way of stating something once:
+- Jack and Jill have fun with each other. = Jack has fun with Jill. Jill has fun with Jack.
+- Tom and Jerry always fight with one another. = Tom always fights with Jerry. Jerry always fights with Tom.

@@ -65,6 +65,12 @@ object predicative
   - I thought the concert was _exciting_.
   - Stan makes _guitars_.
 
+participle
+: A form of a verb that is used to create verb tenses, adjectives, or to form a part of verb phrases. In English, there are two types of participles: present participles and past participles.
+  
+  - Present: add _-ing_
+  - Past: add _-ed_
+
 predicate
 : Tells what the subject does or is. It includes the main verb and any objects, complements, or modifiers related to the action or state.
 

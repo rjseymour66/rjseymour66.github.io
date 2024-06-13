@@ -70,3 +70,10 @@ Disjuncts
   - _Frankly_, you are annoying me.
   - _To be honest_, I am not sure how you do it.
   - _To be frank_, you are annoying me.
+
+## Copular verbs + adjective
+
+Copular verbs point back to the subject. The subject is always a noun phrase, which must be modified with an adjective and not an adverb:
+- I am sad, not I am sadly.
+- He looks bad, not He looks badly.
+

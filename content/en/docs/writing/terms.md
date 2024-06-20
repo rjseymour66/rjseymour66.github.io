@@ -44,6 +44,9 @@ direct object
 ditransitive verb
 : A verb that takes a direct object and indirect object.
 
+independent clause
+: Contain a subject and a conjugated verb that form the core of the sentence.
+
 indirect object
 : A prepositional phrase with the preposition removed, and the remainder moved directly preceding the direct object.
 

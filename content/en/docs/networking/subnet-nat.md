@@ -50,7 +50,7 @@ Method that ISPs use to allocate a number of addresses to a company or home conn
 - provided addresses in a block size
 - For example: `192.168.10.32/28`
   - `/XX` is the number of bits turned on (`1`). So `28` is the network
-  - Most available is `/30` because you need to keep at least 2 bits for host bits
+  - Most available is `/30` because you need to keep at least 2 bits for network and broadcast addresses
   - So `255.0.0.0` is a a `/8` because all bits in the first octet are on
 
 ### All subnets and CIDR vals
@@ -83,3 +83,28 @@ Method that ISPs use to allocate a number of addresses to a company or home conn
 
 ## Subnetting Class C
 
+Class C only has 8 bits available for defining hosts:
+
+| Binary | Decimal | CIDR |
+|---|---|---|
+| 00000000 | 0   | /24 |
+| 10000000 | 128 | /25 |
+| 11000000 | 192 | /26 |
+| 11100000 | 224 | /27 |
+| 11110000 | 240 | /28 |
+| 11111000 | 248 | /29 |
+| 11111100 | 252 | /30 |
+
+### Quick subnetting
+
+Answer the following questions:
+- How many subnets does the chosen subnet mask produce
+  - 2^x == number of subnets, where x is the number of 1s in the subnet mask. 11100000 gives 8 subnets, bc 2^3 = 8.
+- How many valid hosts per subnet are available
+  - 2^y - 2 == number of hosts, where y is the number of 0s in the subnet mask. 11100000 gives 30 hosts, because 2^5 = 32, and 32 - 2 = 30. You subtract 2 for the broadcast and network addresses.
+- What are the valid subnets?
+  - ???????????????
+- What's the broadcast addr of each subnet?
+  - The broadcast address is always the number right before the next subnet. The 64 subnet has a broadcast address of 127 because the next subnet starts at 128.
+- What are the valid hosts in each subnet?
+  - All numbers between the subnets, omitting the 0s and 1s. If 64 is the subnet number and 127 is the broadcast, so valid addresses are 65 - 126.

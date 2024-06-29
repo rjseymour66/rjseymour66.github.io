@@ -5,4 +5,3 @@ linkTitle: "Hugo"
 description: >
   Building websites with Hugo.
 ---
-

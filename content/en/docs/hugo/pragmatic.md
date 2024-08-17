@@ -377,3 +377,46 @@ footer {
 
 @import "navbar";
 ```
+
+## Images
+
+For templates, you can use the [image processing](https://gohugo.io/content-management/image-processing/) functions. You can't use these in content pages, only layouts. To manipulate images, use [shortcodes](#shortcodes).
+
+You can put images in the site `/static` directory, or the `/theme/<theme>/static` directory. The static directories are merged together.
+
+The contents of the `/static` folder are copied to the root of the site, and the `relURL` function generates the image path relative to the page:
+
+```html
+<footer>
+    <small>Copyright {{now.Format "2006"}} {{ .Site.Params.author -}}. {{- partial "social.html" . -}}</small>
+    <p>Powered by<br>
+        <a href="https://gohugo.io">
+            <img src="{{ "hugo-logo-wide.svg" | relURL }}" alt="Hugo image" width="128" height="38">
+        </a></p>
+</footer>
+```
+
+## Shortcodes
+
+Use shortcodes when you would use HTML in a Markdown document. Shortcodes are functions powered by Go's templating mechanism that you can use in md. You call them and pass them options, and they generate output. Shortcodes let you do things in your md content that you'd normally only be able to do in layouts.
+
+Put shortcodes in `/layouts/shortcodes`, either in your theme or site with an `.html` extension:
+
+```go
+// .Get 0 gives you access to the first argument you pass to the shortcode.
+// .Resize resizes the image. Pass only one value so Hugo maintains the aspect ratio.
+{{ $image := $.Page.Resources.GetMatch (.Get 0)}}
+{{ $smallImage := $image.Resize "1024x" }}
+
+<figure class="post-figure">
+    <a href="{{ $image.RelPermalink }}">
+        {{ with $smallImage }}          // changes context so you don't have to prefix .Width and .Heigth with $smallImage
+        <img src="{{ .RelPermalink }}"
+             width="{{ .Width }}"
+             heigth="{{ .Height }}"
+             alt="{{ $.Get 1 }}" />     // fetches 2nd arg to the shortcode. Use $ because the context is changed, and you need
+        {{ end }}                       // to reach outside current scope
+    </a>
+    <figcaption>{{ .Get 1 }}</figcaption>
+</figure>
+```

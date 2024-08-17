@@ -38,6 +38,14 @@ Context (.)
 
 ## Variables
 
+### .Date
+
+Get the date and format it:
+
+```go
+Posted {{ .Date.Format "January 2, 2006"}}
+```
+
 ### $.Variable
 
 Prefixing a variable with a `$` tells Hugo that you want values in the global scope, not current local scope:
@@ -156,6 +164,24 @@ Ensures an HTML snippet is not escaped. It allows you to mark a string as safe H
 {{ printf $link .Rel .MediaType.Type .Permalink $title | safeHTML }}
 ```
 
+### .Summary
+
+Hugo can pull a page summary with this variable. You can control where the summary ends with `<!-- more -->`:
+
+```md
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+<!-- more -->
+```
+
+### urlize
+
+Encodes text content as a url
+
+```go
+<a href="/tags/{{ . | urlize}}" class="tag">{{ . }}</a>
+```
+
 ## Commands
 
 ```bash
@@ -165,7 +191,7 @@ hugo new theme theme-name
 # add new theme to config.toml
 theme = "theme-name"
 
-# create new page in /content with default archetype
+# create new page in /content with default archetype (do not need to create dir first)
 hugo new page-name.md
 
 # create new page in /<archetyp-name> with /archetype file
@@ -176,6 +202,13 @@ hugo --cleanDestinationDir
 
 # minify /public contents
 hugo --cleanDestinationDir --minify
+```
+## Math
+
+Perform math operations with nested inline equations:
+
+```go
+Reading time: {{ math.Round (div (countwords .Content) 200.0) }} minutes
 ```
 
 ## Blocks and partials
@@ -298,4 +331,49 @@ date: 2024-06-25T23:58:40-04:00
 draft: false
 layout: contact
 ---
+```
+
+## Assets and Pipes
+
+To use pipes, you have to create an `/assets` directory for your JS, SCSS, etc. files.
+
+In the following snippet:
+- `resources.Get` function uses `/assets` dir as its base
+- `$css.RelPermalink` writes a CSS file to `/public/css` and adds the relative URL to the HTML doc
+- `minify` minifies the file
+- `fingerprint` creates a unique filename for the asset file so users don't cache the wrong file
+- `toCSS` transpiles Sass to CSS
+
+```go
+{{ $css := resources.Get "css/style.scss" | toCSS | minify | fingerprint }}
+<link rel="stylesheet" href="{{ $css.RelPermalink }}">
+```
+### Sass
+
+Use `toCSS` to transpile your Sass to CSS:
+
+```go
+{{ $css := resources.Get "css/style.scss" | toCSS | minify | fingerprint }}
+<link rel="stylesheet" href="{{ $css.RelPermalink }}">
+```
+
+#### Partials
+
+A partial is a file that you can include in the main Sass file. Partial filenames begin with an underscore:
+
+```
+/themes/.../_navbar.scss
+```
+
+Then import the file into your main Sass page where you want it to be loaded into the browser:
+
+```scss
+nav,
+footer {
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+}
+
+@import "navbar";
 ```

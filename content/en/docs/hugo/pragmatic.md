@@ -380,6 +380,12 @@ footer {
 
 ## Images
 
+Image processing can increase build times. To make it shorter, Hugo caches any converted images and saves them in the `/resources` folder. You can clean up these images with this command:
+
+```bash
+hugo -gc
+```
+
 For templates, you can use the [image processing](https://gohugo.io/content-management/image-processing/) functions. You can't use these in content pages, only layouts. To manipulate images, use [shortcodes](#shortcodes).
 
 You can put images in the site `/static` directory, or the `/theme/<theme>/static` directory. The static directories are merged together.

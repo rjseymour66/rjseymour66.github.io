@@ -426,3 +426,97 @@ Put shortcodes in `/layouts/shortcodes`, either in your theme or site with an `.
     <figcaption>{{ .Get 1 }}</figcaption>
 </figure>
 ```
+
+## Javascript
+
+You can combine all scripts into a singl eminified file and fingerprint the file to protect against incorrect cached files.
+
+Put your JS files in `themes/<theme-name>/assets/js`, and add them to your `themes/<theme-name>/layouts/_default/filename.html` file like this:
+
+```go
+    // no webpack
+    {{ $lunr := resources.Get "js/lunr.js" }}       // <script src="//unpkg.com/lunr@2.3.6/lunr.js"></script>
+    {{ $axios := resources.Get "js/axios.js" }}     // <script src="//unpkg.com/axios@0.19.0/dist/axios.js"></script>
+    {{ $search := resources.Get "js/search.js" }}   // <script src="{{ "js/search.js" | relURL }}"></script>
+    {{ $libs := slice $lunr $axios $search }}       // create a slice
+    {{ $js := $libs | resources.Concat "js/app.js" | minify | fingerprint }} // combine into single file, minify, then fingerprint
+    <script src="{{{ $js.RelPermalink }}</script>    
+```
+
+### Webpack and npm
+
+Webpack manages and builds frontend applications. Its powered by Node.js, so you have access to npm for package management and automation.
+
+To use Webpack with Hugo, you have to do the following:
+1. Install the dependencies
+2. Create a `package.json` file with scripts that run Webpack and hugo
+3. Create a `webpack.config.js` file that tells Webpack where to find your source JS files and build the output.
+4. Add a path to your Webpack JS output file in your HTML.
+
+#### Install dependencies
+
+```bash
+# Install webpack and its CLI
+npm install --save-dev webpack webpack-cli
+
+# Install dependencies -- you don't have to use 
+# <script src="<dep[1,2,...]>" in HTML files
+npm install --save <dep1> <dep2> ...
+
+# Run multiple tasks at once or parallel
+npm install --save-dev npm-run-all
+```
+
+#### Create package.json
+
+Sample `package.json` file:
+
+```json
+{
+  "name": "portfolio",
+  "version": "1.0.0",
+  "description": "My portfolio",
+  "private": true,
+  "scripts": {
+    "build": "npm-run-all webpack hugo-build",  // run webpack and hugo server sequentially
+    "hugo-build": "hugo --cleanDestinationDir", // build hugo
+    "hugo-server": "hugo server --disableFastRender",   // run dev server, nothing is cached
+    "webpack": "webpack",   // runs webpack
+    "webpack-watch": "webpack --watch", // webpack watches changes for hugo and generates new .js file (run in new terminal)
+    "dev": "npm-run-all webpack --parallel webpack-watch hugo-server"
+  },
+  "devDependencies": {
+    "npm-run-all": "^4.1.5",
+    "webpack": "^5.93.0",
+    "webpack-cli": "^5.1.4"
+  },
+  "dependencies": {
+    "axios": "^1.7.4",
+    "lunr": "^2.3.9"
+  }
+}
+```
+
+#### Create webpack.config.js
+
+Add `webpack.config.js`:
+
+```js
+const path = require('path');
+
+module.exports = {
+    entry: './themes/basic/assets/js/index.js', // looks for index.js
+    output: {   // generates output in themes/basic/assets/js/app.js
+        filename: 'app.js',
+        path: path.resolve(__dirname, 'themes', 'basic', 'assets', 'js')
+    }
+};
+```
+#### Integrate JS output file in HTML file
+
+Integrate the file that Webpack generates into the layout:
+
+```html
+{{ $js := resources.Get "js/app.js" | minify | fingerprint }}
+    <script src="{{ $js.RelPermalink }}"</script>
+```

@@ -608,6 +608,9 @@ Versions of your project that are hosted somewhere else (on the same host, on th
 # add a remote
 git remote add origin https://github.com/path/to/repo.git
 
+# maybe this is more correct?
+git remote add origin git@github.com:<username>/<repo-name>.git
+
 # view remote servers
 $ git remote
 origin          # default name that git gives to cloned server

@@ -4,6 +4,28 @@ linkTitle: "Pragmatic"
 weight: 5
 ---
 
+## Commands
+
+```bash
+# create new theme
+hugo new theme theme-name
+
+# add new theme to config.toml
+theme = "theme-name"
+
+# create new page in /content with default archetype (do not need to create dir first)
+hugo new page-name.md
+
+# create new page in /<archetyp-name> with /archetype file
+hugo new <archetype-name>/page-name.md
+
+# delete /public and regen /public
+hugo --cleanDestinationDir
+
+# minify /public contents
+hugo --cleanDestinationDir --minify
+```
+
 ## Adding a content section
 
 1. Create an archetype.
@@ -182,27 +204,7 @@ Encodes text content as a url
 <a href="/tags/{{ . | urlize}}" class="tag">{{ . }}</a>
 ```
 
-## Commands
 
-```bash
-# create new theme
-hugo new theme theme-name
-
-# add new theme to config.toml
-theme = "theme-name"
-
-# create new page in /content with default archetype (do not need to create dir first)
-hugo new page-name.md
-
-# create new page in /<archetyp-name> with /archetype file
-hugo new <archetype-name>/page-name.md
-
-# delete /public and regen /public
-hugo --cleanDestinationDir
-
-# minify /public contents
-hugo --cleanDestinationDir --minify
-```
 ## Math
 
 Perform math operations with nested inline equations:

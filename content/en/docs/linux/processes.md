@@ -1,11 +1,11 @@
 ---
 title: "Processes"
-linkTitle: ""
+linkTitle: "Processes"
 # weight: 1000
 # description:
 ---
 
-## ps and pstree
+## ps
 
 ```bash
 # every process from parent shell back to init
@@ -19,7 +19,11 @@ root           5       2  0 03:04 ?        00:00:00 [kworker/R-rcu_p]
 root           6       2  0 03:04 ?        00:00:00 [kworker/R-slub_]
 root           7       2  0 03:04 ?        00:00:00 [kworker/R-netns]
 root          10       2  0 03:04 ?        00:00:00 [kworker/0:0H-events_highpri]
+```
 
+## pstree
+
+```bash
 # visualize parent/child processes (-p displays PIDs)
 $ pstree -p
 systemd(1)─┬─ModemManager(789)─┬─{ModemManager}(805)

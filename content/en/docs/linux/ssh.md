@@ -5,11 +5,28 @@ linkTitle: ""
 # description:
 ---
 
-## ssh
+## Config files
 
-Config files are in `/etc/ssh`.
+Config files are in `/etc/ssh`:
 
-### Generate new keypair
+```bash
+$ ls -l /etc/ssh/
+total 652
+-rw-r--r-- 1 root root 620042 Aug  9 02:33 moduli
+-rw-r--r-- 1 root root   1649 Aug  9 02:33 ssh_config
+drwxr-xr-x 2 root root   4096 Aug  9 02:33 ssh_config.d
+-rw-r--r-- 1 root root   3253 Nov  7 04:09 sshd_config
+drwxr-xr-x 2 root root   4096 Nov  2 17:18 sshd_config.d
+-rw------- 1 root root    505 Nov  2 17:18 ssh_host_ecdsa_key
+-rw-r--r-- 1 root root    176 Nov  2 17:18 ssh_host_ecdsa_key.pub
+-rw------- 1 root root    411 Nov  2 17:18 ssh_host_ed25519_key
+-rw-r--r-- 1 root root     96 Nov  2 17:18 ssh_host_ed25519_key.pub
+-rw------- 1 root root   2602 Nov  2 17:18 ssh_host_rsa_key
+-rw-r--r-- 1 root root    568 Nov  2 17:18 ssh_host_rsa_key.pub
+-rw-r--r-- 1 root root    342 Dec  7  2020 ssh_import_id
+```
+
+## Generate new keypair
 
 ```bash
 # ed25519 algorigthm by default (no universal support)
@@ -30,7 +47,7 @@ Enter same passphrase again:
 ...
 ```
 
-### Copy keys to remote
+## Copy keys to remote
 
 ```bash 
 # copy to .ssh/autorized_keys (-i specifies the key)
@@ -52,30 +69,16 @@ $ cat .ssh/id_rsa.pub \
 linuxuser@192.168.56.50's password: 
 ```
 
-### dpkg
+## Login with hostname
+
+Instead of using the IP address, add the hostname and IP address mapping to `/etc/hosts`:
 
 ```bash
-# get installed version and update status
-$ dpkg -s openssh-server
-Package: openssh-server
-Status: install ok installed
-Priority: optional
-...
-```
+# open file (sudo)
+vim /etc/hosts
 
-## systemctl
-
-```bash
-# check status of system daemon
-$ dpkg -s openssh-server
-Package: openssh-server
-Status: install ok installed
-Priority: optional
-...
-
-# stop system daemon
-systemctl stop <daemon>
-
-# autoload daemon on system startup
-systemctl enable <daemon>
+# add new-host mapping
+127.0.0.1   localhost
+127.0.1.1   ubuntu-24
+10.20.30.40 new-host
 ```

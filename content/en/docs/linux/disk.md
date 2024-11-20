@@ -306,6 +306,8 @@ tmpfs                              795M   12K  795M   1% /run/user/1000
 
 ## dd
 
+[Complete guide to dd](https://blog.kubesimplify.com/the-complete-guide-to-the-dd-command-in-linux)
+
 Disk/data duplicator, also called the "disk destroyer":
 - Create backups of entire partitions and hard drives
 - Wipe disks

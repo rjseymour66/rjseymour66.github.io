@@ -93,6 +93,15 @@ GRANT ALL PRIVILEGES ON <db-name>.* TO '<username>'@'localhost' IDENTIFIED BY '<
 
 # refresh privs after update
 FLUSH PRIVILEGES;
+```
 
+## PHP
 
+```bash
+# install
+apt install php
+apt install libapache2-mod-php
+
+# restart apache2 after php install
+systemctl restart apache2
 ```

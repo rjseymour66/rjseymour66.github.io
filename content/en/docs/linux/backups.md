@@ -63,6 +63,9 @@ rsync [OPTION]... SOURCE DEST
 -t # retain file's modification time
 -v # verbose
 
+# copy to /home dir on remote
+rsync -av Downloads/filename.ext linuxuser@ubuntu-24:/home/linuxuser
+
 # 1. send all files in pwd to remote dir
 rsync -av * linuxuser@ubuntu-24:syncdirectory
 sending incremental file list

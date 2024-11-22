@@ -16,6 +16,22 @@ Priority: optional
 ...
 ```
 
+## snaps
+
+Snaps are distro-agnostc software packages:
+- Distros just need to be snap-compliant
+- Removes differences with distro package managers like `apt` and `yum`
+- Stored in `/var/snap/<snap-name>`
+- Often not as configurable as manually installed applications
+
+```bash
+# view installed snaps
+snap find <keyword>
+
+# install snap package
+snap install <package-name>
+```
+
 ## Auto-upgrade script
 
 Place this script in `/etc/cron.daily/`. `apt` runs as root, so use `sudo` to manually run, or use `cron`, which uses root privileges:

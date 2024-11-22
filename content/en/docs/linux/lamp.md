@@ -34,7 +34,8 @@ drwxr-xr-x 2  4096 Nov 20 01:02 mods-enabled/
 drwxr-xr-x 2  4096 Nov 20 01:02 sites-available/    
 drwxr-xr-x 2  4096 Nov 20 01:02 sites-enabled/
 
-# DocumentRoot controls content location
+# DocumentRoot controls content location - change this to
+# change where Apache looks for content to serve
 cat sites-enabled/000-default.conf 
 <VirtualHost *:80>
 	...

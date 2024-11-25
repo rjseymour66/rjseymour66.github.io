@@ -5,6 +5,12 @@ linkTitle: "Permissions"
 # description:
 ---
 
+Discretionary access control (DAC)
+: Flexible access control model where the owner of a resource (file, directory, etc.) determines who can access it and what actions they can perform.
+
+Discretionary access control (MAC)
+: Strict access control model where administrators define and enforce security policies, and users cannot alter these policies.
+
 ## Viewing permissions
 
 ```bash
@@ -81,3 +87,24 @@ sudo chown otheruser:otheruser owner.file
 ll owner.file 
 -rw-rw-r-- 1 otheruser otheruser 0 Nov 10 22:47 owner.file
 ```
+
+## Associate file to group, then granting privileges
+
+```bash
+# create group
+groupadd app-data-group
+
+# change owner to <user>:<group>
+chown linuxuser:app-data-group datafile.txt 
+
+ll datafile.txt 
+-rwxrwx---. 1 linuxuser app-data-group 44 Nov 24 22:19 datafile.txt*
+
+# add user to group
+usermod -aG app-data-group <other-user>
+su <other-user>
+cat datafile.txt 
+# // datafile contents
+```
+
+## View groups

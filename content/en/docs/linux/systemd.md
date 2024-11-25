@@ -47,3 +47,15 @@ Tue 2024-11-19 00:00:00 UTC      22h Mon 2024-11-18 00:51:42 UTC 57min ago dpkg-
 19 timers listed.
 ```
 
+## Check active services
+
+```bash
+systemctl list-unit-files --type=service --state=enabled
+UNIT FILE                              STATE   PRESET 
+anacron.service                        enabled enabled
+apache2.service                        enabled enabled
+apparmor.service                       enabled enabled
+apport.service                         enabled enabled
+blk-availability.service               enabled enabled
+...
+```

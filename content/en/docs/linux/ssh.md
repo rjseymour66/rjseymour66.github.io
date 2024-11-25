@@ -82,3 +82,47 @@ vim /etc/hosts
 127.0.1.1   ubuntu-24
 10.20.30.40 new-host
 ```
+
+## Change default port number
+
+SSH uses port 22, but you can change that in `/etc/ssh/sshd_config`:
+
+```bash
+cat /etc/ssh/sshd_config
+
+# This is the sshd server system-wide configuration file.  See
+# sshd_config(5) for more information.
+...
+
+#Port 22
+#AddressFamily any
+#ListenAddress 0.0.0.0
+#ListenAddress ::
+
+systemclt restart ssh
+ssh -p<new-port> <username>@<ip-or-hostname>
+```
+
+## Security
+
+Make these changes to `/etc/ssh/sshd_config`:
+
+```bash
+# restart ssh after changes to sshd_config
+systemctl restart ssh
+
+# changes to sshd_config
+cat /etc/ssh/sshd_config
+
+# This is the sshd server system-wide configuration file.  See
+# sshd_config(5) for more information.
+...
+#LoginGraceTime 2m
+PermitRootLogin no          # disable root login (ex: ssh root@ip)
+...
+
+# To disable tunneled clear text passwords, change to no here!
+PasswordAuthentication yes  # change to 'no' to require auth with keypairs, not passwords
+...
+
+```

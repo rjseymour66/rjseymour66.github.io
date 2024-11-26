@@ -54,3 +54,5 @@ linkTitle: "Todo"
     Installs and configures a set of packages and services for a specific purpose (e.g., web server, database server).
     Includes custom configurations for packages like nginx, mysql, or docker.
     Features: Idempotency (runs without re-applying unchanged configurations).
+
+11. Set up log aggregator service

@@ -195,3 +195,59 @@ Nov 26 03:40:03 ubuntu-24 systemd[1]: sysstat-collect.service: Deactivated succe
 Nov 26 03:40:03 ubuntu-24 systemd[1]: Finished sysstat-collect.service - system activity accounting tool.
 
 ```
+
+## Searching logs
+
+### grep
+
+```bash
+# search for authentication failures
+cat /var/log/auth.log | grep 'Authentication failure'
+
+# return line before and after match
+cat /var/log/auth.log | grep -B 1 -A 1 failure
+```
+
+### awk
+
+```bash
+# return number of warning messages in logs
+cat error.log | awk '$3 ~/[Warning]/ | wc
+```
+
+
+### sed
+
+Can make complex substitutions on text streams
+- redirect to a file to save output
+
+```bash
+# p - print
+
+# return number of warning messages in logs
+cat error.log | awk '$3 ~/[Warning]/ | sed -n '$=''
+
+# basic substituion
+echo 'hello world' | sed 's/world/planet earth/'
+hello planet earth
+
+# remove numbers at beginning of lines and save in new file
+# replace a number at the beginning of a line with nothing
+sed "s/^ *[0-9]* //g" numbers.txt > new-numbers.txt
+
+
+# list only directories (output that begins with 'd')
+ll /var/log/ | sed -n '/^d/ p'
+drwxrwxr-x. 12 root      syslog            4096 Nov 26 03:07 ./
+drwxr-xr-x. 14 root      root              4096 Nov 20 01:02 ../
+drwxr-x---.  2 root      adm               4096 Nov 27 12:57 apache2/
+drwxr-xr-x.  2 root      root              4096 Nov 27 13:12 apt/
+drwxr-xr-x.  2 root      root              4096 Aug 21 16:55 dist-upgrade/
+drwxrwx---.  4 root      adm               4096 Nov  2 17:15 installer/
+drwxr-sr-x+  3 root      systemd-journal   4096 Nov  2 17:17 journal/
+drwxr-xr-x.  2 landscape landscape         4096 Aug 27 14:26 landscape/
+drwx------.  2 root      root              4096 Nov 24 15:54 letsencrypt/
+drwx------.  2 root      root              4096 Aug 27 14:21 private/
+drwxr-xr-x.  2 root      root              4096 Nov 27 12:57 sysstat/
+drwxr-x---.  2 root      adm               4096 Nov  2 17:18 unattended-upgrades/
+```

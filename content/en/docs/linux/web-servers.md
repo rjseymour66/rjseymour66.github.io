@@ -160,15 +160,7 @@ ufw allow <port-number>/tcp
 ufw allow <first-port>:<last-port>/tcp
 ```
 
-## Port designations
 
-There are 65,535 ports
-
-| Range | Description |
-|:---|:---|
-| 1 - 1023 | Well-known ports. Never use one of these ports for your own application. |
-| 1024 - 49151 | Registered ports. Set aside for applications, even if you don't use them. Ex, MySQL uses registed port 3306. |
-| 49152 - 65535 | Unregistered/private ports. Use these ports for your applications. |
 
 ## Encryption
 

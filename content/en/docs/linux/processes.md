@@ -52,3 +52,36 @@ root           1       0  0 03:04 ?        00:00:05 /sbin/init
 $ file /sbin/init
 /sbin/init: symbolic link to ../lib/systemd/systemd
 ```
+
+## kill and killall
+
+```bash
+# kill a single process
+kill <pid>
+
+# kill all instances of a program
+killall <process-name>
+```
+
+## Priority
+
+Not used very often...
+
+Set priority if a process is taking up too much CPU, but you can't kill it because it is a critical service.
+
+### nice and renice
+
+View the `nice` value with the `NI` column in the `top` command.
+
+Set `nice` value between `-20` and `19`.
+- Higher the value, the _nicer_ the process is about giving up system resources to other processes.
+
+`renice` changes the `nice` value after its started.
+
+```bash
+# high nice value
+nice -15 /scripts/myscript.sh
+
+# low nice value
+nice --15 /scripts/myscript.sh
+```

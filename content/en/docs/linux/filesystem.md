@@ -51,6 +51,7 @@ Searches the file system looking for matches to the options you provide and outp
 | -perm | _mode_ | Files whose permissions match _mode_ |
 | -size | _n_ | Files whose size matches _n_ |
 | -user | _name_ | Files whose owner is _name_ |
+| -xdev | | Search within a single filesystem |
 
 ```bash
 find [PATH...] [OPTION] [EXPRESSION]

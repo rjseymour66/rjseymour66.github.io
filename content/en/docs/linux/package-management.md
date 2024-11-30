@@ -14,6 +14,10 @@ Package: openssh-server
 Status: install ok installed
 Priority: optional
 ...
+
+# complete the configuration process for all packages that are 
+# unpacked but not fully configured
+dpkg --configure -a
 ```
 
 

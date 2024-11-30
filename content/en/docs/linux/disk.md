@@ -302,6 +302,17 @@ tmpfs                              3.9G     0  3.9G   0% /dev/shm
 tmpfs                              5.0M     0  5.0M   0% /run/lock
 /dev/sda2                          2.0G   95M  1.7G   6% /boot
 tmpfs                              795M   12K  795M   1% /run/user/1000
+
+# inode usage
+df -i
+Filesystem       Inodes   IUsed    IFree IUse% Mounted on
+tmpfs           4058217    1652  4056565    1% /run
+/dev/nvme0n1p3 30883840 1704682 29179158    6% /
+tmpfs           4058217     536  4057681    1% /dev/shm
+tmpfs           4058217       6  4058211    1% /run/lock
+/dev/nvme0n1p1        0       0        0     - /boot/efi
+tmpfs            811643     159   811484    1% /run/user/1001
+
 ```
 
 ## dd

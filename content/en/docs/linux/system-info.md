@@ -18,6 +18,27 @@ uname -a
 uname -r
 ```
 
+## Who are you?
+
+```bash
+# who you are logged in as
+whoami
+linuxuser
+
+# who is logged into the system
+who
+linuxuser tty1         2024-11-30 15:11
+linuxuser pts/0        2024-11-30 15:11 (192.168.56.1)
+
+# what logged in users are doing
+w
+ 17:04:00 up  3:32,  2 users,  load average: 0.00, 0.00, 0.00
+USER     TTY      FROM             LOGIN@   IDLE   JCPU   PCPU  WHAT
+linuxuse tty1     -                Sat15   25:52m  0.08s  0.03s -bash
+linuxuse          192.168.20.10    Sat15   25:53m  0.00s  0.03s sshd: linuxuser [priv]
+
+```
+
 ## How long system running
 
 ```bash

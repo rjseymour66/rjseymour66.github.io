@@ -56,3 +56,21 @@ linkTitle: "Todo"
     Features: Idempotency (runs without re-applying unchanged configurations).
 
 11. Set up log aggregator service
+
+## Server setup
+
+1. Create swap file
+2. Create user
+   1. Add to sudoers
+   2. Set password
+   3. Set umask
+3. Create bashrc
+   1. Prompt
+   2. alias
+4. Set VIM as default editor
+5. Setup SSH
+   1. Keys
+   2. Add to whichever servers
+   3. No root login
+   4. [Harden SSH](https://medium.com/@jasonrigden/hardening-ssh-1bcb99cd4cef)
+6. Configure backup script

@@ -7,12 +7,24 @@ linkTitle: "Packages"
 
 ## dpkg
 
+Install, remove, and build packages, but cannot download and install packages or their dependencies.
+- Older version of apt
+
 ```bash
 # get installed version and update status
 $ dpkg -s openssh-server
 Package: openssh-server
 Status: install ok installed
 Priority: optional
+
+# list packages
+dpkg -l
+
+# install a deb file
+dpkg -i <file.deb>
+
+# uninstall a package
+dpkg -r <package-name>
 ...
 
 # complete the configuration process for all packages that are 
@@ -20,47 +32,36 @@ Priority: optional
 dpkg --configure -a
 ```
 
+## apt tools
 
+Use `apt`.
 
-## Auto-upgrade script
-
-Place this script in `/etc/cron.daily/`. `apt` runs as root, so use `sudo` to manually run, or use `cron`, which uses root privileges:
-
-```bash
-#!/bin/bash
-# Automate regular software updates
-
-apt update
-apt upgrade -y
-```
-
-## Find an executable
-
-```bash
-# programming language
-whereis go
-go: /usr/local/go /usr/local/go/bin/go
-
-# CLI
-whereis aws
-aws: /usr/local/bin/aws
-
-# user binary
-whereis tar
-tar: /usr/bin/tar /usr/share/man/man1/tar.1.gz
-
-```
-
-## Debian repository tools
-
-Core tool is `apt`:
+Core tool is the Advanced Packaging Tool (`apt`):
 - `apt-cache`: 
 - `apt-get`: installs, updates, and removes packages
 - `apt`: front end script that can call either `apt-cache` or `apt-get`
+- `sudo aptitude`: opens an `apt` GUI in the terminal
+- actions logged in `/var/log/dpkg.log`
 
-The `/etc/apt/sources.list` file contains address of other repos that the `apt` tool is configured to use.
+`apt-get` and `apt-cache` have a lot of low-level commands that were not commonly used. `apt` consists of the most widely used features of `apt-get` and `apt-cache`:
+- `apt` can install new packages or the kernel, but `apt-get` cannot
+
+The `/etc/apt/sources.list` file contains address of other repos that the `apt` tool is configured to use:
 
 ```bash
+cat /etc/apt/sources.list.d/ubuntu.sources
+Types: deb
+URIs: http://us.archive.ubuntu.com/ubuntu/
+Suites: noble noble-updates noble-backports
+Components: main restricted universe multiverse
+Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
+
+Types: deb
+URIs: http://security.ubuntu.com/ubuntu/
+Suites: noble-security
+Components: main restricted universe multiverse
+Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
+
 # view nonstandard repositories
 grep -v "#" /etc/apt/sources.list
 
@@ -174,6 +175,14 @@ upgrade # install latest version of specified packages, or all pkgs if none are 
 upgrade-minimal # install only latest package versions that provide bugfix or security fix
 ```
 
+## Launchpad PPA repos
+
+Launchpad Personal Package Archive (PPA) updates the `sources.list.d` file. Add repos with this command:
+
+```bash
+add-apt-repository ppa:<repo-name>
+```
+
 ## Application containers
 
 - Containers bundle all files required for an application, including dependencies, into one distro package (the container)
@@ -246,3 +255,33 @@ ii  anacron                              2.3-39ubuntu2                          
 # remove package
 apt-get remove <package>
 ```
+
+
+## Auto-upgrade script
+
+Place this script in `/etc/cron.daily/`. `apt` runs as root, so use `sudo` to manually run, or use `cron`, which uses root privileges:
+
+```bash
+#!/bin/bash
+# Automate regular software updates
+
+apt update
+apt upgrade -y
+```
+
+## Find an executable
+
+```bash
+# programming language
+whereis go
+go: /usr/local/go /usr/local/go/bin/go
+
+# CLI
+whereis aws
+aws: /usr/local/bin/aws
+
+# user binary
+whereis tar
+tar: /usr/bin/tar /usr/share/man/man1/tar.1.gz
+```
+

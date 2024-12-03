@@ -17,7 +17,7 @@ free -h
 Mem:           7.8Gi       631Mi       7.0Gi       3.8Mi       373Mi       7.1Gi
 Swap:             0B          0B          0B
 
-# with high and low stats
+# MiB with high and low stats
 free -lm
                total        used        free      shared  buff/cache   available
 Mem:           31704        6752       19689        1023        5263       23472
@@ -89,3 +89,36 @@ cat /proc/sys/vm/swappiness
 ```
 
 ## OOM Killer
+
+[Tuning the OOM killer](https://www.oracle.com/technical-resources/articles/it-infrastructure/dev-oom-killer.html)
+
+Many applications request all their memory up-front and often do not use it. The kernel can over-commit memory for efficiency purposes, so it can provide all the up-front memory. If the applications actually start using all the committed memory, the kernel kills processes to continue running. The out-of-memory (OOM) killer is the mechanism that kills the memory.
+
+### High and low memory
+
+Low memory
+: Has a physical address that the kernel can access directly. ON 64-bit systems, all memory is low memory.
+
+High memory
+: No physical address, not really needed in 64-bit systems because these systems don't need virtual address space.
+
+Use `vmstat` to monitor `free` memory over time:
+
+```bash
+vmstat -SM 5 10
+procs -----------memory---------- ---swap-- -----io---- -system-- ------cpu-----
+ r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa st
+ 0  0      0  20071    387   4786    0    0    48    53  359  191  5  2 93  0  0
+ 1  0      0  20025    387   4831    0    0     0     9 3245 6709  3  1 96  0  0
+ 2  0      0  19772    388   4915    0    0   184   372 6656 15366 12  3 84  0  0
+ 2  0      0  19708    388   4928    0    0    10   861 8399 27773 19  4 77  0  0
+ 0  0      0  19619    388   4939    0    0     0   558 6890 19543 12  3 84  0  0
+ 0  0      0  19683    388   4894    0    0     0   346 2827 5450  3  1 95  0  0
+ 0  0      0  19680    388   4894    0    0     0  2437 2381 4520  3  1 95  0  0
+ 2  0      0  19725    388   4908    0    0     0  2138 3847 7798  5  2 93  0  0
+ 0  0      0  19709    388   4923    0    0     0   305 3389 7036  4  3 93  0  0
+ 1  0      0  19862    388   4879    0    0     0    13 3277 5510  4  1 95  0  0
+
+# output to file
+vmstat -SM 5 10 > memoryusage.out &
+```

@@ -5,7 +5,35 @@ linkTitle: ""
 # description:
 ---
 
-## Config files
+## User config files
+
+Create a `~/.ssh/config` file that assigns a logical name to the `ssh`, `scp`, `sftp`, and `rsync` connection details for a machine:
+
+```bash
+# config file format
+Host <hostname>             # logical name you assign
+    HostName <ip-addr>      # IP addr or remote hostname (from /etc/hosts)
+    User <username>         # user you ssh as
+    Port <port>             # SSH port
+
+# For example:
+Host u24
+	HostName 10.20.30.40
+	User linux
+	Port 2222
+
+# get all config options
+man ssh_config
+```
+
+Then, log in like this:
+
+```bash
+ssh u24
+```
+If you have multiple host definitions (stanzas), then it applies all rules that it matches. See [Linuxize](https://linuxize.com/post/using-the-ssh-config-file/).
+
+## Daemon config files
 
 Config files are in `/etc/ssh`:
 

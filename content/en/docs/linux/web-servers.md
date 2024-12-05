@@ -6,6 +6,7 @@ linkTitle: "Web servers"
 ---
 
 
+
 ## LAMP
 
 LAMP is a common *web server* stack. A web server is software that makes local web resources available by visitors to a website, or it is the machine hosting the web service.
@@ -16,9 +17,15 @@ LAMP can stand for the following:
 - MySQL or MariaDB
 - PHP, Perl, or Python
 
-### Apache
+## Apache
 
 Go to localhost (or the IP address for VMs) to view the default page and make sure everything is working.
+
+- Files in `/etc/apache2`
+- Manage with `systemctl`
+- Logs in `/var/log/apache2`
+- Opens port 80. `apt update` and `apt upgrade` make this secure enough for a test environment, but not prod
+
 ```bash
 # install
 apt install apache2
@@ -36,7 +43,28 @@ drwxr-xr-x 2  4096 Nov 20 01:02 mods-enabled/
 -rw-r--r-- 1   274 Mar 18  2024 ports.conf
 drwxr-xr-x 2  4096 Nov 20 01:02 sites-available/    
 drwxr-xr-x 2  4096 Nov 20 01:02 sites-enabled/
+```
 
+### Configuration
+
+```bash
+# apache2.conf: merge apache2.conf with .conf files in conf-enabled/
+IncludeOptional conf-enabled/*.conf
+
+
+# default web page location is in sites-enabled/000-default.conf
+<VirtualHost *:80>
+        ...
+        ServerAdmin webmaster@localhost
+        DocumentRoot /var/www/html
+        ...
+</VirtualHost>
+
+```
+
+### Website files
+
+```bash
 # DocumentRoot controls content location - change this to
 # change where Apache looks for content to serve
 cat sites-enabled/000-default.conf 
@@ -64,7 +92,12 @@ index.html
 ...
 ```
 
-### MariaDB
+### Setup links
+
+- [Canonical's How to install Apache2](https://ubuntu.com/server/docs/how-to-install-apache2)
+- [Red Hat's Setting up the Apache HTTP web server](https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html/deploying_web_servers_and_reverse_proxies/setting-apache-http-server_deploying-web-servers-and-reverse-proxies#doc-wrapper)
+
+## MariaDB
 
 - Data in a table is a _record_
 - A _record_ is identified by a key
@@ -99,7 +132,7 @@ GRANT ALL PRIVILEGES ON <db-name>.* TO '<username>'@'localhost' IDENTIFIED BY '<
 FLUSH PRIVILEGES;
 ```
 
-### PHP
+## PHP
 
 ```bash
 # install

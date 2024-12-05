@@ -23,9 +23,8 @@ network:
     enp0s8:
       dhcp4: no
       addresses:
-        - 192.168.10.11/24
-        
-        192.168.56.50
+        - 192.168.56.50/24
+
 
 # test the config - resets after 120s
 sudo netplan try

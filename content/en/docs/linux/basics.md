@@ -5,64 +5,6 @@ linkTitle: "Basics"
 # description:
 ---
 
-## Set default text editor
-
-Ubuntu uses `nano` by default, change it to `vim`:
-
-```bash
-sudo update-alternatives --config editor
-There are 4 choices for the alternative editor (providing /usr/bin/editor).
-
-  Selection    Path                Priority   Status
-------------------------------------------------------------
-  0            /bin/nano            40        auto mode
-  1            /bin/ed             -100       manual mode
-  2            /bin/nano            40        manual mode
-* 3            /usr/bin/vim.basic   30        manual mode
-  4            /usr/bin/vim.tiny    15        manual mode
-
-Press <enter> to keep the current choice[*], or type selection number: 
-```
-## Change hostname
-
-```bash
-hostnamectl set-hostname mylittlecloudbox
-```
-
-## Set timezone
-
-This is important for scheduling tasks and the timestamps for logs under `/var/log`:
-
-```bash
-# view current timezone
-timedatectl
-               Local time: Sun 2024-12-01 17:15:21 UTC
-           Universal time: Sun 2024-12-01 17:15:21 UTC
-                 RTC time: Sun 2024-12-01 17:15:21
-                Time zone: Etc/UTC (UTC, +0000)             # current tz
-System clock synchronized: yes
-              NTP service: active
-          RTC in local TZ: no
-
-# get list of available timezones
-timedatectl list-timezones
-
-# set new timezone
-sudo timedatectl set-timezone America/New_York
-
-# verify
-timedatectl
-               Local time: Sun 2024-12-01 12:15:57 EST
-           Universal time: Sun 2024-12-01 17:15:57 UTC
-                 RTC time: Sun 2024-12-01 17:15:57
-                Time zone: America/New_York (EST, -0500)
-System clock synchronized: yes
-              NTP service: active
-          RTC in local TZ: no
-
-
-```
-
 ## Command information
 
 ### tldr
@@ -172,6 +114,9 @@ DESCRIPTION
 ```bash
 ls [OPTION]... [FILE]...
 ll # list long
+la # list all except . and ..
+l  # list in columns
+-1 # one entry per line
 -a # all files, incl hidden
 -d # current dir own metadata
 -F # classify 
@@ -213,8 +158,108 @@ Tracks your directory history. `pushd` puts your dir in a stack, and `popd` pops
 ~$ 
 
 ```
-### popd
+## history
+
+Get your command history to rerun commands:
+- Ctrl + r starts an autocomplete program that matches what you type with anything in your history
+
+```bash
+# view all history
+history
+
+# view previous 10 commands
+history 10
+
+# grep history
+history | grep less
+
+# execute a command from history
+!<history-number>
+!98
+
+# execute command relative to current history
+!-2
+
+# execute last command
+!!
+
+# execute last command with sudo
+sudo !!
+# example:
+cat /etc/shadow
+cat: /etc/shadow: Permission denied
+
+sudo !!
+sudo cat /etc/shadow
+...
+
+# replace incorrect string in previous command
+cat /etc/shosst
+cat: /etc/shosst: No such file or directory
+# ^incorrect^corrected^
+^shosst^hosts^
+cat /etc/hosts
+127.0.0.1 localhost
+...
+
+# word designator - access arg from prev command
+less .profile 
+# - replace less with cat
+cat !!:1
+cat .profile
+# ~/.profile: executed by the command interpreter for login shells.
+...
+
+# word designator - get all args from previous command
+!!:1*
+!!:*
+
+
+```
+
+## Pagers
+
+You can use less or more:
+- more has forward nav and limited backward nav
+- less: forward and backward nav, search options, switch to an editor, faster for large files
+
+
+### less
 
 ```bash
 
+# forward search
+/ # start search - enter pattern
+n # go to next match (forwards)
+N # go to previous match (backwards)
+
+
+# backward search
+? # start search - enter pattern
+n # go to next match (backwards)
+N # go to previous match (forwards)
+
+f # forward one window
+b # backward one window
+d # forward 1/2 window
+u # backward 1/2 window
+
+j # forward one line
+10j # forward 10 lines
+k # backward one line
+10k # backward 10 lines
+
+G # end of file
+g # start of file
+q or ZZ # exit
+
+F # waiting for data mode (file is being written to)
+
+v # use default editor to edit
+h # help
+&<pattern> # display only pattern matches
+
+# mark file and return to it
+m<letter> # mark a line in a file - ex: ma
+'<letter> # go back to the mark - ex: 'a
 ```

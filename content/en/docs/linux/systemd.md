@@ -5,8 +5,17 @@ linkTitle: "Systemd"
 # description:
 ---
 
+`systemd` is the init system, the first process that the kernel starts after boot that starts all other processes in user mode.
+- Works with _units_ 
+- There are types of units, specified by their extension (ex: `*.service`)
+  - you can omit the extension when starting and stopping services
+- `systemctl` executes instruction in unit files
 
 ## systemctl
+
+Great [Digital Ocean tutorial](https://www.digitalocean.com/community/tutorials/how-to-use-systemctl-to-manage-systemd-services-and-units).
+
+Management tool for `systemd`:
 
 ```bash
 # check status of system daemon
@@ -16,11 +25,113 @@ Status: install ok installed
 Priority: optional
 ...
 
-# stop system daemon
-systemctl stop <daemon>
+# ------------------------------------
+# Units
+systemctl list-units                            # list all active units
+systemctl                                       # list all active units
+systemctl list-units --all                      # list all units
+systemctl list-units --all --state=inactive     # filter for inactive units
+systemctl list-units --all --type=service       # filter by type
+systemctl list-unit-files                       # list every available unit file
+systemctl cat <service>                         # view currently loaded service file
+systemctl list-dependencies <service>           # list dependencies (other units) required to start service
+systemctl list-dependencies <service> --all     # include recursive dependencies (other units)
+systemctl list-dependencies <service> --reverse # list dependencies that depend on the unit
+systemctl list-dependencies --before <service>  # dependencies that must start before service
+systemctl list-dependencies --after <service>   # dependencies that must start after service
 
-# autoload daemon on system startup
-systemctl enable <daemon>
+systemctl edit <service>                        # edit a service as a snippet
+systemctl edit --full <service>                 # edit a service directly
+rm -r /etc/systemd/system/nginx.service.d       # remove changes made to unit as snippet
+rm /etc/systemd/system/nginx.service            # remove changes made to unit
+
+# ------------------------------------
+# Unit Properties
+systemctl show <service>                # list unit properties
+systemctl show <service> -p <prop>      # show specific unit property
+
+# ------------------------------------
+# Mask a Unit - Make it impossible to start the unit
+
+# mask the unit
+sudo systemctl mask apache2.service
+Created symlink /etc/systemd/system/apache2.service → /dev/null.
+
+# verify its masked
+systemctl list-unit-files | grep apache2
+apache2.service                              masked          enabled
+apache2@.service                             disabled        enabled
+
+# try to start the service - failure
+sudo systemctl start apache2.service
+Failed to start apache2.service: Unit apache2.service is masked.
+
+# unmask the service
+sudo systemctl unmask apache2.service
+Removed "/etc/systemd/system/apache2.service".
+
+# verify its unmasked
+systemctl list-unit-files | grep apache2
+apache2.service                              enabled         enabled
+apache2@.service                             disabled        enabled
+
+
+
+# ------------------------------------
+# Service management
+systemctl start <service>               # start service
+systemctl is-active <service>           # check service is running
+systemctl stop <service>                # stop system daemon
+systemctl restart <service>             # restart service
+systemctl reload <service>              # reload config without restart - only some services can do this
+systemctl reload-or-restart <service>   # reload config in place if possible, otherwise restart
+systemctl enable <service>              # autoload daemon on system startup
+systemctl is-enabled <service>          # check service is enabled
+systemctl disable <service>             # disable from starting automatically
+systemctl status <service>              # check status
+systemctl is-failed <service>           # check if service failed
+```
+## Service units
+
+Files that contain instructions for `systemctl` commands:
+- System's service file is in `/lib/systemd/system` or `/etc/systemd/system`
+- `systemd` looks for autostart files in `/etc/systemd/system/<target>.target.wants`. 
+
+
+```bash
+# system service file location
+la -l /lib/systemd/system
+total 1528
+-rw-r--r-- 1 root root  438 Mar 18  2024 apache2.service
+-rw-r--r-- 1 root root  491 Mar 18  2024 apache2@.service
+-rw-r--r-- 1 root root  603 Mar 18  2024 apache-htcacheclean.service
+-rw-r--r-- 1 root root  612 Mar 18  2024 apache-htcacheclean@.service
+...
+
+# systemd looks for autostart files in 
+
+# Ex: apache2 system unit
+systemctl cat apache2
+# /usr/lib/systemd/system/apache2.service
+[Unit]
+Description=The Apache HTTP Server
+After=network.target remote-fs.target nss-lookup.target
+Documentation=https://httpd.apache.org/docs/2.4/
+
+[Service]
+Type=forking
+Environment=APACHE_STARTED_BY_SYSTEMD=true
+ExecStart=/usr/sbin/apachectl start
+ExecStop=/usr/sbin/apachectl graceful-stop
+ExecReload=/usr/sbin/apachectl graceful
+KillMode=mixed
+PrivateTmp=true
+Restart=on-abort
+OOMPolicy=continue
+
+[Install]
+WantedBy=multi-user.target
+
 ```
 
 ## systemd timers

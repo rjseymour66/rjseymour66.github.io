@@ -134,6 +134,37 @@ WantedBy=multi-user.target
 
 ```
 
+### Targets
+
+A target is a special unit file that groups together and organizes other units into a logical state (target state):
+- Similar to how other systems use runlevels
+- Each system has a default target that it uses during boot
+- You can specify the state, instead of each unit individually
+- If a unit is part of the target, it can be `WantedBy=<target>`, `RequiredBy=<target>`
+- If a unit needs a target to be available, it `Wants=<target>`, `Requires=<target>`, or `After=<target>`
+
+```bash
+# get default target
+systemctl get-default
+graphical.target
+
+# set default target
+sudo systemctl set-default graphical.target
+
+# list available targets
+systemctl list-unit-files --type=target
+
+# list active targets - targets that systemd has tried to start
+systemctl list-units --type=target
+
+# ------------------------------------
+# Shortcuts
+sudo systemctl rescue               # put system in single-user mode
+sudo systemctl halt                 # halt the system
+sudo systemctl poweroff             # shutdown the system 
+sudo systemctl reboot               # reboot the system (same as sudo reboot)
+```
+
 ## systemd timers
 
 Create jobs run by systemd:

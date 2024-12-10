@@ -57,6 +57,37 @@ There are 65,535 ports
 
 An _open port_ is a port that is listening for requests for a service:
 
+#### ss
+
+Socket statistics:
+
+```bash
+ss                                           # list all connections
+ss -a                                        # listening and non-listening ports
+ss -l                                        # listening ports
+ss -t                                        # list all TCP connections
+ss -lt                                       # listening TCP connections
+ss -ua                                       # list all UDP connections
+ss -lu                                       # list all listening UDP connections
+ss -p                                        # display socket PIDs
+ss -s                                        # display summary statistics
+ss -4                                        # display IPv4 connections
+ss -6                                        # display IPv6 connections
+ss -at '( dport = :22 or sport = :22 )'      # filter by source or dest port
+ss -at '( dport = :ssh or sport = :ssh )'    # filter by source or dest port
+
+
+# listening TCP ports with PID
+ss -ltp
+State                    Recv-Q                   Send-Q                                     Local Address:Port                                       Peer Address:Port                  Process                   
+LISTEN                   0                        4096                                             0.0.0.0:ssh                                             0.0.0.0:*                                               
+LISTEN                   0                        4096                                       127.0.0.53%lo:domain                                          0.0.0.0:*                                               
+LISTEN                   0                        4096                                          127.0.0.54:domain                                          0.0.0.0:*                                               
+LISTEN                   0                        511                                                    *:http                                                  *:*                                               
+LISTEN                   0                        4096                                                [::]:ssh                                                [::]:*            
+```
+
+#### netstat
 ```bash
 # netstat
 # n - show port number
@@ -86,31 +117,6 @@ unix  2      [ ACC ]     STREAM     LISTENING     8811     1227/systemd         
 unix  2      [ ACC ]     STREAM     LISTENING     4470     319/systemd-journal  /run/systemd/journal/io.systemd.journal
 unix  2      [ ACC ]     STREAM     LISTENING     8812     1227/systemd         /run/user/1000/gnupg/S.dirmngr
 ...
-
-# ss
-netstat -npl
-Active Internet connections (only servers)
-Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name    
-tcp        0      0 127.0.0.1:3306          0.0.0.0:*               LISTEN      1000/mariadbd       
-tcp        0      0 127.0.0.53:53           0.0.0.0:*               LISTEN      545/systemd-resolve 
-tcp        0      0 127.0.0.54:53           0.0.0.0:*               LISTEN      545/systemd-resolve 
-tcp6       0      0 :::22                   :::*                    LISTEN      1/init              
-tcp6       0      0 :::80                   :::*                    LISTEN      1095/apache2        
-udp        0      0 127.0.0.54:53           0.0.0.0:*                           545/systemd-resolve 
-udp        0      0 127.0.0.53:53           0.0.0.0:*                           545/systemd-resolve 
-udp        0      0 10.0.2.15:68            0.0.0.0:*                           879/systemd-network 
-raw6       0      0 :::58                   :::*                    7           879/systemd-network 
-raw6       0      0 :::58                   :::*                    7           879/systemd-network 
-Active UNIX domain sockets (only servers)
-Proto RefCnt Flags       Type       State         I-Node   PID/Program name     Path
-unix  2      [ ACC ]     STREAM     LISTENING     4385     1/init               /run/lvm/lvmpolld.socket
-unix  2      [ ACC ]     STREAM     LISTENING     4390     1/init               /run/systemd/fsck.progress
-unix  2      [ ACC ]     STREAM     LISTENING     4396     1/init               /run/systemd/journal/stdout
-unix  2      [ ACC ]     SEQPACKET  LISTENING     4400     1/init               /run/udev/control
-unix  2      [ ACC ]     STREAM     LISTENING     8800     1227/systemd         /run/user/1000/systemd/private
-unix  2      [ ACC ]     STREAM     LISTENING     8811     1227/systemd         /run/user/1000/bus
-unix  2      [ ACC ]     STREAM     LISTENING     4470     319/systemd-journal  /run/systemd/journal/io.systemd.journal
-unix  2      [ ACC ]     STREAM     LISTENING     8812     1227/systemd         /run/user/1000/gnupg/S.dirmngr
 ```
 
 ## iftop
@@ -313,6 +319,8 @@ Connection to bootstrap-it.com (52.3.203.146) 80 port [tcp/http] succeeded!
 
 ### nmap
 
+Scan servers you own or localhost:
+
 ```bash
 # scans for TCP connection (-sT) at port 80
 nmap -sT -p80 bootstrap-it.com
@@ -342,4 +350,29 @@ PORT    STATE  SERVICE
 587/tcp closed submission
 
 Nmap done: 1 IP address (1 host up) scanned in 4.87 seconds
+
+# scan localhost for bound services
+nmap localhost
+Starting Nmap 7.94SVN ( https://nmap.org ) at 2024-12-08 10:31 EST
+Nmap scan report for localhost (127.0.0.1)
+Host is up (0.000082s latency).
+Not shown: 998 closed tcp ports (conn-refused)
+PORT   STATE SERVICE
+22/tcp open  ssh
+80/tcp open  http
+
+Nmap done: 1 IP address (1 host up) scanned in 0.12 seconds
+
+# scan machine to see whats open to the network
+nmap 192.168.20.10
+Starting Nmap 7.94SVN ( https://nmap.org ) at 2024-12-08 10:33 EST
+Nmap scan report for vpn-server (192.168.20.10)
+Host is up (0.000095s latency).
+Not shown: 998 closed tcp ports (conn-refused)
+PORT   STATE SERVICE
+22/tcp open  ssh
+80/tcp open  http
+
+Nmap done: 1 IP address (1 host up) scanned in 0.14 seconds
+
 ```

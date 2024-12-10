@@ -159,10 +159,10 @@ systemctl list-units --type=target
 
 # ------------------------------------
 # Shortcuts
-sudo systemctl rescue               # put system in single-user mode
-sudo systemctl halt                 # halt the system
-sudo systemctl poweroff             # shutdown the system 
-sudo systemctl reboot               # reboot the system (same as sudo reboot)
+sudo systemctl rescue       # put system in single-user mode
+sudo systemctl halt         # halt the system
+sudo systemctl poweroff     # shutdown the system 
+sudo systemctl reboot       # reboot the system (same as sudo reboot)
 ```
 
 ## systemd timers

@@ -5,6 +5,7 @@ linkTitle: "Text"
 # description:
 ---
 
+
 ## Read entire file
 
 ### cat 
@@ -54,7 +55,8 @@ grep [OPTIONS] PATTERN [FILE...]
 -E # Extended regex
 -F # ignore special chars
 -i # ignore case
--R,-r # recursive
+-r # recursive
+-R # recursive, including symbolic links
 -v # match only files that do not match PATTERN
 
 # find root in passwd file, case-insensitive
@@ -96,6 +98,9 @@ $ egrep "(daemon|s).*nologin" /etc/passwd
 # fgrep (fixed strings) - doesn't recognize special characters
 grep -F o$ greptest.txt 
 o$technix
+
+# search dir recursively for string (plain text only)
+grep -R -i "PermitRootLogin" /etc/*
 ```
 
 ### head
@@ -235,6 +240,7 @@ General rules:
 | `2>` | STDERR | `grep -d skip hosts: /etc/* 2> /dev/null` |
 | `2>>` | STDERR redirect append | `grep -d skip hosts: /etc/* 2> /dev/null` |
 | `&>` | STDOUT and STDERR redirect |  |
+| `2>&1` | Redirects STDERR to same dest as STDOUT |  |
 | `<` | STDIN redirect | `tr " " "," < file.txt ` |
 | `<>` | STDIN and STDOUT redirect | ...? |
 

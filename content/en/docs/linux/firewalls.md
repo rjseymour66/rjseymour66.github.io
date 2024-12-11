@@ -107,7 +107,19 @@ iptables -D <chain-name> rule                           # delete this rule from 
 iptables -R <chain-name> <index> rule                   # remove this rule from this chain at this index location
 iptables -P <chain-name> policy                         # sets this policy as default on chain
 
-
+# common options
+-s source-ip        # apply rule to packets w source address
+-d dest-ip          # apply rule to packets w dest address  
+-sport source-port  # apply to packets from source-port
+-dport dest-port    # apply to packets headed to dest-port
+-i name             # apply rule to packets coming through name network interface
+-o name             # apply rule to packets going out through name network interface
+-p protocol         # apply rule to packets using this protocol
+-j target           # apply the target action to the selected packets
+                    # target values:
+                    # ACCEPT
+                    # DROP
+                    # REJECT
 
 # view current rules
 sudo iptables -L

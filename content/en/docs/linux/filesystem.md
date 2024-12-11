@@ -5,7 +5,168 @@ title: "Filesystem"
 # description:
 ---
 
+## Pinpoint commands
 
+Quickly locate files to see if they're installed, locate a config file, find docs, etc.
+
+### which 
+
+Shows full path name of a shell command or if it is using an alias:
+
+```bash
+# utility
+which diff
+/usr/bin/diff
+
+# system binary
+which shutdown
+/usr/sbin/shutdown
+
+# not in system
+which line
+```
+
+### whereis
+
+Locate the binaries, source code files, and man pages:
+
+```bash
+# utility
+whereis diff
+diff: /usr/bin/diff /usr/share/man/man1/diff.1.gz
+
+# system binary
+whereis shutdown
+shutdown: /usr/sbin/shutdown /usr/share/man/man8/shutdown.8.gz /usr/share/man/man2/shutdown.2.gz
+
+# not in system
+whereis line
+line:
+```
+
+### locate
+
+Searches the `mlocate.db` database in `/var/lib/mlocate/` to see if the file exists on the system.
+- Faster than `find`
+- Uses an index that you might need to update before running
+
+> `locate` might not find newly created files because `mlocate.db` is usually updated once a day with a cron job:
+
+```bash
+locate [OPTION]... PATTERN...
+-A # matches all patterns in pattern list
+-b # only filenames that match pattern, not directory names
+-c # display count of files that match patterns
+-i # ignore case
+-q # quiet, do not display error messages
+-r # use regex arg, not pattern list
+-w # wholename, display filenames and direcories
+
+# separate patterns with a space
+locate -b '\passwd' '\group'
+/snap/core22/1033/usr/share/doc-base/base-passwd.users-and-groups
+/usr/share/doc-base/base-passwd.users-and-groups
+
+# locate a file
+locate file.1
+
+# update index (setup cron job to run nightly)
+updatedb
+```
+
+### find 
+
+Locates files using data and metadata, such as:
+- file owner
+- last modified
+- permissions
+
+Specify the starting path for the command, and it will look through that tree.
+
+| Option | Expression | Description |
+|--------|------------|-------------|
+| -cmin  | _n_ | Display names of files that changed _n_ mins ago |
+| -empty |  | Display empty files or dirs |
+| -gid   | _n_ | Display files whos group id is _n_ |
+| -group | _name_ | Display files in group _name_ |
+| -inum | _n_ | Display files with _inode_ |
+| -maxdepth | _n_ | Search _n_ directory levels |
+| -mmin | _n_ | Files whose data changed _n_ mins ago |
+| -name | _pattern_ | Names of files that match _pattern_ |
+| -nogroup |  | No group name exists for the file's group ID |
+| -nouser |  | No username exists for the file's user ID |
+| -perm | _mode_ | Files whose permissions match _mode_ |
+| -size | _n_ | Files whose size matches _n_ |
+| -user | _name_ | Files whose owner is _name_ |
+
+```bash
+find [PATH...] [FILE OR dir] [OPTIONS] [ACTION ON RESULT]
+
+# ACTIONS ON RESULT:
+-delete                 # delete the files or dirs
+-exec <command> {} \;   # run <command> on result from find
+-ok <command>           # same as exec but prompts before execution
+
+find . -name "*.txt"
+./numbers.txt
+./random.txt
+
+find . -maxdepth 2 -name "*.txt"
+
+# find binaries with SUID settings
+$ find /usr/bin/ -perm /4000
+/usr/bin/fusermount3
+/usr/bin/passwd
+/usr/bin/mount
+...
+
+# ----------------------------
+# Examples
+
+# type
+find . -type d              # find all dirs in cwd
+find . -type f              # find all files in cwd
+find ~/Downloads/           # find all files and dirs in /Downloads
+find ~/Downloads/ -type f   # find all files in /Downloads
+find ~/Downloads/ -type d   # find all dirs in /Downloads
+find $HOME -type f,d        # find all files and dirs in $HOME
+
+# name and iname
+find Development/ -type f -name *.go  # find all files with names that end in '.go'
+find /var/log -type f -name *.log     # find all files with names that end in '.log'
+find /var/log -type f -iname '*s.LoG' # case insensitive files with names that end in '.log'
+
+# search multiple dirs
+find Development/ /var/log -type f -name '*.log'
+
+# exclude files or dirs
+find test-files/ -type f -not -name '*.1' 
+find Development/ -type f -not -path '*/lets-go/*'    # exclude files in -path <path>
+
+find $HOME -regex <regex>                             # find file with regex
+find $HOME/test-files/ -name "*.gz" -o -name "*.tar"  # name <name> OR name <name>
+find /home -type f -perm 0644                         # search by permissions
+find $HOME -type f -name ".*"                         # hidden files
+find / -perm /g=s                                     # SGID files
+find / -perm -2000                                    # SGID files
+find / -perm /u=s                                     # SUID files
+find / -perm -4000                                    # SUID files
+find $HOME -user linuxuser                            # user ownership
+find / -group linuxuser                               # group ownership
+find $HOME -size 10M                                  # exact file size
+find $HOME -size +10M                                 # greater than file size
+find $HOME -size -10M                                 # less than file size
+find / -xdev -size +100M 2>/dev/null                  # restrict search to specified fs
+find / -mtime 4 2>/dev/null                           # modified 4 days ago
+find / -atime 5 2>/dev/null                           # accessed 5 days ago
+find $HOME -type f -empty                             # empty files
+find $HOME -type f -size 0                            # empty files
+find $HOME -type d -empty                             # empty dir
+
+
+
+
+```
 
 ## Format a partition
 
@@ -30,28 +191,29 @@ Synchronizing...
 exFAT format complete!
 ```
 
-
 ## find
 
-Searches the file system looking for matches to the options you provide and outputs to STDOUT.
+Searches the file system directly, looking for matches to the options you provide and outputs to STDOUT.
+- Uses permissions of executing user
 
 | Option | Expression | Description |
 |--------|------------|-------------|
-| -cmin  | _n_ | Display names of files that changed _n_ mins ago |
-| -empty |  | Display empty files or dirs |
-| -gid   | _n_ | Display files whos group id is _n_ |
-| -group | _name_ | Display files in group _name_ |
-| -inum | _n_ | Display files with _inode_ |
-| -maxdepth | _n_ | Search _n_ directory levels |
-| -mmin | _n_ | Files whose data changed _n_ mins ago |
-| -iname | _pattern_ | Case insensitive names of files that match _pattern_ |
-| -name | _pattern_ | Names of files that match _pattern_ |
-| -nogroup |  | No group name exists for the file's group ID |
-| -nouser |  | No username exists for the file's user ID |
-| -perm | _mode_ | Files whose permissions match _mode_ |
-| -size | _n_ | Files whose size matches _n_ |
-| -user | _name_ | Files whose owner is _name_ |
-| -xdev | | Search within a single filesystem |
+| `-cmin`  | _n_ | Display names of files that changed _n_ mins ago |
+| `-empty` |  | Display empty files or dirs |
+| `-gid`   | _n_ | Display files whos group id is _n_ |
+| `-group` | _name_ | Display files in group _name_ |
+| `-inum` | _n_ | Display files with _inode_ |
+| `-maxdepth` | _n_ | Search _n_ directory levels |
+| `-mmin` | _n_ | Files whose data changed _n_ mins ago |
+| `-mtime` | _n_ | Files whose data changed _n_ days ago |
+| `-iname` | _pattern_ | Case insensitive names of files that match _pattern_ |
+| `-name` | _pattern_ | Names of files that match _pattern_ |
+| `-nogroup` |  | No group name exists for the file's group ID |
+| `-nouser` |  | No username exists for the file's user ID |
+| `-perm` | _mode_ | Files whose permissions match _mode_ |
+| `-size` | _n_ | Files whose size matches _n_ |
+| `-user` | _name_ | Files whose owner is _name_ |
+| `-xdev` | | Search within a single filesystem |
 
 ```bash
 find [PATH...] [OPTION] [EXPRESSION]
@@ -85,44 +247,12 @@ find $HOME -iname "*.1*" -exec cp {} find-files/ \;
 find $HOME -iname "*.1*" -exec tar -rvf find-files/find.tar {}  \;
 ```
 
-## gzip
 
-Compresses a file:
-- Best and most common compression tool.
-
-```bash
-# compress and delete original
-gzip find.tar
-
-# -c option to compress file and preserve original
-gzip -c find.tar > find.tar.gz
-
-# unzip with gunzip
-gunzip find.tar.gz
-```
-
-## locate
-
-Searches entire file system for files matching string pattern:
-- Faster than `find`
-- Uses an index that you might need to update before running
-
-```bash
-# locate a file
-locate file.1
-
-# update index
-updatedb
-```
 
 ## Symbolic links
 
-
 ### Soft link
 An object that points to a file or directory somewhere else on the filesystem:
-- 
-
-
 
 ## Hard links
 
@@ -246,4 +376,20 @@ ls -lh wtmp?.*
 # zip did not replace the file, still there
 $ ls wtmp?
 wtmp4
+```
+
+### gzip
+
+Compresses a file:
+- Best and most common compression tool.
+
+```bash
+# compress and delete original
+gzip find.tar
+
+# -c option to compress file and preserve original
+gzip -c find.tar > find.tar.gz
+
+# unzip with gunzip
+gunzip find.tar.gz
 ```

@@ -55,9 +55,11 @@ grep [OPTIONS] PATTERN [FILE...]
 -E # Extended regex
 -F # ignore special chars
 -i # ignore case
+-o # display match only, not full line text
 -r # recursive
 -R # recursive, including symbolic links
 -v # match only files that do not match PATTERN
+-w # find a word surrounded by whitespace or puncutation
 
 # find root in passwd file, case-insensitive
 grep -i root /etc/passwd
@@ -101,6 +103,14 @@ o$technix
 
 # search dir recursively for string (plain text only)
 grep -R -i "PermitRootLogin" /etc/*
+
+grep -w <word>                  # search for one word              
+grep -w <word1> <word2> <dir>   # search for multiple words in the dir
+
+grep -o <word> <dir>            # display only the matching word, not entire line of text
+grep -w "[A-Z]+{5,}" <file>     # search a file for an all caps word at least 5 chars long                 
+
+
 ```
 
 ### head

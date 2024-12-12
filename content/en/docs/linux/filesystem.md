@@ -141,30 +141,49 @@ find Development/ /var/log -type f -name '*.log'
 
 # exclude files or dirs
 find test-files/ -type f -not -name '*.1' 
-find Development/ -type f -not -path '*/lets-go/*'    # exclude files in -path <path>
+find Development/ -type f -not -path '*/lets-go/*'          # exclude files in -path <path>
 
-find $HOME -regex <regex>                             # find file with regex
-find $HOME/test-files/ -name "*.gz" -o -name "*.tar"  # name <name> OR name <name>
-find /home -type f -perm 0644                         # search by permissions
-find $HOME -type f -name ".*"                         # hidden files
-find / -perm /g=s                                     # SGID files
-find / -perm -2000                                    # SGID files
-find / -perm /u=s                                     # SUID files
-find / -perm -4000                                    # SUID files
-find $HOME -user linuxuser                            # user ownership
-find / -group linuxuser                               # group ownership
-find $HOME -size 10M                                  # exact file size
-find $HOME -size +10M                                 # greater than file size
-find $HOME -size -10M                                 # less than file size
-find / -xdev -size +100M 2>/dev/null                  # restrict search to specified fs
-find / -mtime 4 2>/dev/null                           # modified 4 days ago
-find / -atime 5 2>/dev/null                           # accessed 5 days ago
-find $HOME -type f -empty                             # empty files
-find $HOME -type f -size 0                            # empty files
-find $HOME -type d -empty                             # empty dir
+find $HOME -regex <regex>                                   # find file with regex
+find $HOME/test-files/ -name "*.gz" -o -name "*.tar"        # name <name> OR name <name>
+find /home -type f -perm 0644                               # search by permissions
+find $HOME -type f -name ".*"                               # hidden files
+find / -maxdepth 2 -type d -name bin                        # find dir no deeper than 2 levels
+
+find / -perm /g=s                                           # SGID files
+find / -perm -2000                                          # SGID files
+find / -perm /u=s                                           # SUID files
+find / -perm -4000                                          # SUID files
+find / -type f -perm -110                                   # x bit set for user and group
+
+find $HOME -user linuxuser                                  # user ownership
+find / -group linuxuser                                     # group ownership
+find / -nouser                                              # find orphaned files
+find $HOME -user u1 -o -user u2                             # owned by user u1 or u2
+find / -not -user linuxuser                                 # not specified user
+
+find $HOME -size 10M                                        # exact file size
+find $HOME -size +10M                                       # greater than file size
+find $HOME -size -10M                                       # less than file size
+
+find / -xdev -size +100M 2>/dev/null                        # restrict search to specified fs
+
+find / -mtime 4 2>/dev/null                                 # modified 4 days ago
+find / -atime 5 2>/dev/null                                 # accessed 5 days ago
+
+find $HOME -type f -empty                                   # empty files
+find $HOME -type f -size 0                                  # empty files
+find $HOME -type d -empty                                   # empty dir
+
+find find-files/ -type f -name '*.mp4' -delete              # find and delete file
+find find-files/ -type f -empty                             # find empty files
 
 
 
+# exec commands
+find $HOME -type f -exec ls -s {} \; | sort -rn | head -5     # find 5 largest files
+find $HOME -type f -exec ls -s {} \; | sort -n | head -5      # find 5 smallest files
+find find-files/ -type f -perm 777 -exec chmod 644 {} \;      # find files w 777 perms and change to 644
+find /var/ -type f -name '*.log' -exec grep -i 'error' {} \;  # find files with text string
 
 ```
 

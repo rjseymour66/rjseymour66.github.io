@@ -184,8 +184,28 @@ find $HOME -type f -exec ls -s {} \; | sort -rn | head -5     # find 5 largest f
 find $HOME -type f -exec ls -s {} \; | sort -n | head -5      # find 5 smallest files
 find find-files/ -type f -perm 777 -exec chmod 644 {} \;      # find files w 777 perms and change to 644
 find /var/ -type f -name '*.log' -exec grep -i 'error' {} \;  # find files with text string
-
 ```
+
+## lsof
+
+Lists open files using info from the `/proc` virtual filesystem:
+
+```bash
+lsof /run           # what process is using /run
+lsof -p 932         # what process is using process 932
+lsof -u linuxuser   # what files linuxuser has open
+lsof -i TCP:22      # what TCP process is using port 22
+```
+
+## fuser
+
+```bash
+# find user and PID for process
+fuser -v /var/log/bad.log 
+                     USER        PID ACCESS COMMAND
+/var/log/bad.log:    admin       586 F.... badlog.py
+```
+
 
 ## Format a partition
 

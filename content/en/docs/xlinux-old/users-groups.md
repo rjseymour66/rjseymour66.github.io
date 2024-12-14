@@ -507,22 +507,6 @@ found 0 alerts in /var/log/audit/audit.log
 ```
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ## Groups
 
 - Groups are part of Linux's discretionary access control (DAC).

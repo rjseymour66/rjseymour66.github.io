@@ -300,3 +300,58 @@ tar: /usr/bin/tar /usr/share/man/man1/tar.1.gz
 ```
 
 ## Build from source
+
+[CompilingEasyHowTo](https://help.ubuntu.com/community/CompilingEasyHowTo)
+
+### Getting the software
+
+```bash
+# libraries, tools, compilers to compile C and Cpp
+apt install build-essential
+
+# get tarball (or archive) with wget
+wget -v https://nmap.org/dist/nmap-7.95.tar.bz2
+
+# decompress and extract files from archive
+tar -jxvf nmap-7.95.tar.bz2
+```
+
+### Read the INSTALL file
+
+The `INSTALL` file contains information that helps you install the software:
+
+```bash
+Ideally, you should be able to just type:
+
+./configure
+make
+make install
+
+For far more in-depth compilation, installation, and removal notes,
+read the Nmap Install Guide at https://nmap.org/book/install.html.
+```
+
+- `./configure`: Script that checks your OS version, chip, etc. Might accept params so you can create a custom installation. For example, if you do not need GUI support.
+- `make`: Compiles the software with the `gcc` compiler. 
+- `make install`: Installs the compiled software on your system. Usually requires root perms--`sudo make install`.
+
+### Locating newly installed software
+
+Important binary locations:
+- `/bin`: Key parts of the OS
+- `/usr/bin`: Less critical utilities
+- `/usr/local/bin`: Software that the user installed themselves
+
+If you install a newer version of software on your system, it executes the first one in its $PATH:
+
+```bash
+echo $PATH
+/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
+```
+Use `locate` to find where the new software is:
+
+```bash
+sudo updatedb
+locate nmap
+
+```

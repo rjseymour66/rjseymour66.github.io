@@ -11,26 +11,25 @@ Install, remove, and build packages, but cannot download and install packages or
 - Older version of apt
 
 ```bash
-# get installed version and update status
-$ dpkg -s openssh-server
+dpkg -s openssh-server        # get installed version and update status
 Package: openssh-server
 Status: install ok installed
 Priority: optional
 
-# list packages
-dpkg -l
 
-# install a deb file
-dpkg -i <file.deb>
-
-# uninstall a package
-dpkg -r <package-name>
-...
+dpkg -l                 # list packages
+dpkg -L <package>       # list all file locations for package
+dpkg -i <file.deb>      # install a deb file
+dpkg -r <package-name>  # uninstall a package
 
 # complete the configuration process for all packages that are 
 # unpacked but not fully configured
 dpkg --configure -a
 ```
+
+neofetch --version
+Neofetch 7.1.0
+
 
 ## apt tools
 
@@ -88,14 +87,17 @@ deb http://security.ubuntu.com/ubuntu jammy-security multiverse
 Provides info about the package database. Useful command options:
 
 ```bash
-depends # displays dependencies required for the package
-pkgnames # displays all packages installed on system
-showpkg # displays info about specified package
-stats # displays package stats for the system
-unmet # displays any unmet dependencies for the installed packages
+depends     # displays dependencies required for the package
+pkgnames    # displays all packages installed on system
+show        # displays info about package
+showpkg     # displays info about specified package
+stats       # displays package stats for the system
+unmet       # displays any unmet dependencies for the installed packages
 ```
 
 ### apt-get
+
+[AptGet/Howto](https://help.ubuntu.com/community/AptGet/Howto)
 
 ```bash
 # check for broken dependencies
@@ -104,8 +106,9 @@ Reading package lists... Done
 Building dependency tree... Done
 Reading state information... Done
 
-# clean up database and any tempory download files
-apt-get clean
+apt-get clean                     # clean up database and any tempory download files in cache
+du -sh /var/cache/apt/archives/   # how much space cache uses
+
 
 # retrieve updated information about pacakges in the repo
 apt-get update
@@ -117,18 +120,27 @@ Installs and removes pacakges. Has the following options:
 
 ```bash
 apt action program
-autoremove # rm any unneeded packages automatically installed as a dependency of another installed package
-full-upgrade # same as upgrade but removes any installed packages req'd to upgrade entire system
-install # installs new package from repository
-list # displays currently installed packages
-purge # rms specified applciation and any config or data files
-reinstall # reinstalls existing package from the repo
-remove # rm application but keep config and data files
-satisfy # resolve software dependencies in the installed packages
-search # search for a specific package in the repo
-show # displays info about the package
-update # downloads package info from all configured repositories
-upgrade # installs available upgrades from all installed packages
+
+# options
+autoremove      # rm unneeded packages installed as dependency of another package
+autoremove      # rm package and dependencies
+build-dep       # installs dependencies for <package>
+full-upgrade    # same as upgrade but removes any installed packages req'd to upgrade entire system
+install         # installs new package from repository
+list            # displays currently installed packages
+policy          # Shows available version and repository
+purge           # rms specified application and any config or data files
+reinstall       # reinstalls existing package from the repo
+remove          # rm application but keep config and data files
+satisfy         # resolve software dependencies in the installed packages
+search          # search for a specific package in the repo
+show            # displays info about the package
+update          # downloads package info from all repositories in /etc/apt/sources.list.d/sources.list
+upgrade         # upgrades all installed packages
+
+# remove a package and its dependencies
+apt remove <package>
+apt purge  <package>
 ```
 
 ## Red Hat repository tools
@@ -176,6 +188,8 @@ upgrade-minimal # install only latest package versions that provide bugfix or se
 ```
 
 ## Launchpad PPA repos
+
+These are cutting-edge packages that developers sometimes update daily.
 
 Launchpad Personal Package Archive (PPA) updates the `sources.list.d` file. Add repos with this command:
 
@@ -285,3 +299,4 @@ whereis tar
 tar: /usr/bin/tar /usr/share/man/man1/tar.1.gz
 ```
 
+## Build from source

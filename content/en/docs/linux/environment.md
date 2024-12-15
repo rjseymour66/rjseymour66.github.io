@@ -5,6 +5,46 @@ linkTitle: "Environment"
 # description:
 ---
 
+## Environment setup
+
+- After user authenticates to the system and before the bash shell prompt displays, the user environment is configured.
+- When you start a bash shell, bash checks several files for configuration, called environment files (also called startup files)
+- Can start a shell in 3 ways:
+  - Default login (login to server w no GUI)
+  - Interactive shell spawned as subshell (such as from a GUI)
+  - non-interactive shell, such as when running a script
+
+### Environment variables
+
+Store info about the current shell session
+
+```bash
+# user less pager
+set
+env
+printenv
+# view what is stored in env var
+$ENVVARNAME
+```
+### Environment files
+
+- Generally populated from the `/etc/skel` file. Users can edit these files after they are in their user account.
+- The first file found in the following order is ran, and the rest are ignored:
+  - `.bash_profile`
+  - `.bash_login`
+  - `.profile`
+    > `.bashrc` is run from a file in the preceding list. It is also always run when there is a non-interactive shell started
+
+### Global files
+
+Global files:
+- `/etc/profile`
+- `/etc/profile.d` files
+- `/etc/bash` or `/etc/bash.bashrc` file (depends on distro)
+
+> Do not change global files. You can create a custom env file with an `.sh` extension and place it in `/etc/profile.d`. Files in this directory are run during bash login.
+
+
 ## Set default text editor
 
 Ubuntu uses `nano` by default, change it to `vim`:

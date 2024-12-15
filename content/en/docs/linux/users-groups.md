@@ -639,6 +639,11 @@ found 0 alerts in /var/log/audit/audit.log
 # view groups
 groups
 linuxuser adm cdrom sudo dip plugdev lxd
+
+# view groups with id
+id
+uid=1000(linuxuser) gid=1000(linuxuser) groups=1000(linuxuser),4(adm),24(cdrom),27(sudo),30(dip),46(plugdev),101(lxd)
+
 # GID is 4th field
 grep linuxuser /etc/passwd | gawk -F : '{print $4}'
 1001
@@ -736,44 +741,27 @@ linuxuser : linuxuser
 sudo find / -gid 1966 2>/dev/null
 ```
 
-## Environment setup
+### newgrp
 
-- After user authenticates to the system and before the bash shell prompt displays, the user environment is configured.
-- When you start a bash shell, bash checks several files for configuration, called environment files (also called startup files)
-- Can start a shell in 3 ways:
-  - Default login (login to server w no GUI)
-  - Interactive shell spawned as subshell (such as from a GUI)
-  - non-interactive shell, such as when running a script
-
-### Environment variables
-
-Store info about the current shell session
+Logs you into a new group.
+- You can only be logged into one group at a time during a session
+- When you switch groups, all files and dirs that you create belong to that group
 
 ```bash
-# user less pager
-set
-env
-printenv
-# view what is stored in env var
-$ENVVARNAME
+newgrp [GROUP]
+
+# logged in group is listed first
+id
+uid=1000(linuxuser) gid=1000(linuxuser) groups=1000(linuxuser),4(adm),24(cdrom),27(sudo),30(dip),46(plugdev),101(lxd)
+
+newgrp plugdev      # change group
+id                  # view groups
+uid=1000(linuxuser) gid=46(plugdev) groups=46(plugdev),4(adm),24(cdrom),27(sudo),30(dip),101(lxd),1000(linuxuser)
+touch plugdevfile   # create file
+ls -l plugdevfile   # view group
+-rw-r--r-- 1 linuxuser plugdev 0 Dec 14 19:28 plugdevfile
 ```
-### Environment files
 
-- Generally populated from the `/etc/skel` file. Users can edit these files after they are in their user account.
-- The first file found in the following order is ran, and the rest are ignored:
-  - `.bash_profile`
-  - `.bash_login`
-  - `.profile`
-    > `.bashrc` is run from a file in the preceding list. It is also always run when there is a non-interactive shell started
-
-### Global files
-
-Global files:
-- `/etc/profile`
-- `/etc/profile.d` files
-- `/etc/bash` or `/etc/bash.bashrc` file (depends on distro)
-
-> Do not change global files. You can create a custom env file with an `.sh` extension and place it in `/etc/profile.d`. Files in this directory are run during bash login.
 
 ## Querying users
 

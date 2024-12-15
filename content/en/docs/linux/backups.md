@@ -1,9 +1,43 @@
 ---
-title: "Backups and archives"
-linkTitle: "Backups and archives"
+title: "Backups"
+# linkTitle: "Backups"
 # weight: 1000
 # description:
 ---
+
+Backup Rule of Three: always have 3 copies:
+- 1 remote system in case of disaster
+- 2 local copies, on different media
+
+A backup is sometimes called an _archive_. An archive is a group of files with associated metadata. It is a copy of data that can be restored sometime in the future if the data becomes corrupted. You need to consider the following:
+- Backup type
+- Compression methods
+- Utilities that will help the most
+
+## Understanding backup types
+
+_System image_
+: A clone, a copy of the OS binaries, config files, and whatever you need to boot.
+
+_Full_
+: Copy of all data, ignoring its modification date. Quickly restores system data, but takes a long time to create the backup.
+
+_Incremental_
+: Copy of data that has been modified since the last backup operation, by comparing timestamps. This method is quick, but might take a long time to actually restore.
+
+_Differential_
+: Copy of all data that changed since last full backup. Good balance between full and incremental backup.
+
+_Snapshot_
+: Hybrid approach - a full (usually read-only) copy of data is made to backup media. Then pointers (ex: hard links) are employed to create a reference table linking the backup data with the original data. During next backup, only modified files are copied to backup media, and the pointer reference table is copied and updated.
+ 
+  You can go back to any point in time (restore point) and restore the data from there. Very efficient and takes less space and processing power.
+
+  `rsync` uses the snapshot approach.
+
+_Snapshot clone_
+: After a snapshot is created, it is cloned. Useful in high I/O environments. It is modifiable and mountable, so you can use it as disaster recovery.
+
 
 ## Backup files
 
@@ -89,82 +123,78 @@ total size is 23  speedup is 0.07
 
 ```
 
-## tar
-Bundles project files into a single output file for easy transfer across the network.
-- Preserves folder structure and ownership.
-- Does not delete original files or directories.
+## tar full and incremental backups
+
+`tar` views full and incremental backups in levels:
+- level 0 includes all files
+- level 1 is first incremental backup
+- level 2 is second incremental backup, etc...
 
 ```bash
-tar [OPTIONS] <tarfile-name> [FILES...]
-# - : output tar contents to STDOUT (dash in place of archive filename)
-# -c: create new archive
-# -C: specify directory for extracted tar contents (with -x)
-# --exclude="pattern": exclude objects that match pattern
-# -f: archive's filename (put last)
-# -p: maintain permissions (during create)
-# -r: appends file to existing tar archive (can't compress)
-# -t: list contents of archive
-# -v: verbose
-# -x: extract files
-# -z: zip or unzip (depends whether -c or -x flag is present)
+tar [OPTIONS...] [FILENAME]...
+-d # compare tar archive file members with external files 
+-t # display tar archive file's contents (members)
+-W # verify each file as it is processed. Can't use with compression.
 
-# all files in pwd
-tar -cvf all-files.tar *
+# 1. creates snapshot .snar file w timestamp metadata to create backups
+tar -g FullArchive.snar -Jcvf Project42.txz Project4?.txt
+Project42.txt
+Project43.txt
+Project44.txt
+Project45.txt
+Project46.txt
 
-# zip files
-tar -czvf number-files.tar.gz *.[0-9]*
-ls -logh number-files*
--rw-rw-r-- 1 30K Nov  8 14:15 number-files.tar
--rw-rw-r-- 1 477 Nov  8 14:17 number-files.tar.gz
+# 2. verify created
+ls FullArchive.snar Project42.txz
+FullArchive.snar  Project42.txz
 
-# view files in tar
-tar -tvf number-files.tar.gz 
--rw-rw-r-- linuxuser/linuxuser 23 2024-11-08 13:48 file.1
+# 3. Update file
+echo 'Answer to everything' >> Project42.txt 
+
+# 4. create incremental backup. Project42_Inc.txz contains only Project42.txt
+#    because its the only file that was modified since the previous backup.
+tar -g FullArchive.snar -Jcvf Project42_Inc.txz Project4?.txt
+Project42.txt
+
+# view tarball files/members
+tar -tf Project4x.tar.gz 
+Project42.txt
+Project43.txt
+Project44.txt
+Project45.txt
+Project46.txt
+
+# compare archive files against current files
+$ tar -df Project4x.tar.gz 
+Project42.txt: Mod time differs
+Project42.txt: Size differs
+
+# verify backup after archive is created. can't compress, must
+# be in next step.
+tar -Wcvf ProjectVerify.tar Project4?.txt
+Project42.txt
 ...
-
-# unzip and extract to a dir
-tar -zxvf number-files.tar.gz -C extractions/
-
-# create archive on remote
-# pipe tar command to remote computer and create archive
-tar -czvf - *.[0-9]* | ssh username@10.20.30.40 \
-"cat > /home/path/to/dest/remote-tars.tar.gz"
-
-# create archive on remote for only the current filesystem, plus /var and /usr
-# might require sudo
-tar -czvf - --one-file-system / /var /usr \
-| ssh username@10.20.30.40 \
-"cat > /home/path/to/dest/workstation-backup-Nov-8.tar.gz"
-
-# extract and maintain permissions requires sudo
-sudo tar -xzvf perms.tar.gz 
-
-ls -l
-total 4
--rw-rw-r-- 1 linuxuser linuxuser   0 Nov 10 22:54 file1
--rw-rw-r-- 1 linuxuser linuxuser   0 Nov 10 22:54 file2
--rw-rw-r-- 1 newuser   newuser     0 Nov 10 22:54 file3
--rw-rw-r-- 1 linuxuser linuxuser 157 Nov 10 22:58 perms.tar.gz
-
-# unzip tar file with gunzip
-gunzip file.tar.gz
+Verify Project42.txt
+...
 ```
+## tar restore
 
-## split
-
-Breaks archives into multiple smaller files for transfer, and recreates on the remote.
+Basically same as compress command, but sub the `-c` for `-x`:
 
 ```bash
-# split into 100 byte archive files
-split -b 100 number-files.tar.gz "number-files.tar.gz."
-ls -l *.gz.*
--rw-rw-r-- 1 linuxuser linuxuser 100 Nov  8 14:41 number-files.tar.gz.aa
--rw-rw-r-- 1 linuxuser linuxuser 100 Nov  8 14:41 number-files.tar.gz.ab
--rw-rw-r-- 1 linuxuser linuxuser 100 Nov  8 14:41 number-files.tar.gz.ac
-...
+tar [OPTIONS...] [FILENAME]...
+-x # extract files from tarball or archive and place in cwd
+-z # decompresses with gunzip
+-j # decompresses with bunzip2
+-J # decompresses with unxz
 
-# rebuild tar with cat
-cat number-files.tar.gz.* > splits/number-recreated.tar.gz
+# extract gzip tarball (tarball is not removed)
+tar -zxvf Project4x.tar.gz 
+Project42.txt
+Project43.txt
+Project44.txt
+Project45.txt
+Project46.txt
 ```
 ## dd
 
@@ -223,7 +253,7 @@ crontab -e
 crontab -r
 ```
 
-### anacron
+## anacron
 
 Schedule irregular jobs for a machine--such as your laptop--that doesn't run 24/7.
 - runs relative to most recent boot time, not absoulte time

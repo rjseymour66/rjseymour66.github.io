@@ -5,6 +5,8 @@ linkTitle: "Permissions"
 # description:
 ---
 
+Every file and directory is owned by a user and group.
+
 Discretionary access control (DAC)
 : Flexible access control model where the owner of a resource (file, directory, etc.) determines who can access it and what actions they can perform.
 
@@ -20,12 +22,50 @@ ls -l file.1
 owner| other  owner     group         |        filename
    group                         Most recent edit
 
+
+# view permissions in octal form
+stat -c %a chownSample.txt
+```
+
+### namei
+
+View permissions for all directories in a path:
+
+```bash
+namei -l TestPermissions/first_dir/second_dir/
+f: TestPermissions/first_dir/second_dir/
+drwxr-xr-x helen accounting TestPermissions
+drwxrwxr-x helen accounting first_dir
+drwxrwxr-x helen accounting second_dir
 ```
 
 ## Assigning permissions
 
-Set 
-## chmod
+### umask
+
+User file creation mask. The `umask` value is subtracted from the default permissions:
+- Files: `666`
+- Directories: `777` 
+
+Determines the default permissions set on files and dirs by the user:
+- determines the bits **not** set on a file or directory
+- acts like a netmask in the sense that it cancels out the bits that you don't want to set
+
+```bash
+umask
+0002        # write perms masked out (removed) for others
+
+# filename describes the umask
+drwxrwxr-x 2 4096 Dec 14 18:47 002.dir
+-rw-rw-r-- 1    0 Dec 14 18:47 002.file
+drwx------ 2 4096 Dec 14 18:48 077.dir
+-rw------- 1    0 Dec 14 18:48 077.file
+drw------- 2 4096 Dec 14 18:49 177.dir
+-rw------- 1    0 Dec 14 18:49 177.file
+```
+
+ 
+### chmod
 
 Change file or directory permissions based on the specified mode. Set permissions with one of the following systems:
 - string 
@@ -71,7 +111,7 @@ ll perms.sh
 
 
 
-## chown
+### chown
 
 Change owner or group of file or directory:
 
@@ -88,7 +128,7 @@ chown -R helen:accounting TestPermissions/                     # recursively cha
 chown -h helen symlinkname                                     # change symlink owner
 ```
 
-## chgrp
+### chgrp
 
 Changes the group because originally, `chown` could not set the group, only the user.
 - `chown :group` is not portable or standard
@@ -101,7 +141,7 @@ chgrp testgroup alphabet.txt        # change group on file
 chgrp -h accounting mysymlink       # change group on symlink
 ```
 
-## Associate file to group, then granting privileges
+### Associate file to group, then grant privileges
 
 ```bash
 # create group

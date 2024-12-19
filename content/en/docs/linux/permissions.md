@@ -1,6 +1,6 @@
 ---
-title: "Permissions"
-linkTitle: "Permissions"
+title: "Permissions and ownership"
+linkTitle: "Permissions and ownership"
 # weight: 1000
 # description:
 ---

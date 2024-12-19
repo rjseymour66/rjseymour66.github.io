@@ -1,5 +1,5 @@
 ---
-title: "System logs"
+title: "Logging"
 linkTitle: "Logs"
 # weight: 1000
 # description:
@@ -52,23 +52,17 @@ authpriv.none   -/var/log/syslog
 
 ### log rotation
 
+Rotate your logs so they don't consume too much disk space:
+
+- `/etc/logrotate.conf`: logrotation config file, provides defaults if not defined for each service in `/etc/logroate.d/`
+- `/etc/logrotate.d/`: contains all logrotate files--these are merged to create the full configuration
+- `/etc/cron.daily/logrotate`: actual logrotate script
+
+
+
 ```bash
 # config file for logrotation
 cat /etc/logrotate.conf 
-# see "man logrotate" for details
-
-# global options do not affect preceding include directives
-
-# rotate log files weekly
-weekly
-
-# use the adm group by default, since this is the owning group
-# of /var/log/.
-su root adm
-
-# keep 4 weeks worth of backlogs
-rotate 4
-...
 
 # ---
 # uncompressed files are most recent in case they are needed
@@ -99,6 +93,68 @@ cat /etc/logrotate.d/apt
   notifempty
 }
 ...
+```
+
+### Example settings
+
+```bash
+# size
+/var/log/filename.log
+{
+    size 1k                     # Run logrotate if log file >= 1k (bytes default, k, M, G)
+    weekly                      # rotate logs either weekly, monthly, or yearly (not all at once)
+    monthly
+    yearly
+    create 700 <user> <group>   # Permissions for log file
+    extension <ext>             # 
+    rotate 4                    # How many times a log is rotated before old logs are rm'd
+                                # keep 4 most recent logfiles
+    mail user@example.com       # Logs emailed and removed (req's mail transfer agent)
+    dateext                     # Add date to rotated log files in YYYYMMDD
+                                # ONLY daily rotation bc of date format
+    compress                    # Compress rotated files
+    compresscmd /bin/bzip2      # Specify compression algo
+    compressext .bz2            # Ext for compressed files
+    delaycompress               # Delay compression if you need to do something else
+    notifempty                  # Do not rotate if empty
+    missingok                   # Do not generate error if log file is not present
+    prerotate                  # Run custom scripts before rotation
+      /path/to/script.sh
+    postrotate                  # Run custom scripts after rotation
+      /path/to/script.sh
+    maxage 100                  # Remove files after X days
+    copytruncate                # Copy active log file for rotation, truncate active log file
+                                # makes sure logs aren't lost if rotated during writing
+}
+```
+### Manually create log file and rotate
+
+```bash
+# create test config
+cat /etc/logrotate.d/logtest 
+/var/log/logtest {
+        rotate 1
+        compress
+        compresscmd /usr/bin/bzip2
+        compressext .yay
+        dateext
+        maxage 30
+        size 2         # rotate after 2 bytes
+        notifempty
+        missingok
+        copytruncate
+}
+
+# write to log file
+echo "Write anything to logtest so it will rotate" > /var/log/logtest
+
+# manually call logrotate bc its configured to run daily
+logrotate /etc/logrotate.conf
+
+# verify rotation
+ls -l /var/log/ | grep logtest
+-rw-r--r--  1 root      root                 0 Dec 17 10:27 logtest
+-rw-r--r--  1 root      root               103 Dec 17 10:22 logtest-20241217.yay
 
 ```
 

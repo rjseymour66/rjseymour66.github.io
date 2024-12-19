@@ -301,7 +301,7 @@ tar: /usr/bin/tar /usr/share/man/man1/tar.1.gz
 
 ## Build from source
 
-[CompilingEasyHowTo](https://help.ubuntu.com/community/CompilingEasyHowTo)
+- [CompilingEasyHowTo](https://help.ubuntu.com/community/CompilingEasyHowTo)
 
 ### Getting the software
 
@@ -316,7 +316,9 @@ wget -v https://nmap.org/dist/nmap-7.95.tar.bz2
 tar -jxvf nmap-7.95.tar.bz2
 ```
 
-### Read the INSTALL file
+### Read the INSTALL file (./configure, make, install)
+
+- [The magic behind configure, make, and make install](https://thoughtbot.com/blog/the-magic-behind-configure-make-make-install)
 
 The `INSTALL` file contains information that helps you install the software:
 
@@ -354,4 +356,46 @@ Use `locate` to find where the new software is:
 sudo updatedb
 locate nmap
 
+```
+
+## Install a tarball with desktop entry
+
+- [Desktop Entry Specification](https://specifications.freedesktop.org/desktop-entry-spec/latest/)
+- [Guide to Desktop Entry file](https://www.baeldung.com/linux/desktop-entry-files)
+
+Install a tarball and create a link available in either your application directory or desktop. These steps install the waterfox web browser:
+
+```bash
+# 1. Download
+wget https://cdn1.waterfox.net/waterfox/releases/6.5.2/Linux_x86_64/waterfox-6.5.2.tar.bz2
+
+# 2. Move to /opt (or whereever you want)
+mv waterfox-6.5.2.tar.bz2 /opt/
+
+# 3. Extract tar file
+tar -xjf waterfox-6.5.2.tar.bz2
+
+# 4. Make yourself owner of extracted dir
+chown -R $USER /opt/waterfox
+
+# 5. Create desktop entry in ~/.local/share/applications
+vim ~/.local/share/applications/waterfox.desktop
+
+# 6. Add this content
+[Desktop Entry]
+Name=Waterfox
+Exec=/opt/waterfox/waterfox %u
+Terminal=false
+Icon=/opt/waterfox/browser/chrome/icons/default/default128.png
+Type=Application
+Categories=Application;Network;X-Developer;
+
+# 7. Make the desktop entry executable:
+chmod +x ~/.local/share/applications/waterfox.desktop
+
+# 8. Remove the tarball
+rm /opt/waterfox-6.5.2.tar.bz2
+
+# 9. (Optional) Move to Desktop for icon
+mv /opt/waterfox-6.5.2.tar.bz2 ~/Desktop
 ```

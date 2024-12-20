@@ -6,6 +6,12 @@ description: >
   Overview of key terms, control structures, etc.
 ---
 
+Scripts are regular text files with execute permissions set.
+- When the execute perm is set, the system will look for the shebang
+- If it finds the shebang, it runs the script with `/bin/bash`
+- For python, use `#!/usr/bin/env python3`
+
+Store scripts in `/usr/local/bin`.
 
 ## Running a script
 
@@ -14,6 +20,19 @@ Before you can run a script, you have to set the execution bit on it with `chmod
 ```bash
 $ chmod +x script_name
 $ ./script_name
+```
+
+The cwd is not in your `$PATH` for security and practical reasons:
+- Malware can be named the same as a common command, such as `ls`
+- You might have files in your `pwd` with names that conflict with other executables
+
+## Basic commands
+
+```bash
+echo "write this to the console"
+sleep <num>     # sleep for <num> seconds. <num>m or <num>h for min, hours
+clear           # clears the screen, good for the beginning of scripts
+$word           # access the value of var named "word"
 ```
 
 ## Arguments
@@ -37,17 +56,74 @@ You can process all CLI args at once with the following commands. Notice the dif
 
 > Look into the `shift` command.
 
+```bash
+#!/bin/bash
+
+# echo args to the shell
+echo $1 $2 $3 ' -> echo $1 $2 $3'
+
+# store args from command line in array
+args=("$@")
+
+# echo args to shell
+echo ${args[0]} ${args[1]} ${args[2]} ' -> args=("$@"); echo ${args[0]} ${args[1]} ${args[2]}'
+
+# use $@ to print out all args
+echo $@ ' -> echo $@'
+
+# print number of args
+echo Number of arguments passed: $# ' -> echo Number of arguments passed: $#'
+
+```
+
 ## Variables
 
 A variable is a user-defined value that points to data. Define variables with the following syntax:
 
 ```bash
-$ var='value to assign'
+var='value to assign'
 
 # access with '$'
-$ echo $var
-$ print $var
-$ cat $var_file
+echo $var
+print $var
+cat $var_file
+
+# global vs local vars
+#!/bin/bash
+#
+VAR="global var"
+
+function bash {
+	local VAR="local var"
+	echo $VAR
+}
+
+echo $VAR
+bash
+```
+
+## User input
+
+```bash
+#!/bin/bash
+
+echo -e "Hi, please type the word: \c"
+read word
+
+echo "The word you entered is: $word"
+echo -e "Can you please enter two words? "
+read word1 word2
+echo "Here is your input \"$word1\" \"$word2\""
+echo -e "How do you feel about bash scripting?"
+
+# read stores reply into the default build-in var $REPLY
+read
+echo "You said $REPLY, I'm glad to hear that! "
+echo -e "What are your favorite colors ? "
+
+# -a reads into an array
+read -a colors
+echo "My favorite colors are also ${colors[0]}, ${colors[1]}, ${colors[2]}:-)"
 ```
 
 ## Symbol commands
@@ -202,6 +278,28 @@ When a program terminates before its supposed to, the computer sends an exit sym
 $ kill -l
  1) SIGHUP	 2) SIGINT	 3) SIGQUIT	 4) SIGILL	 5) SIGTRAP
  ...
+
+#!/bin/bash
+
+# trap command
+trap bashtrap INT
+
+# clear screen
+clear
+
+# bash trap function is executed when CTRL-C is pressed:
+# bash prints message => Executin bash trap subroutine
+bashtrap() {
+	echo "CTRL+C Detected! ...executing bash trap!"
+}
+
+# for loop from 1/10 to 10/10
+for a in `seq 1 10`; do
+	echo "$a/10 to Exit."
+	sleep 1
+done
+echo "Exit Bash Trap example!"
+
 ```
 
 ## Processes

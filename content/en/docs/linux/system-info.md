@@ -38,7 +38,27 @@ linuxuse tty1     -                Sat15   25:52m  0.08s  0.03s -bash
 linuxuse          192.168.20.10    Sat15   25:53m  0.00s  0.03s sshd: linuxuser [priv]
 
 ```
+## who's IP address is this?
 
+```bash
+whois 192.168.56.1
+
+#
+# ARIN WHOIS data and services are subject to the Terms of Use
+# available at: https://www.arin.net/resources/registry/whois/tou/
+#
+# If you see inaccuracies in the results, please report at
+# https://www.arin.net/resources/registry/whois/inaccuracy_reporting/
+#
+# Copyright 1997-2024, American Registry for Internet Numbers, Ltd.
+#
+
+
+NetRange:       192.168.0.0 - 192.168.255.255
+CIDR:           192.168.0.0/16
+NetName:        PRIVATE-ADDRESS-CBLK-RFC1918-IANA-RESERVED
+...
+```
 ## How long system running
 
 ```bash

@@ -25,6 +25,22 @@ The cwd is not in your `$PATH` for security and practical reasons:
 - Malware can be named the same as a common command, such as `ls`
 - You might have files in your `pwd` with names that conflict with other executables
 
+## Debugging
+
+Add `-x` to the shebang to output the script commands:
+
+```bash
+#!/bin/bash -x
+
+./replace_space.sh 
++ DIR=.
++ find . -type f
++ read file
++ [[ ./hello_world.sh = *[[:space:]]* ]]
++ read file
++ [[ ./answer.txt = *[[:space:]]* ]]
+...
+```
 
 ## Symbol commands
 

@@ -12,44 +12,55 @@ There are three types of Linux users:
 
 ## sudo
 
-Stands for "substitute user". Do not log in as `root`. Assign superuser privileges to a regular user and perform root operations with `sudo`.
-
+Stands for "substitute user"
+- Do not log in as `root` - assign superuser privileges to a regular user and perform root operations with `sudo`.
+- `sudo` lets you restrict which commands a user can run as `root`
 
 ### Common commands
 
 ```bash
+usermod -aG sudo <username>     # add user to sudoers (Ubuntu)
 sudo -i                         # interactive mode - root shell env
 sudo -s                         # sudo shell - regular user shell env and bashrc
-usermod -aG sudo <username>     # add user to sudoers
 journalctl -e /usr/bin/sudo     # check sudo usage history
 sudo lastb                      # failed root login attempts
 ```
 
 ### visudo
 
-sudoers are maintained in the `/etc/sudoers` file. Edit it with `visudo`:
+Command that lets you configure `sudo` privileges per user
+- sudoers are maintained in the `/etc/sudoers` file. Edit it with `visudo`
+- `visudo` ensures that there are no errors in the `/etc/sudoers` file
+- group names are preceded by `%`, user names are not
+- use groups to manage `sudo` because you can add/remove users from a group rather than the `/etc/sudoers` file
+- use full path (`/usr/bin/apt`) in command rules to prevent malicious scripting
 
 ```bash
 sudo visudo
 
-# only uncommented line in sudoers:
-root ALL=(ALL) ALL      # USER PLACES=(AS_USER) [NOPASSWD:] COMMAND
+# group names start with %, users do not
+root ALL=(ALL:ALL) ALL
+%admin ALL=(ALL) ALL
 
-# root:  users that this rule applies to
-# ALL:   hosts where the sudo command can be executed - envs can share a sudoers file
-# (ALL): which users the user (root) can act as
-# ALL:   commands that the user (root) can run
+
+# --- Explanation --- #
+root ALL=(ALL:ALL) ALL
+# root  - users that this rule applies to
+# ALL=  - hosts where the sudo command can be executed - root can use sudo from any terminal
+# (ALL: - which users the user (root) can act as
+# ALL)  - which groupss the user (root) can act as
+# ALL   - commands that the user (root) can run
 # In plain English: "root can execute all commands as all suers from all places"
 
 
-# Allow user "fred" to run "sudo reboot"
+# Allow user "fred" to run "sudo reboot" from any terminal
 # ...and don't prompt for a password
 #
 fred ALL = NOPASSWD:/sbin/reboot
-fred ALL=(ALL) ALL                                  # run all commands from anywhere as root
+fred ALL=(ALL) ALL                                  # run all commands from any terminal as root
 fred ALL=(ALL) NOPASSWD:ALL                         # run all commands w/o passwd prompt
-fred ALL=(ALL) /usr/bin/apt,/sbin/mount             # run specified commands anywhere as root
-fred ALL=(ALL) /usr/bin/apt, NOPASSWD:/sbin/mount   # run apt anywhere, mount anywhere w/o passwd
+fred ALL=(ALL) /usr/bin/apt,/sbin/mount             # run specified commands any terminal as root
+fred ALL=(ALL) /usr/bin/apt, NOPASSWD:/sbin/mount   # run apt any terminal, mount anywhere w/o passwd
 ```
 
 ### Set time between sudo password
@@ -209,43 +220,6 @@ userdel <username>      # delete user only
 userdel -r <username>   # delete user, /home dir, and mail spool
 ```
 
-### /etc/passwd
-
-Stores account information:
-- When you create an account, it gets an entry in `/etc/passwd`
-- World-readable because commands like `ls` use it for info
-- System assigns the next available UID, which it uses to reference the account
-- When the second field has an `x`, that means there is a password stored for that user in the `/etc/shadow` file
-
-```bash
-ls -l /etc/passwd
--rw-r--r-- 1 root root 1826 Dec 29 00:14 /etc/passwd    # world readable
-
-cat /etc/passwd
-...
-# username:password:UID:GID:username:home dir:default shell
-normaluser:x:1000:1000:ryan:/home/normaluser:/bin/bash
-```
-
-### /etc/shadow
-
-Contains account password information, requires `root` privileges:
-- UID is stored in `/etc/passwd`, so no need to duplicate here
-- Hashed password is second field, after username
-- `*` or `!` in second field means account is locked. You can't log into this account through shell or network, you must log in as normal user and switch users
-- Third col is number of days since Unix epoch (Jan 1, 1970) that the password was last changed
-
-```bash
-sudo cat /etc/shadow
-...
-normaluser:$6$nYwtntKtT8/Cngzp$lIY0yPSFcc/tofKENzxGsFDry7DDvorh5eoLvVSSu.c63ammowy.rthykd7bX5vpehIR.BUa7MVgJRwchpb501:20084:0:99999:7:::
-jdoe:$y$j9T$8LuhOxanK6eCw78R.yFK50$D3VM0AEQ7dNzIM9J.X8ap0Sl7uA28JDwE7fgkhGELI9:20085:0:99999:7:::
-
-# root is locked
-grep root /etc/shadow
-root:*:19962:0:99999:7:::
-```
-
 ### /etc/skel default files and configs
 
 Files in this dir are copied into all new user `/home` directories:
@@ -261,52 +235,6 @@ drwxr-xr-x 108 root root 4096 Dec 29 00:49 ..
 -rw-r--r--   1 root root 3771 Mar 31  2024 .bashrc
 -rw-r--r--   1 root root  807 Mar 31  2024 .profile
 
-```
-
-### passwd
-
-Set password for a user:
-
-```bash
-password <username>
--d # rm acct passwd
--e # set passwd as expired, must change it at next login
--i # sets num of days for acct to become inactive after passwd expiration
--l # lock, places '!' in front of passwd in /etc/shadow
--n # num of days after passwd change that user can change passwd again
--S # display password status
--u # unlock, rm '!' in front of passwd in /etc/shadow
--w # num of days to issue warning before password expiration
--x # num of days until a passwd change is required
-```
-
-
-#### get passwd status
-
-
-Fields:
-1. Username
-2. Password status
-   - `P`: set and usable
-   - `NP`: no password
-   - `L`: locked
-3. Date of last password change
-4. Min number of days that must pass before the user can change password again. Prevents users from changing password back to previous passwords too quickly.
-5. Max number of days that can pass between password changes.
-6. Num days before expiration date that the user is warned to change password
-7. Num days after expiration that account is disabled if password not changed
-8. Num days since Unix epoch that will elapse before acct is disabled
-
-```bash
-# get info for each page
-man shadow
-man passwd
-
-sudo passwd -S linuxuser
-linuxuser P 03/31/2024 0 99999 7 -1
-
-passwd                  # change password for current logged in user
-sudo passwd <username>  # change password for <username>
 ```
 
 ### chsh
@@ -373,6 +301,54 @@ sudo passwd -S jdoe                 # verify unlocked (P)
 jdoe P 2024-12-29 0 99999 7 -1
 ```
 
+## Passwords
+
+### passwd
+
+Set password for a user:
+
+```bash
+password <username>
+-d # rm acct passwd
+-e # set passwd as expired, must change it at next login
+-i # sets num of days for acct to become inactive after passwd expiration
+-l # lock, places '!' in front of passwd in /etc/shadow
+-n # num of days after passwd change that user can change passwd again
+-S # display password status
+-u # unlock, rm '!' in front of passwd in /etc/shadow
+-w # num of days to issue warning before password expiration
+-x # num of days until a passwd change is required
+```
+
+
+#### get passwd status
+
+
+Fields:
+1. Username
+2. Password status
+   - `P`: set and usable
+   - `NP`: no password
+   - `L`: locked
+3. Date of last password change
+4. Min number of days that must pass before the user can change password again. Prevents users from changing password back to previous passwords too quickly.
+5. Max number of days that can pass between password changes.
+6. Num days before expiration date that the user is warned to change password
+7. Num days after expiration that account is disabled if password not changed
+8. Num days since Unix epoch that will elapse before acct is disabled
+
+```bash
+# get info for each page
+man shadow
+man passwd
+
+sudo passwd -S linuxuser
+linuxuser P 03/31/2024 0 99999 7 -1
+
+passwd                  # change password for current logged in user
+sudo passwd <username>  # change password for <username>
+```
+
 ### Set password expiration
 
 `chage` - change user password account information.
@@ -401,13 +377,51 @@ sudo chage -m 10 <username>         # can't change password within 10 days of ch
 
 A password policy determines the password requirements:
 - Pluggable Authentication Modules (PAM) - packages that you can install that give more control over auth and lets us extend auth features
+- Set in `/etc/pam.d/common-password`
 
 ```bash
 sudo apt install libpam-passwdqc
 
-# system remembers previous X passwords
+sudo vim /etc/pam.d/common-password
+...
 # system remembers previous passwords
 password	required			pam_pwhistory.so remember=99 use_authok
+```
+### /etc/passwd
+
+Stores account information:
+- When you create an account, it gets an entry in `/etc/passwd`
+- World-readable because commands like `ls` use it for info
+- System assigns the next available UID, which it uses to reference the account
+- When the second field has an `x`, that means there is a password stored for that user in the `/etc/shadow` file
+
+```bash
+ls -l /etc/passwd
+-rw-r--r-- 1 root root 1826 Dec 29 00:14 /etc/passwd    # world readable
+
+cat /etc/passwd
+...
+# username:password:UID:GID:username:home dir:default shell
+normaluser:x:1000:1000:ryan:/home/normaluser:/bin/bash
+```
+
+### /etc/shadow
+
+Contains account password information, requires `root` privileges:
+- UID is stored in `/etc/passwd`, so no need to duplicate here
+- Hashed password is second field, after username
+- `*` or `!` in second field means account is locked. You can't log into this account through shell or network, you must log in as normal user and switch users
+- Third col is number of days since Unix epoch (Jan 1, 1970) that the password was last changed
+
+```bash
+sudo cat /etc/shadow
+...
+normaluser:$6$nYwtntKtT8/Cngzp$lIY0yPSFcc/tofKENzxGsFDry7DDvorh5eoLvVSSu.c63ammowy.rthykd7bX5vpehIR.BUa7MVgJRwchpb501:20084:0:99999:7:::
+jdoe:$y$j9T$8LuhOxanK6eCw78R.yFK50$D3VM0AEQ7dNzIM9J.X8ap0Sl7uA28JDwE7fgkhGELI9:20085:0:99999:7:::
+
+# root is locked
+grep root /etc/shadow
+root:*:19962:0:99999:7:::
 ```
 
 ## Groups
@@ -473,4 +487,110 @@ Deletes a group:
 groupdel <group>                    # deletes <group>
 getent group <group>                # check /etc/group cleanup
 sudo find / -gid <GID> 2>/dev/null   # check fs for files associated with deleted group
+```
+
+## Permissions
+
+| Permission | File | Directory |
+|:---:|:---|:---|
+| `r` | File can be read | Can view contents of dir |
+| `w` | File can be written to | Can change contents of dir |
+| `x` | File can be executed as a program | Can `cd` into dir |
+
+
+```bash
+ls -l file.1
+-rw-rw-r-- 1 linuxuser linuxuser 23 Nov  9 14:50 file.1
+ |   |  |       |         |     \_____________/   |
+owner| world  owner     group         |        filename
+   group                         Most recent edit
+
+# first dash is object type
+ls -logh
+drwxrwxr-x 2 4.0K Dec 30 00:59 directory
+-rw-rw-r-- 1    0 Dec 30 00:59 file
+lrwxrwxrwx 1    4 Dec 30 01:00 link -> file
+
+# view permissions in octal form
+stat -c %a chownSample.txt
+```
+
+### chmod
+
+Change file or directory permissions based on the specified mode:
+- for greater control, use `find` to recursively set file and dir permissions
+
+Set permissions with one of the following systems:
+- string 
+- numeric (octal)
+- umask
+
+#### Shortcuts
+
+| Permission | Character | Number |
+|:-:|:-:|:-:|
+| read    | `r` | 4 |
+| write   | `w` | 2 |
+| execute | `x` | 1 |
+
+#### String actions
+
+| Action | Operator |
+|:-:|:-:|
+| add | `+` |
+| remove | `-` |
+| set as only permission | `=` |
+
+```bash
+# --- numeric perms --- #
+chmod 771 perms.sh
+ll perms.sh 
+-rwxrwx--x 1 linuxuser linuxuser 0 Nov 10 22:41 perms.sh*
+
+# --- string --- #
+chmod u-x perms.sh 
+ll perms.sh 
+-rw-rwx--x 1 linuxuser linuxuser 0 Nov 10 22:41 perms.sh*
+
+chmod g-x perms.sh 
+ll perms.sh 
+-rw-rw---x 1 linuxuser linuxuser 0 Nov 10 22:41 perms.sh*
+
+# --- string set as only --- #
+chmod o=r perms.sh 
+ll perms.sh 
+-rw-rw-r-- 1 linuxuser linuxuser 0 Nov 10 22:41 perms.sh
+
+# --- Recursive with find --- #
+
+```
+
+### chown
+
+Change owner or group of file or directory:
+
+```bash
+chown [options] newowner[:newgroup] [ filenames | directories ]
+-h # change symlink owner (not original object owner)
+-R # recursively changes the owner for all files in a directory
+
+chown newowner:newgroup filenames...                           # change owner and group
+chown helen chownDir/                                          # change owner
+chown :accounting chownSample.txt                              # change group only
+chown linuxuser:testgroup cat.txt counts.txt tar_tests/        # change multiple files and dirs
+chown -R helen:accounting TestPermissions/                     # recursively change all files and dirs
+chown -h helen symlinkname                                     # change symlink owner
+```
+
+### chgrp
+
+Changes the group because originally, `chown` could not set the group, only the user.
+- `chown :group` is not portable or standard
+- `chown user:` is not standard
+
+```bash
+chgrp [options] newgroup filenames
+
+chgrp testgroup alphabet.txt        # change group on file
+chgrp -h accounting mysymlink       # change group on symlink
 ```

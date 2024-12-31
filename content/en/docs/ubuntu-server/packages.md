@@ -44,7 +44,6 @@ apt <action> <package> [<package> <package> ...]
 
 # --- actions --- #
 autoremove      # rm unneeded packages installed as dependency of another package
-autoremove      # rm package and dependencies
 build-dep       # installs dependencies for <package>
 full-upgrade    # same as upgrade but removes any installed packages req'd to upgrade entire system
 install         # installs new package from repository
@@ -91,6 +90,27 @@ Architecture: all
 Version: 2:8.3+93ubuntu2
 ...
 ```
+
+### dpkg
+
+Install, remove, and build packages, but cannot download and install packages or their dependencies:
+- Older version of `apt`
+
+```bash
+dpkg --configure -a             # complete config for packages
+dpkg -l                         # list packages
+dpkg -L <package>               # list all file locations for package
+dpkg -i <file.deb>              # install a deb file
+dpkg -r <package-name>          # uninstall a package
+
+dpkg -s openssh-server          # get installed version and update status
+Package: openssh-server
+Status: install ok installed
+Priority: optional
+
+dpkg --get-selections > <file>  # export installed packages to <file>
+```
+
 ### Adding repositories
 
 The default repos listed in `/etc/apt/sources.list.d/ubuntu.sources` might not contain packages that you need:
@@ -135,9 +155,34 @@ Components: main restricted universe multiverse
 Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
 ...
 ```
-### Back up and restore Debian packages
+### Backup/Restore
 
+Know how to track which packages you have installed if you need to rebuild your server:
+- Use `dkpg` command and `apt-get` commands
+- Install `dselect`, a supplemental Debian package management tool
 
+```bash
+dpkg --get-selections > packages.list     # 1. dump packages to standard text file
+apt update                                # 2. Update index
+apt install dselect                       # 3. Install dselect and refresh its package index
+dselect update
+
+dpkg --set-selections < packages.list     # 4. Install packages - only installs packages that are not installed
+apt-get dselect-upgrade
+```
+
+### Clean up unused packages
+
+When you remove packages, the dependencies are not always removed too:
+- When you install a new package, `apt` lists packages that are no longer required 
+- Do not automatically delete kernel pacakges:
+  - Contain `linux-image` in the name
+  - Maybe wait a week before running `apt autoremove`
+
+```bash
+apt autoremove                        # system automatically removes packages
+apt remove --purge <package> [<package>...]
+```
 
 ## Snap packages
 

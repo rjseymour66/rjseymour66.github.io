@@ -180,8 +180,8 @@ When you remove packages, the dependencies are not always removed too:
   - Maybe wait a week before running `apt autoremove`
 
 ```bash
-apt autoremove                        # system automatically removes packages
-apt remove --purge <package> [<package>...]
+apt autoremove                                # system automatically removes packages
+apt remove --purge <package> [<package>...]   # manually remove packages
 ```
 
 ## Snap packages

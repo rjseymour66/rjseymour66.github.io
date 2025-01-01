@@ -11,41 +11,20 @@ The Linux filesystem directory structure follows the Filesystem Hierarchy Standa
 
 You can also run `man hier` to get a detailed description of the filesystem:
 
-/
-: Beginning of the fs
-
-/etc
-: System-wide application configuration
-
-/home
-: User home directories
-
-/root
-: Home directory for `root`
-
-/media
-: Removable media, i.e. flash drives
-
-/mnt
-: Volumes that will be mounted for a while
-
-/opt
-: Additional software packages
-
-/bin
-: Essential user libraries such as `cp`, `ls`, etc...
-
-/proc
-: Virtual filesystem for OS-level components such as running processes
-
-/usr/bin
-: Common user commands that are not needed to boot or repair the system
-
-/usr/lib
-: Object libraries
-
-/var/log
-: Log files
+| Directory | Description |
+|:--|:--|
+| / | Beginning of the fs |
+| /etc | System-wide application configuration |
+| /home | User home directories |
+| /root | Home directory for `root` |
+| /media | Removable media, i.e. flash drives |
+| /mnt | Volumes that will be mounted for a while |
+| /opt | Additional software packages |
+| /bin | Essential user libraries such as `cp`, `ls`, etc... |
+| /proc | Virtual filesystem for OS-level components such as running processes |
+| /usr/bin | Common user commands that are not needed to boot or repair the system |
+| /usr/lib | Object libraries |
+| /var/log | Log files |
 
 
 ## Distro info

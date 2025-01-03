@@ -20,6 +20,7 @@ Stands for "substitute user"
 
 ```bash
 usermod -aG sudo <username>     # add user to sudoers (Ubuntu)
+sudo !!                         # run previous command as sudo
 sudo -i                         # interactive mode - root shell env
 sudo -s                         # sudo shell - regular user shell env and bashrc
 journalctl -e /usr/bin/sudo     # check sudo usage history

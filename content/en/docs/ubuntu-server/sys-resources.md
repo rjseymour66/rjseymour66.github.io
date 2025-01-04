@@ -152,3 +152,46 @@ fallocate -l <size> <filename>
 
 fallocate -l 4G /swapfile
 ```
+
+## Load average
+
+Represents your server's trend in CPU utilization over time:
+- Stored in `/proc/loadavg`
+- easier to view with `uptime`
+- numbers are 1 min, 5 min, 15 min
+  - Represent how many tasks were waiting for CPU in that time period
+  - Less than 1 is good
+  - If load avg = # CPUs on system, then they are all running 100%
+  - If load avg > # CPUs on system, you have an issue
+  - Analogy: cashiers at a supermarket - if there are 4 cashiers and 4 customers checking out, they are running at capacity. If there are 6 customers, then the store is above capacity
+- Develop baselines for your server so you know what is normal. For example, if it goes from 1.x to 0.x, then you are overspending on your server or maybe a service is down
+- Better view of CPU usage than something like `htop` bc CPU usage can go to 100% when a process is running but then back down when complete, so the `uptime` view over time gives a better picture
+- A server can have multiple CPUs (physical cores), and each CPU can have multiple cores (logical cores). The kernel treats physical and logical cores the same
+
+```bash
+cat /proc/loadavg                   # view load avg in /proc
+0.00 0.00 0.00 1/234 14112
+
+uptime                              # view load avg, resets at reboot
+nproc                               # get number of cores
+```
+
+## View resource usage
+
+### htop
+
+Provides an overall view of your server performance. Better than `top`:
+- Maybe run as `root` for additional capabilities, like killing processes
+- Add CPU average for all cores: `F2` > Meters, then `F5` to select CPU average
+- Can navigate with mouse. Ex: click `Quit` in bottom of page to exit
+- View by user by entering `u`
+- Tree view with `F5`
+- Refreshes every 2 seconds, but can change that with `-d` option and number in tenths of seconds
+
+```bash
+F2                  # Setup mode to view options set colors, etc
+u                   # View Show processes of: menu to view processes for specific user
+F5                  # Enter/exit tree view
+htop -d 70          # Refresh every 7 seconds
+F9                  # Kill the selected process - will provide signal options
+```

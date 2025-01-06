@@ -159,7 +159,43 @@ blkid                   # list all blkid
 blkid <partition>       # list UUID for <partition>
 ```
 
+## RAID
+
+Lets you join multiple disks in a variety of configurations to prevent data loss:
+- Has different levels, where the higher the level, the more disks that can fail before you have a data loss problem
+- RAID level 1: two hard disks always have the same data, one can fail
+  - If a disk fails, you can rebuild the array
+- RAID level 5: same as level 1 but more disks (?)
+- RAID level 6: two disks can fail before 
+- NOT A BACKUP SOLUTION - you can still lose data if disks are fried or stolen
+
+## Backups
+
+Backups duplicate data:
+- Should be offsite or not in the same physical location as your data
+- Should be resilient and let you get your data back up and running quickly
+  - You should test your backups regularly
+- Have three layers - NAS, cloud, offsiet, mirroring data
+- Consider encrypting data, wherever it is
+
 ## LVM
 
-For virtual (cloud) disks, you can grow a filesystem without a server reboot:
-- Likely require reboot if you need to attach physical disk to physical server
+Linux Volume Manager.
+
+You can resize your filesystem/partitions without rebooting or shutting down your server:
+- ALWAYS use LVM on storage volumes for a virtual server, when possible
+- For virtual (cloud) disks, you can grow a filesystem without a server reboot
+  - Likely require reboot if you need to attach physical disk to physical server
+- _hot-plugging_ is adding or removing hardware components to a running server without having to shut it down or reboot it
+
+
+### Terminology
+
+Volume group
+: A namespace that includes all physical and logical volumes for an implementation of LVM.
+
+Physical volume
+: 
+
+Logical volume
+: 

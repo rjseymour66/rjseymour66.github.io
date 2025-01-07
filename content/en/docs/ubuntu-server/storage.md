@@ -192,10 +192,82 @@ You can resize your filesystem/partitions without rebooting or shutting down you
 ### Terminology
 
 Volume group
-: A namespace that includes all physical and logical volumes for an implementation of LVM.
+: Namespace that includes all physical and logical volumes for an implementation of LVM.
+  - Use a common naming convention, such as `vg-<volume-name>`.
 
 Physical volume
-: 
+: Physical or virtual hard disk that is a member of a volume group.
 
 Logical volume
-: 
+: A flexible, resizable partition that acts as a single unit whose size can span multiple physical volumes.
+
+### Implementation
+
+Create a volume group, assign physical disk space to that group, then split up the physical volumes into logical volumes:
+- LVM expects a block device, so make sure there are no partitions or partition signatures on the disk
+  - `sudo wipefs -a /dev/sdb` deletes the partition signatures
+- When you add physical volumes to a volume group with `vgextend`, do not assign the PVs to a logical volume until the space is needed
+- View LVs, PVs, and VGs with `xxdisplay` command. For example, `lvdisplay`, `pvdisplay`, `vgdisplay`
+
+```bash
+apt install lvm2                    # Install package
+lvs                                 # Monitor logical volume size
+# --- Set up Logical Volume --- #
+
+pvcreate /dev/sdb                               # 1. Designate each disk as a physical volume
+pvdisplay                                       # 2. View phyical volumes and confirm changes
+vgcreate vg-test /dev/sdb                       # 3. Create the volume group and assign a physical disk
+vgdisplay                                       # 4. View volume groups and confirm changes
+lvcreate -n myvol1 -L 5g vg-test                # 5. Create 5G logical volume named myvol1 and assign to vg-test
+lvdisplay                                       # 6. View logical volumes and confirm changes
+
+# --- Format Logical Volume --- #
+
+lvdisplay                                       # 1. Get device name (LV Path)
+mkfs.ext4 /dev/vg-test/myvol1                   # 2. Format logical volume
+mkdir -p /mnt/lvm/myvol1                        # 3. Create empty dir for mountpoint
+mount /dev/vg-test/myvol1 /mnt/lvm/myvol1/      # 4. Mount the logical volume
+df -h                                           # 5. Verify volume was mounted
+
+# --- Resizing Logical Volume --- #
+
+lvextend -n /dev/vg-test/myvol1 -l +100%FREE    # 1. Extend LV to take up remaining PV disk space
+df -h                                           # 2. Get name of filesystem on LV
+resize2fs /dev/mapper/vg--test-myvol1           # 3. Resize filesystem to span entire LV
+
+# --- Add PVs to volume group --- #
+
+vgextend vg-test /dev/sdc                       # 1. Add PV to volume group
+lvextend -L+10g /dev/vg-test/myvol1             # 2. Add 10G from the new PV to the logical volume
+resize2fs /dev/vg-test/myvol1                   # 3. Resize the filesystem to span entire LV
+
+# --- Removing LVMs --- #
+
+umount /mnt/lvm/myvol1                          # 1. Unmount the logical volume
+lvremove vg-test/myvol1                         # 2. Remove LV myvol1 from VG vg-test
+vgremove vg-test                                # 3. Remove the volume group
+```
+
+### LVM Snapshots
+
+Captures a logical volume at a specific point in time and preserves it:
+- You can mount a snapshot or use it to revert the snapshot in case of failure
+  - Ex: you want to test how security updates will affect your server and might need to revert back
+  - NOT A FORM OF BACKUP - not stored in different location, can become corrupt if disk space gets low
+- Requires unallocated space in volume group
+- Is a clone of the original LV
+- Use case: Take a snapshot of the root filesystem before installing all available updates. Rollback if there is an issue, or delete if everything is OK.
+
+```bash
+lvcreate -s -n mysnapshot -L 4g vg-test/myvol1  # Create snapshot mysnapshot of LV myvol1
+lvconvert --merge vg-test/mysnapshot            # Roll back to mysnapshot (must unmount first)
+lvremove vg-test/mysnapshot                     # Delete the snapshot
+```
+
+## wipefs
+
+Deletes partition signatures from a disk:
+
+```bash
+wipefs -a /dev/sdb
+```

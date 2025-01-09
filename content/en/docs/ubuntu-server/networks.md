@@ -138,3 +138,92 @@ resolvectl                      # view DNS servers your system points to
 
 ## OpenSSH
 
+Lets you open a command shell on a remote server:
+- Consists of two components: server daemon (`sshd`) and the client (`ssh`) that lets you connect your workstation to a remote system running `sshd`
+- Most distros install OpenSSH by default - configured to start and become enabled automatically
+- Listens for connections on port 22 by default
+- You have the same permissions as the user you are logged in as
+- When you end session, all background processes you were running are terminated
+
+
+```bash
+# --- Management --- #
+apt install openssh-client          # install client
+apt install openssh-server          # install server
+systemctl status ssh                # verify sshd is running and ready for connections
+systemctl start ssh                 # start ssh
+systemctl enable ssh                # if currently disabled, make ssh auto start at boot 
+ss -tunlp | grep ssh                # verify sshd is listening for connections
+
+# --- Connecting --- #
+ssh 10.20.30.40                     # connect to server at 10.20.30.40 on port 22
+ssh <username>@<addr>               # connect to server at <addr> as <username> on port 22
+ssh -p 2242 <username>@<addr>       # connect to server at <addr> as <username> on port 2242
+exit                                # end ssh session
+```
+
+### SSH keys
+
+By default, you authenticate to a remote server with your password. You can use a public key to authenticate instead:
+- more secure bc password is never transmitted
+- you create a public and private SSH key pair - these files are linked by a complex algorithm
+  - passphrase is optional but recommended for security
+- when you connect to a server that has your public key, ssh checks your private key to verify your identity
+  - public key has `rw` for owner, `r` for group and others
+  - private key is owned by user that created it with `rw` permissions
+- you copy public key to other servers
+  - when you log in, it uses an algorithm to authenticate your private key with the public key stored on the server
+- you can cache your SSH key passphrase with the ssh-agent
+  - enter passprhase once per session
+
+```bash
+# --- Generating keys --- #
+ssh-keygen                                      # Generate ed25519 keypair
+ssh-keygen -t rsa -b 4096                       # Generate RSA keypair
+
+ssh-copy-id -i ~/.ssh/id_rsa.pub <ip-addr>      # copy keys to remote - use ip addr or hostname
+
+# --- Add key to ssh-agent --- #
+eval $(ssh-agent)                               # start ssh-agent, if not already running
+ssh-add ~/.ssh/id_rsa                           # add public key to ssh-agent, requires passphrase
+
+# --- Change passphrase of existing key --- #
+ssh-keygen -p
+```
+### config file
+
+Must be in `~/.ssh/` directory and be named `config`:
+- Not there by default, but client checks that it exists and parses it when present
+- Each `Host` entry has a `Hostname`, `User`, `Port` value
+- Use IP address if you do not have a DNS entry for your server listed in `/etc/hosts`
+
+```bash
+man ssh_config              # get all config options
+
+# --- config file format --- #
+Host <hostname>             # logical name you assign
+    HostName <ip-addr>      # IP addr or remote hostname (from /etc/hosts)
+    User <username>         # user you ssh as
+    Port <port>             # SSH port
+
+# --- Sample config file --- #
+Host u24
+	HostName 10.20.30.40
+	User linuxuser1
+	Port 22
+```
+
+## ssh-copy-id
+
+Copies your local SSH public key to remote server
+- creates `~/.ssh/` directory if doesn't already exist
+- creates `authorized_keys` file if doesn't already exist
+- copies contents of `~/.ssh/id_rsa.pub` into `authorized_keys` file on target server
+  - additional keys are appended to this file, one per line
+
+
+## ss
+
+```bash
+ss -tunlp           # list listening ports
+```

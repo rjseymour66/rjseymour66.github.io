@@ -164,6 +164,8 @@ exit                                # end ssh session
 
 ### SSH keys
 
+[Ubuntu docs](https://help.ubuntu.com/community/SSH/OpenSSH/Keys)
+
 By default, you authenticate to a remote server with your password. You can use a public key to authenticate instead:
 - more secure bc password is never transmitted
 - you create a public and private SSH key pair - these files are linked by a complex algorithm

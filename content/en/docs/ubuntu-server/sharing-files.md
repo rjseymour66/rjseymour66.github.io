@@ -1,16 +1,18 @@
 ---
-title: "Sharing files"
+title: "Sharing and transferring files"
 # linkTitle: "Sharing files"
 weight: 110
 # description:
 ---
+
+## Sharing files
 
 A file server gives users a location to store files for easy access and collaboration:
 - Sets up a daemon that accepts connections and shares specified directories to authorized users
 - Samba and NFS are the most common technologies. Can run both services on one machine, but they have their use cases
 - Need to select a directory to store the file shares
 
-## Samba
+### Samba
 
 Samba is great for Windows and Linux environments
 - Accessible because it uses Server Message Blick (SMB) protocol which has wide platform support
@@ -68,7 +70,7 @@ writable = yes                          # Users can make changes
 ```
 
 
-## NFS
+### NFS
 
 NFS is great for Linux or Unix environments
 - Perms are granted with standard Unix/Linux methods
@@ -121,6 +123,7 @@ Domain = mynetworksettings.com          # Uncomment and add domain name
 
 Nobody-User = nobody
 Nobody-Group = nogroup
-normaluser@us24:/$ 
-
 ```
+
+## Transferring files
+

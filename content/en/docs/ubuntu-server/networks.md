@@ -180,14 +180,14 @@ By default, you authenticate to a remote server with your password. You can use 
 
 ```bash
 # --- Generating keys --- #
-ssh-keygen                                      # Generate ed25519 keypair
-ssh-keygen -t rsa -b 4096                       # Generate RSA keypair
+ssh-keygen                                          # Generate ed25519 keypair
+ssh-keygen -t rsa -b 4096                           # Generate RSA keypair
 
-ssh-copy-id -i ~/.ssh/id_rsa.pub <ip-addr>      # copy keys to remote - use ip addr or hostname
+ssh-copy-id -i ~/.ssh/id_rsa.pub <user>@<ip-addr>   # copy keys to remote - use ip addr or hostname
 
 # --- Add key to ssh-agent --- #
-eval $(ssh-agent)                               # start ssh-agent, if not already running
-ssh-add ~/.ssh/id_rsa                           # add public key to ssh-agent, requires passphrase
+eval $(ssh-agent)                                   # start ssh-agent, if not already running
+ssh-add ~/.ssh/id_rsa                               # add public key to ssh-agent, requires passphrase
 
 # --- Change passphrase of existing key --- #
 ssh-keygen -p

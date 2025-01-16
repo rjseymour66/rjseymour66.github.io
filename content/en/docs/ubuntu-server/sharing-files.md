@@ -127,3 +127,59 @@ Nobody-Group = nogroup
 
 ## Transferring files
 
+### rsync
+
+Copies files from one place to another for complex jobs, with many options:
+- preserving permissions
+- backing up replaced files
+- incremental backups
+- server to server across the network, or same fs on one server
+- each time it runs, it copies what is different from the source to target
+- `-a`: wrapper option equivalent to `-rlptgoD`
+  - `r`: recursive
+  - `l`: symbolic links
+  - `p`: preserve permissions
+  - `t`: preserve modification times
+  - `g`: preserve group ownership
+  - `o`: perserve owner
+  - `D`: preserves Device files
+- When copying over ssh, add trailing slash to copy only dir contents. To copy dir and contents, leave trailing slash off:
+  - `/home/me/only-contents/`
+  - `/home/me/dir-and-contents`
+
+
+
+```bash
+rsync -r /home/<user> /backup           # copy /home to /backup (recursive, no perms)
+rsync -a /home/<user> /backup           # copy /home to /backup (recursive, maintain perms and metadata)
+
+rsync -av /home/<user> /backup          # copy /home to /backup (verbose, recursive, maintain perms and metadata)
+rsync -av /home/<user>/rsync-test/ normaluser@<ip-addr>:/backup  # copy over SSH
+
+rsync -av --delete /src /target         # sync directories - delete files in /target if not in /src. DESTRUCTIVE
+
+# backup files
+rsync -avb --delete /src /target        # sync directories - create file backups instead of delete
+rsync -avb --delete --backup-dir=/backup/incremental src/ target/ # sync dirs - move removed files to backup-dir
+
+CURDATE=$(date +%m-%d-%Y)
+rsync -avb --delete --backup-dir=/backup/incremental/$CURDATE src/ target/      # save in a dated dir
+```
+
+### scp
+
+Secure copy - comes with the OpenSSH client:
+- Better for "one-off" tasks, single files, small groups of files
+- Copy files from local to remote, or remote to local
+- Default dir for remote is `/home/<user>`, so can use paths relative to that dir
+
+```bash
+scp file1 normaluser@<ip-addr>:/home/normaluser/scp-test    # copy file1 to remote dir
+scp file1 normaluser@<ip-addr>:                             # copy file1 to /home on remote
+scp <user>@<ip-addr>:/home/<user>/scp-test/file2 .          # copy file2 from remote to local
+
+
+scp -r /home/<user>/scp-test/cp-dir <user2>@<ip-addr>:/home/<user2>/scp-test                # copy dir and contents
+scp -P 2222 -r /home/username/scp-test/cp-dir <user2>@<ip-addr>:/home/<user2>/scp-test      # designate port (if not 22)
+scp -rv /home/username/scp-test/cp-dir normaluser@$REMOTE:/scp-test                         # verbose dir copy
+```

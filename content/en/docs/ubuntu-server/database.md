@@ -119,15 +119,15 @@ FLUSH PRIVILEGES;
 #### Database commands
 
 ```bash
-USE dbname;                     # select the db to work with
+USE dbname;                                                                 # select the db to work with
 CREATE TABLE Employees (Name char(15), Age int(3), Occupation char(15));    # create db table
-SHOW TABLES;                    # view all db tables
-SHOW COLUMNS IN Employees;      # view cols in db
+SHOW TABLES;                                                                # view all db tables
+SHOW COLUMNS IN Employees;                                                  # view cols in db
 INSERT INTO Employees VALUES ('Joe Smith', '26', 'Clown');                  # add data to db
-SELECT * FROM Employees;        # view all data in table
+SELECT * FROM Employees;                                                    # view all data in table
 DELETE FROM Employees WHERE Name = 'Joe Smith';                             # search for Joe Smith in table and delete row
-DROP TABLE Employees;           # Delete a table from the db
-DROP DATABASE mysampledb;       # Delete the db
+DROP TABLE Employees;                                                       # Delete a table from the db
+DROP DATABASE mysampledb;                                                   # Delete the db
 ```
 
 #### Backup and restore
@@ -138,4 +138,91 @@ Run from standard linux shell, not from db:
 ```bash
 mysqldump -u admin -p --databases mysampledb > mysampledb.sql       # backup db
 mariadb -u admin -p < mysampledb.sql                                # restore db
+```
+
+### Secondary servers
+
+A secondary server gives you redundancy--if your first server fails, apps can still use your db:
+- Requires another system with `mariadb-server` running
+- Does not sync users, only syncs data
+- Can create a backup, but backups become stale quickly
+- Secondary server is a copy that is always up-to-date.
+- Not a replacement for backups. You still need backups
+- set up multiple secondary dbs with unique `server-id` in `/etc/mysql/conf.d/mysql.cnf`
+
+Primary config:
+- enable binary logging - binary logs record all changes to a db. You can transfer these to a secondary server
+
+```bash
+# 1. --- Primary server --- #
+vim /etc/mysql/conf.d/mysql.cnf                 # 1. Enable binary logging
+[mysql]
+
+[mysqld]
+log-bin
+binlog-do-db=mysampledb
+server-id=1
+
+vim /etc/mysql/mariadb.conf.d/50-server.conf    # 2. Set bind-address to 0s to connect from other machines
+...                                             #    (was '127.0.0.1')
+bind-address            = 0.0.0.0
+...
+
+mariadb -u root -p                              # 3. Get MariaDB root shell
+GRANT REPLICATION SLAVE ON *.* TO 'replicate'@'<slave-ip>' IDENTIFIED BY 'password';   # 4. Create user named replication that can connect from secondary server IP
+
+systemctl restart mariadb                       # 4. Restart daemon so changes take effect
+FLUSH TABLES WITH READ LOCK;                    # 5. Lock db and prevent changes/writes while config other server
+mysqldump -u admin -p --databases mysampledb > mysampledeb.sql  # 6. Backup primary server
+rsync -av mysampledeb.sql maria@10.20.30.41:    # 7. Transfer backup file to remote server /home dir
+
+# 2. --- Secondary server --- #
+mariadb -u root -p < mysampledb.sql             # 1. Add db file to secondary db
+vim /etc/mysql/conf.d/mysql.cnf                 # 2. Add server ID to secondary db
+[mysql]
+
+[mysqld]
+server-id=2
+
+systemctl restart mariadb                       # 3. Restart service
+mariadb -u root -p                              # 4. Get root db shell
+CHANGE MASTER TO MASTER_HOST="192.168.56.52", MASTER_USER='replicate', MASTER_PASSWORD='password';  # 5. Associate this server with primary db
+
+# 3. --- Primary server --- #
+mariadb -u root -p                              # 1. Get root db shell
+UNLOCK TABLES;                                  # 2. Unlock primary server tables
+
+# 4. --- Secondary server --- #
+SHOW SLAVE STATUS \G;                           # 3. Check slave status - must say 'Waiting for master to send event'
+START SLAVE;                                    #    ONLY if #3 fails
+SHOW SLAVE STATUS \G;                           #    ONLY if START SLAVE was required
+
+
+# --- Verify setup --- #
+# primary sever
+INSERT INTO Employees VALUES ('Optimus Prime', '100', 'Transformer');   # insert new info
+
+# secondary server
+SELECT * FROM Employees;                                                # should contain new row
+```
+
+#### Troubleshooting
+
+Try these steps if your dbs aren't synchronized:
+- Make sure primary is listening for connections on the right addr:port
+- For `SLAVE STATUS` errors, flush privs on primary 
+- If primary and secondary won't sync, manually create the db and tables on the secondary. This should help them sync
+- On secondary, manually sync with `STOP SLAVE;`, `START SLAVE;` commands
+
+```bash
+sudo ss -tulpn | grep mariadb           # verify listening for connectiosn on 0.0.0.0:3306
+                                        # then, check /etc/mysql/mariadb.conf.d/50-server.cnf file
+                                        # then, reboot if necessary
+
+# SHOW SLAVE STATUS errors
+FLUSH PRIVILEGES;                       # run again on primary server
+
+# manually sync on secondary
+STOP SLAVE;
+START SLAVE;
 ```

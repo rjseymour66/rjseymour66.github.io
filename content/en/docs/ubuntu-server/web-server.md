@@ -242,5 +242,144 @@ If you have multiple websites, you can copy this file as a template:
 		SSLOptions +StdEnvVars
 	</Directory>
 </VirtualHost>
+```
 
+## nginx
+
+Proxy server and web server:
+- Should not run two web services on the same machine because there might be conflicts
+- content in `/var/www/html`
+- config files in `/etc/nginx`
+  - same `sites-available` and `sites-enabled` as apache
+- No commands to enable sites, must create the symlink manually
+- For one site, replace the `../sites-available/default` content
+- For more than one site, copy default config file and make changes, then create new dir in `/var/www/`
+
+```bash
+apt install nginx               # install package
+
+# --- enable a site --- #
+sudo ln -s /etc/nginx/sites-available/site.com /etc/nginx/sites-enabled/site.com
+systemctl reload nginx
+```
+
+### Multiple site config
+
+nginx can have only one default site, so you have to create a new config file:
+- There is a templat at the end of the `default` site config
+- easier configuration
+
+```bash
+cp sites-available/default sites-available/mysite.com       # 1. duplicate default config file
+vim /etc/nginx/sites-avaiable/mysite.com                    # 2. edit new config file
+...
+server {
+	listen 80;                                              # rm default_site bc there can be only one
+	listen [::]:80;                                         # rm default_site bc there can be only one
+    ...
+	root /var/www/mysite.com;                               # dir storing site files
+    ...
+	index index.html index.htm index.nginx-debian.html;     # leave as default
+
+	server_name mysite.com www.mysite.com;                  # change to name of new site
+
+	location / {
+		...
+		try_files $uri $uri/ =404;
+	}
+    ...
+```
+### TLS
+
+Store certs in a file and update the config files to use port 443 and the certs:
+- requires a pem key
+
+```bash
+mkdir /etc/nginx/certs                                      # 1. create dir for certs
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 \       # 2. generate certs and answer questions
+-keyout /etc/nginx/certs/mysite.key \
+-out /etc/nginx/certs/mysite.crt
+vim /etc/nginx/sites-avaiable/tlssite.com                   # 3. edit config file
+server {
+	listen 443 ssl;
+	listen [::]:443 ssl;
+    ...
+	root /var/www/tlssite.com;
+    ...
+	index index.html index.htm index.nginx-debian.html;
+
+	server_name tlssite.com www.tlssite.com;
+
+	ssl_certificate /etc/nginx/certs/cert.pem;
+	ssl_certificate_key /etc/nginx/certs/cert.key;
+	ssl_session_timeout 5m;
+
+	location / {
+		try_files $uri $uri/ =404;
+	}
+...
+vim /etc/nginx/sites-avaiable/default                       # 4. redirect users from default site
+...
+server {
+	listen 80 default_server;
+	listen [::]:80 default_server;
+
+	return 301 https://$host$request_uri;
+    ...
+```
+
+## Nextcloud
+
+Requires web server to work:
+- sync files between machines
+- store and sync contacts
+- keep track of tasks
+- get email from a server
+
+```bash
+wget https://download.nextcloud.com/server/releases/latest.zip      # 1. Download the latest zip
+unzip latest.zip                                                    # 2. Unzip archive
+mv nextcloud /var/www/html/nextcloud                                # 3. Move to Apache server dir
+chown www-data:www-data -R /var/www/html/nextcloud                  # 4. Give Apache user account and group full access
+vim /etc/apache2/sites-available/nextcloud.conf                     # 5. Create config file
+a2ensite nextcloud.conf                                             # 6. Enable site
+apt install libapache2-mod-php8.3                                   # 7. Install Nextcloud req packages
+            php8.3-curl
+            php8.3-gd
+            php8.3-intl
+            php8.3-mbstring
+            php8.3-mysql
+            php8.3-xml
+            php8.3-zip
+systemctl restart apache2                                           # 8. Restart Apache
+mariadb -u root -p                                                  # 9. Log in to mariadb as root
+CREATE DATABASE nextcloud;                                          # 10. Create Nextcloud db
+GRANT ALL ON nextcloud.* to 'nextcloud'@'localhost'                 # 11. Create user nextcloud and grant full access to db
+    IDENTIFIED BY 'super_secret_password';
+
+# --- Nextcloud setup questions --- #
+1. Go to <server-ip>/nextcloud
+2. Complete the account setup:
+   New admin account: admin
+   New admin password: <password>
+   Database account: nextcloud (from step 11 above)
+   Database password: <password> (from step 11 above)
+   Database name: nextcloud (from step 11 above)
+   Database host: localhost (if you set up db on same machine as Nextcloud server. Otherwise, enter db server IP)
+3. Select Install.
+4. Create a regular user account. Use admin account to enable or disable apps.
+
+
+# --- NextCloud config file --- #
+<Directory /var/www/html/nextcloud/>                # access at www.<domain-name>.com/nextcloud
+        Options +FollowSymlinks                     # if ServerName is not set, uses <server-ip>/nextcloud
+        AllowOverride All
+
+        <IfModule mod_dav.c>
+                Dav off                             # disable WebDAV - will not be file server
+        </IfModule>
+
+        SetEnv HOME /var/www/html/nextcloud         # set env var HOME
+        SetEnv HTTP_HOME /var/www/html/nextcloud    # set env var HTTP_HOME
+</Directory>
 ```

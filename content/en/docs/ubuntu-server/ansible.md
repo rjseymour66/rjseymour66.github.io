@@ -36,7 +36,7 @@ Inventory file that lists resources (servers) with ansible user account:
 ### Setup ansible client
 
 ```bash
-apt install ansible                                 # 1. install package
+apt install ansible                                 # 1. install package - make sure ansible 2.16+
 adduser ansible                                     # 2. create ansible user
 usermod -aG sudo ansible                            # 3. make ansible sudoer
 ssh-copy-id -i ~/.ssh/id_rsa.pub ansible@<ip-addr>  # 4. copy ssh keys to ansible user acct
@@ -46,34 +46,72 @@ chown root:root /etc/sudoers.d/ansible              # 7. root perms to file
 chmod 440 /etc/sudoers.d/ansible                    # 8. update perms
 ssh <client-ip> sudo ls /etc                        # 9. test from ansible acct on master machine
 ```
+### Inventory files
+
+Look into _roles_ in ansible.
+
+An inventory file tells Ansible where to find the servers to configure:
+- create the dir `/etc/ansible`
+- create the inventory file `/etc/ansible/hosts`
+- give perms to ansible account
+- config file is `/etc/ansible/ansible.cfg`
+  - you can fine tune performance with this file
+  - ansible reads from this config file every time it runs
+  - list where to find host file and default user
+  - ansible reads the current dir for this file each time
+  - can store it in git repo, but discouraged bc might include sensitive info
+- 
 
 
-Host u24
-	HostName 192.168.56.50
-	User linuxuser
-	Port 22
+```bash
+mkdir /etc/ansible                  # 1. make config dir
+touch /etc/ansible/hosts            # 2. make inventory file
+chown ansible /etc/ansible/hosts    # 3. make ansible user the owner
+chmod 600 /etc/ansible/hosts        # 4. only owner has rw perms
+vim /ect/ansible/hosts              # 5. add host IPs or DNS names to file
+vim /etc/ansible/ansible.cfg        # 6. create config file
+[defaults]                              # start of stanza
+inventory = /etc/ansible/hosts          # path to inventory file
+remote_user = normaluser                # default user for playbooks - must exist on client machines
+ansible all -m ping                 # 7. test that ansible can connect to clients via SSH
+```
 
-Host ---
-	HostName 192.168.56.51
-	User normaluser
-	Port 22
+### Playbooks
 
-Host us24
-	HostName 192.168.56.52
-	User normaluser
-	Port 22
+Ansible stores configurations in a _playbook_, a YAML-formatted file that contains ansible instructions:
+- each individual instruction is a _play_
+- `ansible.builtin.apt` is an ansible module for `apt` - it tells ansible we are using a native module, not an external tool
+  - There is an `ansible.builtin.dnf` too
 
-Host db2
-	HostName 192.168.56.53
-	User maria
-	Port 22
+```bash
+# --- Install htop example --- #
+---
+- hosts: all                    # the hosts you want the playbook to apply to (all in inventory file)
+  become: true                  # use sudo to execute commands in this playbook
+  tasks:                        # new section that contains tasks ('plays')
+  - name: Install htop          # name of task
+    ansible.builtin.apt:        # tell apt module to install htop
+      name: htop
 
-Host ans1
-	HostName 192.168.56.54
-	User normaluser
-	Port 22
+# --- Install multiple packages example --- #
+---
+- hosts: all
+  become: true
+  tasks:
+  - name: Install multiple packages
+    ansible.builtin.apt:
+      name:
+        - git
+        - vm-nox
+        - htop
 
-Host ans2
-	HostName 192.168.56.55
-	User normaluser
-	Port 22
+# --- Copy files example --- #
+---
+- hosts: all
+  become: true
+  tasks:
+  - name: copy SSH motd
+    ansible.builtin.copy:   # copy message of the day (motd) file to inventory
+      src: motd
+      dest: /etc/motd
+```

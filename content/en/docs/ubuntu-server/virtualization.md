@@ -13,10 +13,13 @@ Ubuntu has a virtualization suite that lets you set up a server that is a centra
 - Lets machine run VMs without a 3rd party product like VirtualBox (a centrally available VM server)
   - Can only run VirtualBox or KVM/QEMU, not both at the same time. CPU can't handle both
 - Virtual Machine Manager is a GUI that helps you perform VM admin tasks - `virt-manager`
-  - Can manage local and remote KVM servers 
+  - Can manage local and remote KVM servers
+- KVM machines are assigned IP addr on `192.168.122.0/24` network
+  - Get IP from internal DHCP server, between `192.168.122.2` - `192.168.122.254`
+  - Can SSH into computer from workstation, set up bridging to get vm to connect directly to your network
 
 
-## KVM/QEMU Instalation 
+## KVM/QEMU Installation 
 
 ```bash
 egrep -c '(vmx|svm)' /proc/cpuinfo          # check whether cpu supports virtualization extensions
@@ -77,6 +80,40 @@ Create a new storage pool to store our ISO files:
 5. Allocate disk space. 20GB is enough for most test machines.
 6. Name the VM and select **Finish**.
 
+### Bridging the network
+
+Lets you receive an IP from the DHCP server on your network instead of internal KVM DHCP:
+- Good if you're setting up a VM server on your network
+- Every VM can be connected to and treated as a regular machine on the network, with the main DHCP server as the source of truth
+- Bridging generally works on wired network cards, and does not work on wireless network cards 
+  - backup your netplan file before making changes!
+
+
+### Cloning 
+
+Create a VM, configure it, then convert it into a template for all VMs of the same operating system:
+- KVM doesn't have a templating feature, but you can still configure a VM, name it *-template, then clone it
+
+1. Right-click a stopped VM and select **Clone**.
+2. Make sure the 'clone this disk' option is selected.
+3. Select **Clone**.
+
+### Managing VMs from commmand line 
+
+Use `virsh` suite of commands to manage VMs if GUI isn't available:
+- 
+
+```bash
+virsh list                    # list running VMs
+virsh list --all              # list all VMs
+virsh start <vm-name>         # start VM
+virsh shutdown <vm-name>      # shutdown VM
+virsh suspend <vm-name>       # pause VM
+virsh resume <vm-name>        # unpause VM
+virsh destroy <vm-name>       # stop VM immediately
+virsh undefine <vm-name>      # deletes a VM, but not associated files
+                              # must delete disk files from /var/lib/libvirt/images
+```
 
 
 

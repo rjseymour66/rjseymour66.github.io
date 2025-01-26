@@ -101,7 +101,6 @@ Create a VM, configure it, then convert it into a template for all VMs of the sa
 ### Managing VMs from commmand line 
 
 Use `virsh` suite of commands to manage VMs if GUI isn't available:
-- 
 
 ```bash
 virsh list                    # list running VMs
@@ -113,31 +112,24 @@ virsh resume <vm-name>        # unpause VM
 virsh destroy <vm-name>       # stop VM immediately
 virsh undefine <vm-name>      # deletes a VM, but not associated files
                               # must delete disk files from /var/lib/libvirt/images
+virsh net-dhcp-leases default
+
 ```
+### Static IP addresses
 
+Add the static IP config to the default network xml file so the DHCP server can assign the static ip:
+- [Official docs](https://wiki.libvirt.org/Networking.html#guest-configuration-nat)
 
+```bash
+virsh net-dhcp-leases default                         # view all dhcp leases on default network
 
+virsh net-update default add ip-dhcp-host \           # add static ip to xml config file
+      "<host mac='52:54:00:00:00:01' \
+       name='<vm-name>' ip='192.168.122.200' />" \
+       --live --config
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+virsh net-list
+virsh net-dumpxml default
+virsh dumpxml <vm-name> | grep -i '<mac'      # get mac addr
+virsh net-edit <network-name>                 # edit network config
+```

@@ -19,6 +19,8 @@ Terraform can automate cloud infrastructure:
 - Should store in a git repo
 - Made by Hashicorp
 - Lower-level than ansible or puppet
+- Ingress blocks let you set a port to allow incoming connections on specified IPs
+- Egress lets your machine connect to the internet
 
 ## Installation
 
@@ -73,3 +75,123 @@ You have to download Terraform, then configure AWS as the root user:
    ```bash
    terraform apply
    ```
+
+
+### Adding security
+
+```bash
+provider "aws" {                            
+	profile = "terraform-provisioner"
+	region = "us-east-1"
+}
+
+resource "aws_instance" "my-server-1" {
+	ami				            = "ami-0684e5b823fb79036"
+	associate_public_ip_address	= "true"
+	instance_type			    = "t2.micro"
+	key_name			        = "production-key"
+	vpc_security_group_ids		= [aws_security_group.external_access.id]   # variable for security group created below
+	tags = {
+		Name = "Web Server 1"
+	}
+}
+	resource "aws_security_group" "external_access" {   # create new security group resource named in tf as "external_access"
+		name		= "my_sg"                           # sg group name in AWS
+		description	= "Allow OpenSSH and Apache"        
+		ingress {                                       # allow SSH connections on port 22 from this IP
+			from_port	= 22
+			to_port		= 22
+			protocol	= "tcp"
+			cidr_blocks	= [ "172.11.59.105/32" ]
+			description	= "Home Office IP"
+		}
+		ingress {                                       # allow HTTP connections on port 80 from this IP
+			from_port	= 80
+			to_port		= 80
+			protocol	= "tcp"
+			cidr_blocks	= [ "172.11.59.105/32" ]
+			description	= "Home Office IP"
+		}
+		egress {                                        # allow public internet access (any IP)
+			from_port	= 0
+			to_port		= 0
+			protocol	= "-1"
+			cidr_blocks	= ["0.0.0.0/0"]
+		}
+	
+	}
+```
+
+### Destroying resources
+
+Run `terraform destroy` to destroy all resources defined in a config file:
+- when resources are not in use
+- when you need to reset an environment
+
+
+### Terraform and Ansible
+
+Use terraform to create our initial server and infra builds, and then ansible to automate future enhancements:
+- Terraform can also launch the initial Ansible run so you only have to run a single script
+
+To combine these tools, you have to create a script in the same directory as the `.tf` config file, and then reference the script in the terraform config as `user_data`. The **User data** field in AWS is where you manually add scripts that you want to run when the machine is created.
+
+#### Script
+
+This `bootstrap.sh` script updates the machine with ansible, then runs `ansible pull` to get the `local.yaml` file from the repo:
+
+```bash
+#!/bin/bash
+sudo apt update
+sudo apt install -y ansible
+sudo ansible-pull -U https://github.com/rjseymour66/ansible.git
+```
+
+### Terraform config
+
+This script references `bootstrap.sh` in the `user_data` field:
+
+```bash
+provider "aws" {
+	profile = "terraform-provisioner"
+	region = "us-east-1"
+}
+
+resource "aws_instance" "my-server-1" {
+	ami				= "ami-0684e5b823fb79036"
+	associate_public_ip_address	= "true"
+	instance_type			= "t2.micro"
+	key_name			= "production-key"
+	vpc_security_group_ids		= [aws_security_group.external_access.id]
+	user_data = file("bootstrap.sh")                                            # script ref
+	tags = {
+		Name = "Web Server 1"
+	}
+}
+	resource "aws_security_group" "external_access" {
+		name		= "my_sg"
+		description	= "Allow OpenSSH and Apache"
+		ingress {
+			from_port	= 22
+			to_port		= 22
+			protocol	= "tcp"
+			cidr_blocks	= [ "108.26.179.236/32" ]
+			description	= "Home Office IP"
+		}
+		ingress {
+			from_port	= 80
+			to_port		= 80
+			protocol	= "tcp"
+			cidr_blocks	= [ "108.26.179.236/32" ]
+			description	= "Home Office IP"
+		}
+		egress {
+			from_port	= 0
+			to_port		= 0
+			protocol	= "-1"
+			cidr_blocks	= ["0.0.0.0/0"]
+		}
+	
+	}
+
+```

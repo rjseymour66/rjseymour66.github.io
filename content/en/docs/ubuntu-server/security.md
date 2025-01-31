@@ -111,3 +111,76 @@ sudo canonical-livepatch status                 # check status
 
 ## OpenSSH
 
+Configuration file is in `/etc/ssh/sshd_config`:
+- always restart daemon after you change the settings
+- connection attemps are logged in `/var/log/auth.log`
+
+Security changes:
+- Change port from 22 to X
+  - Helps keep logs clean - you only see port scan intrusion attempts
+  - Have to specify port when ssh-ing into the machine
+- For older installations, make sure you are using Protocol 2.
+  - If its not in the file, then you are using protocol 2
+- Set `AllowUsers` to restrict who can ssh into the server
+  - This setting is not found in the config file by default
+- Set `AllowGroups` to restrict who can ssh into the server by group
+  - Create group for ssh, like `sshusers`
+- `AllowUsers` overrides `AllowGroups`, but `AllowGroups` is easier to manage because you just add the user to the group and no need to change the config file
+  - Might have to recopy ssh keys to server with `ssh-copy-id -i ...`
+- Set `PermitRootLogin` to `no`. This lets a root user login with ssh. The default `prohibit-password` means that root can use a key to ssh in, but not use password. This is bad too.
+  - If a cloud provider requires you login as root, then give regular user sudo privs and log in w that user
+- Set `PasswordAuthentication` to `no`
+  - Prevents brute-force attacks
+  - Must set up public key access 
+
+
+```bash
+systemctl restart ssh
+
+# --- /etc/ssh/sshd_config --- #
+Port 65332                          # change default port
+AllowUsers user1 user2[ user3...]   # restrict ssh access by user
+AllowGroups admin sshusers          # restrict ssh access by group (sudo groupadd sshusers)
+PermitRootLogin no                  # disable passwd and key login for root user
+PasswordAuthentication              # disable passwd auth, require public key auth
+```
+
+## Fail2ban
+
+Watches log files for authentication failures and can block an IP address after a set number of failures:
+- starts at boot
+- config file is `/etc/fail2ban/jail.conf` but that is overwritten if there are updates to fail2ban. Create a `/etc/fail2ban/jail.local` file - the `.local` file superseded the default `.conf` file.
+- All Jails are disabled by default, except SSH. Add `enable = true`
+  - Add `enabled` line to [sshd] section too, just to be sure
+  - A jail is a security guard that watches a specific log file and blocks bad actors.
+  - Always restart fail2ban after updating a jail
+  - You must have the service installed and running to enable a jail
+- Enable these jails:
+  - `[apache-modsecurity]` jail if you use SSL for apache
+  - `[apache-shellshock]` to protect against ShellShock bash command
+- After you make a change, check the status 
+
+Helpful settings:
+- `ignoreip`: do NOT ban IPs in this list (`::1` is localhost in IPv6). Set this so you do not get locked ou
+
+```bash
+apt install fail2ban                                    # install package
+cp /etc/fail2ban/jail.conf /etc/fail2ban/jail.local     # copy config file
+
+# health
+systemctl restart fail2ban                              # restart fail2ban
+systemctl status -l fail2ban                            # check fail2ban status
+fail2ban-client status                                  # list all enabled jails
+
+# --- /etc/fail2ban/jail.local config file --- #
+ignoreip: 127.0.0.1/8 ::1 20.30.40.0/24 20.30.40.158/24 # DO NOT block these hosts/networks
+bantime                 # how long host is banned
+maxretry                # number of failures before fail2ban bans an IP for bantime setting
+
+# configuring jails
+[sshd]                  # ssh is enabled
+...
+enabled = true
+port    = 65332         # if you changed ssh default port, set it here
+
+```

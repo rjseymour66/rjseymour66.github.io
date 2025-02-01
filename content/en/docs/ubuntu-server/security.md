@@ -184,3 +184,96 @@ enabled = true
 port    = 65332         # if you changed ssh default port, set it here
 
 ```
+
+## Database servers
+
+DBs are not hard to secure:
+- Should not be reachable from the internet - only internal servers 
+  - Ex: DB for web server only accepts connections from web server
+  - use `/ect/hosts.allow` and `/ect/hosts.deny` to manage this. `/ect/hosts.allow` overrides `/etc/hosts.deny`
+  - Add IP for SSH and webserver to `.allow`
+    - Never add `ALL: ALL`
+    - Add all internal network IP addr
+  - Deny everything in `.deny` file - overridden by `.allow`
+    - Make sure you setup `.allow` file first!
+
+```bash 
+# --- /etc/hosts.allow --- #
+ALL: 192.168.1.30               # Allows this IP (e.g. ssh IP)
+ALL: 192.168.1.0/255.255.255.0  # Allow any IP from 192.168.1 network
+ALL 192.168.1.                  # Wildcard - any IP from this network
+ssh: 192.168.1.                 # Daemons - allow ssh from any host on that network
+
+# --- /etc/hosts.deny --- #
+ALL: ALL
+```
+### User access
+
+Restrict user logins by IP:
+- `%` is a wildcard, so never allow connections from `...'appuser'@'%'...`
+- Only allow subnet access if its not the same subnet that your users are on
+
+```bash
+# Restrict access to single IP
+GRANT SELECT ON mydb.* TO 'appuser'@'192.168.1.50' IDENTIFIED BY 'password';
+FLUSH PRIVILEGES;
+
+# Restrict access to subnet - not as good as single IP
+GRANT SELECT ON mydb.* TO 'appuser'@'192.168.1.%` IDENTIFIED BY 'password';
+FLUSH PRIVILEGES;
+```
+
+## Firewalls
+
+Firewalls are easy to implement but difficult to implement well:
+- Allow or disallow access to a network port
+  - When admins start a service, they open a port for it 
+  - Firewall allows port access from specific IPs or places
+- Ubuntu uses uncomplicated Firewall (UFW)
+  - Easy interface to `iptables` - use `ufw`, not `iptables`
+  - inactive by default
+  - configure, then activate it
+- Allow access to ports that your server needs for functionality. Ex: 80 and 443 for webservers
+
+```bash
+sudo apt install ufw            # install package
+sudo ufw status                 # check status - confirm its inactive
+sudo ufw enable                 # activate ufw
+
+ufw allow from 192.168.1.158 to any port 22         # allow SSH from this IP
+ufw allow from 192.168.1.0/24 to any port 22        # allow SSH from entire subnet
+ufw allow 80                                        # allow all traffic to port 80
+ufw allow 443                                       # allow all traffic to port 443
+```
+
+## LUKS
+
+You should encrypt any data on disk with personal or sensitive information:
+- Choose full-disk encryption when you setup your Linux installation
+  - Otherwise, a person can just boot a Live OS disc and mount the hard drive to view your data
+- `cryptsetup` package lets us encrypt and decrypt disks
+- Encrypting a disk removes any data on it, so use a clean one
+
+```bash
+apt install cryptsetup                              # 1. install packages
+fdisk -l                                            # 2. verify the disk that you want to format
+cryptsetup luksFormat /dev/<disk>                   # 3. format the disk
+cryptsetup luksOpen /dev/sda <disk-name>            # 4. opens the disk and names it <disk-name> so you can format it 
+fdisk -l                                            # 5. verify it worked in /dev/mapper/<disk-name>
+mkfs.ext4 -L "usb_drive" /dev/mapper/<disk-name>    # 6. create fs on drive, add label with -L
+mkdir /media/<disk-name>                            # 7. create mount point
+mount /dev/mapper/<disk-name> /media/<disk-name>    # 8. mount on local fs
+
+# --- unmount encrypted drive --- #
+umount /media/<disk-name>                           # unmount the volume
+cryptsetup luksClose /dev/mapper/<disk-name>        # close the volume
+
+# --- remount encrypted drive --- #
+fdisk -l                                            # get disk names
+crytpsetup luksOpen /dev/sda <disk-name>            # open the volume
+fdisk -l                                            # get disk names
+mount /dev/mapper/<disk-name> /media/<disk-name>    # mount the volume
+
+# --- change encrypted drive passphrase --- #
+cryptsetup luksChangeKey /dev/sda -s 0
+```

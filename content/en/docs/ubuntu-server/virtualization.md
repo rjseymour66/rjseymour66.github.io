@@ -123,11 +123,10 @@ Add the static IP config to the default network xml file so the DHCP server can 
 ```bash
 virsh net-dhcp-leases default                         # view all dhcp leases on default network
 
-# add static ip to xml config file
-virsh net-update default add ip-dhcp-host \
-      "<host mac='52:54:00:00:00:01' \
-       name='<vm-name>' ip='192.168.122.200' />" \
-       --live --config
+# add static IP to xml config file
+virsh net-update default add ip-dhcp-host "<host mac='<mac-addr>' name='<hostname>' ip='<ip-addr>' />" --live --config
+# delete static IP
+virsh net-update default delete ip-dhcp-host "<host mac='<mac-addr>' name='<hostname>' ip='<ip-addr>' />" --live --config
 
 virsh net-list
 virsh net-dumpxml default

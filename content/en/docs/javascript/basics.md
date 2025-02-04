@@ -78,3 +78,84 @@ Document Object Model is the API for working with the Document object
   - Some JS classes define attributes that are not available on the HTML tag
 
 ## Global object
+
+There is one global object per browser or tab, and all JS code running in the window or tab shares the same global object:
+- JS's standard library is defined on the global object, and it is the entrypoint for some web APIs, such as `document` and `fetch()`
+- In web browsers, the global object is also the `window` object, which represents the current web browser window
+  - Best practice to use `window.` prefix when calling the global object. Ex: `window.innerWidth`
+
+
+## Namespaces
+
+Modules: constants, variables, funcs, and classes defined in a module are private and need to be explicitly exported, and then can be imported by another module
+
+Non-modules: All scripts share a namespace and can share vars, funcs, etc. 
+- Be careful with naming conflicts
+- `var` and `function` declarations create shared global object properties. This means that you can invoke them with `window.<function>`
+- ES6 `let`, `const`, and `class` do not create properties on the global object, but still be mindful of namespaces
+
+## Program execution
+
+A JS program is all JS code in or referenced from a document that shares a global Window object
+- non-module scripts also share a top-level namespace
+- an `<iframe>` has a different global Window object and Document object, so its a separate program
+  - If the container and contained document are on the same server, they can communicate with each other
+
+### First phase
+
+Load JS content:
+- Document content is loaded
+- This stage should take less than a second
+- Code in inline and external `<script>` elements are run in the order they appear in the document, taking into account `defer` and `async` attributes.
+  - Each script is run from top to bottom
+- Some scripts just define functions and classes for the second phase
+  - Ex: Register event handlers or callbacks
+
+Detailed breakdown:
+1. Browser creates a Document object and parses the web page. Adds Element objects and Text nodes as it parses the HTML.
+   - `document.readyState` is `loading`
+2. HTML parser adds to the document any `<script>` tags without `defer`, `async`, or modules. Can use `document.write()` to maniupulate the DOM, but these scripts generally just register event handlers
+3. If the HTML parser encounters an `async` `<script>` tag, it downloads the script and continues parsing the document.
+   Do not use the `document.write()` method with this event
+4. `document.readyState` changes to `interactive`
+5. `defer` scripts are executed in the order they are encountered in the document. They have access to the complete document - but do NOT use `document.write()`. Async scripts might also be executed.
+6. `DOMContentLoaded` event is fired on the Document object. This begins the transition to phase 2. `async` scripts might still be executed.
+7. Document is completely loaded, but might be waiting on images or other content. After all content is loaded and `async` scripts are loaded `document.readyState` is changed to `complete` and the browser fires a `load` event on the Window object.
+8. Completely in second phase, event handlers are invoked asynchronously.
+
+### Second phase
+
+Asychronous and event-driven:
+- In response to events, the browser executes event handlers and callbacks that were registed in the first phase
+- This phase lasts as long as the document is displayed in the browser
+- Event examples:
+  - mouse clicks, keystrokes
+  - network activity
+  - document resource loading
+  - elapsed time
+  - errors in JS code
+
+First events to occur are `DOMContentLoaded` and 'load' events:
+- These events are used as a trigger or starting signal for JS actions like registering handlers on the `load` event.
+- 
+
+| **Event**           | **When It Fires**  | **Use Case**    |
+|---------------------|:-------------------|:----------------|
+| `DOMContentLoaded`  | After HTML is parsed, before full page load | Run JS that doesn’t depend on images or CSS  |
+| `load`             | After the entire page (CSS, images, etc.) loads | Initialize app after all resources load     |
+| `pageshow`        | Similar to `load`, also fires on back/forward cache | Detect when page is restored from cache    |
+| `beforeunload`     | When the user is about to leave | Show warnings or save data                 |
+| `unload`           | When the page is closing       | Clean up resources (e.g., logs, API calls) |
+| `visibilitychange` | When the page is hidden or visible | Pause/resume background tasks             |
+
+### Threading model
+
+JS is single-threaded:
+- there are no locks, deadlocks, race conditions
+- no two event handlers can execute at the same time
+- the browser does not respond to user input when scripts and event handlers are executing, so you can't write code that runs too long
+
+Web worker - a controlled form of concurrency
+- background thread that can perform tasks without freezing the UI
+- can't access the document, does not share its state with other workers or main thread
+- communicates with the main thread and other workers through asynchronous message events

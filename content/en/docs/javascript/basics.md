@@ -159,3 +159,5 @@ Web worker - a controlled form of concurrency
 - background thread that can perform tasks without freezing the UI
 - can't access the document, does not share its state with other workers or main thread
 - communicates with the main thread and other workers through asynchronous message events
+
+### Input/Output

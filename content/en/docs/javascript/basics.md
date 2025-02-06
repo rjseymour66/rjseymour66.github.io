@@ -161,3 +161,53 @@ Web worker - a controlled form of concurrency
 - communicates with the main thread and other workers through asynchronous message events
 
 ### Input/Output
+
+JS takes the following inputs:
+- Document, which JS accesses with the DOM API
+- User input - mouse clicks, keyboard, text, etc
+- URL of document being displayed, avaialble with `document.URL`
+- HTTP cookie req header with `document.cookie`. Cookies are usually server side, but JS can read/write them in browser
+- Global `navigator` property - gives info about the web browser:
+  - `navigator.userAgent`
+  - `navigator.language`
+  - `navigator.hardwareConcurrency`
+- Global `screen` property - info about user's display size
+  - `screen.width`
+  - `screen.height`
+- `navigator` and `screen` objects are like env vars
+
+Produces output:
+- In the DOM
+- In the console, but this is for debugging
+
+### Errors
+
+JS programs don't crash, they just don't do what they're supposed to and then log errors to the console:
+- You can set a few properties on the `window` object to handle errors. Mostly useful for telemetry
+
+```js
+// log errors and unexpected failures
+window.onerror()
+
+// when a Promise is rejected and there is no .catch() 
+window.onunhandledrejection()
+window.addEventListener('unhandledrejection', function(e) {...})
+```
+
+### Web security
+
+#### Restrictions
+
+- Read or write to the filesystem
+- Access general-purpose networks. JS can only make HTTP reqs and use Websockets
+
+#### Same-origin policy
+
+A JS script can only read properties of windows and documents that share the same origin:
+- **origin** - protocol, host, and port of the URL that loaded the document
+- origin of the document that the script is embedded in, not the script itself
+- Different web server = different origin
+- Different port on same server = different origin
+- iframes can't read properties of the page hosting them
+Determines what web content JS can interact with:
+- 

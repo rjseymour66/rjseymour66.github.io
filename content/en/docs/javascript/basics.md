@@ -137,7 +137,6 @@ Asychronous and event-driven:
 
 First events to occur are `DOMContentLoaded` and 'load' events:
 - These events are used as a trigger or starting signal for JS actions like registering handlers on the `load` event.
-- 
 
 | **Event**           | **When It Fires**  | **Use Case**    |
 |---------------------|:-------------------|:----------------|
@@ -147,6 +146,14 @@ First events to occur are `DOMContentLoaded` and 'load' events:
 | `beforeunload`     | When the user is about to leave | Show warnings or save data                 |
 | `unload`           | When the page is closing       | Clean up resources (e.g., logs, API calls) |
 | `visibilitychange` | When the page is hidden or visible | Pause/resume background tasks             |
+
+```js
+window.addEventListener('DOMContentLoaded', () => alert('DOMContentLoaded'));
+document.addEventListener('DOMContentLoaded', () => alert('DOMContentLoaded'));
+
+// document doesn't have the `load` event, only window does
+window.addEventListener('load', () => alert('DOMContentLoaded'));
+```
 
 ### Threading model
 
@@ -160,7 +167,7 @@ Web worker - a controlled form of concurrency
 - can't access the document, does not share its state with other workers or main thread
 - communicates with the main thread and other workers through asynchronous message events
 
-### Input/Output
+## Input/Output
 
 JS takes the following inputs:
 - Document, which JS accesses with the DOM API
@@ -180,7 +187,7 @@ Produces output:
 - In the DOM
 - In the console, but this is for debugging
 
-### Errors
+## Errors
 
 JS programs don't crash, they just don't do what they're supposed to and then log errors to the console:
 - You can set a few properties on the `window` object to handle errors. Mostly useful for telemetry
@@ -194,14 +201,14 @@ window.onunhandledrejection()
 window.addEventListener('unhandledrejection', function(e) {...})
 ```
 
-### Web security
+## Web security
 
-#### Restrictions
+### Restrictions
 
 - JS cannot read or write to the filesystem
 - JS cannot access general-purpose networks. JS can only make HTTP reqs and use Websockets
 
-#### Same-origin policy
+### Same-origin policy
 
 A JS script can only read properties of windows and documents that share the same origin:
 - **origin** - protocol, host, and port of the URL that loaded the document
@@ -219,7 +226,7 @@ Applies to HTTP reqs too:
     - Adds `Origin` request header that lists origins they will support
     - Adds `Access-Control-Allow-Origin` response header
 
-#### Cross-site scripting
+### Cross-site scripting
 
 When an attacker injects HTML tags or scripts into your website:
 - If you dynamically generate content based on user input, then you must sanitize it by removing any embedded HTML tags, or you are vulnerable
@@ -230,81 +237,3 @@ When an attacker injects HTML tags or scripts into your website:
   - Remove HTML tags from untrusted data before you create dynamic content
   - Always display untrusted content in an iframe with the `sandbox` attribute set. This disables scripting and other things
 
-## Events
-
-JS uses event-driven programming, like all GUI apps. This means that the browser generates an event when something interesting happens to the document or browser:
-- For example:
-  - Browser finishes loading a document
-  - User clicks button
-  - Moves mouse across the screen
-- Events can occur on any element within an HTML doc
-- JS can register a function to invoke when a specific event happens
-
-### Event Model
-
-There are three important parts of the event model:
-
-- **Event type**: A string that specifies the type of event - also called 'event name'. Ex: 'mousemove', 'keydown', 'load'
-
-- **Event target**: Object on which the event occurred, usually a Window, Document, or Element object but can also be a Worker object. Ex: Load event on window, selecting a `<button>` element.
-
-- **Event handler, event listener**: Function that handles or responds to an event. Handler and listener are synonymous, but sometimes they are used according to how the function addresses the event.
-  
-  Applications register the handlers with the browser by specifying the event type and event target. When an event of that type occurs on the target, the browser calls the function.
-
-  When a handler is invoked, we also call it 'fired', 'triggered', or 'dispatched'.
-
-- **Event object**: A JS object that contains details about the event, and are passed as an arg to the event handler. All events have the following properties:
-  - `type`: specifies the event type
-  - `target`: event target
-  
-  Some objects have additional properties, such as the screen coordinates for a mouse event.
-
-- **Event propagation**: This is the process that the browser uses to decide which objects to trigger event handlers on.
-  
-  Load or Worker events don't propagate.
-
-  Some events in the document propagate, also called 'bubbling up' the document tree. An event handler can stop the propagation with a special method on the event object.
-
-  _Event capturing_ is when an event handler registered to a container element can intercept an event before it gets to its target.
-
-### Categories
-
-There are a lot of event categories. This list groups events in general categories:
-- Device-dependent input events: Tied to specific input device, like mouse or keyboard
-- Device-independent input events: Not tied to a device. Ex: click events. These are often device-agnostic alternatives to device-dependent events. For example, 'input' event instead of 'keydown', or 'pointerdown', instead of 'mousedown'. These are useful for touch screens, stylus pens, etc.
-- UI events: High-level events, often on form elements. Ex: 'focus', 'change', 'submit'.
-- State-change events: Triggered by browser or network activity, not users. Signal a life-cycle or state-related change, such as 'load' or 'DOMContentLoaded'. For network connection, the browser fires 'online' and 'offline'.
-- API-specific events: Web APIs, like audio or video, have their own event types. These events are because the API is asynchronous, and they were developed before Promises were made, so you needed to be able to determine when an event occurred.
-
-### Registering event handlers
-
-Two ways to register an event handler:
-- Set property on the event target (old, legacy way)
-- Pass the handler to the object's or element's `addEventListener()` method
-
-#### Set property
-
-Not recommended because you can only register one event handler to the event target.
-
-Set the property with `on<eventname>`. For example, `window.onload`:
-
-```js
-window.onload = function() {
-    alert('The window just loaded!')
-}
-```
-
-### Set event handler attributes
-
-Not a best practice, avoid when possible. The way the browser executes these event handlers is confusing because it uses unexpected variables.
-
-You just add the body of a function as an HTML element property. Then, the browser converts your string into a function behind the scenes. For example:
-
-```js
-<body onload="alert('The window loaded!');">
-    ...
-</body>
-```
-
-#### addEventListener()

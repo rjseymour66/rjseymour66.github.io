@@ -310,3 +310,127 @@ para.replaceWith(h2);                   // replace para el with h2 el, remove h2
 para.replaceWith(h2.cloneNode(true));   // replace para el with h2 el, but don't remove h2
 ```
 
+## CSS
+
+You can add CSS with JS. A few common uses:
+- Set `display` to `none` to hide an element
+- Dynamically position elements by setting `position` to `absolute`, `relative`, or `fixed`
+- `transform` style lets you shift, scale, and rotate elements
+- `transition` can animate changes. The browser does this, but you can initiate animations with JS
+
+### Classes
+
+The easiest way to manipulate styling is by adding classes with the `classList` methods:
+
+```js
+let div = document.querySelector('div');
+
+div.classList.add('test-class');        // adds class="test-class"
+div.classList.remove('container');      // removes class="container"
+div.classList.contains('test-class');   // true - checks if class is in classList
+div.classList.toggle('test-class');     // removes class="test-class"
+div.classList.contains('test-class');   // false
+
+// hide p element on click event w/hidden class
+let b = document.querySelector('.btn');
+let p = document.querySelector('.text');
+
+b.addEventListener('click', () => {
+    console.log(p);
+    p.classList.toggle('hidden');
+});
+```
+
+### Inline styles
+
+The DOM defines a `style` property on all Element objects:
+- `style` is not a string - it is a CSSStyleDeclaration object - a parsed representation of CSS styles
+- All values are specified as strings
+- Make sure you include the units in the string value
+  - Ex: `el.style.borderRadius = "8px";`
+- CSS properties that are kebob case become camelCase in JS
+  - Ex: `font-family` becomes `fontFamily`
+
+```js
+// format
+el.style.<property> = "value";
+
+// position a paragraph on the page
+let displayAt = (para, x, y) => {
+    para.style.display = 'block';
+    para.style.position = 'absolute';
+    para.style.left = `${x}px`;
+    para.style.top = `${y}px`;
+};
+
+displayAt(p, 43, 34);
+
+// setting shortcut properties
+e.style.margin = `${top}px ${right}px ${left}px ${bottom}px`;
+```
+
+### Computed styles
+
+Computed styles are the final values of CSS properties after all styles have been applied and resolved by the browser:
+- These are read-only for CSSStyleDelcaration objects - you can't change them
+- `window.getComputedStyle(element, pseudoelement)` method lets you determine which style was used to render the element
+
+```js
+let title = document.querySelector('.title');
+let tStyles = window.getComputedStyle(title);
+```
+
+Differences between computed styles and inline styles:
+- Computed styles are read-only
+- Computed styles are absolute - these are the final calculations, and they are converted to px or rgb() or rgba()
+- `cssText` property of computed style is undefined
+
+### Scripting stylesheets
+
+You can give the `<style>` tag `id` attributes and then manipulate them with JS:
+- You can disable a stylesheet by adding the `disabled` property
+- This can be helpful for dark and light themes, or other themes
+- You can also add new stylesheets into the DOM
+- You can look into stylesheets and modify its contents, but that is specialized and searchable under `CSSStyleSheet`
+  
+```js
+// could be light and dark themes, not button colors
+let toggleStyles = () => {
+    let red = document.querySelector('#red-button');        // different stylesheets
+    let blue = document.querySelector('#blue-button');
+
+    if (red.disabled) {
+        blue.disabled = true;
+        red.disabled = false;
+    } else {
+        blue.disabled = false;
+        red.disabled = true;
+    }
+};
+
+b.addEventListener('click', toggleStyles);
+
+// differnet way to change themes
+let setTheme = (name) => {
+    // create new link element
+    let link = document.createElement('link');
+    link.id = 'theme';
+    link.rel = 'stylesheet';
+    link.href = `${name}.css`;
+
+    // look for existing theme - all themes use id="theme"
+    let currentTheme = document.querySelector('#theme');
+    if (currentTheme) {
+        currentTheme.replaceWith(link);
+    } else {
+        // just insert new link in head
+        document.head.append(link);
+    }
+};
+
+setTheme('other-style');
+```
+
+### Animation and events
+
+Revisit when I understand transitions and keyframes.

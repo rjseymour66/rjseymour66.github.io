@@ -21,4 +21,3 @@ Always use _me_ because _between_ is always a preposition and prepositions alway
 ## Dangling modifiers
 
 Place the modifier as close as possible to the sentence element that they modify. A phrase should point clearly to the thing they're modifying--you can do that with space. If it doesn't, then it is a dangling modifier. If the phrase has a participle (_-ing_ verb), then its a dangling participle:
-- 

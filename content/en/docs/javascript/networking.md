@@ -126,27 +126,73 @@ try {
 
 #### Request object properties
 
-| **Property**       | **Description** |
-|-------------------|----------------|
-| `method`         | HTTP method (`GET`, `POST`, `PUT`, etc.) |
-| `url`            | The request URL |
-| `headers`        | A `Headers` object containing request headers |
-| `body`           | The request body (only for methods like `POST`, `PUT`) |
-| `bodyUsed`       | `true` if the request body has already been read |
-| `referrer`       | The referrer URL (or `"about:client"` if not set) |
-| `referrerPolicy` | The policy for referrer information (e.g., `"no-referrer"`) |
-| `mode`           | Request mode (`"cors"`, `"no-cors"`, `"same-origin"`) |
-| `credentials`    | How credentials (cookies/auth) are handled (`"omit"`, `"same-origin"`, `"include"`) |
-| `cache`         | Cache mode (`"default"`, `"no-store"`, `"reload"`, etc.) |
-| `redirect`       | Redirect mode (`"follow"`, `"manual"`, `"error"`) |
-| `integrity`      | Subresource Integrity (SRI) hash |
-| `keepalive`      | `true` if the request should outlive the page |
-| `signal`         | `AbortSignal` to cancel the request |
+The optional Options object that you can pass to `fetch()` accepts other options:
+
+| Option           | Description |
+|-----------------|-------------|
+| `method` | HTTP method (GET, POST, etc.) |
+| `headers` | Custom headers (e.g., `Authorization`, `Content-Type`) |
+| `body` | Request body (used in `POST`, `PUT`) |
+| `mode` | Cross-origin mode (`cors`, `same-origin`, `no-cors`) |
+| `credentials` | Handles cookies (`omit`, `same-origin`, `include`) |
+| `cache` | Caching behavior (`default`, `no-cache`, `reload`, `force-cache`, `only-if-cached`) |
+| `redirect` | How redirects are handled (`follow`, `error`, `manual`) |
+| `referrer` | Referrer information |
+| `referrerPolicy` | Controls how referrer info is sent |
+| `integrity` | Subresource integrity check |
+| `keepalive` | Keeps the request alive after page unload |
+| `signal` | Allows request cancellation (`AbortController`) |
 
 
 ### URL API
 
-Pg 320
+> Does not work in Internet Explorer
+
+URL class parses URLs and allows modifications:
+- properly handles escaping and unescaping URL components
+- `origin` is read only. All other propertys are read-write
+
+```js
+url.href                // 'https://example.com:8080/path/name?q=term&key=value#fragment'
+url.origin              // https://example.com:8080
+url.protocol            // https:
+url.host                // example.com:8080
+url.hostname            // example.com
+url.port                // 8080
+url.pathname            // /path/name
+url.search              // q=term&key=value
+url.hash                // #fragment
+url.toString()          // https://example.com:433/path/name?q=term&key=value#fragment
+```
+
+HTTP requests can encode mutliple form field values in the query portion of the URL - returned by `.search` property
+- `url.search` returns entire query portion of the URL
+- `url.searchParams` provides an API to get, set, and query different key/value pairs in the query portion
+- Create a `URLSearchParams` object and append params, then set `url.search` to the `URLSearchParams` object
+- Do NOT use legacy URL funcs: `escape()` and `unescape()`
+- DO use new `encodeURI()` and `decodeURI()`, but it is easier to just use the URL object
+
+```js
+let url = new URL('https://example.com/search');
+url.searchParams.append('key', 'value');            // add new key/value pair
+url.searchParams.set('key', 'new-value');           // change value for 'key'
+url.searchParams.get('key')                         // return value for 'key'
+url.searchParams.has('key')                         // Boolean, whether 'key' exists
+url.searchParams.append('opts', 'extra-values');    // add new key/value pair
+url.searchParams.append('opts', 'more-values');     // add new key/value pair with same key name
+url.searchParams.getAll('opts')                     // get all key/values with 'opts' key
+url.searchParams.sort()                             // * didn't work *
+url.searchParams.delete('opts');                    // delete all key/value pairs with 'key' key
+
+// URLSearchParams
+let url = new URL('https://example.com/search');
+let params = new URLSearchParams();
+params.append('one', 'value');
+params.append('key', 'pair');
+url.search = params;
+```
+
+
 
 ### Headers
 
@@ -279,4 +325,90 @@ You can also stream the response body, which is a ReadableStream object:
 - `read()` returns a Promise with `done` and `value` properties
   - `done` returns true when you reach the end of the stream
   - `value` contains the next chunk of data or `undefined` when complete
-- Avoid using the streaming API with raw Promises - use `async` and `await`  
+- Avoid using the streaming API with raw Promises - use `async` and `await`
+
+### Uploading files
+
+Use a FormData object in the request body:
+- add `<input type="file">` to your HTML with a `change` event listener
+- there is a files array on this input element, and each element is a Files object
+  1. Get the uploaded file
+  2. Create a FormData object
+  3. append the uploaded file
+  4. Send the request with `fetch()`
+
+```js
+let fileInput = document.querySelector('#myfile');
+
+fileInput.addEventListener('change', (e) => {
+    if (fileInput.files.length === 0) {             // handle no file when form submitted
+        message.textContent = "Upload a file!";
+        return;
+    }
+
+    const file = fileInput.files[0];                // get uploaded file
+
+    let formData = new FormData();                  // create new FormData obj
+    formData.append(file.name, file);                 // add uploaded file to formData obj
+
+    fetch('path/to/upload', {                       // send file w/fetch
+        method: "POST",
+        body: formData
+    });
+});
+```
+
+### Cross-origin requests
+
+An origin is `<protocol><host><path><port>`.
+
+**Same-origin request**: When you request data from your own web server, the server that has the exact same origin as the document that contains the script that is making the request.
+- By default, browsers disallow **cross-origin requests**, or requests to a server that has a different origin than the document that contains the script that is making the request.
+
+**Cross-Origin-Resource-Sharing (CORS)**: enables safe cross-origin requests:
+- browser adds an "Origin" header that you cannot override. This alerts the web server that the reqeust is coming from a document with a different origin
+- server response must have the "Access-Control-Allow-Origin" header to proceed
+  - If not, the Promise that fetch returns is rejected
+
+### Aborting a request
+
+Abort a request if the request takes too long or a user action (e.g. clicking "Cancel") occurs:
+1. Create an AbortController object, then set its `signal` property.
+  - The `signal` property is an AbortSignal object.
+2. Take the AbortController object's `signal` property and set it as the `options.signal` property of the options object that `fetch()` accepts as a second arg
+3. Set a timeout to call the `abort()` method on the AbortController obj when `options.timeout` elapses
+
+```js
+const controller = new AbortController();
+const timeoutId = setTimeout(() => controller.abort(), 5000); // 5-second timeout
+
+fetch(url, {
+    method: 'GET',
+    signal: controller.signal // Attach the AbortController signal
+})
+    .then(response => response.json())
+    .then(json => console.log('Success:', json))
+    .catch(error => {
+        if (error.name === 'AbortError') {
+            console.error('Request timed out');
+        } else {
+            console.error('Fetch error:', error);
+        }
+    })
+    .finally(() => clearTimeout(timeoutId));
+```
+
+## Server-sent events
+
+Web apps sometimes need their server to send them notifications. This is not natural for HTTP, but can be done with the EventSource API:
+- client and server make a connection and never close the connection
+- if the connection closes, they jsut reopen it
+
+## WebSockets
+
+Lets JS in the browser send text and binary messages to the server:
+- Messages are sent in both directions (unlike SSE)
+- WebSocket protocol (`wss://`) is an extension of HTTP
+  - specify a WebSocket service with a URL
+- Browser first establishes an HTTP connection with the `Upgrade: websocket` header
+- Server needs to be set up to work with WebSockets too

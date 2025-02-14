@@ -216,3 +216,7 @@ button.addEventListener('click', e => {
 
 button.addEventListener('click', () => console.log('second event listener'));   // this will not fire
 ```
+
+### Event delegation
+
+https://javascript.info/event-delegation

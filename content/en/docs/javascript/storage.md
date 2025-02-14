@@ -74,7 +74,7 @@ console.log(data);                              // JSON obj
 | `key(index)`      | Returns the key at the specified index within the storage object. Returns `null` if the index is out of bounds. |
 
 
-### Storage lifetime and scope
+### Lifetime and scope
 
 `localStorage` is permanent and is not deleted until the user's device deletes it or it is deleted through the API:
 - scoped to document origin, which means that all scripts with the same origin share one `localStorage` object
@@ -107,26 +107,106 @@ Event properties for a storage event:
 
 ## Cookies
 
+- https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies
+- https://javascript.info/cookie
+
 Small amount of named data stored by the browser and associated with a page or website:
 - client-side is `cookie` object on the Document object
 - designed for server-side programming
 - extension of HTTP protocol
 - avaialble to both the browser and server, so server-side scripts can read and write cookie data to use in the browser
+- specify the lifetime and scope of a cookie with attributes (specially formatted strings) on the 
 
+
+Set cookies by setting `cookie` property of the document:
+- list of name/value pairs delimited by semi-colon and space
+- `split()` method breaks it into pairs
+- After you extract the cookie, you have to decode the cookie
+
+```js
+document.cookie = 'name=value';         // set a cookie
+
+// func to get cookies
+document.cookie = 'sessionId=123456789';
+document.cookie = 'username=ricky';
+
+let getCookies = () => {
+    let cookies = new Map();
+    let all = document.cookie;
+    console.log(all);
+    let list = all.split("; ");
+    console.log(list);
+    for (let cookie of list) {
+        if (!cookie.includes("=")) continue;
+        let p = cookie.indexOf('=');
+        let name = cookie.substring(0, p);
+        let value = cookie.substring(p + 1);
+        value = decodeURIComponent(value);
+        cookies.set(name, value);
+    }
+    return cookies;
+};
+
+getCookies();
+```
+
+### Lifetime and scope
+
+Cookies are transient - they persist for the life of the browser session and disappear when the user exits the window:
+- `max-age` attribute lets browser to know how long to store cookies
+  - browser stores cookies in a file and deleted when they expire
+- `path` and `domain` attributes configure the scope
+  - scoped by origin and document path
+  - cookies are available in any directory or subdirectory that it exists in: `/first/second/cookies` and `/first/second/cookies/subdir` can view the same cookies, but `first/second/` cannot
+  - You usually want this default visibility
+  - Set `path` with a web server URL to share cookies across a website
+  - Ex: Set to `/` to make it avaialble to any page in the domain
+  - Set the `domain` attribute to make cookies across the entire domain, including subdomains.
+  - Ex: Set to `example.com` to make cookies available across `docs.example.com`, `shop.example.com`, etc
+- `secure` attribute to `true` to send cookies via HTTPS only
+
+Limitations on browser storage:
+- 300 cookies in total
+- 20 cookies per web server
+- 4KB per cookie
+
+### Storing cookies
+
+To associate a cookie with the document, just set the `cookie` property on the Document object:
+- use `encodeUIRComponent()` to encode because cannot include semicolons, commas, or whitespace
+  - decode with `decodeUIRComponent()`
+- to set an attribute, append `; attribute=value`
+- to set `secure`, just appened `;secure`
+- change lifetime of a cookie by reseting `max-age`
+- to delete a cookie, set `max-age=0`
+
+```js
+document.cookie = 'test=value'
+
+// create a cookie function
+let setCookie = (name, value, daysToLive) => {
+    let cookie = `${name}=${encodeURIComponent(value)}`;
+    if (daysToLive !== null) {
+        cookie += `; max-age=${daysToLive * 60 * 60 * 24}`;
+    }
+    document.cookie = cookie;
+};
+
+// delete a cookie
+let deleteCookie = (name) => {
+    document.cookie = `${name}=""; max-age=0`;
+};
+```
 
 ### Properties
+
 | Property     | Description |
 |-------------|-------------|
 | `document.cookie` | Gets or sets cookies associated with the current document. Returns all cookies as a single string. |
 
-### Methods
-| Method         | Description |
-|---------------|-------------|
-| `setCookie(name, value, options)` | Creates or updates a cookie with a specified name, value, and optional attributes. |
-| `getCookie(name)` | Retrieves the value of a specific cookie by name. |
-| `deleteCookie(name)` | Deletes a cookie by setting its expiration date in the past. |
 
 ### Attributes
+
 | Attribute      | Description |
 |---------------|-------------|
 | `expires`     | Sets the expiration date of the cookie (UTC format). If not set, the cookie is a session cookie. |
@@ -136,4 +216,12 @@ Small amount of named data stored by the browser and associated with a page or w
 | `secure`      | Restricts the cookie to HTTPS connections only. |
 | `HttpOnly`    | Prevents client-side JavaScript from accessing the cookie. Only sent to the server. |
 | `SameSite`    | Controls whether cookies are sent with cross-site requests (`Strict`, `Lax`, `None`). |
+
+## IndexedDB
+
+https://javascript.info/indexeddb
+
+A database built into the browser that is usually too much for standard apps:
+- intended for offline apps
+- often combined with ServiceWorkers and other technologies
 

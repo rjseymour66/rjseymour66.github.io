@@ -10,15 +10,35 @@ CSS is a domain-specific, declarative programming language. _Domain-specific_ me
 
 ## Syntax
 
-Each CSS style is called a _rule_, and each rule uses the following format:
+Much of how to accomplish stylings with CSS depends on the context, so it is best to understand the priniciples of the language:
+
+declaration
+: A line of CSS that includes a property and a value. Invalid declarations are ignored.
+
+declaration block
+: A group of declarations inside curly braces that is preceded by a selector
+
+ruleset | rule
+: Selector plus declaration block is a ruleset or rule. Rule is less common.
+
+at-rule
+: Rules that begin with the `@` symbol, like `@import` or `@media`.
+
 
 ```css
+/* ruleset */
 selector {
-  property: property-value;
+  /* declaration block */
+  property: value; /* declaration */
+  property: value;
+}
+
+/* Example */
+body {
+  color: black;
+  font-family: Helvetica;
 }
 ```
-
-The `property: property-value;` is called a _declaration_, and the declarations with the curly braces are called a _ruleset_. You can omit the semicolon (`;`) from the last declaration in the ruleset. Invalid declarations are ignored.
 
 ## Adding CSS to HTML
 
@@ -52,7 +72,7 @@ The `<link>` element uses the following attributes:
 
 For each element, devtools lists styles by specificity. Styles at the top override those below them, and they are crossed out. The ruleset location in the stylesheet is to the right of the style.
 
-## Cascading stylesheets
+## Stylesheet origins
 
 There are 3 differnt stylesheets that _cascade_---allow stylesheets to overwrite or inherit from one another---when we apply styles to HTML:
 - User-agent stylesheet: Stylesheet internal to your web browser (i.e. Google Chrome). These include:
@@ -63,20 +83,36 @@ There are 3 differnt stylesheets that _cascade_---allow stylesheets to overwrite
 - Author stylesheet: Stylesheet developed and applied by a developer to HTML with a link tag.
 - User stylesheet: Custom user-provided stylesheets, which are usually created and applied to overcome accessibility issues.
 
+### Cascade
+
 The following list describes the order that styles cascade, in order of precedence:
 
-1. User stylesheet with `!important` declaration.
-2. Author stylesheet with `!important` declaration.
-3. User stylesheet.
-4. Author stylesheet.
-5. User agent stylesheet.
+1. `!important` user-agent
+2. `!important` user
+3. `!important` author
+4. Normal author
+5. Normal user
+6. Normal user-agent
+
+### Resolving rule conflicts
 
 Cascade determines how rule conflicts are resolved. When there is a conflict, the cascade uses the following hierarchy to resolve it:
-1. Stylesheet origin: Where the stylesheet comes from 
+1. Stylesheet origin: Where the stylesheet comes from
+   - Browser applies user-agent styles, then User styles to override
+   1. Author stylesheet - what the CSS dev adds to the page. Also called "User styles"
+   2. User stylesheet - added via browser extension, usually added to overcome a11y issues
+   3. User-agent - Browser's default styles
+      1. headings h1 - h6
+      2. p tag top and bottom margins
+      3. ol and ul styles
+      4. link colors
+      5. default font sizes
 2. Inline styles: Whether the style is applied to an HTML element directly.
-3. Layer (**New**): Which layer is the style defined in? Uses the last layer.
+   <a href="/" style="color: white;"></a>
+   - Can override inline styles with author `!important` rule
+3. Layer: Which layer is the style defined in? Uses the last layer.
 4. Selector specificity: Which selector has highest specificity.
-5. Scope proximity (**New**): Use declaration with innermost scope.
+5. Scope: Use declaration with innermost scope.
 6. Source order: Declaration that comes latest in source order.
 
 ## CSS reset
@@ -100,6 +136,8 @@ In production, you want to add CSS resets with one of the following methods:
 
 ## Specificity
 
+Always keep specificity as low as you can so there are no issues in the future.
+
 When multiple styles are applied to one element, the browser must determine which style to apply. When a declaration "wins" the cascade, it is called the _cascaded value_.
 
 1. If a selector has more IDs, it wins 
@@ -121,13 +159,15 @@ Universal selector and combinators do not impact specificity scores.
 
 ### Specficity notation 
 
-Use the following format to indicate specificity:
+Count the number of ids, classes, tags, and notation and write the total in `<id>, <class>, <tag>` notation:
 
-```css
-/* ID, class, tags */
-/* 0, 1, 3         */
-body header.page-header h1 {...}
-```
+| Selectors | IDs | Classes | Tags | Notation |
+|:---|:---|:---|:---|:---|
+| `html` `body` `header` `h1` | 0 | 0 | 4 | 0,0,4 |
+| `body` `header.page-header` `h1` | 0 | 1 | 3 | 0,1,3 |
+| `.page-header` `.title` | 0 | 2 | 0 | 0,2,0 |
+| `#page-title` | 1 | 0 | 0 | 1,0,0 |
+
 
 ### Reducing specificity
 You can use the `:where()` pseudo-class to reduce specificity (it has 0 specificity). `:where(.nav)` is equivalent to `.nav`, but has a specificity of 0.

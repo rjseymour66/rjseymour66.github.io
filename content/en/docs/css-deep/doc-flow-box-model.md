@@ -1,10 +1,11 @@
 ---
-title: "Layout and box model"
-linkTitle: "Layout"
-weight: 2
-description: >
-  Notes about basic Box model.
+title: "Document flow and Box Model"
+# linkTitle: "CSS in Depth"
+weight: 40
+# description:
 ---
+
+<!-- ******************************************************************************************** -->
 
 ## Document flow
 

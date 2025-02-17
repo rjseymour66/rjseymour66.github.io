@@ -1,10 +1,10 @@
 ---
-title: "Getting started"
-linkTitle: "Getting started"
-weight: 1
-description: >
-  Getting started with CSS.
+title: "Syntax and selectors"
+# linkTitle: "CSS in Depth"
+weight: 20
+# description:
 ---
+
 
 CSS is a domain-specific, declarative programming language. _Domain-specific_ means that it is a specialized language that solves a specific problem. It is a _declarative language_ because it tells the browser what to do, rather than how to do it.
 

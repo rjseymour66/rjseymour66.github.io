@@ -595,37 +595,6 @@ You can minimize these drawbacks with React or Webpack.
 
 ## CSS Units
 
-Use `rem` for font sizes.
-
-[This article](https://codyloyd.com/2021/css-units/) says to use rem for fonts and px for everything else. This is because padding and margin scale along with the font. You might want to use rem instead of px at times.
-
-### viewport units
-
-Use cases:
-
-- full-height heroes
-- full-screen app-like interfaces
-
-Other examples and implementations in this CSS tricks article, [Fun With Viewport Units](https://css-tricks.com/fun-viewport-units/):
-
-- Responsive typography
-- Full-Height layouts, hero images, and sticky footers
-- Fluid aspect ratios
-- [Full width containers in Limited width parents](https://css-tricks.com/full-width-containers-limited-width-parents/)
-- Scroll indicators
-
-### Kevin Powell suggestions
-
-[Youtube link](https://www.youtube.com/watch?v=N5wpD9Ov_To)
-
-- font size: rem
-- widths (page/container widths): percentage
-- padding/margin: rem or em
-- document flow: rem to make it consistent through the doc, or use em if you want more space (like between headings for whitespace)
-- media queries: em bc it is consistent between browsers
-- height: use min-height() when you need to set a height so that the content does not overflow at the bottom if the viewport size changes.
-- shadow-box: px
-- border-radius: px
 
 ## Text and typography
 

@@ -1,10 +1,17 @@
 ---
 title: "Flexbox"
-linkTitle: "Flexbox"
-weight: 3
-description: >
-  Notes about basic Flexbox and Flex properties.
+# linkTitle: "CSS in Depth"
+weight: 60
+# description:
 ---
+
+
+
+
+
+<!-- *************************************************************************** -->
+
+
 
 ## Flex
 

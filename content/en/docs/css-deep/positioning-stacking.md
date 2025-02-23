@@ -1,7 +1,7 @@
 ---
 title: "Positioning and stacking context"
 linkTitle: "Positioning"
-weight: 80
+weight: 90
 # description:
 ---
 
@@ -15,14 +15,12 @@ position: static;
 
 ## Cheatsheet
 
-| Positioning | Containing block                                                                 | Description                      | Use cases                                         |
-| :---------- | :------------------------------------------------------------------------------- | :------------------------------- | :------------------------------------------------ |
-| Fixed       | Viewport                                                                         | Positioned relative to viewport. | modal<br>navigation bars<br>floating chat buttons |
-| Absolute    | Closest-positioned ancestor element<br>(usually a `relative` positioned element) |                                  | popup menus<br>tooltips<br>"info" boxes           |
-| Relative    | element with `position: absolute;`                                               |                                  | dropdown menus                                    |
-| Sticky      |                                                                                  |                                  | section headdings                                 |
-
-
+| Positioning | Containing Block                                                                 | Use cases                                         |
+| :---------- | :------------------------------------------------------------------------------- | :------------------------------------------------ |
+| Fixed       | Viewport                                                                         | modal<br>navigation bars<br>floating chat buttons |
+| Absolute    | Closest-positioned ancestor element<br>(usually a `relative` positioned element) | popup menus<br>tooltips<br>"info" boxes           |
+| Relative    | element with `position: absolute;`                                               | dropdown menus                                    |
+| Sticky      |                                                                                  | section headings                                  |
 
 ## Fixed
 
@@ -45,7 +43,6 @@ To make the element take up the entire viewport, use `inset: 0;`. This is helpfu
 Fixed elements are removed from the document flow -- static elements display as if the fixed elements do not exist.
 
 For static side navs, add a margin to the content to make sure that it doesn't flow behind it.
-
 
 ### Modal example
 
@@ -221,22 +218,20 @@ In the following example:
 
 ```html
 <main class="container">
-      <nav>
-        <div class="dropdown" id="dropdown">
-          <button class="dropdown-toggle" id="dropdown-toggle">
-            Main Menu
-          </button>
-          <div class="dropdown-menu">
-            <ul class="submenu">
-              <li><a href="/">Home</a></li>
-              <li><a href="/coffees">Coffees</a></li>
-              <li><a href="/brewers">Brewers</a></li>
-              <li><a href="/specials">Specials</a></li>
-              <li><a href="/about">About us</a></li>
-            </ul>
-          </div>
-        </div>
-      </nav>
+  <nav>
+    <div class="dropdown" id="dropdown">
+      <button class="dropdown-toggle" id="dropdown-toggle">Main Menu</button>
+      <div class="dropdown-menu">
+        <ul class="submenu">
+          <li><a href="/">Home</a></li>
+          <li><a href="/coffees">Coffees</a></li>
+          <li><a href="/brewers">Brewers</a></li>
+          <li><a href="/specials">Specials</a></li>
+          <li><a href="/about">About us</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
 </main>
 ```
 
@@ -308,35 +303,104 @@ dropdownToggle.addEventListener("click", (e) => {
 });
 ```
 
+#### Create CSS triangle
+
+[CSS Tricks: Shapes of CSS](https://css-tricks.com/the-shapes-of-css/)
+
+You can add CSS to look like a caret that rotates when clicked. Use this if your site did not import icon packets already, and you want to reduce requests:
+
+```css
+.dropdown-toggle {
+  padding: 0.5em 2em 0.5em 1.5em; /* add extra space to the right of the text */
+  border: 1px solid #ccc;
+  background-color: #eee;
+  border-radius: 0;
+}
+
+/* create an empty content box with thick border */
+.dropdown-toggle::after {
+  content: "";
+  position: absolute;
+  right: 1em;
+  top: 0.9em;
+  border: 0.3em solid;
+  border-color: black transparent transparent;
+}
+
+/* reverse border color when menu is open */
+.dropdown.is-open .dropdown-toggle::after {
+  top: 0.6em;
+  border-color: transparent transparent black;
+}
+```
+
 ## Sticky positioning
 
-This is a hybrid between relative and fixed positioning. The element scrolls until it reaches a specified spot in the viewport and then it 'sticks' in place.
+This is a hybrid between relative and fixed positioning. The element scrolls until it reaches a specified spot in the viewport and then it 'sticks' in place:
+- They are not taken out of the document flow.
+- Behaves like `static` elements until you scroll past its parent element. Then, it behaves like a `fixed` element and stays at that offset in the parent element
+- You do not need a containing block for `sticky` positioning.
 
-You do not need a containing block for `sticky` positioning.
+Sticky elements always remain within the bounds of their parent element:
+- The parent element must be taller than the sticky element
 
-Behave like `static` elements until you scroll past them, then they behave like `fixed` elements and stay at the offset that you set for them. They are not taken out of the document flow.
+An element with this class scrolls normally until it gets `1em` from the top of the viewport. Then, it 'sticks' in place and scrolls until the parent element scrolls out of the viewport:
 
-Sticky elements always remain within the bounds of their parent elements.
+```css
+.sticky {
+  position: sticky;
+  top: 1em;
+}
+```
 
 #### Use cases
 
-- section headings
-
-## Create CSS triangle
+- Section headings
 
 ## z-index
 
-When you remove an element from the document flow, you become responsible for all the things that the document flow normally does for you. This includes making sure that the positioned element does not:
+[MDN docs](https://developer.mozilla.org/en-US/docs/Web/CSS/position)
+
+[CSS Tricks](https://css-tricks.com/absolute-relative-fixed-positioining-how-do-they-differ/)
+
+[Fixed vs Sticky](https://www.kevinpowell.co/article/positition-fixed-vs-sticky/)
+
+`position: static;` is the default mode for all elements. `top`, `right`, `bottom`, and `left` do not affect static elements.
+
+When you position an element, you remove it from the document flow. When you remove an element from the document flow, you become responsible for all the things that the document flow normally does for you. This includes making sure that the positioned element does not:
 
 - Overflow outside the browser viewport and then hidden from the user
 - Cover important content
 
-When the browser parses HTML, it creates a _render tree_ that represents the appearance and position of each element. The browser paints elements in the order in which they are listed in the HTML. The position determines the order that the browser _paints_ the elements:
+When the browser parses HTML, it creates a DOM tree and a _render tree_ that represents the appearance and position of each element. The browser paints elements in the order in which they are listed in the HTML. The position determines the order that the browser _paints_ the elements:
 
-- First, it paints non-positioned elements.
-- Next, it paints positioned elements using `z-index`.
+1. Non-positioned elements.
+2. Positioned elements using `z-index`.
 
-Elements with a `z-index` establish a _stacking context_. A stacking context is a n element or a group of elements that are painted together with a browser. Elements with a higher `z-index` are positioned in front of elements with a lower `z-index`. Elements with a negative `z-index` are positioned behind static elements. No element outside the stacking context can be positioned between elements in the stacking context.
+The browser paints positioned elements in the order that they appear in the HTML. **Relative and absolute positioning remove the element from the document flow**. This might cause issues with other positioned elements.
+
+### Stacking context
+
+Elements with a `z-index` establish a stacking context. A _stacking context_ is an element or a group of elements that are painted together by the browser. Each stacking conetxt has a root element, and all its descendants are part of the stacking context. It's sort of like a namespace for positioned elements - `z-index` values in one stacking context have no effect on `z-index` values in another stacking context:
+- Elements with a higher `z-index` are positioned in front of elements with a lower `z-index`.
+- Elements with a negative `z-index` are positioned behind static elements.
+- No element outside the stacking context can be positioned between elements in the stacking context.
+
+> Fixed and sticky positioning always create a stacking context, even though they do not require a `z-index` setting.
+
+Elements within the stacking context are stacked in this order:
+
+1. root element of the stacking context
+2. positioned elements with negative z-index and their children
+3. non-positioned elements
+4. positioned elements witha z-index of `auto` and their children
+5. positioned elements with a positive z-index
+
+
+Ways to create a stacking context, other than `z-index`:
+- `opacity` less than `1`
+- `transform` property
+- `filter` property
 
 #### Best practice
 
@@ -349,35 +413,3 @@ Put your `z-index` values in variables:
 --z-modal-backdrop: 400;
 --z-modal-body: 410;
 ```
-
-<!-- **************************************************************************** -->
-
-[MDN docs](https://developer.mozilla.org/en-US/docs/Web/CSS/position)
-
-[CSS Tricks](https://css-tricks.com/absolute-relative-fixed-positioining-how-do-they-differ/)
-
-[Fixed vs Sticky](https://www.kevinpowell.co/article/positition-fixed-vs-sticky/)
-
-`position: static;` is the default mode for all elements. `top`, `right`, `bottom`, and `left` do not affect static elements.
-
-When you position elements, you remove them from the normal document flow. This means that the positioned elements do not affect other elements, and other elements do not affect the positioned element.
-
-### z-index
-
-Relative and absolute positioning remove the element from the document flow. This might cause issues with other positioned elements.
-
-When HTML is parsed, the browser creates the DOM tree and a render tree. The render tree represents the physical appearance and position of each element, as well as the order that the browser paints each element.
-
-First, the browser paints all non-positioned elements, then positioned elements according to the _z-index_. Elements that the browser paints later appear in front of previously painted elements, should they overlap.
-
-Elements with a `z-index` establish a _stacking context_. A stacking context is a n element or a group of elements that are painted together with a browser. Elements with a higher `z-index` are positioned in front of elements with a lower `z-index`. Elements with a negative `z-index` are positioned behind static elements. No element outside the stacking context can be positioned between elements in the stacking context.
-
-If an element is positioned within another element's stacking context, then the nested element is painted with the parent element. For example, if a div uses `position: relative;` to act as the containing div for an `abolute` positioned element, then the `absolute` element is painted with its `relative` parent.
-
-Elements within the stacking context are stacked in this order:
-
-- root element of the stacking context
-- positioned elements with negative z-index and their children
-- non-positioned elements
-- positioned elements witha z-index of `auto` and their children
-- positioned elements with a positive z-index

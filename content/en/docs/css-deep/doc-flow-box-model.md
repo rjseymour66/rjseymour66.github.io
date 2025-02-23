@@ -1,7 +1,7 @@
 ---
 title: "Document flow and layout"
 # linkTitle: "CSS in Depth"
-weight: 50
+weight: 40
 # description:
 ---
 
@@ -83,33 +83,33 @@ Logical properties are a way to write inline and block styles that are consisten
 - Replace `left` with `inline-start` and `right` with `inline-end`
 - `top` with `block-start` and `bottom` with `block-end`
 
-| Classic Name | Logical name |
-|:-------------|:-------------|
-| `width` | `inline-size` |
-| `height` | `block-size` |
-| `margin-top` | `margin-block-start` |
-| `margin-bottom` | `margin-block-end` |
-| `margin-left` | `margin-inline-start` |
-| `margin-right` | `margin-inline-end` |
-| `text-align: left` | `text-align: start` |
-| `text-align: right` | `text-align: end` |
-| `border-top-left-radius` | `border-start-start-radius` |
-| `border-top-right-radius` | `border-start-end-radius` |
-| `border-bottom-left-radius` | `border-end-start-radius` |
-| `border-bottom-right-radius` | `border-end-end-radius` |
+| Classic Name                 | Logical name                |
+| :--------------------------- | :-------------------------- |
+| `width`                      | `inline-size`               |
+| `height`                     | `block-size`                |
+| `margin-top`                 | `margin-block-start`        |
+| `margin-bottom`              | `margin-block-end`          |
+| `margin-left`                | `margin-inline-start`       |
+| `margin-right`               | `margin-inline-end`         |
+| `text-align: left`           | `text-align: start`         |
+| `text-align: right`          | `text-align: end`           |
+| `border-top-left-radius`     | `border-start-start-radius` |
+| `border-top-right-radius`    | `border-start-end-radius`   |
+| `border-bottom-left-radius`  | `border-end-start-radius`   |
+| `border-bottom-right-radius` | `border-end-end-radius`     |
 
 ### New logical properties
 
 There are some logical properties that make possible settings that were not possible with the classic naming convention:
 
-| Logical name | Description |
-|:---|:---|
-| `margin-inline`  | Set `start` (`left`) and `end` (`right`) margin |
-| `margin-block`   | Set `start` (`top`) and `end` (`bottom`) margin |
+| Logical name     | Description                                      |
+| :--------------- | :----------------------------------------------- |
+| `margin-inline`  | Set `start` (`left`) and `end` (`right`) margin  |
+| `margin-block`   | Set `start` (`top`) and `end` (`bottom`) margin  |
 | `padding-inline` | Set `start` (`left`) and `end` (`right`) padding |
 | `padding-block`  | Set `start` (`top`) and `end` (`bottom`) padding |
-| `border-inline`  | Set `start` (`left`) and `end` (`right`) border |
-| `border-block`   | Set `start` (`top`) and `end` (`bottom`) border |
+| `border-inline`  | Set `start` (`left`) and `end` (`right`) border  |
+| `border-block`   | Set `start` (`top`) and `end` (`bottom`) border  |
 
 
 ## Element height

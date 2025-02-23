@@ -40,71 +40,16 @@ Responsive design
 [Youtube link](https://www.youtube.com/watch?v=N5wpD9Ov_To)
 
 
-| Unit | CSS property | 
-|:---|:---|
+| Unit  | CSS property                                                               |
+| :---- | :------------------------------------------------------------------------- |
 | `rem` | `font-size`<br>document flow (consistent spacing)<br>`padding`<br>`margin` |
-| `em` | media queries<br>document flow (with more space) |
-| `px` | `shadow-box`<br><br>`border`<br>`border-radius` |
-| `%` | page/container widths |
+| `em`  | media queries<br>document flow (with more space)                           |
+| `px`  | `shadow-box`<br><br>`border`<br>`border-radius`                            |
+| `%`   | page/container widths                                                      |
 
 - `height`: use min-height() when you need to set a height so that the content does not overflow at the bottom if the viewport size changes.
 
-## Font size
 
-Set the `font-size` in the `:root` pseudo-class. Use `em` to set the font size with the `:root` pseudo-class, and then `rem` throughout the stylesheet to change the size, relative to the `:root` setting.
-
-The most top-level element in the DOM is the `<html>` element. You can select it with `:root`, a special pseudo-class selector:
-- rems are relative to the root element, not the current element
-- this makes it consistent across the document
-
-Set the root element font-size to `1em` to set it equal to the browsers default font-size of 16px:
-- usability tools resize fonts with relative units, no absolute - use relative to define font size
-
-The following example sets the inherited font size to 14px:
-
-```css
-:root {
-  font-size: 0.875em;
-}
-```
-
-If you change the font size for an element with rems, you do not have to change the padding or other relative properties because their values are calculated according to the local `font-size` value.
-
-
-### Scaling font sizes smoothly
-
-If your font sizes change between screen sizes, they can change drastically at your breakpoints. Address this with the `clamp()` or `calc()` functions.
-
-Setting a responsive font size means that other elements on the page scale appropriately, and without breakpoints.
-
-#### clamp()
-
-Accepts a minimum, preferred, and maximum value:
-- the preferred value must be a calculation or it just applies the preferred value across all viewport sizes
- 
-```css
-clamp(min-val, preferred-val-expression, max-val)
-
-:root {
-    font-size: clamp(0.9rem, 0.6rem + 1svw, 1.5rem)
-}
-```
-
-#### calc()
-
-> When working with font sizes, prefer `clamp()`.
-
-Perform basic arithmetic with two or more values:
-- good when you want to use values with different units
-- when calculating font size, always use one unit with em or rem
-
-
-This ruleset uses `0.5em` as the minimum font size, and it scales by `1svw` as you change the screen size:
-```css
-:root {
-    font-size: calc(0.5em + 1svw);
-}
-```
 
 ## Relative units
 

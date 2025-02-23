@@ -28,7 +28,7 @@ The following example sets the inherited font size to 14px:
 If you change the font size for an element with rems, you do not have to change the padding or other relative properties because their values are calculated according to the local `font-size` value.
 
 
-### Scaling font sizes smoothly
+### Responsive font sizes
 
 If your font sizes change between screen sizes, they can change drastically at your breakpoints. Address this with the `clamp()` or `calc()` functions.
 

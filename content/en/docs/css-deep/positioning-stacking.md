@@ -5,12 +5,7 @@ weight: 80
 # description:
 ---
 
-| Positioning | Use cases                                     | Containing block                     | Description                      |
-| :---------- | :-------------------------------------------- | :----------------------------------- | :------------------------------- |
-| Fixed       | modal, navigation bars, floating chat buttons | Viewport                             | Positioned relative to viewport. |
-| Absolute    | popup menus, tooltips, "info" boxes           | Closest-positioned ancestor element. |                                  |
-| Relative    | dropdown menus                                | element with `position: absolute;`   |                                  |
-| Sticky      | section headings                              |                                      |                                  |
+By default, all elements are `position: static;`. Anytime you change the `position` value, the element becomes _positioned_. Positioned elements are removed from the document flow so that you can place them anywhere on the screen.
 
 Initially, every element has static positioning:
 
@@ -18,71 +13,22 @@ Initially, every element has static positioning:
 position: static;
 ```
 
-Anytime you change the `position` value, the element becomes _positioned_. Positioned elements are removed from the document flow so that you can place them anywhere on the screen.
+## Cheatsheet
 
-## Fixed positioning
+| Positioning | Containing block                                                                 | Description                      | Use cases                                         |
+| :---------- | :------------------------------------------------------------------------------- | :------------------------------- | :------------------------------------------------ |
+| Fixed       | Viewport                                                                         | Positioned relative to viewport. | modal<br>navigation bars<br>floating chat buttons |
+| Absolute    | Closest-positioned ancestor element<br>(usually a `relative` positioned element) |                                  | popup menus<br>tooltips<br>"info" boxes           |
+| Relative    | element with `position: absolute;`                                               |                                  | dropdown menus                                    |
+| Sticky      |                                                                                  |                                  | section headdings                                 |
 
-Positions elements arbitrarily within the viewport (the _containing block_) using the following properties:
 
-```
-top:
-bottom:
-left:
-right:
-```
 
-Fixed elements are removed from the document flow -- static elements display as if the fixed elements do not exist.
+## Fixed
 
-For static side navs, add a margin to the content to make sure that it doesn't flow behind it.
+> Containing block: viewport
 
-### Fixed example
-
-An example of a `position: fixed` element is a modal. Here is the HTML:
-
-```html
-...
-<div>
-  <div class="modal" id="modal"></div>
-  <div class="modal-backdrop"></div>
-  <div class="modal-body">
-    <button class="modal-close" id="close" />
-    ... modal contents
-  </div>
-</div>
-```
-
-You position in in the viewport using the following:
-
-```css
-/* The modal-backdrop (grayed-out area behind the actual modal) */
-/* The backdrop covers the entire viewport. */
-.modal-backdrop {
-  position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-}
-
-/* Like the backdrop, the modal-body is positioned within the viewport */
-.modal-body {
-  position: fixed;
-  top: 3em;
-  right: 20%;
-  bottom: 3em;
-  left: 20%;
-  background-color: #fff;
-  /* allow scroll if necessary */
-  overflow: auto;
-}
-```
-
-Use JS to grab the `modal` id, then use `display: none` or `display: block` to toggle it on or off.
-
-### Fixed
-
-Fixed elements stay in the same place as the user scrolls.
+Positions elements arbitrarily within the viewport (the _containing block_). Fixed elements stay in the same place as the user scrolls.
 
 Removed from the normal flow of the document and positioned relative to the viewport (the viewport is the _containing block_) with `top`, `right`, `bottom`, and `left`. These settings also size the element. If you set `left` and `right` to `5em`, then the width of the fixed element is 10em less than the viewport width.
 
@@ -96,7 +42,14 @@ Removed from the normal flow of the document and positioned relative to the view
 
 To make the element take up the entire viewport, use `inset: 0;`. This is helpful to darken the background for a smaller modal element.
 
-#### Create a modal
+Fixed elements are removed from the document flow -- static elements display as if the fixed elements do not exist.
+
+For static side navs, add a margin to the content to make sure that it doesn't flow behind it.
+
+
+### Modal example
+
+This is for demo purposes only. Instead, you would use a `<dialog>` element.
 
 A modal consists of a div container named 'modal' or something intuitive (add `aria-modal=true`, too). Place the modal HTML right before the closing `</body>` tag.
 
@@ -169,7 +122,7 @@ close.addEventListener("click", function (event) {
 });
 ```
 
-#### Position elements whose contents determine size
+### Content determines size
 
 You can specify the sides that you need to place the element and a width, and let the contents determine the element size:
 
@@ -191,15 +144,11 @@ This is helpful for fixed navs or fixed side-navs.
 - navigation bars
 - floating chat buttons
 
-## Absolute positioning
+## Absolute
 
-The location of absolute positioned elements is based on the closest positioned ancestor element. This ancestor element is its _containing block_.
+Absolute positioned elements are positioned based on their closest-positioned ancestor element. That ancestor element is called the _containing block_. The browser will look up the DOM hierarchy until a position ancestor is found. If no ancestor is found, it uses the _initial containing block_, which is an area equal to the viewport.
 
-Absolute positioning is used frequently with JS to build menus, tooltips, info boxes, etc.
-
-### Absolute
-
-Absolute positioned elements are positioned based on their closest-positioned ancestor element. That ancestor element is called the _containing block_. The `inset` property values place the absolute positioned element within that containing block.
+The `inset` property values place the absolute positioned element within that containing block.
 
 > Usually, an `absolute` element's containing block is set to `relative`.
 
@@ -207,13 +156,13 @@ Position something at an exact point on the screen without affecting any element
 
 #### Use cases
 
-- modals
-- image with a caption on top of it
-- icons on top of other elements
+- popup menus
+- tooltips
+- info boxes
 
-### Absolute example
+### Modal close button
 
-In this example, we will position a 'close' button for the modal described in the Fixed section. The 'close' icon looks like this:
+In this example, we will position a 'close' button for the modal described in the Fixed section. The `.modal-close` class hides the 'close' text off the screen with the `overflow` property, and the `::after` psuedo class absolutely positions the `X` icon:
 
 ```css
 /* positions the clickable area in the top-right
@@ -221,93 +170,49 @@ of the modal. Indents it 10em to hide the <button>Close</button>
 while allowing a screenreader to read it*/
 .modal-close {
   position: absolute;
-
-  top: 0.3rem;
-  right: 0.3rem;
-
-  padding: 1.75rem;
-  border: none;
-  height: 1rem;
-  width: 1rem;
-
+  top: 0.3em;
+  right: 0.3em;
+  padding: 0.3em;
+  border: 0;
+  font-size: 2em;
+  height: 1em;
+  width: 1em;
   text-indent: 10em;
   overflow: hidden;
   background-color: transparent;
 }
 
-/* Adds the X icon w black circle bg*/
+/* Adds the X icon */
 .modal-close::after {
   position: absolute;
   line-height: 0.5;
-  top: 0.5rem;
-  right: 0.5rem;
+  top: 0.2em;
+  left: 0.1em;
   text-indent: 0;
-  font-size: 2.5rem;
-  cursor: pointer;
-
-  background-color: lightgray;
-  border-radius: 50%;
-  padding: 0.5rem;
-
-  content: "\00d7";
+  content: "\00D7";
 }
 ```
 
 When the browser reads this `position: absolute`, it searches up the DOM heirarchy until it finds a positioned element and uses that as the positioning reference, or _containing block_.
 
-## Relative positioning
+## Relative
+
+The main use for relative positioning is to establish a containing block for an absolutely positioned element.
 
 Applying relative positioning does not impact the elements around the positioned elements. It moves the element relative to its original position in the document flow.
 
-The main use for relative positioning is to create a containing block for an absolutely positioned element.
-
-### Relative
-
-> Usually establishes the containing block for an absolute element.
-
-Positions relative to the parent element and removes it from the doc flow.
-
-You cannot size the element with the `inset` property---you can only move it in relation to its original location. If you apply both `top` and `bottom`, then `bottom` is ignored. If you apply both `left` and `right`, then right is ignored.
-
-#### Create a dropdown menu
-
-A dropdown consists of a containing div that is positioned `relative`. The following elements are within this container:
-
-- button that you click to open the menu
-- div that contains a ul. Set this div to `display: none;`. When it is visible, set the display to `block`. This div needs to display exactly below the button that opens the menu, so compute the side of the button element and use apply that value to this div's `top` property.
-
-  - a ul with the following styles:
-
-  ```css
-  .ul-class {
-    padding-inline-start: 0;
-    margin: 0;
-    list-style-type: none;
-    border: 1px solid #999;
-  }
-
-  .ul-class > li + li {
-    border-top: 1px solid #999;
-  }
-
-  .ul-class > li > a {
-    display: block;
-    padding: 0.5em 1.5em;
-    background-color: #eee;
-    color: #369;
-    text-decoration: none;
-  }
-
-  .ul-class > li > a:hover {
-    background-color: #fff;
-  }
-  ```
+You cannot size the element with the `inset` property---you can only move it in relation to its original location. For example, adding `top: 1em;` moves the element down 1 em. If you apply both `top` and `bottom`, then `bottom` is ignored. If you apply both `left` and `right`, then right is ignored.
 
 #### Use cases
 
 [Custom select dropdown](https://www.webaxe.org/accessible-custom-select-dropdowns/) menus.
 
-### Relative example
+### Dropdown menu
+
+A dropdown consists of a containing div that is positioned `relative`. The following elements are within this container:
+
+- button that you click to open the menu
+- div that contains a ul. Set this div to `display: none;`. When it is visible, set the display to `block`. This div needs to display exactly below the button that opens the menu, so compute the side of the button element and use apply that value to this div's `top` property.
 
 In the following example:
 
@@ -315,44 +220,92 @@ In the following example:
 - `dropdown-menu` is the absolute-positioned element that is hidden initially
 
 ```html
-<div class="container">
-  <nav>
-    <div class="dropdown">
-      <div class="dropdown-label">Main Menu</div>
-      <div class="dropdown-menu">
-        <ul class="submenu">
-          <li><a href="#">Home</a></li>
-          <li><a href="#">Coffees</a></li>
-          <li><a href="#">Brewers</a></li>
-          <li><a href="#">Specials</a></li>
-          <li><a href="#">About us</a></li>
-        </ul>
-      </div>
-    </div>
-  </nav>
-</div>
+<main class="container">
+      <nav>
+        <div class="dropdown" id="dropdown">
+          <button class="dropdown-toggle" id="dropdown-toggle">
+            Main Menu
+          </button>
+          <div class="dropdown-menu">
+            <ul class="submenu">
+              <li><a href="/">Home</a></li>
+              <li><a href="/coffees">Coffees</a></li>
+              <li><a href="/brewers">Brewers</a></li>
+              <li><a href="/specials">Specials</a></li>
+              <li><a href="/about">About us</a></li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+</main>
 ```
 
 The following CSS creates the positioned context:
 
 ```css
-... .dropdown {
+.dropdown {
   display: inline-block;
   position: relative;
 }
-... .dropdown-menu {
+
+.dropdown-toggle {
+  padding: 0.5em 1.5em;
+  border: 1px solid #ccc;
+  background-color: #eee;
+  border-radius: 0;
+}
+
+/* div that wraps the ul */
+.dropdown-menu {
   display: none;
   position: absolute;
   left: 0;
   top: 2.1em;
-  min-width: 100%;
+  inline-size: max-content;
+  min-inline-size: 100%;
   background-color: #eee;
 }
 
-/* when you hover on dropdown, the menu displays. Toggle with JS */
-.dropdown:hover > .dropdown-menu {
+/* toggle class with js */
+.dropdown.is-open .dropdown-menu {
   display: block;
 }
+
+/* menu list items */
+.submenu {
+  padding-inline-start: 0;
+  margin: 0;
+  list-style-type: none;
+  border: 1px solid #999;
+}
+
+.submenu > li + li {
+  border-top: 1px solid #999;
+}
+
+/* menu links - make block for larger clickable area */
+.submenu > li > a {
+  display: block;
+  padding: 0.5em 1.5em;
+  background-color: #eee;
+  color: #369;
+  text-decoration: none;
+}
+
+.submenu > li > a:hover {
+  background-color: #fff;
+}
+```
+
+Javascript:
+
+```js
+const dropdownToggle = document.querySelector("#dropdown-toggle");
+const dropdown = document.querySelector("#dropdown");
+
+dropdownToggle.addEventListener("click", (e) => {
+  dropdown.classList.toggle("is-open");
+});
 ```
 
 ## Sticky positioning
@@ -368,6 +321,8 @@ Sticky elements always remain within the bounds of their parent elements.
 #### Use cases
 
 - section headings
+
+## Create CSS triangle
 
 ## z-index
 

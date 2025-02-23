@@ -15,19 +15,7 @@ Use breakpoints to achieve responsive design. A _breakpoint_ is a browser width 
 2. **@media rule** (media queries): Write styles that apply to viewports of specified sizes. 
 3. **Fluid layouts**: Containers scale differently based on viewport width
 
-## Mobile first
-
-Designing mobile first ensures that both desktop and mobile work:
-- Screen space is limited
-- Network is slower
-- Mobile users have different set of interactive controls. For example, you can't hover
-- Always make key action items large enough to easily tap with a finger
-
-When a site works with mobile constraints, you use what is called 'progressive enhancement' to change the experience for desktop.
-
-Mobile focuses on content, and is task-oriented. Always make sure that the important content is displayed first.
-
-### Viewport meta tag
+## Viewport meta tag
 
 Tells mobile devices that your website is responsive. Otherwise, mobile devices will try to emulate a desktop browser:
 
@@ -43,6 +31,20 @@ The `content` attribute tells the browser to do two things:
 - `initial-scale=1.0`: Set the zoom level to 100% when the page loads
 
 > You can also include `user-scalable=no` to prohibit two-finger zoom on mobile devices. This is not recommended.
+
+
+## Mobile first
+
+Designing mobile first ensures that both desktop and mobile work:
+- Screen space is limited
+- Network is slower
+- Mobile users have different set of interactive controls. For example, you can't hover
+- Always make key action items large enough to easily tap with a finger
+
+When a site works with mobile constraints, you use what is called 'progressive enhancement' to change the experience for desktop.
+
+Mobile focuses on content, and is task-oriented. Always make sure that the important content is displayed first.
+
 
 ### Hamburger menu
 
@@ -166,3 +168,113 @@ button.addEventListener('click', e => {
     menu.classList.toggle('is-open');
 });
 ```
+
+## Media queries
+
+Media queries let you create styles that apply to your HTML under specific circumstances, like screen size. Its a conditional check - if the condition in between the parentheses is met, then the rule is applied. For example, if the minimum width of the viewport is 560px, then the `h1` element that is a child of an element with the `.title` class is set to `2.5rem`:
+
+```css
+@media (min-width: 560px) {
+    .title > h1 {
+        font-size: 2.5rem;
+    }
+}
+```
+
+### ems vs px
+
+Use px for media queries, not ems/rems.
+
+Previously, people thought it was best to use ems for media queries. Ems are based on the default font size (16px), but users can change the browser's default text size. This can change your breakpoints.
+
+To avoid this, use px - px are a much more consistent unit across browsers.
+
+
+
+### Clauses
+
+Use `and` if you want to apply a style when the screen size meets two criteria:
+
+```css
+@media (min-width: 280px) and (min-width: 560px) {...}
+```
+
+Use a comma (`,`) or `or` if you want to apply a style when the viewport meets one of the criteria. The `or` keyword is a relatively new feature:
+
+```css
+@media (min-width: 280px), (min-width: 560px) {...}
+@media (min-width: 280px) or (min-width: 560px) {...}
+```
+
+### Media features
+
+A _media feature_ is the syntax that specifies which viewport you want to target. It is the `min-width` in `@media (min-width: 560px) {...}`. You have to provide explicit values to the media feature - you cannot use a custom property instead of a px value.
+
+Other media features include:
+- `(min-height: 560px)`
+- `(max-height: 560px)`
+- `(orientation: landscape)`
+- `(orientation: portrait)`
+- `(min-resolution: 2dppx)`
+- `(max-resolution: 2dppx)`
+- `(pointer: coarse)`
+- `(pointer: fine)`
+
+
+### Syntax
+
+There are two ways to define the values passed to the media features:
+- classic: `min-width: value`.
+- range: `width = value`
+
+```css
+/* classic */
+@media (min-width: 280px), (min-width: 560px) {...}
+@media (min-width: 280px) or (min-width: 560px) {...}
+
+/* range syntax */
+@media (280px <= width < 560px) {...}
+@media (width = 280px) {...}
+```
+
+Range is more intuitive because it is more familiar, easier to read/write, and you can be more explicit around rules that might conflict.
+
+
+### Light and dark themes
+
+Media queries can detect when the user has the OS set to light or dark mode:
+
+```css
+@media (prefers-color-scheme: dark) {
+    /* rulesets */
+}
+
+@media (prefers-color-scheme: light) {
+    /* rulesets */
+}
+```
+
+### Media types
+
+You can also pass `screen` and `print` to media queries. These media types don't require parentheses:
+
+```css
+@media print {...}
+@media screen {...}
+```
+
+Use `print` for how you want the page to look if the user prints it.
+- Use `display:none;` on images, navigation, footers, etc
+- Change all fonts to black and remove background images
+
+```css
+@media print {
+    * {
+        color: black !important;
+        background: none !important;
+    }
+}
+```
+
+### Adding breakpoints
+

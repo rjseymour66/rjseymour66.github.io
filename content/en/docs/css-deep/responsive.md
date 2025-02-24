@@ -169,6 +169,37 @@ button.addEventListener('click', e => {
 });
 ```
 
+### Tables
+
+Tables are a notorius pain in the ass. On mobile devices, you can display the tables in a list-type format. You have make all table elements display as block elements, and then hide the table heading off-screen (don't use `display: none` or it affects a11y):
+
+```css
+table {
+  inline-size: 100%;
+}
+
+@media (max-width: 480px) {
+  table,
+  thead,
+  tbody,
+  tr,
+  th,
+  td {
+    display: block;
+  }
+
+  thead tr {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+  }
+
+  tr {
+    margin-block-end: 1em;
+  }
+}
+```
+
 ## Media queries
 
 Media queries let you create styles that apply to your HTML under specific circumstances, like screen size. Its a conditional check - if the condition in between the parentheses is met, then the rule is applied. For example, if the minimum width of the viewport is 560px, then the `h1` element that is a child of an element with the `.title` class is set to `2.5rem`:
@@ -178,6 +209,52 @@ Media queries let you create styles that apply to your HTML under specific circu
     .title > h1 {
         font-size: 2.5rem;
     }
+}
+```
+
+When possible, keep media queries short. One strategy is to change custom properties in media queries so you can override them in one spot:
+
+```css
+:root {
+    --gap: 0.5rem;
+}
+
+@media (min-width: 560px) {
+    :root {
+        --gap: 1rem;
+    }
+}
+```
+
+### Adding breakpoints
+
+Choose breakpoints that make sense for your design, don't get too overanalytical about it. In general, you want to start setting breakpoints for the part of your design that goes from stacked content on mobile to columns in larger viewports.
+
+> Use liberal padding in larger viewports.
+
+Mobile-first breakpoints are almost always `min-width`. If it is tedious to override rules, then use a `max-width` media query to apply mobile styles.
+
+Each breakpoint should follow the mobile styles that it overrides so that the media query styles take precedence:
+
+```css
+main {
+  padding: 1em;
+}
+
+@media (min-width: 560px) {
+  main {
+    padding: 2em 1em;
+  }
+}
+
+@media (min-width: 650px) {
+  main {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5em;
+    max-inline-size: 1400px;
+    margin-inline: auto;
+  }
 }
 ```
 
@@ -276,5 +353,62 @@ Use `print` for how you want the page to look if the user prints it.
 }
 ```
 
-### Adding breakpoints
 
+
+## Fluid layouts
+
+Containers should grow and shrink according to the size of the viewport:
+- define containers in terms of percentages, not absolute values like px
+- add padding to the sides of the content so they can grow to 100% - padding
+
+
+## Responsive images
+
+Always add this rule to your stylesheet to ensure that images don't overflow their container width:
+
+```css
+img { max-width: 100%; }
+```
+
+You should always optimize your images before you put them in a web page:
+- Save for Web option in image editor
+- Use a compression tool like https://tinypng.com/
+
+Always use the appropriate size and resolution image for the screen size:
+
+```css
+.hero {
+  ...
+  background-image: url(images/coffee-beans-small.jpg);
+}
+
+@media (min-width: 560px) {
+  .hero {
+    ...
+    background-image: url(/images/coffee-beans-medium.jpg);
+  }
+}
+
+@media (min-width: 800px) {
+  .hero {
+    ...
+    background-image: url(/images/coffee-beans.jpg);
+  }
+}
+```
+
+### srcset
+
+If you add images with the HTML `<img>` tag, then you can apply different images per screen size with the `srcset` attribute:
+
+```html
+<img
+    src="coffee-beans-small.jpg"
+    alt="Coffee beans"
+    srcset="
+    /images/coffee-beans-small.jpg   560w,
+    /images/coffee-beans-medium.jpg  800w,
+    /images/coffee-beans.jpg        1280w
+    "
+/>
+```

@@ -357,3 +357,118 @@ This approach combines realistic 3D design with flat design:
 ```
 
 ## Blend modes
+
+Because the `background` property accepts any number of values, you can use multiple values to blend backgrounds. This means that you apply two different backgrounds that are fully opaque.
+
+Some use cases:
+- Tint an image with a color or gradient
+- Apply texture to an image
+- Lighten, darken, or reduce contrast of image so the text in front is more readable
+- Overlay a text banner while letting the image show through
+
+Use the `background-blend-mode` property to blend the different `background-*` properties. Here, it merges multiple images:
+- Most `background-*` properties accept multiple values
+- `background-image`: accepts multiple values
+- if you only pass one value to a property, then it applies to all `background-images`
+- `background-size`: accepts cover and contain
+  - `cover`: resizes the image to make it fill the container
+  - `contain`: makes sure the entire image is visible, even if it doesn't fill the container
+- `background-blend-mode` determines how the properties blend
+```css
+.blend {
+  min-height: 70vmin;
+  background-image: url(/images/bear.jpg), url(/images/bear.jpg);
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: -30vw, 30vw;
+  background-blend-mode: difference;
+}
+```
+
+### Tinting an image
+
+`background-blend-mode` can work with `background-color` to merge an image with a hue:
+- The `background-blend-mode: luminosity;` setting takes the luminosity from the front image (`background-image`) and merges it with the hue and saturation of the back layer (`background-color`). This means that it uses the background color with the contrast and brightness of the image
+
+```css
+.blend {
+  min-height: 70vmin;
+  background-image: url(/images/bear.jpg);
+  background-color: #148;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-blend-mode: luminosity;
+}
+```
+
+### Adding texture to an image
+
+This example repeats the texture image and uses `soft-light`. In general, use `soft-light` for darker images and `hard-light` for lighter images:
+
+```css
+.blend {
+  min-height: 70vmin;
+  background-image: url("images/scratches.png"), url(/images/bear.jpg);
+  background-size: 200px, cover;
+  background-repeat: repeat, no-repeat;
+  background-position: center;
+  background-blend-mode: soft-light;
+}
+```
+
+
+### Blend mode cheatsheet
+
+[Interactive blend tool](https://garden.bradwoods.io/notes/css/blend-modes)
+
+| Type of Effect      | Blend Mode    | Description                                                                                                                                                          |
+| ------------------- | ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Normal**          | `normal`      | Default rendering where the element does not blend with background.                                                                                                  |
+| **Darkening**       | `darken`      | Selects the **darker** color from foreground and background. Selects the darker of the two colors.                                                                   |
+|                     | `multiply`    | Multiplies color values, producing a **darker result**. The lighter the front color, the more the base color shows through.                                          |
+|                     | `color-burn`  | Darkens the base color by **increasing contrast**.                                                                                                                   |
+| **Lightening**      | `lighten`     | Selects the **lighter** color from foreground and background.                                                                                                        |
+|                     | `screen`      | The opposite of multiply, producing a **brighter result**. The darker the front color, the more the base color shows through.                                        |
+|                     | `color-dodge` | Lightens the base color by **reducing contrast**. Lightens the base color, decreasing contrast.                                                                      |
+| **Contrast**        | `overlay`     | Mix of multiply and screen, creating **high contrast** effects. Increases contrast by applying multiply to dark colors and screen to light colors, at half strength. |
+|                     | `soft-light`  | Softly **lightens or darkens** colors depending on contrast. Similar to hard-light but uses burn/ dodge instead of multiply/ screen.                                 |
+|                     | `hard-light`  | Similar to overlay but with more **intense** contrast. Greatly increases contrast. Like overlay but applies multiply or screen at full strength.                     |
+| **Inversion**       | `difference`  | Subtracts colors from each other, creating a **negative effect**.                                                                                                    |
+|                     | `exclusion`   | Similar to difference but with **less contrast**.                                                                                                                    |
+| **Component-Based** | `hue`         | Adopts the **hue** of the foreground while keeping background saturation & luminosity.                                                                               |
+|                     | `saturation`  | Uses the **saturation** of the foreground while keeping background hue & luminosity.                                                                                 |
+|                     | `color`       | Applies hue and saturation from the top color onto the bottom color.                                                                                                 |
+|                     | `luminosity`  | Uses the **luminosity** of the foreground while keeping background hue & saturation.                                                                                 |
+
+### mix-blend-mode
+
+`background-blend-mode` is limited to one element. `mix-blend-mode` can blend multiple elements:
+- You can put a heading in front of an image
+
+```html
+<div class="blend">
+      <h1>Ursa Major</h1>
+    </div>
+```
+
+```css
+.blend {
+  background-image: url(/images/bear.jpg);
+  background-size: cover;
+  background-position: center;
+  padding: 50vmin 0 1em;
+}
+
+.blend > h1 {
+  margin: 0;
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 6rem;
+  text-align: center;
+  mix-blend-mode: hard-light;
+  background-color: oklch(25% 0.2 25deg);
+  color: #808080;
+  border: 0.1em solid #ccc;
+  border-width: 0.1em 0;
+}
+```

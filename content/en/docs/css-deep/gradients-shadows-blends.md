@@ -151,3 +151,209 @@ For example:
 
 ### Radial gradients
 
+Radial gradients start at a point and proceeds outward in all directions. The first color is centered in the element and transitions evenly to the element's corners in an ellipses.
+- accepts color stops
+- can specify color spaces
+- `circle` keyword makes the radial gradient a circle, not ellipses
+- specify the size of the gradient by adding length values. one value makes the gradient a circle of that size. two values specify the horizontal and vertical measurements
+- `at Xpx Ypx` specifies the location of the center of the gradient with coordinates
+- `repeating-radial-gradient()` repeats the pattern in concentric rings
+
+Use `radial-gradient()` for the `background-image` property. This example has a white center and a blue outside:
+
+```css
+/* basic gradient */
+.fade {
+  ...
+  background-image: radial-gradient(white, blue);
+}
+
+/* circle */
+.fade {
+  ...
+  background-image: radial-gradient(circle, white, midnightblue);
+}
+
+/* change location of center of gradient */
+.fade {
+  ...
+  background-image: radial-gradient(50px at 25% 75%, white, midnightblue);
+}
+
+/* color stops */
+.fade {
+  ...
+  background-image: radial-gradient(
+    circle,
+    midnightblue 0%,
+    white 75%,
+    red 100%
+  );
+}
+
+/* color space and hue transistion */
+.fade {
+  ...
+  background-image: radial-gradient(circle in oklch longer hue, yellow, blue);
+}
+
+/* repeating stripes - like hypnosis */
+.fade {
+  ...
+  background-image: repeating-radial-gradient(
+    circle,
+    midnightblue 0 15px,
+    white 15px 30px
+  );
+}
+```
+
+### Conic gradient
+
+Changes color around the ellipse in a circular direction:
+- `from Xdeg` changes the starting angle. By default, the angle is 0deg (straight up). `from 90deg` starts the gradient from the right side, horizontally
+- `at 30px 45px` specifies center point distance from the top-left corner. Use `px` or `%`
+- `in <color-space>` specifies color space
+
+Use `conic-gradient()` for the `background-image` property:
+
+```css
+/* basic */
+.fade {
+  ...
+  background-image: conic-gradient(white, blue);
+}
+
+/* softer transition */
+.fade {
+  ...
+  background-image: conic-gradient(white, blue, white);
+}
+
+/* specify starting angle */
+.fade {
+  ...
+  background-image: conic-gradient(from 90deg, white, blue, white);
+}
+
+/* change center point location */
+.fade {
+  ...
+  background-image: conic-gradient(at 95% 60%, white, blue, white);
+}
+
+/* color space */
+.fade {
+  ...
+  background-image: conic-gradient(from 90deg in oklch, yellow, blue, yellow);
+}
+```
+
+## Shadows
+
+Create shadow with these two properties:
+- `box-shadow`: shadow on element's box shape
+- `text-shadow`: shadow for rendered text
+
+A shadow is by default the exact size and dimensions of the element, with a matching `border-radius`. You have to specify the horizontal and vertical offset, and the color of the shadow in the property. The blur radius and spread radius are optional:
+- blur radius is how much of the edges are blurred for a softer shadow
+- spread radius is the size of the shadow. Positive values make it larger in all directions, negative values make it smaller
+- the larger the shadow offset, the higher the element appears on the page
+
+```css
+/* properties */
+.shadow {
+    box-shadow: <x-offset> <y-offset> <blur-radius> <spread-radius> <color>;
+    box-shadow: 2px 2px 2px 1px black;
+}
+```
+
+### Gradients and shadows for depth
+
+> Making elements look 3D and lifelike is no longer common.
+
+Give elements a curved, 3D appearance with gradient, shadow, and the `:active` pseudo-class:
+- add blur to the shadow to make it look natural
+- use `:active` to remove the shadow when the button is clicked and use an `inset` shadow to put the shadow in the element. 
+
+This makes it look like the button is pressed:
+
+```css
+/* gradient and shadow for 3D appearance */
+.button {
+  ...
+  background-image: linear-gradient(
+    to bottom,
+    oklch(57% 0.11 263deg),
+    oklch(40% 0.13 263deg)
+  );
+  box-shadow: 0.1em 0.1em 0.5em oklch(26% 0.07 263deg);
+}
+
+/* appear pressed when active */
+/* first shadow has no offset and slight blur, second has vertical offset */
+.button:active {
+  box-shadow: inset 0 0 0.5em oklch(26% 0.07 263deg),
+    inset 0 0.5em 1em rgb(0 0 0 / 0.4);
+}
+```
+
+### Flat design
+
+Emphasizes vivid, uniform colors and simple appearance:
+- fewer gradients, shadows, and rounded corners
+- gradients from one color to similar color
+- faint shadows
+
+
+This is an example of flat design:
+- shadow is straight down
+- rgb values
+- hover and active change the button to different shades of blue
+```css
+.button {
+  padding: 0.8em;
+  border: 0;
+  font-family: Helvetica, Arial, sans-serif;
+  color: white;
+  background-color: oklch(57% 0.11 263deg);
+  box-shadow: 0em 0.2em 0.2em rgb(0 0 0 /0.15);
+}
+
+.button:hover {
+  background-color: oklch(53% 0.13 263deg);
+}
+
+.button:active {
+  background-color: oklch(40% 0.13 263deg);
+}
+```
+
+### Hybrid design
+
+This approach combines realistic 3D design with flat design:
+- thick bottom border made with `box-shadow` with no blur for cube-like object
+- `:active` shifts the button down a few pixels to mimic a pressed button with `transform: translateY()`, then reduces the box shadow by the same amount of the transform (`0.1em`)
+- adds text shadow
+
+```css
+.button {
+  padding: 0.8em;
+  border: 0;
+  font-family: Helvetica, Arial, sans-serif;
+  color: white;
+  border-radius: 0.5em;
+  background-color: oklch(57% 0.11 263deg);
+  box-shadow: 0em 0.4em oklch(40% 0.13 263deg);
+  text-shadow: 1px 1px oklch(40% 0.13 263deg);
+}
+
+/*  */
+.button:active {
+  background-color: oklch(53% 0.13 263deg);
+  transform: translateY(0.1em);
+  box-shadow: 0 0.3em oklch(40% 0.13 263deg);
+}
+```
+
+## Blend modes

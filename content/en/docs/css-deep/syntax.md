@@ -161,12 +161,12 @@ Universal selector and combinators do not impact specificity scores.
 
 Count the number of ids, classes, tags, and notation and write the total in `<id>, <class>, <tag>` notation:
 
-| Selectors | IDs | Classes | Tags | Notation |
-|:---|:---|:---|:---|:---|
-| `html` `body` `header` `h1` | 0 | 0 | 4 | 0,0,4 |
-| `body` `header.page-header` `h1` | 0 | 1 | 3 | 0,1,3 |
-| `.page-header` `.title` | 0 | 2 | 0 | 0,2,0 |
-| `#page-title` | 1 | 0 | 0 | 1,0,0 |
+| Selectors                        | IDs  | Classes | Tags | Notation |
+| :------------------------------- | :--- | :------ | :--- | :------- |
+| `html` `body` `header` `h1`      | 0    | 0       | 4    | 0,0,4    |
+| `body` `header.page-header` `h1` | 0    | 1       | 3    | 0,1,3    |
+| `.page-header` `.title`          | 0    | 2       | 0    | 0,2,0    |
+| `#page-title`                    | 1    | 0       | 0    | 1,0,0    |
 
 
 ### Reducing specificity
@@ -435,6 +435,16 @@ The following properties specify horizontal left/right values, then top/bottom. 
 
 > Tip: Property that specifies two measurements from a corner, think “Cartesian grid.”
 > Property that specifies measurements for each side all the way around an element, think “clock.”
+
+## Vendor prefixes
+
+Vendor prefixes aren't as common as they used to be, but some browsers still require them for a few properties:
+- `-webkit`: Safari or Chrome
+- `-moz`: Mozilla Firefox
+- `-o`: Opera
+- `-ms`: IE and older versions of Edge
+
+Automate this with [autoprefixer](https://github.com/postcss/autoprefixer), and [Lightning CSS](https://lightningcss.dev/).
 
 
 ## Progressive enhancement

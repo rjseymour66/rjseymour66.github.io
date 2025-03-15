@@ -230,7 +230,7 @@ Add these styles to all projects as a reset:
     height: auto;
   }
 
-  @media (prefers-reduced-motion) {
+  @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
     *::after {

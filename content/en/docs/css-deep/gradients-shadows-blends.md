@@ -206,6 +206,23 @@ Use `radial-gradient()` for the `background-image` property. This example has a 
     white 15px 30px
   );
 }
+
+/* add depth to page */
+@layer theme {
+  :root {
+    --bg-color-1: oklch(47% 0.1 238deg);
+    --bg-color-2: oklch(32% 0.08 238deg);
+  }
+}
+
+@layer global {
+  body {
+    ...
+    background-image: radial-gradient(var(--bg-color-1), var(--bg-color-2));
+    ...
+  }
+  ...
+}
 ```
 
 ### Conic gradient

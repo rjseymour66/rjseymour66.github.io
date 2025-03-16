@@ -62,6 +62,11 @@ button:hover {
 
 ### transition
 
+Not all properties can be animated (apply a transition to it). For example, you can't animate the `display` property:
+- Look in the MDN docs for details about whether you can animate the property. If it has an animation type of `discrete`, it cannot be animated.
+- In general, properties that accept a length, number, color, or `calc()` function can be animated
+- When you create a transition, slow it down to 2 or 3 seconds to make sure it is behaving the way you want it to.
+
 `transition` property is shorthand for these values:
 
 ```css
@@ -82,6 +87,7 @@ transition-timing-function: linear, ease;
 
 - _affected property_ is the property that you want to change
 - _duration_ is how long the transition takes. It is a time value expressed in s or ms, cannot be 0.
+  - **For hover effects, use a transition duration between 200-500ms or it will seem like your website is slow.**
 - _timing-function_ controls the rate of change between the transition.
 - _delay_ lets you specify a time value before the transition begins
 
@@ -132,10 +138,18 @@ Instead of a fluid transition, you can transition in discrete steps. This takes 
 }
 ```
 
+## Examples
 
-## Dropdown menu example
+### Fade in/out menu
 
-This example is a menu that opens when you click the menu button. The colors on the menu button and list item change when you hover the mouse on them:
+This example is a menu that opens when you click the menu button. It has these transitions:
+- The colors on the menu button and list item change when you hover the mouse on them
+- menu fades in and out when you click the toggle button
+  - transition `opacity` from `0` to `1`
+  - remove the menu drawer from the page with `visibility`, which is animatable--unlike `display`. `visibility` accepts either `visible` or `hidden`. If an element is `hidden`, it is still in the document flow, but this doesnt matter with the menu we are creating because it is absolutely positioned. 
+- set the `transition` to `transition: opacity 0.2s linear, visibility 0s linear 0.2s;`
+  - When the menu closes, you transition the opacity for 0.2s, and then transitions the visibility in 0s, but after a 0.2s delay. This delay is enough time for the opacity to fade out, and then the visiblity completely removes it afterwards.
+  - When the menu opens, you set the `visibility` to visible, and remove the delay by setting `transition-delay: 0s`
 
 ```html
 <div class="dropdown" aria-haspopup="true">                             <!-- dropdown container -->
@@ -191,12 +205,16 @@ This example is a menu that opens when you click the menu button. The colors on 
   }
   .dropdown__drawer {
     position: absolute;
-    display: none;
     background-color: var(--background-color);
     width: 10em;
-  }
-  .dropdown.is-open .dropdown__drawer {             /* change li display to block with this class */
-    display: block;
+    visibility: hidden;                                             /* hidden by default */
+    opacity: 0;                                                     /* completely opaque by default */
+    transition: opacity 0.2s linear, visibility 0s linear 0.2s;     /* opacity transition in 0.2s */
+  }                                                                 /* delay visibility transition for 0.2s */
+  .dropdown.is-open .dropdown__drawer {
+    visibility: visible;
+    opacity: 1;
+    transition-delay: 0s;                                           /* remove transition delay so its immediately visible */
   }
 
   .menu {
@@ -224,3 +242,29 @@ This example is a menu that opens when you click the menu button. The colors on 
   }
 }
 ```
+
+### Sliding menu
+
+This menu needs to transition the menu height from `0` to `auto`, but you can't transition from an explicit length (`0`) to `auto`. You need JS to figure out what the height should be with the menu's `scrollHeight` property.
+
+This example reuses the HTML/CSS from the previous section with updated JS:
+
+```js
+let toggle = document.getElementsByClassName("dropdown__toggle")[0];
+let dropdown = toggle.parentElement;
+let drawer = document.getElementsByClassName('dropdown__drawer')[0];
+// get the scrollHeight
+let height = drawer.scrollHeight;
+
+// if the is-open class is present, set the element height to the 
+// scrollHeight value. Otherwise, the height is 0.
+toggle.addEventListener("click", function (e) {
+    dropdown.classList.toggle("is-open");
+    if (dropdown.classList.contains('is-open')) {
+        drawer.style.setProperty('height', height + 'px');
+    } else {
+        drawer.style.setProperty('height', '0');
+    }
+});
+```
+

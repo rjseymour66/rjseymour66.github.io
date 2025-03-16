@@ -248,3 +248,97 @@ You can specify the axis in the rule:
 rotate: z 20deg;
 rotate: x 30deg;
 ```
+
+### Perspective
+
+Specify perspective in two ways:
+- `perspective` property
+- `perspective()` transform function: applies perspective to each individual element. **If you use multiple transform functions, you must use this last (first in list, directly after property name)**.
+  - Does not work with `rotate`
+
+Perspective is the distance between the screen and the 3D scene that you created in the browser. The higher the perspective, the farther away the screen, and then the more subtle the perspective:
+- 3D transforms without perspective appear flat
+
+
+#### On each element
+
+The `perspective()` function adds perspective on each individual box element in a container row:
+
+```css
+.row {
+  display: flex;
+  gap: 4em;
+  justify-content: center;
+}
+
+.box {
+  box-sizing: border-box;
+  width: 150px;
+  padding: 60px 0;
+  text-align: center;
+  background-color: oklch(60% 0.12 158deg);
+  transform: perspective(200px) rotateX(30deg);
+}
+```
+
+#### On container element (shared perspective)
+
+Use the `perspective` property on the container, so each box element has the same perspective--shared vanishing point:
+
+```css
+.row {
+  display: flex;
+  gap: 4em;
+  justify-content: center;
+  perspective: 200px;
+}
+
+.box {
+  box-sizing: border-box;
+  width: 150px;
+  padding: 60px 0;
+  text-align: center;
+  background-color: oklch(60% 0.12 158deg);
+  transform: rotateX(30deg);
+}
+```
+
+### perspective-origin
+
+The `perspective-origin` property lets you shift the vanishing point. By default, the vanishing point is straight ahead. It accepts these keywords and values:
+- `top`
+- `left`
+- `bottom`
+- `right`
+- `center`
+- percentage values, measured from element's top-left corner
+
+```css
+.row {
+  display: flex;
+  gap: 4em;
+  justify-content: center;
+  perspective: 200px;
+  perspective-origin: left bottom;
+}
+```
+
+### backface-visibility
+
+`backface-visibility: hidden`
+
+If you spin an element more than 90 degrees with `rotateX()` and `rotateY()`, you see the back of the element. This is like a mirror image of the original. You can hide this with the `hidden` property.
+
+Use this to create an animation that looks like a card is flipping around: [Card flip](https://3dtransforms.desandro.com/card-flip)
+
+### transform-style
+
+Good for building nested elements in 3D. Not very common in real-world scenarios, but apply like this:
+
+```css
+.element {
+    transform-style: presever-3d;
+}
+```
+
+[Examples and deep explanation!](https://davidwalsh.name/3d-transforms)

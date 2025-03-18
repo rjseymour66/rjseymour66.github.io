@@ -87,10 +87,12 @@ For media modules, you don't have to assign an element class to everything. In t
 
 ## BEM
 
+[Block Element Modifier](en.bem.info/methodology)
+
 Block-Element-Modifier is a CSS methodology:
-- Block: Main element of a module that has a descriptive, unique class name such as `message`
-- Element: Child element of the module. Described in the form `media__image`
-- Modifier: Class name added to the block when creating a variant, such as `message--error`
+- Block: Main element of a module that has a descriptive, unique class name such as `message`. Think of it as a namespace for the elements and their modifiers.
+- Element: Child element of the module. Described in the form `media__image`. Describes the element's purpose, such as a menu item.
+- Modifier: Class name added to the block when creating a variant, such as `message--error`. Describes the appearance, state, or behavior of a block or element.
 
 ## Module composition
 
@@ -109,6 +111,13 @@ Preprocessors let you merge multiple files into a single CSS file. This means th
 ### Naming modules
 
 Ask yourself what the module represents conceptually. Don't use `button--red` and `button--blue` to describe the modules in case the colors change in the future. Use what they represent instead: `button--danger` and `button--success`.
+
+
+When naming items with BEM, it might help to first identify the following:
+- container element
+- descendent elements of the container. Name these using the double underscore.
+  
+  For example, if you have a button that is nested in a navbar that uses the class `nav`, you can identify the button as `nav__button` to ensure that the styles apply only to that button.
 
 ## CSS scope
 

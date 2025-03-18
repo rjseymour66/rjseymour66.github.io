@@ -1,5 +1,5 @@
 ---
-title: "CSS in Depth"
+title: "CSS"
 # linkTitle: "CSS in Depth"
 # weight: 20
 # description:

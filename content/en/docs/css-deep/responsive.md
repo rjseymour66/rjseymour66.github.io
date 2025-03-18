@@ -228,6 +228,8 @@ When possible, keep media queries short. One strategy is to change custom proper
 
 ### Adding breakpoints
 
+> [freeCodeCamp article: The 100% correct way to do CSS breakpoints](https://www.freecodecamp.org/news/the-100-correct-way-to-do-css-breakpoints-88d6a5ba1862) says 600px, 900px, 1200px, and 1800px are the correct breakpoints.
+
 Choose breakpoints that make sense for your design, don't get too overanalytical about it. In general, you want to start setting breakpoints for the part of your design that goes from stacked content on mobile to columns in larger viewports.
 
 > Use liberal padding in larger viewports.

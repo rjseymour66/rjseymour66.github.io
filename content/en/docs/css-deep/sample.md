@@ -1,10 +1,13 @@
 ---
 title: "Sample styling sheet"
 linkTitle: "Sample styling sheet"
-weight: 9
+weight: 301
 description: >
   Sample styling sheet.
 ---
+
+> Deprecated
+> Still has some good info, so keeping.
 
 ```css
 /* -------------------- */

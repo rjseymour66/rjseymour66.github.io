@@ -1,12 +1,11 @@
 ---
-title: "Navigation example"
-linkTitle: "Navigation example"
-weight: 9
-description: >
-  Sample styling sheet for a navigation menu.
+title: "Patterns"
+# linkTitle: "CSS in Depth"
+weight: 300
+# description:
 ---
 
-## Nav styling
+## Navigation menu
 
 When creating menu items:
 - Apply padding to the internal `<a>` tags to provide more clickable surface area.

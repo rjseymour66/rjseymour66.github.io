@@ -8,6 +8,11 @@ weight: 210
 A preprocessor takes the source file that you write and translates it into an output file, which is a standard CSS stylesheet. A preprocessor doesn't add features to CSS, but it makes it easier to write.
 - SCSS uses bracket syntax and the `.scss` extension
 
+## Links
+
+- [Lightning CSS](https://lightningcss.dev/)
+- [PostCSS](https://postcss.org/)
+
 
 ## Installation and setup
 
@@ -258,32 +263,40 @@ The `@extend` at-rule is similar to a mixin, but it doesn't copy declarations--i
 }
 ```
 
+### Color manipulation
 
----
+The `color.adjust()` function lets you manipulate colors:
 
-<!-- ******************************************** -->
+```css
+@use "sass:color";
 
-
-## Getting started
-
-The browser uses the compiled CSS, so in the `<head>` tag, link the processed `.css` file:
-
-```html
-<head>
-    <link rel="stylesheet" href="styles.css">
-</head>
+.class {
+  property: color.adjust($var, <property>: <val>)
+}
 ```
 
-## Features
 
+Use `$lightness`, `$saturation`, and `$hue` as properties to adjust. If you want to make something darker, use a negative value for `$lightness`, and to desaturate a color, use a negative value with `$saturation`:
 
+```css
+@use "sass:color";
 
-### @extend
+$green: #63a35c;
 
+$green-dark: color.adjust($green, $lightness: -10%);      /* darken */
+$green-light: color.adjust($green, $lightness: 10%);
 
+$green-vivid: color.adjust($green, $saturation: 20%);
+$green-dull: color.adjust($green, $saturation: -20%);     /* desaturate */
 
+$purple: color.adjust($green, $hue: 180deg);
+$yellow: color.adjust($green, $hue: -70deg);
 
-
+/* use directly in a property */
+.class {
+  background-color: color.adjust($green, $hue: -70deg);
+}
+```
 ### Interpolation
 
 Interpolation lets you parameterize a parameter. For example:
@@ -293,5 +306,83 @@ padding-#{$direction}: 10rem;
 ```
 In the previous example, you can define a `$direction` variable that takes the place of the `#` character. This is similar to template strings in Javascript or formatted strings in Python.
 
-### Nesting
 
+### Loops
+
+You can iterate over a value to produce a slight variation. You can use the `$index` literally by escaping it with the `#{$index}` syntax. This is called [interpolation](#interpolation):
+
+```css
+@for $index from 2 to 5 {
+  .nav-links > li:nth-child(#{$index}) {
+    transition-delay: (0.1s * $index) - 0.1s;
+  }
+}
+
+/* output */
+.nav-links > li:nth-child(2) {
+  transition-delay: 0.1s;
+}
+
+.nav-links > li:nth-child(3) {
+  transition-delay: 0.2s;
+}
+
+.nav-links > li:nth-child(4) {
+  transition-delay: 0.3s;
+}
+```
+
+## PostCSS
+
+PostCSS parses a source file and outputs a processed CSS file, but it is plugin-based. These plugins run sequentially, so make sure you understand which order you want to run them through.
+
+Here is the [Webpack documentation](https://github.com/postcss/postcss?tab=readme-ov-file#webpack).
+
+### Steps
+
+1. Install the dependencies:
+   ```bash
+   npm install postcss postcss-cli autoprefixer cssnano sass --save-dev
+   ```
+   This command installed these packages:
+   - `postcss`: The core PostCSS processor.
+   - `postcss-cli:` Command-line tool to run PostCSS.
+   - `autoprefixer`: Adds vendor prefixes for better browser support.
+   - `cssnano`: Minifies the final CSS.
+   - `sass`: Compiles SCSS to CSS.
+
+2. Create a postcss.config.js file in the root of the project:
+   ```js
+   module.exports = {
+       plugins: [
+           require("autoprefixer"),                   // Automatically adds vendor prefixes
+           require("cssnano")({ preset: "default" })  // Minifies the CSS
+       ]
+   };
+   ```
+3. Add the build scripts to your `package.json` file:
+   ```json
+   ...
+   "scripts": {
+      "build:scss": "sass sass/index.scss build/styles.css",
+      "build:css": "postcss build/styles.css --use autoprefixer --use cssnano -o build/styles.min.css",
+      "build": "npm run build:scss && npm run build:css"
+   },
+   ...
+   ```
+
+### Example
+
+If you complete the setup in the previous steps, it adds vendor prefixes to your styles and minifies it in `build/styles.min.css`:
+
+```css
+/* input */
+.example {
+  backdrop-filter: blur(5px);
+  mask-image: url(star-mask.png);
+}
+
+/* styles.min.css */
+.example{-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px);-webkit-mask-image:url(star-mask.png);mask-image:url(star-mask.png)}
+/*# sourceMappingURL=data:application/json;base64,... */
+```

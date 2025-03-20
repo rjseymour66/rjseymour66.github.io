@@ -64,14 +64,14 @@ console.log(data);                              // JSON obj
 
 ### Properties and methods
 
-| Property           | Description |
-|--------------------|-------------|
-| `length`          | Returns the number of key-value pairs stored in the storage object. |
-| `setItem(key, value)` | Stores a key-value pair in the storage object. If the key already exists, it updates the value. |
-| `getItem(key)`    | Retrieves the value associated with the specified key. Returns `null` if the key does not exist. |
-| `removeItem(key)` | Deletes the specified key and its associated value from storage. |
-| `clear()`         | Removes all key-value pairs from storage. |
-| `key(index)`      | Returns the key at the specified index within the storage object. Returns `null` if the index is out of bounds. |
+| Property              | Description                                                                                                     |
+| --------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `length`              | Returns the number of key-value pairs stored in the storage object.                                             |
+| `setItem(key, value)` | Stores a key-value pair in the storage object. If the key already exists, it updates the value.                 |
+| `getItem(key)`        | Retrieves the value associated with the specified key. Returns `null` if the key does not exist.                |
+| `removeItem(key)`     | Deletes the specified key and its associated value from storage.                                                |
+| `clear()`             | Removes all key-value pairs from storage.                                                                       |
+| `key(index)`          | Returns the key at the specified index within the storage object. Returns `null` if the index is out of bounds. |
 
 
 ### Lifetime and scope
@@ -96,13 +96,13 @@ When `localStorage` changes, the browser fires a 'storage' event on all Window o
 
 Event properties for a storage event:
 
-| Property       | Description |
-|---------------|-------------|
-| `key`         | The key in `localStorage` that was changed. Returns `null` if `.clear()` was called. |
+| Property      | Description                                                                                 |
+| ------------- | ------------------------------------------------------------------------------------------- |
+| `key`         | The key in `localStorage` that was changed. Returns `null` if `.clear()` was called.        |
 | `oldValue`    | The previous value of the key before the change. Returns `null` if the key was newly added. |
-| `newValue`    | The new value assigned to the key. Returns `null` if the key was removed. |
-| `url`         | The URL of the document where the storage change happened. |
-| `storageArea` | The `Storage` object (`localStorage` or `sessionStorage`) where the change occurred. |
+| `newValue`    | The new value assigned to the key. Returns `null` if the key was removed.                   |
+| `url`         | The URL of the document where the storage change happened.                                  |
+| `storageArea` | The `Storage` object (`localStorage` or `sessionStorage`) where the change occurred.        |
 
 
 ## Cookies
@@ -148,6 +148,23 @@ let getCookies = () => {
 };
 
 getCookies();
+```
+
+
+For some browsers (Chrome), you cannot set cookies from the client side, only the server. The following code can read from the cookie:
+
+```js 
+let cookie = decodeURIComponent(document.cookie);
+let cookieList = cookie.split(";");
+for (let i = 0; i < cookieList.length; i++) {
+  let c = cookieList[i];
+  if (c.charAt(0) == " ") {
+    c = c.trim();
+  }
+  if (c.startsWith("name")) {
+    alert(c.substring(5, c.length)); 
+  }
+}
 ```
 
 ### Lifetime and scope
@@ -200,22 +217,22 @@ let deleteCookie = (name) => {
 
 ### Properties
 
-| Property     | Description |
-|-------------|-------------|
+| Property          | Description                                                                                        |
+| ----------------- | -------------------------------------------------------------------------------------------------- |
 | `document.cookie` | Gets or sets cookies associated with the current document. Returns all cookies as a single string. |
 
 
 ### Attributes
 
-| Attribute      | Description |
-|---------------|-------------|
-| `expires`     | Sets the expiration date of the cookie (UTC format). If not set, the cookie is a session cookie. |
-| `max-age`     | Specifies the lifetime of the cookie in seconds. |
-| `path`        | Defines the URL path for which the cookie is valid. Defaults to the current page’s path. |
-| `domain`      | Specifies the domain the cookie belongs to. Defaults to the current domain. |
-| `secure`      | Restricts the cookie to HTTPS connections only. |
-| `HttpOnly`    | Prevents client-side JavaScript from accessing the cookie. Only sent to the server. |
-| `SameSite`    | Controls whether cookies are sent with cross-site requests (`Strict`, `Lax`, `None`). |
+| Attribute  | Description                                                                                      |
+| ---------- | ------------------------------------------------------------------------------------------------ |
+| `expires`  | Sets the expiration date of the cookie (UTC format). If not set, the cookie is a session cookie. |
+| `max-age`  | Specifies the lifetime of the cookie in seconds.                                                 |
+| `path`     | Defines the URL path for which the cookie is valid. Defaults to the current page’s path.         |
+| `domain`   | Specifies the domain the cookie belongs to. Defaults to the current domain.                      |
+| `secure`   | Restricts the cookie to HTTPS connections only.                                                  |
+| `HttpOnly` | Prevents client-side JavaScript from accessing the cookie. Only sent to the server.              |
+| `SameSite` | Controls whether cookies are sent with cross-site requests (`Strict`, `Lax`, `None`).            |
 
 ## IndexedDB
 

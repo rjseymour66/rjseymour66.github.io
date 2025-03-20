@@ -1,6 +1,6 @@
 ---
-title: "Web programming basics"
-linkTitle: "Basics"
+title: "Language overview"
+# linkTitle: "Overview"
 weight: 10
 description:
 ---
@@ -83,6 +83,43 @@ Document Object Model is the API for working with the Document object
   - There is an instance of the JS class - called a JS element object - for each occurrence of the HTML tag in the document
   - Each JS element object has properties that correspond to HTML tag attributes
   - Some JS classes define attributes that are not available on the HTML tag
+
+## BOM 
+
+The BOM is what lets JS communicate with the browser, including the following: 
+- Window object 
+- History
+- Navigator 
+- Location
+
+To see all the properties of the BOM (an any other JS object), use `console.dir()`:
+
+```js 
+console.dir(window)     // access window properties with dot notation
+window.history.length   // DOM representation:
+window.document         // go back one page in history
+window.history.go(-1)
+```
+
+### Window navigator 
+
+Contains information about the browser, such as the what the browser is, the version, and the OS running the browser:
+
+```js 
+console.dir(window.navigator)
+// navigator is globally available
+console.dir(navigator)
+```
+
+### Window location object 
+
+Contains the URL of the current web page. You can override parts of this to make the browser go to a different page:
+
+```js 
+console.dir(window.location)
+// location is globally available
+console.dir(location)
+```
 
 ## Global object
 
@@ -244,3 +281,16 @@ When an attacker injects HTML tags or scripts into your website:
   - Remove HTML tags from untrusted data before you create dynamic content
   - Always display untrusted content in an iframe with the `sandbox` attribute set. This disables scripting and other things
 
+
+
+## Event loop 
+
+Javascript is a single-threaded language. This means that only one thing can happen at a time: tasks must wait for previously executing tasks to complete.
+
+The single executor is called the _event loop_. The event loop executes all of the Javascript work. Even though JavaScript is single-threaded, it achieves concurrency with the _call stack_ and the _callback queue_.
+
+### Call stack and callback queue 
+
+The call stack is a queue of all actions that are pending execution. The event loop constantly monitors the call stack and completes pending tasks, one-by-one, from the top of the stack. 
+
+When you use a callback, Javascript outsources the callback task to the browser's web API. When the callback completes, it goes into the callback queue. When the call stack is empty, the event loop checks the callback queue to see if there is any pending work. If there are callbacks waiting in the queue, they are executed one-by-one, from the top of the queue. After each callback is executed, the event loop checks the call stack to see if there is any work to do before executing another callback. 

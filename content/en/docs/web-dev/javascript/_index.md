@@ -1,7 +1,7 @@
 ---
 title: "Javascript"
 linkTitle: "Javascript"
-# weight: 80
+weight: 30
 description: >
   Notes on the Definitive Guide.
 ---

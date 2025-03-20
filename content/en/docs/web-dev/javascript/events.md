@@ -75,6 +75,25 @@ window.onload = function() {
 }
 ```
 
+#### onload
+
+`onload` is fired after a specific element is loaded. It is most commonly used on the `window` element, but you can use it on any element.
+
+`onload` behaves differently for the `window` and `document` objects, depending on the browser. If you add it to the `document` object, you can access any node in the DOM bc the event fires after the DOM loads.
+
+Use `DOMContentLoaded()` method with `addEventListener` as a substitute for `document.onload`:
+
+```js 
+document.addEventListener("DOMContentLoaded", (e) => {
+    console.log(e);
+});
+
+// or assign a function called unique() to the body
+
+<body onload="unique()"></body>
+```
+
+
 ### Set event handler attributes
 
 Not a best practice, avoid when possible. The way the browser executes these event handlers is confusing because it uses unexpected variables.
@@ -168,6 +187,19 @@ If you pass the object:
    });
    ```
 
+### Mouse event handlers 
+
+| Event          | Description                                                                 |
+| -------------- | :-------------------------------------------------------------------------- |
+| `ondbclick`    | when the mouse is double-clicked                                            |
+| `onmousedown`  | when the mouse clicks on top of an element without the click being released |
+| `onmouseup`    | when the mouse click on top of an element is released                       |
+| `onmouseenter` | when the mouse moves onto an element                                        |
+| `onmouseleave` | when the mouse leaves an element and all of its children                    |
+| `onmousemove`  | when the mouse moves over an element                                        |
+| `onmouseout`   | when the mouse leaves an individual element                                 |
+| `onmouseover`  | when the mouse hovers over an element                                       |
+
 ## Event handler invocation
 
 - Event handlers should not return anything. If you do not want a handler to perform a default action, call `preventDefault()`.
@@ -191,6 +223,36 @@ Event object useful properties:
 - `defaultPrevented`: Boolean, whether `event.preventDefault()` was called.
 
 Some events have special properties. For example, mouse events have the `clientX` property that shows the window coordinates.
+
+#### Event target property
+
+The event that you pass to the event handler callback has a number of properties, including the `target` property. The `target` is the HTML element that fired the event:
+
+```js 
+function triggerSomething() {
+  console.dir(event.target);
+}
+```
+
+The following example changes the innerHTML of the button's parent element when clicked:
+
+```js 
+<div id="welcome">Hi there!</div>
+<form>
+  <input type="text" name="firstname" placeholder="First name" />
+  <input type="text" name="lastname" placeholder="Last name" />
+  <input type="button" onclick="sendInfo()" value="Submit" />
+</form>
+<script>
+  function sendInfo() {
+    let p = event.target.parentElement;
+    message("Welcome " + p.firstname.value + " " + p.lastname.value);
+  }
+  function message(m) {
+    document.getElementById("welcome").innerHTML = m;
+  }
+</script>
+```
 
 #### Event handler context
 
@@ -253,3 +315,11 @@ button.addEventListener('click', () => console.log('second event listener'));   
 ### Event delegation
 
 https://javascript.info/event-delegation
+
+You can manage event bubbling by using the 3rd parameter for `addEventListener`, `useCapture`:
+
+```js
+document.addEventListener("DOMContentLoaded", func(), useCapture;)
+```
+
+`useCapture` is a Boolean. This enables _event delegation_: instead of adding event handlers to every element in a block of HTML, you define a wrapper and assign the event to the wrapper element. This wrapper element applies the event handler to its child elements. 

@@ -802,3 +802,158 @@ Create a list that saves to local storage so even if the page is refreshed, the 
 </body>
 </html>
 ```
+
+## Events
+
+
+### Key event handlers 
+
+You can use this to restrict what characters an input box accepts. `event.key` returns the key you entered. You can use `onpaste` to restrict what users can paste.
+
+Here is an example:
+
+```html
+<!doctype html>
+<html>
+  <body>
+    <body>
+      <div id="wrapper">JavaScript is fun!</div>
+      <input type="text" name="myNum1" onkeypress="return numCheck()" onpaste="return false">
+      <input type="text" name="myNum2" onkeypress="return numCheck2()" onpaste="return false">
+      <script>
+        function numCheck() {
+            message(!isNaN(event.key));
+            return !isNaN(event.key);
+        }
+        function numCheck2() {
+            message(isNaN(event.key));
+            return isNaN(event.key);
+        }
+        function message(m) {
+            document.getElementById("wrapper").innerHTML = m;
+        }
+      </script>
+  </body>
+</html>
+```
+
+### Drag and drop elements 
+
+Set `draggable` to true to indicate that an element can be dragged and dropped. The following example creates two divs, and one contains a nested `div` that with text. You can drag the nested div into the other top-level div by adding the following properties and functions:
+
+- `ondrop`
+- `ondragover`
+- `ondragstart`: 
+- `draggable`
+
+```html 
+<body>
+  <div class="box" ondrop="dDrop()" ondragover="nDrop()">
+    1
+    <div id="dragme" ondragstart="dStart()" draggable="true">
+      Drag Me Please!
+    </div>
+  </div>
+  <div class="box" ondrop="dDrop()" ondragover="nDrop()">2</div>
+
+  <script>
+    let holderItem;
+    function dStart() {
+      holderItem = event.target;
+    }
+    function nDrop() {
+      event.preventDefault();
+    }
+    function dDrop() {
+      event.preventDefault();
+      if (event.target.className == "box") {
+        event.target.appendChild(holderItem);
+      }
+    }
+  </script>
+</body>
+```
+
+The script does the following:
+1. When the nested div is selected, it triggers the ondragstart event. Its `dStart()` handler stores the `target` in the `holderItem` variable.
+2. By default, HTML prevents dropping, so add the `ondrop` event to both top-level divs. Its `nDrop()` handler prevents this default behavior. 
+3. In the target destination, add the ondrop event checks whether the target destination can accept the element that you are dropping. If it can, you append the item as a child to that element.
+
+### Form submission
+
+You can trigger a event when a user submits a form.with the `onsubmit` attribute:
+
+```html
+<form onsubmit="eHandler()">
+```
+
+The action and method attributes can redirect to another page:
+
+```html 
+<!doctype html>
+<html>
+  <body>
+    <form action="redirectTarget.html" method="get">
+      <input type="text" placeholder="name" name="name" />
+      <input type="submit" value="send" />
+    </form>
+  </body>
+</html>
+```
+In the previous example:
+- `action` defines the page that we redirect to. This 
+- `method` specifies how to send form data. It appends form data onto the `redirectTarget.html` page URL as query parameters in k/v pairs.
+
+You can use the query parameters in `redirectTarget.html` as follows:
+
+```html 
+<!doctype html>
+<html>
+  <body>
+    <script>
+      let q = window.location.search; 
+      let params = new URLSearchParams(q); 
+      let name = params.get("name");
+      console.log(name);
+    </script>
+  </body>
+</html>
+```
+
+When `onsubmit` returns a Boolean, you can use it for form validation. In the following example, the `valForm()` function uses the event on the `wrapper` div, and the `id` values of its child elements to validate the fields:
+
+```html 
+<!doctype html>
+<html>
+  <body>
+    <div id="wrapper"></div>
+    <form action="anotherpage.html" method="get" onsubmit="return valForm()">
+      <input type="text" id="firstName" name="firstName" placeholder="First name" />
+      <input type="text" id="lastName" name="lastName" placeholder="Last name" />
+      <input type="text" id="age" name="age" placeholder="Age" />
+      <input type="submit" value="submit" />
+    </form>
+    <script>
+      function valForm() {
+        var p = event.target.children;
+        if (p.firstName.value == "") {
+          message("Need a first name!!");
+          return false;
+        }
+        if (p.lastName.value == "") {
+          message("Need a last name!!");
+          return false;
+        }
+        if (p.age.value == "") {
+          message("Need an age!!");
+          return false;
+        }
+        return true;
+      }
+      function message(m) {
+        document.getElementById("wrapper").innerHTML = m;
+      }
+    </script>
+  </body>
+</html>
+```

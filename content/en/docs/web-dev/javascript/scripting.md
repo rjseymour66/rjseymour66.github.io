@@ -483,7 +483,7 @@ Follow these guidelines when you name a function:
 - Describe what the function does.
 - Use a verb to help describe what the function is doing. Ex: `sendMsg`.
 
-## Writing functions 
+## Functions 
 
 ```js
 // standard function declaration
@@ -501,7 +501,36 @@ function paramFunc(param1, param2) {
   // func body
 }
 ```
-## Default parameters
+
+### Argument object
+
+Each function has a custom `arguments` object that stores the values passed into each function as an array. Access them with index notation:
+
+```js
+function test(a, b, c) {
+  console.log("first:", a, arguments[0]);
+  console.log("second:", b, arguments[1]);
+  console.log("third:", c, arguments[2]);
+}
+test("fun", "js", "secrets");
+```
+
+It is now more common (i.e. modern) to use the rest parameter `(...param)` that arguments.
+
+
+### Hoisting and Strict mode 
+
+Hoisting is when Javascript moves declarations to the top of the scope in which they are defined. It makes code less readable and is generally confusing. When you declare variables and functions, use `let` instead of `var`.
+
+To use `strict` mode, add the following to the top of a `.js` file:
+
+```js 
+"use strict";
+```
+
+`strict` mode is considered a best practice. It fixes many of the odd behaviors that Javascript has (such as hoisting). It is a good precursor to TypeScript or other frameworks.
+
+### Default parameters
 
 If you do not pass arguments to functions that require parameters, then Javascript assigns them the default type, `undefined`.
 
@@ -515,7 +544,8 @@ function addNums(x = 2, y = 3) {
 }
 ```
 
-## Special functions 
+## Special functions
+
 
 ### Arrow functions 
 
@@ -564,86 +594,35 @@ let funcVar = function() {
 }
 ```
 
-## Loops 
+## Error handling 
 
-### while
-
-```js
-while (condition) {
-  // code that gets executed as long as the condition is true
-}
-```
-
-### do while 
-
-`do while` loops always execute at least once: 
+Use a `try/catch` block with an optional `finally` block to handle potential errors:
 
 ```js 
-do {
-  // code to be executed if the condition is true
-} while (condition);
-```
-
-### for 
-```js 
-for (initialize variable; condition; statement) { 
-  // code to be executed
-}
-
-for (let i = 0; i < cars.length; i++) {
-  text += cars[i] + "<br>";
-}
-```
-
-### for in 
-
-```js 
-
-let car = {
-  model: "Golf",
-  make: "Volkswagen",
-  year: 1999,
-  color: "black",
-};
-
-for (let prop in car) {
-    console.log(car[prop])
-}
-// Output: 
-
-// Golf
-// Volkswagen
-// 1999
-// black
-
-```
-### for of 
-
-You cannot manipulate values with this loop:
-
-```js
-for (let variableName of arr) {
-  // code to be executed
-  // value of variableName gets updated every iteration
-  // all values of the array will be variableName once
+try {
+  somethingVeryDangerous();
+} catch (e) {
+  if (e instanceof TypeError) {
+    // deal with TypeError exceptions
+  } else if (e instanceof RangeError) {
+    // deal with RangeError exceptions
+  } else if (e instanceof EvalError) {
+    // deal with EvalError exceptions
+  } else {
+    //deal with all other exceptions
+    throw e; //rethrow
+  }
+} finally {
+  console.log("Error or no error, I will be logged!");
 }
 ```
+The `finally` block is executed if the function succeeds or if it throws an error. 
 
-### Switch statements
+You can also throw an error on purpose: 
 
 ```js 
-switch(expression) {
-  case value1:
-    // code to be executed
-    break;
-  case value2:
-    // code to be executed
-    break;
-  case value-n:
-    // code to be executed
-    break;
-  default:
-    // code to be executed when no cases match
-    break;
+function somethingVeryDangerous() {
+  throw RangeError();
 }
 ```
+

@@ -1,6 +1,6 @@
 ---
 title: "Forms"
-weight: 50
+weight: 230
 description: >
   Creating and styling forms.
 ---
@@ -40,12 +40,12 @@ The input element accepts text, and the label element tells users what informati
 
 You can add the following attributes to an `<input>` element in the `attribute="value"` format:
 
-| Attribute | Association | Description |
-|:----------|:------------|:------------|
-| `type`    |   | Tells the browser what type of data to expect. Helps to validate the user entry. Examples inlcude `text`, `email`, `password`, `number`, `date`, `radio`, `checkbox`, `tel`, `hidden`, `search`, `range` (slider)  |
-| `id`      | \<label\\> `for` attribute | Associates a label to an input element for assistive technology--focusses on the input when the label is clicked. |
-| `placeholder` |   | Guide users on what to add to input fields and how to format it.  |
-| `name`  | The key name for this value in the request object sent to the server.  | Required, or the server ignores the data. Tells the backend know what this data represents.  |
+| Attribute     | Association                                                           | Description                                                                                                                                                                                                       |
+| :------------ | :-------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `type`        |                                                                       | Tells the browser what type of data to expect. Helps to validate the user entry. Examples inlcude `text`, `email`, `password`, `number`, `date`, `radio`, `checkbox`, `tel`, `hidden`, `search`, `range` (slider) |
+| `id`          | \<label\\> `for` attribute                                            | Associates a label to an input element for assistive technology--focusses on the input when the label is clicked.                                                                                                 |
+| `placeholder` |                                                                       | Guide users on what to add to input fields and how to format it.                                                                                                                                                  |
+| `name`        | The key name for this value in the request object sent to the server. | Required, or the server ignores the data. Tells the backend know what this data represents.                                                                                                                       |
 
 This [Sitepoint article](https://www.sitepoint.com/html-forms-constraint-validation-complete-guide/) lists additional options.
 
@@ -193,11 +193,11 @@ You can have a single checkbox if you are asking the user to do something like s
 
 Users click buttons to submit forms or trigger other actions. The button attribute `type` tells the browser what the button does:
 
-| Type   | Description |
-|:-------|:------------|
-| `submit` | Default value. Submits the form that the button is contained in. |
+| Type     | Description                                                                                                       |
+| :------- | :---------------------------------------------------------------------------------------------------------------- |
+| `submit` | Default value. Submits the form that the button is contained in.                                                  |
 | `reset`  | **Rarely used**. Clears all data that a user entered into a form and sets the forms back to their default values. |
-| `button` | Generic button that you can use for anything. Commonly used with JS to create interactive UIs. |
+| `button` | Generic button that you can use for anything. Commonly used with JS to create interactive UIs.                    |
 
 
 > By default, a form button `type` attribute is set to `submit`. Always set the `type` attribute so that the button does not submit the form by accident.
@@ -840,8 +840,8 @@ Validate data so it is in the correct format, and that it is secure for both the
 
 ### Attributes
 
-| Attribute   | Type      | Description |
-| :---------- | :-------- | :-----------|
+| Attribute   | Type      | Description                                                                                                                                              |
+| :---------- | :-------- | :------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `required`  | Boolean   | Makes any input field required. YOu should also add an asterisk to a required field label.                                                               |
 | `minlength` | key/value | Minimum number of text characters. Can be combined with `maxlength`.                                                                                     |
 | `maxlength` | key/value | Maximum number of text characters. Can be combined with `minlength`.                                                                                     |
@@ -849,3 +849,193 @@ Validate data so it is in the correct format, and that it is secure for both the
 | `max`       | key/value | Maximum number value accepted. Can be combined with `min`.                                                                                               |
 | `pattern`   | key/value | `<input>` elements only. Must match the regular expression. Common use cases include zipcodes or CC numbers. Use with `placeholder` to provide guidance. |
 
+
+
+## Example
+
+```html
+<body>
+  <h1>Registration Form</h1>
+  <p>Please fill out this form with the required information</p>
+
+  <form action="https://register-demo.freecodecamp.org" method="post">
+    <fieldset>
+      <label for="first-name"
+        >Enter Your First Name:
+        <input id="first-name" type="text" name="first-name" required
+      /></label>
+      <label for="last-name"
+        >Enter Your Last Name:
+        <input id="last-name" type="text" name="last-name" required
+      /></label>
+      <label for="email"
+        >Enter Your Email: <input id="email" type="email" name="email" required
+      /></label>
+      <label for="new-password"
+        >Create a New Password:
+        <input
+          id="new-password"
+          type="password"
+          pattern="[a-z0-5]{8,}"
+          name="new-password"
+          required
+      /></label>
+    </fieldset>
+    <fieldset>
+      <label for="personal-account"
+        ><input
+          class="inline"
+          id="personal-account"
+          type="radio"
+          name="account-type"
+        />
+        Personal Account</label
+      >
+      <label for="business-account"
+        ><input
+          class="inline"
+          id="business-account"
+          type="radio"
+          name="account-type"
+        />
+        Business Account</label
+      >
+      <label for="terms-and-conditions">
+        <input
+          class="inline"
+          id="terms-and-conditions"
+          type="checkbox"
+          name="terms-and-conditions"
+          required
+        />
+        I accept the
+        <a href="https://www.freecodecamp.org/news/terms-of-service/"
+          >terms and conditions</a
+        >
+      </label>
+    </fieldset>
+    <fieldset>
+      <label for="profile-picture"
+        >Upload a profile picture:
+        <input id="profile-picture" type="file" name="profile-picture"
+      /></label>
+      <label for="age"
+        >Input your age (years):
+        <input id="age" type="number" min="13" max="120" name="age"
+      /></label>
+      <label for="referrer"
+        >How did you hear about us?
+        <select id="referrer" name="referrer">
+          <option value="">(select one)</option>
+          <option value="1">freeCodeCamp News</option>
+          <option value="2">freeCodeCamp YouTube Channel</option>
+          <option value="3">freeCodeCamp Forum</option>
+          <option value="4">Other</option>
+        </select>
+      </label>
+      <label for="bio"
+        >Provide a bio:
+        <textarea
+          id="bio"
+          rows="3"
+          cols="30"
+          name="bio"
+          placeholder="I like coding on the beach..."
+        ></textarea>
+      </label>
+    </fieldset>
+
+    <!-- The first input element with a type of submit is automatically set to submit its nearest parent form element. -->
+    <input type="submit" value="Submit" />
+  </form>
+</body>
+```
+
+The related CSS stylesheet:
+
+```css
+body {
+  width: 100%;
+  height: 100vh;
+  margin: 0;
+  background-color: #1b1b32;
+  color: #f5f6f7;
+  font-family: Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 16px;
+}
+
+label {
+  display: block;
+  margin: 0.5rem 0;
+}
+
+h1,
+p {
+  margin: 1em auto;
+  text-align: center;
+}
+
+form {
+  margin: 0 auto;
+  max-width: 500px;
+  min-width: 300px;
+  width: 60vw;
+  padding: 0 0 2em 0;
+}
+
+fieldset {
+  border: none;
+  padding: 2rem 0;
+  border-bottom: 3px solid #3b3b4f;
+}
+
+fieldset:last-of-type {
+  border-bottom: none;
+}
+
+/* 
+fieldset:not(:last-of-type) {
+   border-bottom: 3px solid #3b3b4f;
+} */
+
+input,
+textarea,
+select {
+  width: 100%;
+  margin: 10px 0 0 0;
+  min-height: 2em;
+}
+
+.inline {
+  /* unsets the 100% width */
+  width: unset;
+  margin: 0 0.5em 0 0;
+  vertical-align: middle;
+}
+
+input,
+textarea {
+  background-color: #0a0a23;
+  border: 1px solid #0a0a23;
+  color: #fff;
+}
+
+input[type="submit"] {
+  display: block;
+  width: 60%;
+  margin: 1em auto;
+  height: 2em;
+  min-width: 300px;
+  font-size: 1.1rem;
+  background-color: #3b3b4f;
+  border-color: white;
+}
+
+input[type="file"] {
+  padding: 1px 2px;
+}
+
+a {
+  color: #dfdfe2;
+}
+```

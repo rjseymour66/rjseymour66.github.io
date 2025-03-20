@@ -75,7 +75,7 @@ For each element, devtools lists styles by specificity. Styles at the top overri
 ## Stylesheet origins
 
 There are 3 differnt stylesheets that _cascade_---allow stylesheets to overwrite or inherit from one another---when we apply styles to HTML:
-- User-agent stylesheet: Stylesheet internal to your web browser (i.e. Google Chrome). These include:
+- User-agent stylesheet: Stylesheet internal to your web browser ([Google Chrome stylesheet](https://chromium.googlesource.com/chromium/blink/+/refs/heads/main/Source/core/css/html.css)). These include:
     - blue, underlined links 
     - discs for lis 
     - margins
@@ -350,11 +350,29 @@ a:focus {
 }
 ```
 
+Here are examples to show how to use `:nth-child` pseudo-class:
+
+```css
+.myList:nth-child(5) {...}        /* Selects the 5th element with class myList */
+.myList:nth-child(3n) {...}       /* Selects every 3rd element with class myList */
+.myList:nth-child(3n + 3) {...}   /* Selects every 3rd element with class myList, beginning with the 3rd */
+.myList:nth-child(even) {...}     /* Selects every even element with class myList */
+```
+
 #### Pseudo-elements
 
 [List of pseudo-elements](https://developer.mozilla.org/en-US/docs/Web/CSS/Pseudo-elements#list_of_pseudo-elements)
 
-Allow you to style a specific part of an element. To define styles for a pseudo-element, use a double-colon (`::`). You can use a single colon, but that is for backward compatibility only.
+Allow you to style a specific part of an element. To define styles for a pseudo-element, use a double-colon (`::`) and target elements that do not normally exist or are not elements at all:
+
+- `::marker` style `li` bullets or numbers
+- `::first-letter`
+- `::first-line`
+- `::selection` change styling when user selects text on the page.
+- `::before`
+- `::after`
+
+You can use a single colon, but that is for backward compatibility only.
 
 For example, the following rule styles only the first letter of a paragraph that is adjacent to the header element:
 
@@ -364,9 +382,17 @@ header + p::first-letter {
 }
 ```
 
+
 ### Attribute selectors
 
-This selector targets HTML elements that have a specific attribute with the same value. This is commonly used to style links and forms.
+This selector targets HTML elements that have a specific attribute with the same value. This is commonly used to style links and forms. Attribute selectors use these formats:
+
+- `[attribute]`
+- `selector[attribute]`
+- `[attribute="value"]`
+- `[attribute^="value]` match from the start
+- `[attribute$="value"]` match from the end
+- `[attribute*="value]` match anywhere inside the string
 
 The following example places the word "pre" before the tag in square braces:
 
@@ -374,7 +400,17 @@ The following example places the word "pre" before the tag in square braces:
 [lang="en"]::before {
   content: "pre"
 }
+
+[src] {...}                 /* any element that has a src attribute. */
+img[src] {...}              /* img elements that have a src attribute. */
+img[src="puppy.jpg"] {...}  /* img elements with a src attribute that is exactly "puppy.jpg" */
+
+/* Classes are attributes too! */
+[class^="aus"] {...}        /* any class that begins with 'aus' */
+[src$=".jpg"] {...}         /* any src attribute that ends in '.jpg' */
+[for*="ill"] {...}          /* any for attribute that has 'ill' anywhere inside it */
 ```
+
 
 ### Universal selector
 

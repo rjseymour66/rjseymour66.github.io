@@ -243,6 +243,15 @@ Add these styles to all projects as a reset:
 }
 ```
 
+#### Links
+
+Links to reset examples:
+
+- [Reboot, Resets, and Reasoning](https://css-tricks.com/reboot-resets-reasoning/): This CSS article provides some background on resets.
+- [Meyers reset](https://meyerweb.com/eric/tools/css/reset/): Most popular, undoes default user agent styles.
+- [Normalize](https://necolas.github.io/normalize.css/): Tweaks styles to make them consistent.
+- [Browser default styles](https://browserdefaultstyles.com/): Look up elements and see default user agent styles, support, etc.
+
 ### theme
 
 This layer should set these styles:
@@ -265,6 +274,65 @@ Here is a sample of how to set this up. A real site would use many more custom p
 
     accent-color: var(var(--brand-color))
     color-scheme: light;
+  }
+}
+```
+
+Here is a more comprehensive example:
+
+```css
+:root {
+  --clr-accent-500: hsl(12, 60%, 45%);
+  --clr-accent-400: hsl(12, 88%, 59%);
+  --clr-accent-300: hsl(12, 88%, 75%);
+  --clr-accent-100: hsl(13, 100%, 96%);
+
+  --clr-primary-400: hsl(228, 39%, 23%);
+
+  --clr-neutral-900: hsl(232, 12%, 13%);
+  --clr-neutral-100: hsl(0 0% 100%);
+
+  --ff-primary: "Be Vietnam Pro", sans-serif;
+
+  --ff-body: var(--ff-primary);
+  --ff-heading: var(--ff-primary);
+
+  --fw-regular: 400;
+  --fw-semi-bold: 500;
+  --fw-bold: 700;
+
+  --fs-300: 0.8125rem;
+  --fs-400: 0.875rem;
+  --fs-500: 0.9375rem;
+  --fs-600: 1rem;
+  --fs-700: 1.875rem;
+  --fs-800: 2.5rem;
+  --fs-900: 3.5rem;
+
+  --fs-body: var(--fs-400);
+  --fs-primary-heading: var(--fs-800);
+  --fs-secondary-heading: var(--fs-700);
+  --fs-nav: var(--fs-500);
+  --fs-button: var(--fs-300);
+
+  --size-100: 0.25rem;
+  --size-200: 0.5rem;
+  --size-300: 0.75rem;
+  --size-400: 1rem;
+  --size-500: 1.5rem;
+  --size-600: 2rem;
+  --size-700: 3rem;
+  --size-800: 4rem;
+  --size-900: 5rem;
+}
+
+@media (min-width: 50em) {
+  :root {
+    --fs-body: var(--fs-500);
+    --fs-primary-heading: var(--fs-900);
+    --fs-secondary-heading: var(--fs-800);
+
+    --fs-nav: var(--fs-300);
   }
 }
 ```

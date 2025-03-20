@@ -63,16 +63,16 @@ document.addEventListener("DOMContentLoaded", (e) => {
 
 ### Mouse event handlers 
 
-| Event | Description |
-|-------|:------------|
-| `ondbclick`    | when the mouse is double-clicked |
+| Event          | Description                                                                 |
+| -------------- | :-------------------------------------------------------------------------- |
+| `ondbclick`    | when the mouse is double-clicked                                            |
 | `onmousedown`  | when the mouse clicks on top of an element without the click being released |
-| `onmouseup`    | when the mouse click on top of an element is released |
-| `onmouseenter` | when the mouse moves onto an element |
-| `onmouseleave` | when the mouse leaves an element and all of its children |
-| `onmousemove`  | when the mouse moves over an element |
-| `onmouseout`   | when the mouse leaves an individual element |
-| `onmouseover`  | when the mouse hovers over an element |
+| `onmouseup`    | when the mouse click on top of an element is released                       |
+| `onmouseenter` | when the mouse moves onto an element                                        |
+| `onmouseleave` | when the mouse leaves an element and all of its children                    |
+| `onmousemove`  | when the mouse moves over an element                                        |
+| `onmouseout`   | when the mouse leaves an individual element                                 |
+| `onmouseover`  | when the mouse hovers over an element                                       |
 
 ### Event target property
 
@@ -268,145 +268,5 @@ When `onsubmit` returns a Boolean, you can use it for form validation. In the fo
       }
     </script>
   </body>
-</html>
-```
-
-## Examples 
-
-### Dark mode 
-
-```html 
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Laurence Svekis</title>
-</head>
-<body>
-    <script>
-        let darkMode = false;
-        window.onclick = () => {
-            console.log(darkMode);
-            if (!darkMode) {
-                document.body.style.backgroundColor = "black";
-                document.body.style.color = "white";
-                darkMode = true;
-            } else {
-                document.body.style.backgroundColor = "white";
-                document.body.style.color = "black";
-                darkMode = false;
-            }
-        }
-    </script>
-</body>
-</html>
-```
-
-
-
-
-```html 
-
-```
-
-
-
-
-
-### Build your own analytics
-
-Record IDs, tabs, and class name of items clicked on:
-
-```html 
-<!doctype html >
-<html>
-<head>
-    <title>JS Tester</title>
-    <style>.box{width:200px;height:100px;border:1px solid black}</style>
-</head>
-<body> 
-    <div class="container">
-        <div class="box" id="box0">Box #1</div>
-        <div class="box" id="box1">Box #2</div>
-        <div class="box" id="box2">Box #3</div>
-        <div class="box" id="box3">Box #4</div>
-    </div> 
-    <script>      
-        const counter = [];  
-        const main = document.querySelector(".container");
-        main.addEventListener("click",tracker);
-        function tracker(e){
-            const el = e.target;
-            if(el.id){
-            const temp = {};
-            temp.content = el.textContent;
-            temp.id = el.id;
-            temp.tagName = el.tagName;
-            temp.class = el.className;
-            console.dir(el);
-            counter.push(temp);
-            console.log(counter);
-            }
-        }
-    </script>
-</body>
-</html>
-```
-
-### Star rater system 
-
-```html
-
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Star Rater</title>
-    <style>
-        .stars ul {
-            list-style-type: none;
-            padding: 0;
-        }
-        .star {
-            font-size: 2em;
-            color: #ddd;
-            display: inline-block;
-        }
-        .orange {
-            color: orange;
-        }
-        .output {
-            background-color: #ddd;
-        }
-    </style>
-</head>
-<body>
-    <ul class="stars">
-        <li class="star">&#10029;</li>
-        <li class="star">&#10029;</li>
-        <li class="star">&#10029;</li>
-        <li class="star">&#10029;</li>
-        <li class="star">&#10029;</li>
-    </ul>
-    <div class="output"></div>
-        <script>
-        const starsUL = document.querySelector(".stars");
-        const output = document.querySelector(".output");
-        const stars = document.querySelectorAll(".star");
-        stars.forEach((star, index) => {
-            star.starValue = (index + 1);
-            star.addEventListener("click", starRate);
-        });
-        function starRate(e) {
-            output.innerHTML =
-                `You Rated this ${e.target.starValue} stars`;
-            stars.forEach((star, index) => {
-                if (index < e.target.starValue) {
-                    star.classList.add("orange");
-                } else {
-                    star.classList.remove("orange");
-                }
-            });
-        }
-    </script>
-</body>
 </html>
 ```

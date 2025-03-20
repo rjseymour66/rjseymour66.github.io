@@ -182,6 +182,8 @@ console.log(div.classList.contains('test-class'));      // false
 
 ### Data attributes
 
+> Here is a good [Web Dev Simplified](https://blog.webdevsimplified.com/2020-10/javascript-data-attributes/) post that explains data attributes.
+
 HTML lets you add a custom attribute as long as you prefix it with `data-`:
 - Called "dataset attributes"
 - Element objects have a `dataset` property that contains properties that correspond to these `data-` attributes
@@ -310,6 +312,44 @@ para.replaceWith(h2);                   // replace para el with h2 el, remove h2
 para.replaceWith(h2.cloneNode(true));   // replace para el with h2 el, but don't remove h2
 ```
 
+### append() vs appendChild()
+
+> Not needed? See remove() first.
+
+- `appendChild()` appends a node to the parent's list of child nodes.
+- `append()` inserts a node after the parent node's last child
+
+| Differences     | `append()`                | `appendChild()`          |
+| :-------------- | :------------------------ | :----------------------- |
+| Return value    | `undefined`               | The appended Node object |
+| Input           | Multiple Node Objects     | A single Node object     |
+| Parameter types | Accept Node and DOMString | Only Node                |
+
+### parentNode.`<func>`()
+
+- `parentNode.appendChild(childNode)` - appends childNode as the last child of parentNode.
+  > Append child nodes to the parent element before you append the parent element to the DOM.
+- `parentNode.insertBefore(newNode, referenceNode)` - inserts newNode into parentNode before referenceNode.
+
+- `parentNode.removeChild(child)` - removes child from parentNode on the DOM and returns a reference to child.
+
+  ```js
+  const linkPara = document.querySelector("p");
+  linkPara.parentNode.removeChild(linkPara);
+
+### Remove all child elements
+
+If you are creating nodes with Javascript and appending them to a parent (like a container), then you need to remove all child nodes before you refresh the elements:
+
+```js
+const container = document.querySelector('.grid-container');
+
+while (container.firstChild) {
+    container.removeChild(container.firstChild);
+}
+```
+So, while the container has a first child, remove the first child from the container.
+
 ## CSS
 
 You can add CSS with JS. A few common uses:
@@ -434,3 +474,176 @@ setTheme('other-style');
 ### Animation and events
 
 Revisit when I understand transitions and keyframes.
+
+
+Functions are actions--a bundle of statements that are executed when called. 
+
+Follow these guidelines when you name a function:
+- Use camelCase.
+- Describe what the function does.
+- Use a verb to help describe what the function is doing. Ex: `sendMsg`.
+
+## Writing functions 
+
+```js
+// standard function declaration
+function nameOfFunction() {
+  // func body
+}
+
+// assign anonymous function to a variable
+let varFunction = function() {
+  // func body
+}
+
+// params do not need types
+function paramFunc(param1, param2) {
+  // func body
+}
+```
+## Default parameters
+
+If you do not pass arguments to functions that require parameters, then Javascript assigns them the default type, `undefined`.
+
+> `undefined` + `undefined` = `NaN`
+
+Create default parameters with the assignment syntax:
+
+```js
+function addNums(x = 2, y = 3) {
+  return x + y;
+}
+```
+
+## Special functions 
+
+### Arrow functions 
+
+Arrow functions are a short-hand notation. They are useful for passing higher-order functions:
+
+```js
+// no params
+() => single line func body 
+
+// one param
+param => single line func body
+
+// params
+(param1, param2) => single line func body
+
+(param1, param2) => {
+  // multiple 
+  // lines of 
+  // code
+}
+```
+
+### Immediately invoked function expressions (IIFE)
+
+These are anonymous functions that you invoke immediately. These are helpful when you want to initialize something, or when yiu want to create private and public variables and functions.
+
+To create an IIFE, wrap an anonymous function in parentheses, and add another set of parentheses after the function definition to invoke the function immediately:
+
+```js
+(function () {
+  console.log("IIFE")
+})();
+```
+
+### Anonymous functions 
+
+To declare an anonymous function, use the `function` keyword followed by the function definition. You can also assign the function to a variable:
+
+```js 
+function() {
+  // function body
+}
+
+let funcVar = function() {
+  // function body
+}
+```
+
+## Loops 
+
+### while
+
+```js
+while (condition) {
+  // code that gets executed as long as the condition is true
+}
+```
+
+### do while 
+
+`do while` loops always execute at least once: 
+
+```js 
+do {
+  // code to be executed if the condition is true
+} while (condition);
+```
+
+### for 
+```js 
+for (initialize variable; condition; statement) { 
+  // code to be executed
+}
+
+for (let i = 0; i < cars.length; i++) {
+  text += cars[i] + "<br>";
+}
+```
+
+### for in 
+
+```js 
+
+let car = {
+  model: "Golf",
+  make: "Volkswagen",
+  year: 1999,
+  color: "black",
+};
+
+for (let prop in car) {
+    console.log(car[prop])
+}
+// Output: 
+
+// Golf
+// Volkswagen
+// 1999
+// black
+
+```
+### for of 
+
+You cannot manipulate values with this loop:
+
+```js
+for (let variableName of arr) {
+  // code to be executed
+  // value of variableName gets updated every iteration
+  // all values of the array will be variableName once
+}
+```
+
+### Switch statements
+
+```js 
+switch(expression) {
+  case value1:
+    // code to be executed
+    break;
+  case value2:
+    // code to be executed
+    break;
+  case value-n:
+    // code to be executed
+    break;
+  default:
+    // code to be executed when no cases match
+    break;
+}
+```

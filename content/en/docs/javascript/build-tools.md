@@ -1,6 +1,6 @@
 ---
 title: "Build tools"
-weight: 30
+weight: 5
 description: >
   Toolchains to manage your environments and distribute your code.
 ---

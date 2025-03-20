@@ -1,7 +1,7 @@
 ---
-title: "Organization"
-# linkTitle: "CSS"
-weight: 20
+title: "Objects and organization"
+linkTitle: "Objects"
+weight: 15
 description: >
   Different ways to organize your JS code.
 ---
@@ -51,7 +51,49 @@ const player = new Player('jack', 'O');
 player.sayName(); // 'jack'
 ```
 
-The `new` keyword tells the browser that the `Player` function is a constructor, so look for the constructor property on the object's prototype
+The `new` keyword tells the browser that the `Player` function is a constructor, so look for the constructor property on the object's prototype.
+
+### Convert object to array 
+
+```js
+
+let car = {
+  model: "Golf",
+  make: "Volkswagen",
+  year: 1999,
+  color: "black",
+};
+
+// convert object keys to array
+> let keys = Object.keys(car)
+> keys
+[ 'model', 'make', 'year', 'color' ]
+
+// convert object values to array
+> let values = Object.values(car)
+> values
+[ 'Golf', 'Volkswagen', 1999, 'black' ]
+
+// convert object keys/values to array
+> let keyVals = Object.entries(car)
+> keyVals
+[
+  [ 'model', 'Golf' ],
+  [ 'make', 'Volkswagen' ],
+  [ 'year', 1999 ],
+  [ 'color', 'black' ]
+]
+
+for (let [key, val] of Object.entries(car)) {
+    console.log(key, ":", val)
+}
+// Output:
+
+// model : Golf
+// make : Volkswagen
+// year : 1999
+// color : black
+```
 
 ## Prototype
 

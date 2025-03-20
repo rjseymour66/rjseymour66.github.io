@@ -5,6 +5,8 @@ weight: 20
 description:
 ---
 
+
+
 JS uses event-driven programming, like all GUI apps. This means that the browser generates an event when something interesting happens to the document or browser:
 - For example:
   - Browser finishes loading a document
@@ -12,6 +14,11 @@ JS uses event-driven programming, like all GUI apps. This means that the browser
   - Moves mouse across the screen
 - Events can occur on any element within an HTML doc
 - JS can register a function to invoke when a specific event happens
+
+## Links
+
+- [Eloquent Javascript "Handling Events"](https://eloquentjavascript.net/15_event.html)
+- [MDN Intro to Events](https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Building_blocks/Events)
 
 ## Event Model
 
@@ -134,6 +141,32 @@ If you pass the object:
 - `once`: Boolean, automatically remove the handler after it is invoked once
 - `passive`: Boolean, controls `preventDefault()` behavior. If `true`, the handler will never call `preventDefault()`. Lets the web browser know that it can use its default behavior when the handler is running.
   Firefox and Chrome make `touchmove` and `mousewheel` events passive by default, because the browser needs to be able to scroll when users are touching the screen. 
+
+### Add handler on each node in group
+
+1. Grab the elements with `querySelectorAll()` to get a nodelist.
+2. Use `forEach()` to add an event listener to all the nodes:
+
+   ```html
+   <div id="container">
+     <button id="1">Click Me</button>
+     <button id="2">Click Me</button>
+     <button id="3">Click Me</button>
+   </div>
+   ```
+
+   ```js
+   // buttons is a node list. It looks and acts much like an array.
+   const buttons = document.querySelectorAll("button");
+
+   // we use the .forEach method to iterate through each button
+   buttons.forEach((button) => {
+     // and for each one we add a 'click' listener
+     button.addEventListener("click", () => {
+       alert(button.id);
+     });
+   });
+   ```
 
 ## Event handler invocation
 

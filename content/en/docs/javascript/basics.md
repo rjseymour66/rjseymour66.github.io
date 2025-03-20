@@ -5,6 +5,13 @@ weight: 10
 description:
 ---
 
+## Links
+
+- [DOM tree and nodes](https://www.digitalocean.com/community/tutorials/understanding-the-dom-tree-and-nodes#html-terminology)
+- [Javascript DOM tutorial](https://www.javascripttutorial.net/javascript-dom/)
+- [Eloquent Javascript "The Document Object Model"](https://eloquentjavascript.net/14_dom.html)
+- [DOM Enlightenment](https://domenlightenment.com/)
+
 ## HTML <script\> tags
 
 The `<script>` tag includes the JS in the HTML page so the browser can execute it.
@@ -138,14 +145,14 @@ Asychronous and event-driven:
 First events to occur are `DOMContentLoaded` and 'load' events:
 - These events are used as a trigger or starting signal for JS actions like registering handlers on the `load` event.
 
-| **Event**           | **When It Fires**  | **Use Case**    |
-|---------------------|:-------------------|:----------------|
-| `DOMContentLoaded`  | After HTML is parsed, before full page load | Run JS that doesn’t depend on images or CSS  |
-| `load`             | After the entire page (CSS, images, etc.) loads | Initialize app after all resources load     |
-| `pageshow`        | Similar to `load`, also fires on back/forward cache | Detect when page is restored from cache    |
-| `beforeunload`     | When the user is about to leave | Show warnings or save data                 |
-| `unload`           | When the page is closing       | Clean up resources (e.g., logs, API calls) |
-| `visibilitychange` | When the page is hidden or visible | Pause/resume background tasks             |
+| **Event**          | **When It Fires**                                   | **Use Case**                                |
+| ------------------ | :-------------------------------------------------- | :------------------------------------------ |
+| `DOMContentLoaded` | After HTML is parsed, before full page load         | Run JS that doesn’t depend on images or CSS |
+| `load`             | After the entire page (CSS, images, etc.) loads     | Initialize app after all resources load     |
+| `pageshow`         | Similar to `load`, also fires on back/forward cache | Detect when page is restored from cache     |
+| `beforeunload`     | When the user is about to leave                     | Show warnings or save data                  |
+| `unload`           | When the page is closing                            | Clean up resources (e.g., logs, API calls)  |
+| `visibilitychange` | When the page is hidden or visible                  | Pause/resume background tasks               |
 
 ```js
 window.addEventListener('DOMContentLoaded', () => alert('DOMContentLoaded'));

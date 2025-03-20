@@ -107,14 +107,14 @@ At boot, the system looks at this file to mount your main fs, swap, and any othe
 
 ### Column descriptions
 
-| Column no. | Description |
-|:--|:--|
-| 1 | UUID or label for the device |
-| 2 | fs location where you want to mount the device |
-| 3 | fs type |
-| 4 | options for each mount. `defaults` is a good default. Ex: `errors=remount-ro` for root to mount in read only mode if error occurs |
-| 5 | Determines whether the the fs should be backed up. `0` for no, `1` for yes. Rarely used nowadays. |
-| 6 | Order that `fsck` checks the filesystems. Recommend using `1` for main fs and `2` for all others. Some cloud providers set additional disks to `0` too. |
+| Column no. | Description                                                                                                                                             |
+| :--------- | :------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1          | UUID or label for the device                                                                                                                            |
+| 2          | fs location where you want to mount the device                                                                                                          |
+| 3          | fs type                                                                                                                                                 |
+| 4          | options for each mount. `defaults` is a good default. Ex: `errors=remount-ro` for root to mount in read only mode if error occurs                       |
+| 5          | Determines whether the the fs should be backed up. `0` for no, `1` for yes. Rarely used nowadays.                                                       |
+| 6          | Order that `fsck` checks the filesystems. Recommend using `1` for main fs and `2` for all others. Some cloud providers set additional disks to `0` too. |
 
 Options included in `defaults`:
 - `rw`: Device is mounted as read/write
@@ -158,6 +158,18 @@ List UUIDs of all volumes known to your system:
 blkid                   # list all blkid
 blkid <partition>       # list UUID for <partition>
 ```
+
+### Disk quotas
+
+https://www.linode.com/docs/guides/file-system-quotas/
+
+You can limit the number of files a user can create and restrict the total fs space available to them to prevent users from filling up the hard drive with files.
+
+Has four steps:
+1. Modify `/etc/fstab` to enable fs quotas
+2. Mount the fs. If it was already mounted, unmount it and mount it again.
+3. Create the file quota.
+4. Establish user or group quota limits and grace periods.
 
 ## RAID
 

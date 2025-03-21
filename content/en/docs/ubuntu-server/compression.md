@@ -134,7 +134,22 @@ gunzip file.tar.gz
 # check size of tar
 tar -czf - myinits-2024-12-15.tar.gz | wc -c
 17868
+```
 
+## gzip
+
+Compresses a file:
+- Best and most common compression tool.
+
+```bash
+# compress and delete original
+gzip find.tar
+
+# -c option to compress file and preserve original
+gzip -c find.tar > find.tar.gz
+
+# unzip with gunzip
+gunzip find.tar.gz
 ```
 
 ## split

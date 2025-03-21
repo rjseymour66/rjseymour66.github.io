@@ -66,6 +66,126 @@ fdisk -l            # view device info
 fdisk <device>      # start partitioning on <device>
 ```
 
+### Partition and format USB
+
+<!-- xlinux-old/storage/#formatting-a-usb-drive -->
+
+1. locate the disk that you want to partition. This naming scheme varies from one device to another
+
+```bash
+
+sudo dmesg | tail       # dmesg to see kernel messages for the usb
+lsblk                   # list block devices. If no path under MOUNTPOINTS, its not mounted:
+ll /dev/sdb*            # view mountpoint in filesystem
+sudo fdisk -l           # detailed information with fdisk
+```
+
+2. Verify that your disk is not mounted. View all mounted devices, filter for your device (skip if not mounted):
+
+```bash
+mount | grep <disk>
+```
+
+3. Unmount with `umount` if mounted: 
+```bash
+sudo umount /path/to/disk
+```
+13:40 in https://www.youtube.com/watch?v=2Z6ouBYfZr8&t=183s
+
+4. Run `fdisk` to start partitioning:
+
+```bash
+sudo fdisk /dev/sdb
+
+# 1. p to view existing partitions
+Command (m for help): p
+Disk /dev/sdb: 57.3 GiB, 61524148224 bytes, 120164352 sectors
+...
+
+# 2. create new GPT partition, which wipes out the existing partition table
+Command (m for help): g
+
+# 3. partition table is empty
+Command (m for help): p
+
+# 4. create new partition
+Command (m for help): n
+Partition number (1-128, default 1): 
+First sector (2048-120164318, default 2048): 
+# create a 10G partition
+Last sector, +/-sectors or +/-size{K,M,G,T,P} (2048-120164318, default 120162303): +10G
+
+Created a new partition 1 of type 'Linux filesystem' and of size 10 GiB.
+
+# 5. write the partition
+Command (m for help): w
+
+
+# 6. command exits, so check partitions again to verify
+sudo fdisk /dev/sdb
+
+# 7. Quit
+Command (m for help): q
+
+# 8. view partition with lsblk
+lsblk
+...
+sdb                         8:16   1 57.3G  0 disk 
+└─sdb1                      8:17   1   10G  0 part # new partition 
+...
+```
+
+5. Format the disk with a filesystem with `mkfs`. Use exfat :
+
+```bash
+sudo apt install exfatprogs exfat-fuse
+```
+
+6. Format the filesystem:
+
+```bash
+sudo mkfs.exfat /dev/sdb1 
+```
+
+7. Mount the disk drive. This means that you mount the filesystem into a directory on your current filesystem.
+   
+   There are a few locations that linux suggests that you mount storage:
+   - `/mnt`: permanent filesystems that you want available at all times
+   - `/media`: temporary storage volume that will not be attached all the time
+
+```bash
+# make a new directory in /mnt
+ls -l /mnt
+total 0
+sudo mkdir /mnt/disk1
+
+# mount the disk in the new directory
+sudo mount /dev/sdb1 /mnt/disk1/
+
+# verify it was mounted
+lsblk
+NAME                      MAJ:MIN RM  SIZE RO TYPE MOUNTPOINTS
+sda                         8:0    0   25G  0 disk 
+├─sda1                      8:1    0    1M  0 part 
+├─sda2                      8:2    0    2G  0 part /boot
+└─sda3                      8:3    0   23G  0 part 
+  └─ubuntu--vg-ubuntu--lv 252:0    0 11.5G  0 lvm  /
+sdb                         8:16   1 57.3G  0 disk 
+└─sdb1                      8:17   1   10G  0 part /mnt/disk1 # it was mounted
+sr0                        11:0    1 1024M  0 rom 
+
+# verify with df
+df -h
+Filesystem                         Size  Used Avail Use% Mounted on
+tmpfs                              795M  1.1M  794M   1% /run
+/dev/mapper/ubuntu--vg-ubuntu--lv   12G  2.7G  8.0G  25% /
+tmpfs                              3.9G     0  3.9G   0% /dev/shm
+tmpfs                              5.0M     0  5.0M   0% /run/lock
+/dev/sda2                          2.0G   95M  1.7G   6% /boot
+tmpfs                              795M   12K  795M   1% /run/user/1000
+/dev/sdb1                           10G  128K   10G   1% /mnt/disk1 # it was mounted
+```
+
 ## Mount and unmount volumes
 
 When you mount a volume, you attach a storage device or network share to a local directory on your server:
@@ -282,4 +402,24 @@ Deletes partition signatures from a disk:
 
 ```bash
 wipefs -a /dev/sdb
+```
+
+## dd
+
+[Complete guide to dd](https://blog.kubesimplify.com/the-complete-guide-to-the-dd-command-in-linux)
+
+Disk/data duplicator, also called the "disk destroyer":
+- Create backups of entire partitions and hard drives
+- Wipe disks
+
+
+```bash
+# backup a partition
+dd if=/dev/sdb1 of=/dev/sdb2 status=progress
+
+# overwrite with 0s
+dd if=/dev/zero of=/dev/sdb2 status=progress
+
+# overwrite with random chars
+dd if=/dev/urandom of=/dev/sdb2 status=progress
 ```

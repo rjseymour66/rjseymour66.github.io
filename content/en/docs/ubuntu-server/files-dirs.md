@@ -44,13 +44,13 @@ Every program is a process, and every process has 3 distinct file descriptors:
 
 Redirection is when you change the input and outputs of a program without modifying the program.
 
-| Operator | Description | Example |
-|----------|:------------|---------|
-| `>` | Sends the output of the value on the left to the value on the right. | `ls -la > listing.out` |
-| `<` | Sends the value on the right to the STDIN of the value on the left. | `program < input.txt` |
-| `2>` | Redirect STDERR messages to the value on the right. | `cp -r /etc/a /etc/b 2> err.msg` |
-| `2>&1`, `&>`| Send output to STDOUT and STDERR. Place this  | `XXXXXXXXXXX` |
-| `1> file 2>` | Redirect more than one stream | `find / -name 'syslog' > stdout.txt 2> stderr.txt` |
+| Operator     | Description                                                          | Example                                            |
+| ------------ | :------------------------------------------------------------------- | -------------------------------------------------- |
+| `>`          | Sends the output of the value on the left to the value on the right. | `ls -la > listing.out`                             |
+| `<`          | Sends the value on the right to the STDIN of the value on the left.  | `program < input.txt`                              |
+| `2>`         | Redirect STDERR messages to the value on the right.                  | `cp -r /etc/a /etc/b 2> err.msg`                   |
+| `2>&1`, `&>` | Send output to STDOUT and STDERR. Place this                         | `XXXXXXXXXXX`                                      |
+| `1> file 2>` | Redirect more than one stream                                        | `find / -name 'syslog' > stdout.txt 2> stderr.txt` |
 
 The following command sends `input.txt` to the STDIN of `program`, and sends the output to `output.out`:
 ```bash
@@ -142,10 +142,94 @@ Hard links are duplicates of the original file:
 - Can only create hard links to file
 - You can move either file anywhere in the fs and it will not break the link bc hard links use inodes
 
-### Symbolic link
+An object that points to another file on the same disk or volume
+- A hard link is a file that has one inode number but at least two different filenames.
+  - One inode means its a single data file on the filesystem (single filesystem location on a disk partition)
+  - Two filenames means that it can be accessed in multiple ways
+- References physical location on disk
+- Shares inode with original file
+- Is not deleted if you delete original file and references the same data
+- Original file must exist, linked file cannot exist
+- Both files share the same data, exist on same filesystem in any directory
+- Unlink the linked file with `unlink LINKED-FILE`
 
-A symbolic link is a pointer to the original file's path, not a clone:
+Use case
+: file backup when there is not enough space to backup the file. If someone deletes one of the files, its not permanently deleted.
+  
+```bash
+ln ORIGINAL LINKED-FILE
+unlink LINKED-FILE
+
+# create original
+touch original-file.txt
+original-file.txt
+
+# link files
+ln original-file.txt hard-link-file.txt 
+
+# different file for comparison
+touch single-file.txt
+
+# view inode and links
+ls -iog
+total 0           (*)
+4868127 -rw-rw-r-- 2 0 Mar 17 09:32 hard-link-file.txt
+4868127 -rw-rw-r-- 2 0 Mar 17 09:32 original-file.txt
+4868128 -rw-rw-r-- 1 0 Mar 17 09:33 single-file.txt
+
+# unlink
+unlink hard-link-file.txt 
+
+# linked file is gone
+ls -iog
+total 0           (*)
+4868127 -rw-rw-r-- 1 0 Mar 17 09:32 original-file.txt
+4868128 -rw-rw-r-- 1 0 Mar 17 09:33 single-file.txt
+```
+
+
+### Symbolic (soft) link
+
+A symbolic link is a pointer to the original file's path, not a clone. It's an object that points to an object somewhere else on the system:
 - Linked files have different inodes
 - Cannot move original file, because symlinks just point to a path location
 - Can link across filesystems
-- Can reference a directory
+- Has unique inode
+- Reference abstractions, not physical place on disk
+- Can point to file or dir
+- Can reference an object on another disk or volume
+- Is not deleted if you delete the original file, but won't reference anything
+- Typically a soft link is a pointer to a file or directory that might be on another filesystem
+- Different inodes bc they point to different data
+- If a soft link points to a file that was deleted or removed, that is a security risk in the event that a malicious file is put in the original file's place.
+- View or execute a resource from the local dir
+
+#### Use case
+
+For apache, you can delete the symlink in `/sites-enabled/` instead of the config in `/sites-avaiable/`, then readd the link when you want to reactivate the site.
+
+```bash
+ln -s ORIGINAL LINKED-FILE
+
+# current contents
+ls -iog
+total 0
+4868127 -rw-rw-r-- 1 0 Mar 17 09:32 original-file.txt
+
+# create soft link
+ln -s original-file.txt soft-link-file.txt
+
+# linked, but different inode and link numbers
+ls -iog
+total 0           (*)
+4868127 -rw-rw-r-- 1  0 Mar 17 09:32 original-file.txt
+4868128 lrwxrwxrwx 1 17 Mar 17 09:45 soft-link-file.txt -> original-file.txt
+
+# rm link
+unlink soft-link-file.txt
+
+# linked file is deleted
+ls -iog
+total 0
+4868127 -rw-rw-r-- 1 0 Mar 17 09:32 original-file.txt
+```

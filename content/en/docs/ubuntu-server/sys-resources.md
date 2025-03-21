@@ -33,11 +33,11 @@ df -i               # list inode usage
 
 ### ncdu
 
-NCurses Disk Usage:
+NCurses Disk Usage--scan your filesystem and show report on which directories are using the most space::
 - Get disk space and look through the results
 - Need to install first
 - Can only scan dirs that the user can access
-- 
+- Use the arrow and **Enter** key to drill down into directories in the output.
 
 ```bash
 sudo apt install ncdu               # install
@@ -71,14 +71,14 @@ Displays the current memory usage in KB:
 - `tmpfs` is a temporary filesystem in Linux that resides in memory (RAM) rather than on a physical storage device. It is typically used for storing temporary files that don't need to persist after a system reboot.
 
 
-| Column | Description |
-|:--|:--|
-| total         | Total memory on the server  |
-| used          | Memory that is used. used = total - free - buffers/cache  |
-| free          | Memory not in use by anything  |
-| shared        | Memory used by `tmpfs` and other shared resources  |
-| buff/cache    | Memory used by buffers and cache  |
-| available     | Memory that is free for app use. Much of this is actually used for RAM.  |
+| Column     | Description                                                             |
+| :--------- | :---------------------------------------------------------------------- |
+| total      | Total memory on the server                                              |
+| used       | Memory that is used. used = total - free - buffers/cache                |
+| free       | Memory not in use by anything                                           |
+| shared     | Memory used by `tmpfs` and other shared resources                       |
+| buff/cache | Memory used by buffers and cache                                        |
+| available  | Memory that is free for app use. Much of this is actually used for RAM. |
 
 ```bash
 free                # memory usage in KB
@@ -194,4 +194,42 @@ u                   # View Show processes of: menu to view processes for specifi
 F5                  # Enter/exit tree view
 htop -d 70          # Refresh every 7 seconds
 F9                  # Kill the selected process - will provide signal options
+```
+
+## Devices
+
+### lsusb
+
+Lists attached USB devices:
+
+```bash
+lsusb
+Bus 004 Device 033: ID 0bda:8153 Realtek Semiconductor Corp. RTL8153 Gigabit Ethernet Adapter
+Bus 004 Device 032: ID 2109:0817 VIA Labs, Inc. USB3.0 Hub             
+Bus 004 Device 001: ID 1d6b:0003 Linux Foundation 3.0 root hub
+...
+```
+
+### lshw
+
+List all hardware devices on your system:
+
+```bash
+# list only network devices
+lshw -class network
+  *-network                 
+       description: Ethernet interface
+       product: Wi-Fi 6 AX200
+       ...
+  *-network
+       description: Ethernet interface
+       physical id: e
+       ...
+
+
+lshw -html > lshw-output.html      # output as html
+lshw -c memory                     # memory info
+lshw -c storage                    # storage
+lshw -c multimedia                 # multimedia
+lshw -c cpu                        # cpu
 ```

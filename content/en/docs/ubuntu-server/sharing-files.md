@@ -174,6 +174,12 @@ Secure copy - comes with the OpenSSH client:
 - Default dir for remote is `/home/<user>`, so can use paths relative to that dir
 
 ```bash
+scp [FILE] user@10.20.30.40:/absolute/path/to/target-dir
+-C # compresses the file during transfer
+-p # preserves file access, modification times, and perms
+-r # recursive copy
+-v # verbose
+
 scp file1 normaluser@<ip-addr>:/home/normaluser/scp-test    # copy file1 to remote dir
 scp file1 normaluser@<ip-addr>:                             # copy file1 to /home on remote
 scp <user>@<ip-addr>:/home/<user>/scp-test/file2 .          # copy file2 from remote to local
@@ -182,4 +188,72 @@ scp <user>@<ip-addr>:/home/<user>/scp-test/file2 .          # copy file2 from re
 scp -r /home/<user>/scp-test/cp-dir <user2>@<ip-addr>:/home/<user2>/scp-test                # copy dir and contents
 scp -P 2222 -r /home/username/scp-test/cp-dir <user2>@<ip-addr>:/home/<user2>/scp-test      # designate port (if not 22)
 scp -rv /home/username/scp-test/cp-dir normaluser@$REMOTE:/scp-test                         # verbose dir copy
+```
+
+### sftp
+
+SSH File Transfer Protocol:
+1. Log in like ssh
+2. Work in remote with standard commands (ex: `cd`), prepend movements around localhost with `l` (ex: `lcd`)
+
+Good for transferring larger files or archives. Provides interactive experience, for example:
+- create directories as needed
+- immediately check on transferred files,
+- determine remote systems pwd
+
+
+```bash
+sftp username@localhost
+username@localhosts password: 
+Connected to localhost.
+sftp> 
+
+# common commands
+bye # exits and quits sftp
+exit # exits and quits sftp
+get # gets file (downloads) from remote to local machine
+reget # resumes interrupted get operation
+put # sends (uploads) files from local to remote
+reput # resumes interruped put operation
+ls # list files in remote pwd
+lls # list files in local pwd
+mkdir # create dir on remote
+lmkdir # create dir on local
+progress # toggle progress display on/off (default is on)
+
+# upload file to remote (localhost, here)
+sftp username@localhost
+username@localhosts password: 
+Connected to localhost.
+
+# check remote pwd
+sftp> ls
+Desktop                  Development              Documents                Downloads                
+...
+
+# check local pwd  
+sftp> lls
+Extract		  Project42_Inc.txz  Project43.txt  Project46.txt      TarStorage
+FullArchive.snar  Project42.txt      Project44.txt  Project4x.tar
+not-absolute	  Project42.txz      Project45.txt  ProjectVerify.tar
+
+# make directory on local (would normally be remote, but we use localhost)
+sftp> lmkdir sftp_files
+
+# verify the dir was made (would be 'ls' on remote)
+sftp> lls
+Extract		  Project42_Inc.txz  Project43.txt  Project46.txt      sftp_files
+...
+
+# upload file
+sftp> put Project4x.tar
+Uploading Project4x.tar to /home/username/linux-playground/archives/sftp_files/Project4x.tar
+Project4x.tar                                                     100%   10KB   7.5MB/s   00:00
+
+# check for file on remote
+sftp> ls
+Project4x.tar   
+
+# exit
+sftp> bye
 ```

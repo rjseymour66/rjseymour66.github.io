@@ -223,29 +223,6 @@ GRANT SELECT ON mydb.* TO 'appuser'@'192.168.1.%` IDENTIFIED BY 'password';
 FLUSH PRIVILEGES;
 ```
 
-## Firewalls
-
-Firewalls are easy to implement but difficult to implement well:
-- Allow or disallow access to a network port
-  - When admins start a service, they open a port for it 
-  - Firewall allows port access from specific IPs or places
-- Ubuntu uses uncomplicated Firewall (UFW)
-  - Easy interface to `iptables` - use `ufw`, not `iptables`
-  - inactive by default
-  - configure, then activate it
-- Allow access to ports that your server needs for functionality. Ex: 80 and 443 for webservers
-
-```bash
-sudo apt install ufw            # install package
-sudo ufw status                 # check status - confirm its inactive
-sudo ufw enable                 # activate ufw
-
-ufw allow from 192.168.1.158 to any port 22         # allow SSH from this IP
-ufw allow from 192.168.1.0/24 to any port 22        # allow SSH from entire subnet
-ufw allow 80                                        # allow all traffic to port 80
-ufw allow 443                                       # allow all traffic to port 443
-```
-
 ## LUKS
 
 You should encrypt any data on disk with personal or sensitive information:

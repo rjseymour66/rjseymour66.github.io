@@ -28,7 +28,7 @@ Ubuntu uses Debian packages (`.deb`) because Ubuntu is forked from Debian and us
 
 ### apt
 
-Advanced Package Tool is a suite of tools that lets you install and manage packages over the command line:
+Advanced Package Tool is a suite of tools that lets you install and manage packages over the command line.
 - `apt get` is a legacy command, use `apt` moving forward
 - `apt install` process:
   1. Checks package dependencies
@@ -38,6 +38,16 @@ Advanced Package Tool is a suite of tools that lets you install and manage packa
   5. Sumarizes number of packages and disk space they take up
 - some packages automatically starts daemons and configures to start at boot
 - `apt update` checks local mirror to see if packages were added or removed and updates your local index
+
+
+`apt-get` and `apt-cache` have a lot of low-level commands that were not commonly used. `apt` consists of the most widely used features of `apt-get` and `apt-cache`. `apt` can install new packages or the kernel, but `apt-get` cannot
+
+`apt` tool summary:
+- `apt-cache`: 
+- `apt-get`: installs, updates, and removes packages
+- `apt`: front end script that can call either `apt-cache` or `apt-get`
+- `sudo aptitude`: opens an `apt` GUI in the terminal
+- actions logged in `/var/log/dpkg.log`
 
 ```bash
 apt <action> <package> [<package> <package> ...]
@@ -70,6 +80,24 @@ apt remove --purge <package>
 # get details about a package
 apt-cache show <package>
 ```
+### apt-get
+
+[AptGet/Howto](https://help.ubuntu.com/community/AptGet/Howto)
+
+```bash
+# check for broken dependencies
+apt-get check
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+
+apt-get clean                     # clean up database and any tempory download files in cache
+du -sh /var/cache/apt/archives/   # how much space cache uses
+
+
+# retrieve updated information about pacakges in the repo
+apt-get update
+```
 
 ### apt-cache
 
@@ -98,7 +126,8 @@ Install, remove, and build packages, but cannot download and install packages or
 
 ```bash
 dpkg --configure -a             # complete config for packages
-dpkg -l                         # list packages
+dpkg -l                         # list all installed software
+dpkg --list
 dpkg -L <package>               # list all file locations for package
 dpkg -i <file.deb>              # install a deb file
 dpkg -r <package-name>          # uninstall a package
@@ -154,6 +183,26 @@ Suites: noble noble-updates noble-backports
 Components: main restricted universe multiverse
 Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
 ...
+
+
+# view nonstandard repositories
+grep -v "#" /etc/apt/sources.list
+
+deb http://gb.archive.ubuntu.com/ubuntu/ jammy main restricted
+
+deb http://gb.archive.ubuntu.com/ubuntu/ jammy-updates main restricted
+
+deb http://gb.archive.ubuntu.com/ubuntu/ jammy universe
+deb http://gb.archive.ubuntu.com/ubuntu/ jammy-updates universe
+
+deb http://gb.archive.ubuntu.com/ubuntu/ jammy multiverse
+deb http://gb.archive.ubuntu.com/ubuntu/ jammy-updates multiverse
+
+deb http://gb.archive.ubuntu.com/ubuntu/ jammy-backports main restricted universe multiverse
+
+deb http://security.ubuntu.com/ubuntu jammy-security main restricted
+deb http://security.ubuntu.com/ubuntu jammy-security universe
+deb http://security.ubuntu.com/ubuntu jammy-security multiverse
 ```
 ### Backup/Restore
 
@@ -183,6 +232,63 @@ When you remove packages, the dependencies are not always removed too:
 apt autoremove                                # system automatically removes packages
 apt remove --purge <package> [<package>...]   # manually remove packages
 ```
+
+### Auto-upgrade script
+
+Place this script in `/etc/cron.daily/`. `apt` runs as root, so use `sudo` to manually run, or use `cron`, which uses root privileges:
+
+```bash
+#!/bin/bash
+# Automate regular software updates
+
+apt update
+apt upgrade -y
+```
+
+## Red Hat repository tools
+
+- Previous tool was `yum` (YellowDog Update Manager), developed for YellowDog Linux distro
+- Replaced by `dnf`, which is updated version of `yum`
+  - Query, install, and remove software packages on your system
+- `dnf` and `yum` use `/etc/yum.repos.d/` directory to hold fils that list the different repos to check for packages
+  - files in this folder contain URL of repo and location of additional package files within the repo
+
+### dnf
+
+```bash
+dnf <action> <program>
+alias # define alias that points to list of other dnf commands
+autoremove # rm any unneeded packages installed as dependeney
+check # examine local package db and report problems
+check-update # check repo for update to specified package
+clean # perform cleanup of temporary files kept for repos
+deplist # deprecated alisas for the repoquery command
+distro-sync # downgrade or install packages to place the system in sync w current repos
+downgrade # downgrade package to version in the repo
+group # manage a set of packages as a single entity
+help # displays help
+history # display previous dnf commands
+info # info about installed and available packages
+install # install current version of package
+list # displays installed and available packages
+makecache # download metadata for the repos
+mark # marks specified package as installed
+module # manages module packages
+provides # displays package that installed specified file
+reinstall # attempts to reinstall the specified package
+remove # rms the specified package, including packages that depend on it
+repoinfo # displays info about the configured repo
+repolist # displays a list of currently configured repos
+repoquery # searches the configured repos for the specified package
+repository-packages # runs commands on all packages in the repo
+search # search pacakge metadata for specified keywords
+shell # display interactive shell for entering multiple dnf commands
+swap # rm and install the specified package
+updateinfo # display update advisory msgs
+upgrade # install latest version of specified packages, or all pkgs if none are specified
+upgrade-minimal # install only latest package versions that provide bugfix or security fix
+```
+
 
 ## Snap packages
 
@@ -266,4 +372,121 @@ which bash
 
 which nmap
 /snap/bin/nmap
+```
+
+### whereis
+
+```bash
+# programming language
+whereis go
+go: /usr/local/go /usr/local/go/bin/go
+
+# CLI
+whereis aws
+aws: /usr/local/bin/aws
+
+# user binary
+whereis tar
+tar: /usr/bin/tar /usr/share/man/man1/tar.1.gz
+```
+
+## Build from source
+
+- [CompilingEasyHowTo](https://help.ubuntu.com/community/CompilingEasyHowTo)
+
+### Getting the software
+
+```bash
+# libraries, tools, compilers to compile C and Cpp
+apt install build-essential
+
+# get tarball (or archive) with wget
+wget -v https://nmap.org/dist/nmap-7.95.tar.bz2
+
+# decompress and extract files from archive
+tar -jxvf nmap-7.95.tar.bz2
+```
+
+### Read the INSTALL file (./configure, make, install)
+
+- [The magic behind configure, make, and make install](https://thoughtbot.com/blog/the-magic-behind-configure-make-make-install)
+
+The `INSTALL` file contains information that helps you install the software:
+
+```bash
+Ideally, you should be able to just type:
+
+./configure
+make
+make install
+
+For far more in-depth compilation, installation, and removal notes,
+read the Nmap Install Guide at https://nmap.org/book/install.html.
+```
+
+- `./configure`: Script that checks your OS version, chip, etc. Might accept params so you can create a custom installation. For example, if you do not need GUI support.
+- `make`: Compiles the software with the `gcc` compiler. 
+- `make install`: Installs the compiled software on your system. Usually requires root perms--`sudo make install`.
+
+### Locating newly installed software
+
+Important binary locations:
+- `/bin`: Key parts of the OS
+- `/usr/bin`: Less critical utilities
+- `/usr/local/bin`: Software that the user installed themselves
+
+If you install a newer version of software on your system, it executes the first one in its $PATH:
+
+```bash
+echo $PATH
+/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
+```
+Use `locate` to find where the new software is:
+
+```bash
+sudo updatedb
+locate nmap
+
+```
+
+## Install a tarball with desktop entry
+
+- [Desktop Entry Specification](https://specifications.freedesktop.org/desktop-entry-spec/latest/)
+- [Guide to Desktop Entry file](https://www.baeldung.com/linux/desktop-entry-files)
+
+Install a tarball and create a link available in either your application directory or desktop. These steps install the waterfox web browser:
+
+```bash
+# 1. Download
+wget https://cdn1.waterfox.net/waterfox/releases/6.5.2/Linux_x86_64/waterfox-6.5.2.tar.bz2
+
+# 2. Move to /opt (or whereever you want)
+mv waterfox-6.5.2.tar.bz2 /opt/
+
+# 3. Extract tar file
+tar -xjf waterfox-6.5.2.tar.bz2
+
+# 4. Make yourself owner of extracted dir
+chown -R $USER /opt/waterfox
+
+# 5. Create desktop entry in ~/.local/share/applications
+vim ~/.local/share/applications/waterfox.desktop
+
+# 6. Add this content
+[Desktop Entry]
+Name=Waterfox
+Exec=/opt/waterfox/waterfox %u
+Terminal=false
+Icon=/opt/waterfox/browser/chrome/icons/default/default128.png
+Type=Application
+Categories=Application;Network;X-Developer;
+
+# 7. Make the desktop entry executable:
+chmod +x ~/.local/share/applications/waterfox.desktop
+
+# 8. Remove the tarball
+rm /opt/waterfox-6.5.2.tar.bz2
+
+# 9. (Optional) Move to Desktop for icon
+mv /opt/waterfox-6.5.2.tar.bz2 ~/Desktop
 ```

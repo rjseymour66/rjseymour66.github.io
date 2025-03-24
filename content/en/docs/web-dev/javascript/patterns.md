@@ -5,6 +5,7 @@ weight: 200
 # description: 
 ---
 
+https://www.patterns.dev/
 
 ### Getting text content from click event
 

@@ -180,3 +180,89 @@ You position in in the viewport using the following:
 ```
 
 Use JS to grab the `modal` id, then use `display: none` or `display: block` to toggle it on or off.
+
+## Images
+
+### Circular image
+
+Many profile images use a circular image, where the image is centered. The `height` and `width` must be equal, and center the image with `object-fit: cover;`
+
+```css
+img {
+    width: 5em; /* adjust width and height as needed */
+    height: 5em;
+    border-radius: 50%;
+    object-fit: cover;
+}
+```
+
+## Lists
+
+### Custom bullets
+
+This example creates custom bullets using the `::before` pseudo-class:
+
+1. Remove the bullets and padding from the `ol` element or list class.
+2. Add relative positioning to the `li` to create a containing block for the bullet.
+3. Create the `::before` pseudo-class on the `li` element, and add the following styles:
+   - bullet content
+   - absolute positioning
+   - to center the bullet, apply `top: 50%;` and `transform: translateY(-50%);`. When an `li` takes more than one line, this places the bullet directly in the center of the wrapped line
+
+```css
+ul {
+    list-style-type: none;
+    padding-inline: 0;
+}
+
+ul > li {
+    position: relative;
+    padding-inline-start: var(--padding-list-align);
+    line-height: var(--line-height-lg);
+}
+
+ul > li::before {
+    content: "\2022";
+    font-weight: var(--fw-heavy);
+    color: var(--clr-accent-markers);
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+}
+```
+
+### Custom numbers
+
+This example adds custom numbers to an `ol`:
+1. Remove the numbers from the agent styles, remove padding, then create a custom counter. Optionally, you can set the counter to start on a new number.
+2. Add relative positioning to the `li`, and set the `counter-increment` to the custom counter you defined on the parent `ol` element.
+3. Create the custom numbers with the `::before` pseudo-class, and add the following styles:
+   - content--add your custom counter with the `counter()` function, and add in quotations any additional content to follow the number. For example, a period (`.`).
+   - absolute position the pseudo-element
+   - position with `left` and `top`, etc.
+
+```css
+ol {
+    list-style-type: none;
+    padding-inline: 0;
+    counter-reset: custom-counter;  /* counter-reset: custom-counter 10; */
+}
+
+ol > li {
+    position: relative;
+    padding-inline-start: var(--padding-list-align);
+    line-height: var(--line-height-lg);
+    counter-increment: custom-counter;
+}
+
+ol > li::before {
+    content: counter(custom-counter) ".";
+    font-weight: var(--fw-heavy);
+    color: var(--clr-accent-markers);
+    position: absolute;
+    left: 0;
+
+    padding-inline-start: var(--marker-padding);
+}
+```

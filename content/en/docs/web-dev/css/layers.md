@@ -210,7 +210,15 @@ Add these styles to all projects as a reset:
     box-sizing: border-box;
   }
 
-  body {
+  body,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  p,
+  figure,
+  picture {
     margin: unset;
   }
 

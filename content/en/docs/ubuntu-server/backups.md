@@ -206,6 +206,8 @@ Cron schedules jobs and tasks:
 - `cron.[hourly|daily|weekly|monthly|yearly]`: files in these directories run at times specified by dir name.
 - `cron.d`: files in this dir have time that defines when the job runs. Add files here to run at specified times.
 - `crontab` is overwritten during upgrades, so don't update.
+- User crontabs are stored in `/var/spool/cron`  
+- Remove old files with `find ... -delete` cron jobs
   
   > Do not add files in `cron.d`--they are overwritten during upgrades.
 
@@ -253,7 +255,7 @@ crontab -e
 crontab -r
 ```
 
-## anacron
+### anacron
 
 Schedule irregular jobs for a machine--such as your laptop--that doesn't run 24/7.
 - runs relative to most recent boot time, not absoulte time
@@ -282,3 +284,43 @@ LOGNAME=root
 1	15	daily_apt	/home/linuxuser/scripts/upgrade.sh  # run upgrade.sh every day (1) 15 mins after boot
 ```
 
+
+## at
+
+Lets you specify a time when the linux system runs a script. You have to submit each job that you want to run, you don't schedule recurring jobs:
+- The system adds the job to a queue with directions about when the shell should run the job.
+- The `atd` daemon runs in the background (starting at boot) and checks the queue for jobs to run
+  - `/var/spool/at` contains the job queue
+  - There are 26 different job queues available for different priority levels, using lowercase `a` - `z`
+
+Uses `/etc/at.allow` and `/etc/at.deny` files to manage access:
+- If `at.allow` exists, only users in that file can use `at`
+- If `at.deny` exists, users that are not in this file can use `at`
+- If neither exist, then only root can use `at`
+
+
+<time> accepts following formats:
+  - 10:15
+  - 10:15 p.m.
+  - now, noon, midnight, or teatime (4 p.m.)
+  - MMDDYY, MM/DD/YY, DD.MM.YY
+  - Jul 4 or Dec 25
+  - Now + 25 minutes
+  - 10:15 p.m. tomorrow
+  - 22:15 tomorrow
+  - 10:15 + 7 days
+- 
+
+```bash
+at [-f <filename>] <time>
+
+# check pending jobs
+atq
+1	Tue Apr 30 22:20:00 2024 a rseymour
+
+# delete pending job
+atrm 1
+
+# verify deleted
+atq
+```

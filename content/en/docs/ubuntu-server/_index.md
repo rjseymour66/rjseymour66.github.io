@@ -5,3 +5,10 @@ linkTitle: "Ubuntu"
 # description:
 ---
 
+## Guides
+
+- [Ubuntu Server how-to guides](https://ubuntu.com/server/docs/how-to)
+
+## Tutorials
+
+- [Linux Upskill Challenge](https://linuxupskillchallenge.org/)

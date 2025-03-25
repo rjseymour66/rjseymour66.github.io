@@ -253,75 +253,138 @@ export PROMPT_COMMAND="echo -n [$(date +%k:%m:%S)]"k:%m:%S)]"
 There are two modes: "normal" and "insert".
 - Pres ESC twice to return to normal mode
 
-```bash
-#-------------------------------
-# TEXT
-i # insert mode
-w # write
-u # undo
-wq # write and quit
-q! # quit without saving
+### Editing
 
-a # begin typing after the cursor
-o # insert new line below and enter text
-O # insert new line on current line enter text - existing line moves down
-x # delete current character
-r # replace current char with next char you enter
-dd # delete lines
-dw # delete word to the right
-3wd # delete the 3 words to the right
-db # delete word to the left
-3bd # delete the 3 words to the left
-99dd # delete 99 lines
-d0 # delete to the beginning of the sentence
-d$ # delete to the end of the sentence
-das # delete current sentence
+| Command | Description         |
+| ------- | ------------------- |
+| `i`     | insert mode         |
+| `w`     | write               |
+| `u`     | undo                |
+| `wq`    | write and quit      |
+| `q`!    | quit without saving |
 
-33dd # delete 33 lines
-u # undo
+### Basic Navigation
 
-#-------------------------------
-# NAVIGATION
-gg # go to top of file
-G # go to bottom of file
-w # skip to next wordj
-dw # delete word to the rightkk
-3w # move to the 3rd word to the right
-3wd # delete the 3 words to the right
-b # skip to previous word
-db # delete word to the left
-3b # move to the 3rd word to the left
-3bd # delete the 3 words to the left
-( # next sentence beginning
-) # prev sentence beginning
+| Command    | Description                                |
+| ---------- | ------------------------------------------ |
+| `h`        | Move left                                  |
+| `j`        | Move down                                  |
+| `k`        | Move up                                    |
+| `l`        | Move right                                 |
+| `w`        | Move to the beginning of the next word     |
+| `3w`       | move to the 3rd word to the right          |
+| `3wd`      | delete the 3 words to the right            |
+| `b`        | Move to the beginning of the previous word |
+| `3b`       | move to the 3rd word to the left           |
+| `e`        | Move to the end of the current word        |
+| `0`        | Move to the beginning of the line          |
+| `$`        | Move to the end of the line                |
+| `gg`       | Go to the first line of the file           |
+| `G`        | Go to the last line of the file            |
+| `Ctrl + u` | Move up half a screen                      |
+| `Ctrl + d` | Move down half a screen                    |
+| `(`        | next sentence beginning                    |
+| `)`        | prev sentence beginning                    |
 
-#-------------------------------
-# SEARCHING
-/<pattern> # search file for pattern
-n # after search, step forward through <pattern> occurrences
-N # after search, step backward through <pattern> occurrences
+### Editing
 
-#-------------------------------
-# CUT and PASTE
-yy # yank text (copy)
-p # after delete, paste the
-5p # paste 5 times
-yy # copy the current line, including the newline character.
-3yy # copy three lines, starting from the line where the cursor is positioned.
-y$ # copy everything from the cursor to the end of the line.
-y^ # copy everything from the cursor to the start of the line.
-yw # copy to the start of the next word.
-yiw # copy the current word.
-y% # copy to the matching character. By default supported pairs are (), {}, and []. Useful to copy text between matching brackets.
+| Command    | Description                                                                                                                   |
+| ---------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `i`        | Insert mode at the cursor                                                                                                     |
+| `I`        | Insert mode at the beginning of the line                                                                                      |
+| `a`        | Append mode after the cursor                                                                                                  |
+| `A`        | Append mode at the end of the line                                                                                            |
+| `o`        | Open a new line below the current line                                                                                        |
+| `O`        | Open a new line above the current line                                                                                        |
+| `r`        | replace current char with next char you enter                                                                                 |
+| `x`        | Delete the character under the cursor                                                                                         |
+| `X`        | Delete the character before the cursor                                                                                        |
+| `dd`       | Delete the current line                                                                                                       |
+| `99dd`     | Delete 99 lines                                                                                                               |
+| `dw`       | Delete from the cursor to the end of the word                                                                                 |
+| `3wd`      | Delete the 3 words to the right                                                                                               |
+| `db`       | Delete word to the left                                                                                                       |
+| `3db`      | Delete the 3 words to the left                                                                                                |
+| `d$`       | Delete from the cursor to the end of the line                                                                                 |
+| `d0`       | Delete from the cursor to the beginning of the line                                                                           |
+| `das`      | Delete current sentence                                                                                                       |
+| `yy`       | Copy (yank) the current line                                                                                                  |
+| `3yy`      | copy three lines, starting from the line where the cursor is positioned.                                                      |
+| `yw`       | Copy (yank) the current word                                                                                                  |
+| `yiw`      | copy the current word.                                                                                                        |
+| `y$`       | Copy (yank) to the end of the line                                                                                            |
+| `y%`       | copy to the matching character. By default supported pairs are (), {}, and []. Useful to copy text between matching brackets. |
+| `y^`       | copy everything from the cursor to the start of the line.                                                                     |
+| `p`        | Paste after the cursor                                                                                                        |
+| `5p`       | paste 5 times                                                                                                                 |
+| `P`        | Paste before the cursor                                                                                                       |
+| `u`        | Undo                                                                                                                          |
+| `Ctrl + r` | Redo                                                                                                                          |
 
-#-------------------------------
-# VISUAL MODE
-v # highlight current line
-V # visual mode, select text by line
-CTRL + V # visual mode, select text by char
-vjjj # highlight current line and 3 lines below (number of js)
-vjjjyy # hightlight and copy three lines
-```
+
+### Visual Mode
+
+| Command    | Description                                             |
+| ---------- | ------------------------------------------------------- |
+| `v`        | Start visual mode                                       |
+| `V`        | Start visual line mode                                  |
+| `vjjj`     | highlight current line and 3 lines below (number of js) |
+| `vjjjyy`   | hightlight and copy three lines                         |
+| `Ctrl + v` | Start visual block mode                                 |
+| `y`        | Yank (copy) the selected text                           |
+| `d`        | Delete the selected text                                |
+| `>`        | Indent the selected text                                |
+| `<`        | Un-indent the selected text                             |
+
+
+### Search and Replace
+
+| Command          | Description                                                |
+| ---------------- | ---------------------------------------------------------- |
+| `/pattern`       | Search for pattern                                         |
+| `?pattern`       | Search backward for pattern                                |
+| `n`              | Repeat the search in the same direction                    |
+| `N`              | Repeat the search in the opposite direction                |
+| `:%s/old/new/g`  | Replace all occurrences of old with new in the entire file |
+| `:%s/old/new/gc` | Replace all occurrences with confirmation                  |
+
+### Working with Multiple Files
+
+| Command       | Description               |
+| ------------- | ------------------------- |
+| `:e filename` | Open a file               |
+| `:w`          | Save the current file     |
+| `:w filename` | Save as filename          |
+| `:q`          | Quit Vim                  |
+| `:wq`         | Save and quit             |
+| `:q!`         | Quit without saving       |
+| `:bn`         | Go to the next buffer     |
+| `:bp`         | Go to the previous buffer |
+| `:bd`         | Delete a buffer           |
+
+### Useful Commands
+
+| Command             | Description                       |
+| ------------------- | --------------------------------- |
+| `:set nu`           | Show line numbers                 |
+| `:set nonu`         | Hide line numbers                 |
+| `:syntax on`        | Enable syntax highlighting        |
+| `:syntax off`       | Disable syntax highlighting       |
+| `:set paste`        | Enable paste mode                 |
+| `:set nopaste`      | Disable paste mode                |
+| `:set tabstop=4`    | Set tab width to 4 spaces         |
+| `:set expandtab`    | Convert tabs to spaces            |
+| `:set shiftwidth=4` | Set indentation width to 4 spaces |
+
+### Exiting Vim
+
+| Command       | Description         |
+| ------------- | ------------------- |
+| `:w`          | Save the file       |
+| `:q`          | Quit Vim            |
+| `:wq` or `ZZ` | Save and quit       |
+| `:q!`         | Quit without saving |
+
 
 ### .`vimrc`
 
@@ -331,6 +394,4 @@ Config file for `vim`:
 ```bash
 # Start vim without reading .vimrc
 vim -u NONE
-
-
 ```

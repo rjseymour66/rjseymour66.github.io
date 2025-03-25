@@ -22,13 +22,13 @@ View processes currently running on your system:
   - Server only knows PID
   
 
-| Field | Description |
-|:--|:--|
-| `PID` | Process ID |
-| `TTY` | The TTY that the process is tied to | 
-| `STAT` | Status code - the current state of the process. D (sleep), Z (defunct), T (stopped), S (interruptible sleep), R (run queue) | 
-| `TIME` | Total amount of CPU time consumed by this process | 
-| `COMMAND` | Command being run by the process | 
+| Field     | Description                                                                                                                 |
+| :-------- | :-------------------------------------------------------------------------------------------------------------------------- |
+| `PID`     | Process ID                                                                                                                  |
+| `TTY`     | The TTY that the process is tied to                                                                                         |
+| `STAT`    | Status code - the current state of the process. D (sleep), Z (defunct), T (stopped), S (interruptible sleep), R (run queue) |
+| `TIME`    | Total amount of CPU time consumed by this process                                                                           |
+| `COMMAND` | Command being run by the process                                                                                            |
 
 - Interruptible sleep means that the process is waiting for input and cannot handle new signals
 - defunct is a zombie, waiting for the parent process to clean it up
@@ -46,11 +46,32 @@ ps a                                # list processes for all users
 ps au                               # list processes with usernames
 ps aux                              # list all processes for all users with usernames, and 
                                     # include daemons or bg processes, not limited to TTY processes
+$ ps -ef                            # every process from parent shell back to init
 ps aux | grep <keyword>             # search processes for <keyword> - commonly used
 ps u -C <keyword>                   # show processes that have <keyword>
 ps aux --sort=-pcpu                 # sort processes using most CPU
 ps aux --sort=-pcpu | head -5       # show top 5 processes using most CPU since boot
 ps aux --sort=-pmem | head -5       # show top 5 processes using most memory since boot
+```
+
+## pstree
+
+```bash
+# visualize parent/child processes (-p displays PIDs)
+$ pstree -p
+systemd(1)─┬─ModemManager(789)─┬─{ModemManager}(805)
+           │                   ├─{ModemManager}(806)
+           │                   └─{ModemManager}(813)
+           ├─cron(857)
+           ├─dbus-daemon(717)
+           ├─login(866)───bash(982)
+           ├─multipathd(364)─┬─{multipathd}(376)
+           │                 ├─{multipathd}(377)
+           │                 ├─{multipathd}(378)
+           │                 ├─{multipathd}(379)
+           │                 ├─{multipathd}(380)
+           │                 └─{multipathd}(381)
+...
 ```
 
 ## Change process priority
@@ -152,6 +173,13 @@ systemctl reload <unit>         # activate new configurations without bringing u
 systemctl enable <unit>         # tell unit to start when server boots
 systemctl disable <unit>        # tell unit not to start when server boots
 systemctl enable --now ssh      # enable a unit and also start it
+```
+
+## init
+
+```bash
+ps -ef | grep init              # view init
+file /sbin/init                 # init is symlink to systemd
 ```
 
 ## Scheduling with cron

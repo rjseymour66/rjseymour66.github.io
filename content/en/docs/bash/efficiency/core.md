@@ -163,3 +163,134 @@ cut -f3 file.txt | sort -nr # sort column 3 by descending numeric
 ```
 
 ### uniq
+
+Detects repeated, adjacent lines in a file and removes repeats by default. For example, if you have a file that contains multiple lines of equal value, `uniq` only displays the value once:
+
+- `cut` lets you filter lines by field or character to find unique values
+- `sort` gets non-adjacent values in order
+
+**The `-c` option prepends 6 empty characters to the line.**
+
+```bash
+cat letters 
+A
+A
+B
+B
+A                   # not adjacent to other As
+C
+C
+C
+uniq letters 
+A
+B
+A                   # left A here because its not adjacent
+C
+
+uniq -c letters     # count occurrences
+      2 A
+      2 B
+      1 A
+      3 C
+
+
+# pipeline example
+cat grades
+C	Geraldine
+B	Carmine
+A	Kayla
+A	Sophia
+B	Haresh
+C	Liam
+B	Elijah
+B	Emma
+A	Olivia
+D	Noah
+F	Ava
+
+cut -f1 grades | sort | uniq -c | sort -nr | head -1 | cut -c9
+B
+```
+
+### md5sum
+
+Examines a file's contents and computes a 32-character string called a checksum. Checksums for files with the same contents are equal, otherwise they are unique.
+
+In this example, `one.txt` and `one-too.txt` have the same contents, so they have the same checksum. `two.txt` has different contents, so it has a different checksum:
+
+```bash
+cat one.txt && cat one-too.txt && cat two.txt 
+one     # one.txt
+one     # one-too.txt
+two     # two.text
+
+md5sum one.txt && md5sum one-too.txt && md5sum two.txt 
+5bbf5a52328e7439ae6e719dfe712200  one.txt
+5bbf5a52328e7439ae6e719dfe712200  one-too.txt
+c193497a1a06b2c72230e6146ff47080  two.txt
+```
+
+## Detecting duplicate files
+
+
+
+```bash
+# 1. First, get the checksum for all files with one of these options
+
+md5sum *.txt | cut -c1-32               # character syntax (checksum is 32 chars long)
+f6957bacbc9fc247f9c50f5b92702f53
+5bbf5a52328e7439ae6e719dfe712200
+5bbf5a52328e7439ae6e719dfe712200
+c193497a1a06b2c72230e6146ff47080
+
+md5sum *.txt | cut -d' ' -f1            # field syntax with changed delimiter
+f6957bacbc9fc247f9c50f5b92702f53
+5bbf5a52328e7439ae6e719dfe712200
+5bbf5a52328e7439ae6e719dfe712200
+c193497a1a06b2c72230e6146ff47080
+
+# 2. Sort so dupes are adjacent
+
+md5sum *.txt | cut -d' ' -f1 | sort
+5bbf5a52328e7439ae6e719dfe712200
+5bbf5a52328e7439ae6e719dfe712200
+c193497a1a06b2c72230e6146ff47080
+f6957bacbc9fc247f9c50f5b92702f53
+
+# 3. Get unique checksums with a count:
+
+md5sum *.txt | cut -d' ' -f1 | sort | uniq -c
+      2 5bbf5a52328e7439ae6e719dfe712200
+      1 c193497a1a06b2c72230e6146ff47080
+      1 f6957bacbc9fc247f9c50f5b92702f53
+
+# 4. Sort again to put dupes at top:
+
+md5sum *.txt | cut -d' ' -f1 | sort | uniq -c | sort -nr
+      2 5bbf5a52328e7439ae6e719dfe712200
+      1 f6957bacbc9fc247f9c50f5b92702f53
+      1 c193497a1a06b2c72230e6146ff47080
+
+# 5. Use grep -v to omit checksums that begin with "1":
+
+md5sum *.txt | cut -d' ' -f1 | sort | uniq -c | sort -nr | grep -v "      1"
+      2 5bbf5a52328e7439ae6e719dfe712200
+
+```
+Now, you can `grep` for the a file with a specific checksum:
+
+```bash
+md5sum *.txt | grep "5bbf5a52328e7439ae6e719dfe712200"
+5bbf5a52328e7439ae6e719dfe712200  one-too.txt
+5bbf5a52328e7439ae6e719dfe712200  one.txt
+
+# grep for the filename:
+md5sum *.txt | grep "5bbf5a52328e7439ae6e719dfe712200" | cut -d' ' -f3      # field syntax
+one-too.txt
+one.txt
+
+
+$ md5sum *.txt | grep "5bbf5a52328e7439ae6e719dfe712200" | cut -c35-        # character syntax
+one-too.txt
+one.txt
+```

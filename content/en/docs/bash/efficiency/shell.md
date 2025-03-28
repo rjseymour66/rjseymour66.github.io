@@ -92,3 +92,37 @@ cp nothing file.txt 2> errors.log   # redirect stderr
 cp nothing file.txt 2>> errors.log  # append stderr
 cp nothing file.txt &> errors.log   # redirect stdout and stderr
 ```
+
+## Quotes and backslashes
+
+You can change how expressions are evaluated with single quotes, double quotes, and backslashes:
+- single quotes: evaluates every character literally, including `$` and `\`
+- double quotes: recognize some characters, such as `$`
+- backslash: _escape character_ that tells the shell to treat the next character literally.
+  - Can also place at the end of the line to create multi-line commands for readability
+  - can also "unshadow" an alias, meaning that if a command has an alias, it runs the original command
+
+```bash
+echo \$HOME
+echo "This is \"the most\" example"
+\ll                     # unalias
+ll: command not found
+```
+
+## PATH
+
+A list of directories in memory that the shell searches for binaries when you execute a command. Also called the search path:
+- if a command is in multiple dirs in the search path, your machine runs the first one it encounters. This lets you override system programs with your own by placing binaries in user dirs that are searched before system dirs
+- `which` locates a program in the search path
+- `type` can locate builtins, aliases, functions, and programs
+
+```bash
+echo $PATH | tr : "\n"          # print dirs on own line
+```
+
+## Environment
+
+The shell's environment consists of variables that store the search path, cwd, preferred text editor, customized shell prompt, etc.
+- When the shell exits, the environment is destroyed
+- Define your environment in startup files
+- `.bashrc` (dot bash R-C)

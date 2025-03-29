@@ -153,6 +153,7 @@ Reorders the lines of a file in ascending order, by default. You can also sort:
 - `-r`: descending alpha
 - `-n`: numerical ascending
 - `-nr`: numerical descending 
+- `-u`: eliminate duplicates
 
 ```bash
 sort file.txt               # ascending alpha

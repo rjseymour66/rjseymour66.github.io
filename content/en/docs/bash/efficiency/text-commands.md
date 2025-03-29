@@ -238,3 +238,124 @@ Have a nice day.
 ```
 
 ## Transforming text
+
+### tr
+
+Translates characters into other characters:
+- takes two sets of characters: translates the first set into the second set
+- `-d`: deletes whitespace and tabs
+
+```bash
+echo one two      three | tr -d ' '     # onetwothree
+```
+
+### rev
+
+Reverses characters on a line. Useful if you need to extract field in a file where each line has a different number of columns. For example, if a file is a list of names, and you need the last name, the number of words on each line varies:
+
+```bash
+rev file | cut -d ' ' -f1 | rev
+```
+
+### awk
+
+Transforms lines of text from files or stdin into any other text, using a sequence of instructions called an _awk program_:
+- `-f` option accepts awk program files
+- always enclose the awk program in single or double quotes when provided on the command line
+- `-F` changes the input separator
+
+```bash
+awk <program> <input-files>
+awk -f <program-file1> -f <program-file2> <input-files>
+awk 'FNR<=7' nums.file                  # print first 7 lines of file
+echo "one two" | awk '{print $2, $1}'   # two one (switch cols)
+
+awk '{print $NF}' file                  # print last word on each line
+
+awk '/^word/{print $4}' file            # if the line begins with 'word', print the fourth field
+
+# if field 3 starts with 201, perform awk program on that line
+awk -F'\t' '$3~/^201/{print $4, "(" $3 ").", "\"" $2 "\""}' animals.txt
+
+awk -F'\t' \    # same command with intro and ending
+'BEGIN {print "Recent books:"} \
+$3~/^201/{print $4, "(" $3 ").", "\"" $2 "\""} \
+END {print "For more books, search the web"}' \
+animals.txt 
+
+Recent books:
+...
+For more books, search the web
+
+seq 1 100 | awk '{s+=$1} END {print s}'     # sum numbers 1 - 100
+```
+
+#### Arrays and loops
+
+An array in `awk` stores a collection of values. Each value in the array is an element, which consists of the array name and stored value: `counts["f44323234453400"]`. The syntax to access an element is a key. (It seems to act more like a map than an array.)
+
+```bash
+md5sum *.jpg | awk '{counts[$1]++}'   # store all md5sums in array, where the element is count[<md5sum>] and key is the number of occurrences
+```
+
+The for loop steps through an array and processes each element in sequence. It uses this syntax:
+
+`for (var in array) <action> array[var]`
+
+If this is used in the same command that creates the array, run the for loop after an `END` instruction so it operates on the completed array:
+
+```bash
+md5sum *.jpg \
+| awk '{counts[$1]++} \
+END {for (key in counts) print counts[key] " " key}'
+3 5bbf5a52328e7439ae6e719dfe712200
+1 c193497a1a06b2c72230e6146ff47080
+1 febe6995bad457991331348f7b9c85fa
+```
+
+
+### sed
+
+Transforms text from files or stdin into other text with a sequence of instructions called a _sed script_ (which is a string):
+- most common `sed` script replaces strings with another string
+  `s/regexp/replacement/`
+  - replaces the first occurence only. Use `g` global option to replace all occurences
+- `-e` lets you use a sequence of scripts on a single input file
+- `-f` lets you use sed scripts stored in files
+- replace the `/` with any other character, such as `_` 
+```bash
+sed <script> <input-files>
+sed -e <script1> -e <script2> -e <script3> <input-files>
+sed -f <script-file1> -f <script-file2> -f <script-file3> <input-files>
+
+echo Ricky Henderson | sed 's/Henderson/Ricardo/'   # Ricky Ricardo
+
+sed 's/.* //' celebrities               # replace all chars up to last space with nothing
+sed 7q nums.file                        # print first 7 lines of file
+sed 's/\.jpg/\.png/'                    # replace .jpg by .png
+echo Case Insensitive | sed 's/case/how/i'  # case insensitive
+echo one one two | sed 's/one/yes/g'    # global replace
+```
+
+#### Deletion
+
+You can delete by line number, or with regex matches:
+
+```bash
+seq 1 10 | sed 5d                       # delete 5th line
+seq 1 10 | sed '/[2468]/d'              # delete even numbers
+```
+
+#### Subexpressions
+
+Lets you manipulate and change strings:
+- each subexpression is numbered `\1`, `\2`, and so on
+
+1. Create a regex that matches what you want to change
+2. Isolate with parenteses and backslashes (`(\` and `)\`) the portion of the string that you want to manipulate
+
+```bash
+image\.jpg\.[1-3]                               # 1. create reges
+image\.jpg\.\([1-3]\)                           # 2. isolate the portion you want to manipulate
+sed "s/image\.jpg\.\([1-3]\)/image\1.jpg/"      # 3. move the string with \1
+```

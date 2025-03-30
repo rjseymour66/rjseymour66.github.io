@@ -1,5 +1,5 @@
 ---
-title: "More commands"
+title: "Running commands"
 linkTitle: ""
 weight: 70
 # description:

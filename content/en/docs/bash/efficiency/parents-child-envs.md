@@ -67,6 +67,7 @@ A child shell is a partial copy of its parent. It doesn't receive local variable
 When a shell starts, it runs a series of configuration files to prepare the environment:
 - System-wide configuration files are found in `/etc`.
 - Individual config files are found in the home dir
+- You should store your customized config files on GitHub
 
 There are several types of config files:
 - **Startup files**: Apply to your login shell, they run automatically when you login. You can set and export env vars, but don't set aliases because they are not copied to any child shells.
@@ -76,6 +77,7 @@ There are several types of config files:
 
 
 You should have your personal startup file (i.e. `.bash_profile`) source your personal initialization file (`.bashrc`). Add this command to the startup file to make that happen:
+- `source` is a builtin. This is required because if it were just a program you run, it would run in a child shell and would not affect the environment
 
 ```bash
 if [ -f "$HOME/.bashrc" ]

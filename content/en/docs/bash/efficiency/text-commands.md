@@ -359,3 +359,27 @@ image\.jpg\.[1-3]                               # 1. create reges
 image\.jpg\.\([1-3]\)                           # 2. isolate the portion you want to manipulate
 sed "s/image\.jpg\.\([1-3]\)/image\1.jpg/"      # 3. move the string with \1
 ```
+
+#### Cheatsheet
+
+| Command                        | Description                                 | Example                                        |
+| ------------------------------ | ------------------------------------------- | ---------------------------------------------- |
+| `s/find/replace/`              | Replace first occurrence in a line          | `sed 's/foo/bar/' file.txt`                    |
+| `s/find/replace/g`             | Replace all occurrences in a line           | `sed 's/foo/bar/g' file.txt`                   |
+| `s/find/replace/i`             | Case-insensitive replacement                | `sed 's/foo/bar/i' file.txt`                   |
+| `s/find/replace/gI`            | Global case-insensitive replacement         | `sed 's/foo/bar/gI' file.txt`                  |
+| `s/find/replace/gw output.txt` | Save changes to another file                | `sed 's/foo/bar/gw output.txt' file.txt`       |
+| `2s/find/replace/`             | Replace only in the second line             | `sed '2s/foo/bar/' file.txt`                   |
+| `s/old/new/3`                  | Replace only the third occurrence in a line | `sed 's/foo/bar/3' file.txt`                   |
+| `-i`                           | Modify file in place                        | `sed -i 's/foo/bar/g' file.txt`                |
+| `^`                            | Match beginning of line                     | `sed 's/^Hello/Hi/' file.txt`                  |
+| `$`                            | Match end of line                           | `sed 's/world!$/earth!/' file.txt`             |
+| `d`                            | Delete line(s)                              | `sed '/delete this line/d' file.txt`           |
+| `nd`                           | Delete specific line number                 | `sed '3d' file.txt` (deletes line 3)           |
+| `-n 'Np'`                      | Print only specific lines                   | `sed -n '2p' file.txt` (prints line 2)         |
+| `-n '/pattern/p'`              | Print lines matching a pattern              | `sed -n '/error/p' file.txt`                   |
+| `/pattern/d`                   | Delete lines matching pattern               | `sed '/error/d' file.txt`                      |
+| `y/abc/xyz/`                   | Translate characters                        | `sed 'y/abc/xyz/' file.txt`                    |
+| `N`                            | Merge next line with current                | `sed 'N' file.txt`                             |
+| `:label` & `b label`           | Looping with labels                         | `sed ':a; /pattern/{s/foo/bar/; ba}' file.txt` |
+

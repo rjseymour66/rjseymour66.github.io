@@ -233,7 +233,6 @@ Launch these in the middle of a combined command. Enclose the command in parenth
 (cd /usr/local)                     # doesn't change parent shell pwd
 ```
 
-
 ### Process replacement
 
 Supersedes the parent shell. Use with `exec`, but I couldn't find any practical examples for what I do!

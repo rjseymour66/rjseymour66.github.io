@@ -313,6 +313,30 @@ END {for (key in counts) print counts[key] " " key}'
 1 febe6995bad457991331348f7b9c85fa
 ```
 
+#### awk cheat sheet 
+
+| Command                                                          | Description                                     | Example                                                          |
+| ---------------------------------------------------------------- | ----------------------------------------------- | ---------------------------------------------------------------- |
+| `awk '{print $1}' file`                                          | Print first column                              | `awk '{print $1}' data.txt`                                      |
+| `awk '{print $1, $3}' file`                                      | Print multiple columns                          | `awk '{print $1, $3}' data.txt`                                  |
+| `awk 'NR==3' file`                                               | Print third line                                | `awk 'NR==3' data.txt`                                           |
+| `awk 'NR>=2 && NR<=4' file`                                      | Print lines 2 to 4                              | `awk 'NR>=2 && NR<=4' data.txt`                                  |
+| `awk '/pattern/' file`                                           | Print lines matching a pattern                  | `awk '/error/' log.txt`                                          |
+| `awk '!/pattern/' file`                                          | Print lines NOT matching a pattern              | `awk '!/error/' log.txt`                                         |
+| `awk '{print NR, $0}' file`                                      | Print line numbers                              | `awk '{print NR, $0}' data.txt`                                  |
+| `awk '{print NF}' file`                                          | Print number of fields in each line             | `awk '{print NF}' data.txt`                                      |
+| `awk '$2 > 50' file`                                             | Print lines where 2nd column is greater than 50 | `awk '$2 > 50' data.txt`                                         |
+| `awk '{sum+=$1} END {print sum}' file`                           | Sum the first column                            | `awk '{sum+=$1} END {print sum}' data.txt`                       |
+| `awk '{sum+=$1} END {print sum/NR}' file`                        | Average of first column                         | `awk '{sum+=$1} END {print sum/NR}' data.txt`                    |
+| `awk 'BEGIN {FS=","} {print $1}' file`                           | Change field separator to comma                 | `awk 'BEGIN {FS=","} {print $1}' data.csv`                       |
+| `awk -F: '{print $1}' /etc/passwd`                               | Use `:` as delimiter                            | `awk -F: '{print $1}' /etc/passwd`                               |
+| `awk '{print toupper($1)}' file`                                 | Convert first column to uppercase               | `awk '{print toupper($1)}' data.txt`                             |
+| `awk '{print tolower($1)}' file`                                 | Convert first column to lowercase               | `awk '{print tolower($1)}' data.txt`                             |
+| `awk '{sub(/old/, "new"); print}' file`                          | Replace first occurrence in each line           | `awk '{sub(/error/, "fixed"); print}' log.txt`                   |
+| `awk '{gsub(/old/, "new"); print}' file`                         | Replace all occurrences in each line            | `awk '{gsub(/error/, "fixed"); print}' log.txt`                  |
+| `awk 'BEGIN {print "Header"} {print} END {print "Footer"}' file` | Add header and footer                           | `awk 'BEGIN {print "Start"} {print} END {print "End"}' data.txt` |
+
+
 
 ### sed
 
@@ -358,6 +382,25 @@ Lets you manipulate and change strings:
 image\.jpg\.[1-3]                               # 1. create reges
 image\.jpg\.\([1-3]\)                           # 2. isolate the portion you want to manipulate
 sed "s/image\.jpg\.\([1-3]\)/image\1.jpg/"      # 3. move the string with \1
+```
+
+#### Long regex
+
+If you have a very long regex that is hard to decipher, you can break it up into parts and store each part in a shell variable:
+- Make sure you use single quotes for vars so the shell doesn't evalutate special characters
+
+```bash
+s/\([0-9]*\)@\([A-Z][A-Z]\)@\([^@*\])@/\1\t\2\t\3\n/g    # starting regex
+
+areacode='\([0-9]*\)'                                    # variables
+state='\([A-Z][A-Z]\)'
+cities='\([^@*\])'
+
+regexp="$areacode@$state@$cities@"
+
+replacement='/\1\t\2\t\3\n/'                              # replacement string
+
+sed "s/$regexp/$replacement/g"                            # sed command
 ```
 
 #### Cheatsheet

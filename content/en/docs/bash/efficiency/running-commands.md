@@ -193,6 +193,8 @@ ls | xargs -n2 echo                             # two options at a time
 apple banana
 cantaloupe date
 watermelon
+
+cat filenames | xargs -I {} touch {}.txt        # -I option - creates a file for every line in 'filenames'
 ```
 
 ## Process-control techniques

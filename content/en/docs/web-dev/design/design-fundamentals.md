@@ -1,6 +1,6 @@
 ---
 title: "Design fundamentals"
-# linkTitle: ""
+linkTitle: "Fundamentals"
 weight: 20
 # description:
 ---

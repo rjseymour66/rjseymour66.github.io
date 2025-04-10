@@ -73,10 +73,41 @@ Start here when defining your type ramp:
 ### Size selection
 
 Body font should be defined as 1rem, with a base size between 16px and 18px. Then, create your type scale:
-- Body: 1rem
+- Body: 1em
 - Subtitle: 1.5rem
 - Title: 2rem
 - Subheading: 2.5rem
 - Heading: 3rem
 
 For more mathematical proportions, go to [Visual Type Scale Calculator](https://typescale.com/)
+
+
+### Vertical rhythm (line height)
+
+After you set the base font size, set the line height to set the spacing between all elements on your page. Guidelines and recommendations:
+- WCAG version 2.1 says we need a minimum line-height value of 1.5em (or 150%) for main text
+- Title should use 120-140% in case the lines wrap
+
+The pixel value of your line height (font size in pixels x line height) is the basis of our vertical rhythm.
+- use this to calculate the margins, padding, and line heights for different-sized fonts in type scale
+- to start, set your top and bottom text margins to 24px - this is calculated from the line height
+
+
+#### Calculate margins and padding for titles
+
+Create vertical rhythms using multiples of your text line height:
+
+1. start with 16px text and line height 1.5em (24px)
+2. heading is 3rem, so its 48px. use line height of 1.25px so it is a round number, 60px
+3. now, add margin and padding so the title line height is a multiple of our text line height
+   - 72 is not enough, it only gives us 12px of margin to work with
+4. 96px gives us 36px of margin to work with, so add 24px to the top, and the remaining 12px to the bottom margin
+
+Now, there is logic to our margin and padding.
+
+For body text, keep the space between paragraphs at the normal 1.5em line height to group them.
+
+### Readability
+
+- line length: Select between 45-70 characters wide, have also seen 40-80 wide
+- letter spacing: do what looks normal

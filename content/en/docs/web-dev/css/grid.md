@@ -7,7 +7,7 @@ weight: 80
 
 Officially titled the Grid Layout Module.
 
-Grid lets you create 2-D layouts of columns and rows. It works from the layout in.
+Grid lets you create 2-D layouts of columns and rows. It works from the layout in. If you make an element a grid, it creates a grid row for each child element until you explicitly place the elements in a different grid structure.
 
 Like flexbox, grid has two levels that create a hierarchy:
 
@@ -154,31 +154,39 @@ For example, the following rule uses both positive and negative grid line number
 If you don't want to count grid lines to place items, use grid areas. You apply `grid-template` on the grid container, and then assign the area with the `grid-area` property on the child elements:
 
 ```css
-.container {
-    display: grid;
+main {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(auto, 1fr)) 250px;
+  grid-template-areas:
+    "header header header"
+    "content content author"
+    "content content aside"
+    "plays . aside"
+    "footer footer footer";
+  gap: 20px;
+}
+
+@media (min-width: 955px) {
+  main {
+    grid-template-columns: repeat(3, 1fr);
     grid-template-areas:
-        "title  title"
-        "nav    nav"
-        "main   aside1"
-        "main   aside2";
-    grid-template-columns: 2fr 1fr;
-    grid-template-rows: repeat(4, auto);
-    grid-gap: 1.5em;
-    max-width: 1080px;
-    margin: 0 auto;
+      "header header header"
+      "content author aside"
+      "content plays aside"
+      "footer footer footer";
+    gap: 20px;
+  }
 }
 
-header {
-    grid-area: title;
-}
-
-nav {
-    grid-area: nav;
-}
-...
+header { grid-area: header; }
+article { grid-area: content; }
+aside { grid-area: aside; }
+.author-details { grid-area: author; }
+.plays { grid-area: plays; }
+footer { grid-area: footer; }
 ```
 
-To leave a cell empty, use a period. The following example creates an empty cell in the center:
+To leave a cell empty, use a period. Because the cell doesn't have a name, content cannot be assigned to it. The following example creates an empty cell in the center:
 
 ```css
 .grid-container {
@@ -319,7 +327,7 @@ To create columns or rows that grow according to their contents, use the `auto` 
 
 ### repeat()
 
-You could also define the rows and columns with the `repeat()` function:
+You could also define the rows and columns with the `repeat()` function. It takes the number of columns or rows to create, and the size of each column or row:
 
 ```css
 .grid {

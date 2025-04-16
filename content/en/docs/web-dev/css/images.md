@@ -22,6 +22,17 @@ Setting the height and width on an image also helps the browser calculate the im
 
 Works with `object-fit`, which tells the browser to calculate the optimum size of the image based on the dimensions provided so that it does not distort. `object-position` changes where the image is positioned inside the container to manipulate which part of the image is clipped.
 
+### flow-root
+
+When you use floating images, you can prevent them from overflowing out of their containers by applying `flow-root` to their containers:
+
+```css
+main > *,
+section {
+  display: flow-root;
+}
+```
+
 ## SVG (Scalable Vector Graphics)
 
 SVGs scale to any size without losing quality or increasing file size, and you can modify them with CSS or JS.

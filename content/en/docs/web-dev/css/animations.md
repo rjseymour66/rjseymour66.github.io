@@ -9,6 +9,8 @@ Keyframe animations let you make an element take a roundabout path from location
 
 A keyframe is a way to define multiple properties that change over a period of time. For example, you can change the background color of an element multiple times over a specified period, or you could rotate an element over a period with multiple `transform` declarations.
 
+Here is a good [codepen example](https://codepen.io/michaelgearon/pen/oNyvbWX) that shows keyframes and properties working together.
+
 ## Keyframes
 
 A _keyframe_ is a specific point in an animation:

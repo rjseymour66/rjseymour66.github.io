@@ -314,3 +314,52 @@ progress {
   border-radius: 20px;
 }
 ```
+
+## Time element
+
+This element includes the `datetime` attribute, which translates dates into a machine-readable format for better search engine results and custom features like reminders.
+
+You can style it pretty much as you would any other element:
+
+```html
+<time datetime="2021-09-07">Tuesday, 5<sup>th</sup> September 2021</time>
+```
+
+```css
+time {
+  font-weight: 700;
+  font-size: 1.5rem;
+  font-family: "Oswald", sans-serif;
+  text-align: center;
+  text-transform: uppercase;
+
+  border-top: 3px solid #333;
+  border-bottom: 3px solid #333;
+  padding: 12px 0;
+
+  display: block;
+}
+
+time sup {
+  font-size: 0.875rem;
+  font-weight: normal;
+}
+```
+
+## Blockquote
+
+You can add quotations around a block quote (or any quote?) element with the `open-quote` and `close-quote` values in the `content` property:
+
+```css
+blockquote {
+  /* styles */
+}
+
+blockquote::before {
+  content: open-quote;
+}
+
+blockquote::after {
+  content: close-quote;
+}
+```

@@ -6,7 +6,7 @@ weight: 180
 ---
 
 Transitions add motion and change to the page:
-- tell the browser to ease one value into another when the value changes. Think state changes on a link
+- tell the browser to ease one value into another when the value changes. Think state changes on a link--you could have a 0px border radius on a button, and then when you hover you transition into a 5px border radius.
 - `transition-*` properties add motion to the page.
 
 ## Accessibility
@@ -26,14 +26,34 @@ Some users set up their OSs to prevent certain motions on the screen. Check whet
         }
     }
 }
-```
 
+/* basic example */
+@media (prefers-reduced-motion: reduce) {
+  rect { animation: none; }
+}
+```
+> It might also help to include a switch that lets users opt in/out or pause animations.
+
+The browser reviews animations and determines whether to enable them based on the following:
+- How fast it is
+- How long it is
+- How much of the viewport it uses
+- What the flash rate is
+- How essential it is to the functioning of the site or understanding of the content
+
+### View in the browser
+
+To view your settings with accessibility settings applied:
+1. Open Chrome tools.
+2. Select the vertical ellipses.
+3. Go to More tools > Rendering.
+4. Scroll to **Emulate CSS media feature prefers-reduced-motion** and select **prefers-reduced-motion: reduce**.
 
 ## Basics
 
-Transitions morph styles from a first ruleset to a second ruleset, where the second ruleset is defines styles for a state change on an element.
+Transitions morph styles from a first ruleset to a second ruleset, where the second ruleset defines styles for a state change on an element.
 
-1. Add the `transition-*` properties to the rulese that targets the element at all times. This is usually the ruleset for the element's original (static) state:
+1. Add the `transition-*` properties to the ruleset that targets the element at all times. This is usually the ruleset for the element's original (static) state:
    - `transition-property` to define which property you want to transition after a state change. Can be a specific property, or `all` for all properties defined on the state.
    - `transition-duration` is the amount of time it takes to transition into the properties for the new state. Takes `s` or `ms`.
 

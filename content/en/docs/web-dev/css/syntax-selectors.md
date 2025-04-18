@@ -22,7 +22,7 @@ ruleset | rule
 : Selector plus declaration block is a ruleset or rule. Rule is less common.
 
 at-rule
-: Rules that begin with the `@` symbol, like `@import` or `@media`.
+: Rules that begin with the `@` symbol, like `@import` or `@media`. These are statements that dictate how our styles should behave or when they should be applied.
 
 
 ```css

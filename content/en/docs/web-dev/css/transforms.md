@@ -19,7 +19,7 @@ The `transform` property can change or distort the shape or position of an eleme
 transform: rotate(90deg);
 ```
 
-There are several transform functions, but here are the most typical:
+There are [several transform functions](https://developer.mozilla.org/en-US/docs/Web/CSS/transform-function), but here are the most typical:
 - `rotate`: spins the element the specified degrees on an axis
 - `translate`: moves the element left, right, up, down, similar to positioning
 - `scale`: shrinks or expands the element
@@ -59,6 +59,26 @@ Specify with keywords like `top`, `right`, `bottom`, `left`, `right center`, `ri
     transform: rotate(15deg);
     transform-origin: top left;
   }
+}
+```
+
+This example combines `@keyframes` and animations to create a transform. You create a `@keyframes` rule that applies a `transform` property at different stages, then you set the `transform-origin` on the element itself to define the transform from the center of the element:
+
+```css
+@keyframes doScale {
+  from {
+    transform: scaleY(1);
+  }
+  50% {
+    transform: scaleY(0.2);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+rect {
+  animation: doScale 2.2s infinite;
+  transform-origin: center;
 }
 ```
 

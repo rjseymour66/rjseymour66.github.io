@@ -39,6 +39,8 @@ SVGs scale to any size without losing quality or increasing file size, and you c
 
 Play around with it here: [SvgPathEditor](https://yqnn.github.io/svg-path-editor/).
 
+
+
 ### Links
 
 #### Free libraries
@@ -68,6 +70,16 @@ Inefficient for storing complex images.
 
 ### Anatomy
 
+Written in XML-based markup, so you can place it directly in HTML:
+- commonly used for logos, icons, loaders
+- recoloring is easy
+- good for loaders bc you can add animations to them
+
+It consist of _vectors_ on a _Cartesian plane_:
+- vector: mathematical formula that defines a geometric primitive
+- Cartesian coordinate system: grid-based system that definees a point by using a pair of numerical coordinates based on the points distance from two perpendicular axes
+
+
 ```html
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
   <rect x="0" y="0" width="100" height="100" fill="burlywood" />
@@ -88,12 +100,16 @@ Inefficient for storing complex images.
 - `xmlns`: XML namespace. Specifies the XML dialect that you are using so the browser can render the SVG correctly.
 - `viewBox`: Defines the bounds of the SVG---the positions of different points of the SVG elements in the following order:
 
-  - `min-x`, `min-y`, `width`, and `height`
+  - `min-x`, `min-y`, `width`, and `height`. `min-x` and `min-y` are the distance from the top-left corner of the container.
 
+  Similar to a "pan and zoom" tool.
+  
   Also defines the aspect ratio (ratio of width to height) and the origin (the image's origin of motion for an animation).
 
 - `class`, `id`: Same funciton as in CSS or JS.
-- `<circle>`, `<rect>`, `<path>`, `<text>`, [other elements](https://developer.mozilla.org/en-US/docs/Web/SVG/Element): Defined by the SVG namespace that let you build SVGs.
+- `<circle>`, `<rect>`, `<path>`, `<text>`, `<circle>`, `<ellipse>`, `<line>`, `<polyline>`, `<polygon>`, [other elements](https://developer.mozilla.org/en-US/docs/Web/SVG/Element): Defined by the SVG namespace that let you build SVGs.
+  
+  Paths are for irregular shapes that you would see if you created an icon in Inkscape.
 
   CSS tricks [SVG Elements by Category](https://css-tricks.com/svg-properties-and-css/#svg-elements-by-category)
 
@@ -103,13 +119,26 @@ Inefficient for storing complex images.
 
   [SVG CSS Properties](https://css-tricks.com/svg-properties-and-css/#svg-css-properties)
 
-### Embedding SVGs
+### Styling SVGs
 
+You can style SVGs with CSS, but it depends on how you add the SVG to your site.
 1. Link with an `<img>` tag or with `background-image: url(./path/to/.svg);`
    - You cannot edit these SVGs.
-2. Embed it in the HTML file.
+   - you can use CSS to change the size of the svg, but you can't change the shape
+2. Embed it in the HTML file, which means to place the XML directly in the HTML file.
    - Makes HTML harder to read
    - Page is less cacheable
    - Slows HTML loading
+   - Not good separation-of-concerns
 
 You can minimize these drawbacks with React or Webpack.
+
+
+You can also style SVGs with presentation attributes, such as `<rect fill="blue">`:
+
+```css
+rect:nth-child(1)  { fill: #1a9f8c }          /* element selector */
+.svg-class:nth-child(1)  { fill: #1a9f8c }    /* class selector */
+```
+
+For more information, see the [MDN docs](https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Attribute).

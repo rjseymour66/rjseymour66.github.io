@@ -1,6 +1,6 @@
 ---
-title: "Patterns"
-# linkTitle: "CSS in Depth"
+title: "Patterns and components"
+linkTitle: "Patterns"
 weight: 300
 # description:
 ---
@@ -264,5 +264,53 @@ ol > li::before {
     left: 0;
 
     padding-inline-start: var(--marker-padding);
+}
+```
+
+## Progress bar
+
+You have to use vendor prefixes to style the progress bar:
+
+
+Chrome properties:
+- `::-webkit-progress-inner-element`: Outermost part of the progress element.
+- `::-webkit-progress-bar`: Entire progress bar--the part below the inner-element. This is a child of `::-webkit-progress-inner-element`
+- `::-webkit-progress-value`: Progress indicator and child of `::-webkit-progress-bar`.
+
+Firefox properties:
+`::-moz-progress-bar`: Progress indicator, similar to `::-webkit-progress-value`
+
+```css
+progress {
+  height: 1.5em;
+  width: 100%;
+
+  border-radius: 20px;
+  --webkit-appearance: none;        /* remove default chrome styles */
+  --moz-appearance: none;           /* remove default firefox styles */
+  appearance: none;
+}
+
+/* chrome */
+::-webkit-progress-value {
+  border-radius: 20px;
+  background-color: #7be6e8;
+}
+
+/* firefox */
+::-moz-progress-bar {
+  border-radius: 20px;
+  background-color: #7be6e8;
+}
+
+::-webkit-progress-bar {
+  border-radius: 20px;
+  background: #4db3ff;
+  background: linear-gradient(to right, #128688 0%, #4db3ff 100%);
+  border: none;
+}
+
+::-webkit-progress-inner-element {
+  border-radius: 20px;
 }
 ```

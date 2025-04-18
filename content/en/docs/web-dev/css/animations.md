@@ -7,10 +7,12 @@ weight: 200
 
 Keyframe animations let you make an element take a roundabout path from location to location, or you might want the element to return to its previous location.
 
+A keyframe is a way to define multiple properties that change over a period of time. For example, you can change the background color of an element multiple times over a specified period, or you could rotate an element over a period with multiple `transform` declarations.
+
 ## Keyframes
 
 A _keyframe_ is a specific point in an animation:
-- you define keyframes, and the browser fills in the points in between so the changes look smooth
+- you define keyframes, and the browser fills in the points in between so the changes look smooth. This is called _in-betweening_.
   - transforms only let you define the starting and ending point. Keyframes let you define multiple points
   - If you repeat an animation, make sure the ending value matches the beginning value so changes are smooth
 - Rules in a keyframe are a very high-priority origin in the cascade, so they take precedence over other declarations. If a box is green before an animation is applied that makes the box red, then the box is red for the duration of the animation and goes back to green at the end.
@@ -19,7 +21,7 @@ A _keyframe_ is a specific point in an animation:
 
 There are two main properties:
 - `@keyframe` at-rule that defines the animation
-- `animation` property that applies the animation to an element
+- `animation` property that applies the animation to an element.
 
 The `@keyframes` at-rule needs a name, and then you define different steps (keyframes) with percentages. Each keyframe describes what the step should look like when it completed that percentage of its motion.
 
@@ -32,7 +34,7 @@ The `@keyframes` at-rule needs a name, and then you define different steps (keyf
 }
 ```
 
-This keyframe animation moves a box 50px from left to right in 3 keyframes. The color also changes, but because you don't define the color in the second step, the browser fills in the blanks to smoothly transition the colors defined at the first and last step.
+This keyframe animation moves a box 50px from left to right in 3 keyframes. The color also changes, but because you don't define the color in the second step, the browser fills in the blanks to smoothly transition the colors defined at the first and last step. When the browser fills in the gaps like this, it is called _in-betweening_.
 
 Finally, you apply the animation to an element with the `animation` property, which says "apply the `over-and-back` keyframe animation to this element, make it last 1.5 seconds, the movement should be steady (linear), and repeat it three times":
 
@@ -61,7 +63,9 @@ Finally, you apply the animation to an element with the `animation` property, wh
 
 ### animation
 
-The `animation` property is shorthand for multiple properties:
+> To prevent seizures, the WC3 recommends that you don't create an animation that flashes more than three times in a 1-second period.
+
+The `animation` property is shorthand for [multiple properties](https://developer.mozilla.org/en-US/docs/Web/CSS/animation):
 
 ```css
 .element {
@@ -113,6 +117,32 @@ First, put your design and layout in place.
   }
 }
 ```
+
+Here is another example that staggers changes to the height of SVG rect objects:
+
+```css
+rect:nth-child(1) {
+  fill: #1a9f8c;
+  animation-delay: 0;
+}
+rect:nth-child(2) {
+  fill: #1eab8d;
+  animation-delay: 200ms;
+}
+rect:nth-child(3) {
+  fill: #20b38e;
+  animation-delay: 400ms;
+}
+...
+rect:nth-child(11) {
+  fill: #128688;
+  animation-delay: 2s;
+}
+```
+
+### animation properties
+
+See the [MDN docs](https://developer.mozilla.org/en-US/docs/Web/CSS/animation#constituent_properties) for a list of all animation properties and a description.
 
 ### animation-delay
 

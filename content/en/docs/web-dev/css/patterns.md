@@ -232,6 +232,30 @@ ul > li::before {
 }
 ```
 
+### @counter-style custom bullets
+
+Name the `@counter-style` rule so you can reference it in a `list-style` rule. The at-rule uses these properties to define its behavior:
+- `symbol`: what we use to define the bullet style. For example, Unicode.
+- `system`: determines how the browser converts the items position in the list to the visual representation on the screen. You can add a space-delimited list to the `symbol` property so the browser displays each item in the list, or add `cyclic` in the `system` property to loop through the the `symbol` values. If you add one value in the `symbol` property, then the browser loops through that.
+- `suffix`: what comes between the `symbol` and the list item contents. By default, it is a bullet.
+
+
+Here is a complete at-rule and its application:
+
+```css
+@counter-style emoji {
+  symbols: "\2615";
+  system: cyclic;
+  suffix: " ";
+}
+
+article ul {
+  list-style: emoji;
+}
+```
+
+
+
 ### Custom numbers
 
 This example adds custom numbers to an `ol`:

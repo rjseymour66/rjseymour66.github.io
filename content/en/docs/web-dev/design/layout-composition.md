@@ -5,6 +5,8 @@ weight: 50
 # description:
 ---
 
+[Gestalt design principles](https://uxdesign.cc/how-to-use-powerful-gestalt-principles-in-design-with-infographic-4a10772eadbb)
+
 
 Creating fluid layouts that smoothly collapse from a desktop screen to a mobile device is an important part of a site's strategy.
 

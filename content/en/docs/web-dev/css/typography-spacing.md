@@ -331,6 +331,21 @@ Usually, the default letter spacing is fine, but it might require some tweaks, i
 }
 ```
 
+### Justified text
+
+Apply `text-align: justify;` to justify text:
+- `text-justify` property to determine how space is distributed between words. When omitted, the browser determines the space.
+- `hyphens: auto;` tells the browser to add hyphens at the end of the line. This will help reduce the amount of whitespace between words.
+
+```css
+p {
+  text-align: justify;
+  hyphens: auto;
+}
+```
+
+
+
 ### Headings, small elements, and spacing
 
 Body text and heading text should use different spacing.

@@ -15,12 +15,54 @@ img {
   width: val;
 }
 ```
-
 Setting the height and width on an image also helps the browser calculate the image size while it loads the other content. This might prevent strange rendering behavior during page loads.
 
 ### object-position
 
 Works with `object-fit`, which tells the browser to calculate the optimum size of the image based on the dimensions provided so that it does not distort. `object-position` changes where the image is positioned inside the container to manipulate which part of the image is clipped.
+
+### filters
+
+[Codepen examples](https://codepen.io/michaelgearon/pen/porovxJ)  
+
+Change how an image looks with the `filter` property, which takes a function that alters the image. If you apply filters to many images on a page, it might significantly impact page performance.
+
+Use grayscale to make an image black and white:
+
+```css
+img {
+  filter: grayscale(100%);
+}
+```
+
+Full list of available functions here: https://developer.mozilla.org/en-US/docs/Web/CSS/filter#functions
+
+### Broken image links
+
+First, always provide a value to the `alt` attribute so users can see or hear a description of the image that should be displayed.
+
+Use the JS `onerror` attribute to hide the image if it does not display:
+
+```html
+<img
+  src="images/image.jpg"
+  alt="failed to load image"
+  onerror="this.style.display='none'"
+/>
+```
+
+### Floating images
+
+Apply the `float` property. Make sure to add margin to the text side of the image so there is space between the image and text:
+
+```css
+figure {
+  float: left;
+  margin-right: 24px;
+}
+```
+
+
 
 ### flow-root
 
@@ -38,7 +80,6 @@ section {
 SVGs scale to any size without losing quality or increasing file size, and you can modify them with CSS or JS.
 
 Play around with it here: [SvgPathEditor](https://yqnn.github.io/svg-path-editor/).
-
 
 
 ### Links

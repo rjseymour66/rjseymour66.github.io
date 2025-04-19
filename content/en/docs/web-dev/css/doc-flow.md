@@ -37,7 +37,9 @@ When you are creating a layout, start with the larger elements, working 'outside
 
 Because containers are block elements and block elements expand to fill the widths of their containers, you have to restrict the size of the page's main container. You can do this with the _double-container pattern_.
 
-This pattern uses two containers to restrict the width of the content in the inner container. The `body` is usually the outer container---you do not have to apply width to the body. So, you apply width and margins to the inner container.
+This pattern uses two containers to restrict the width of the content in the inner container. You apply width and margins to the inner container. The `body` is usually the outer container---you do not have to apply width to the body.
+
+> If the container is the `body`, then apply the width and margin to the `body` element. If you do this, add any background color to the `html` element so there is no white background past your `body` margins.
 
 Use a custom property for the width so you can apply it to other elements that use the double-container pattern:
 
@@ -74,6 +76,41 @@ You can also set up the double container with the `min()` function. The `min()` 
 ```
 This example sets the container width to either 1110px or 100% of the screen, with 1rem of padding on either side. On a large monitor, the container displays at 1110px. When the display is smaller than 1110px, it displays the other `min()` setting, which leaves 1rem of padding on either side.
 
+### Multi-column layout module
+
+This module lets content flow naturally between multiple columns, much like how columns work in MS Word. There are two strategies to define the layout:
+- Declare a column width: Browser will create as many cols of that width as possible
+- Declare number of columns: Browser creates equal-sized columns of the specified number of columns
+
+Here is an example where we declare the number of columns with `column-count`:
+
+```css
+@media (min-width: 955px) {
+  article {
+    column-count: 3;                    /* number of columns */
+    column-rule: 3px solid #333;        /* border between cols */
+    column-gap: 42px;
+    margin-top: 36px;
+  }
+}
+```
+
+If you want an element to span multiple columns, use the `column-span` property. It accepts `all` or `none`:
+
+```css
+@media (min-width: 955px) {
+  ...
+  blockquote {
+    column-span: all;
+  }
+}
+```
+
+In some cases, the contents of an element might be split across columns. To prevent this, use the `break-inside` property:
+
+```css
+
+```
 
 ## Logical properties
 

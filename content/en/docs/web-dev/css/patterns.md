@@ -387,3 +387,170 @@ blockquote::after {
   content: close-quote;
 }
 ```
+
+## background-clip
+
+Along with `text-fill-color`, lets you apply a background image to text. These are experimental, so make sure you provide fallback properties:
+- set `background-size: cover;` so the image covers the entire element. The browser automatically calculates the element width and height.
+- set `background-clip: text;` so the image shows only behind the letters. You need to add vendor prefixes for this.
+- set `<vendor>-text-fill-color: transparent;` so you can see teh image through the text. This supercedes `color`, so you can put it earlier in the cascade. Always add a appropriate `color` fallback in case this fails.
+
+```css
+h1 {
+  ...
+  background: url("images/bg-img.jpg");
+  background-size: cover;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -moz-text-fill-color: transparent;
+  -webkit-text-fill-color: transparent;
+  color: white;
+}
+```
+
+## Summary cards with transform
+
+First, apply a background image and styles for the containing section. Here, we add the image with a size of `cover` so you can see as much of the image as possible within the containing element. We also add a `background-color` fallback in case the image doesn't load:
+
+```css
+.summary-card-class {
+  background-image: url(/images/4.jpg);
+}
+
+main > section {
+  background-size: cover;
+  background-color: #3a8491;
+  border-radius: 4px;
+}
+```
+
+Next, style the content container. Here, it is a `<div>`. This adds margin, padding, and text styles to the content header and body text. We also add a transparent, nearly-black background to add contrast and improve readability:
+
+```css
+main > section > div {
+  background-color: hsla(0, 0%, 0%, 0.75);
+  margin: 1rem;
+  padding: 1rem;
+  color: whitesmoke;
+  text-align: center;
+  font-size: 14px;
+  font-family: "Rubik", sans-serif;
+}
+
+section h2 {
+  font-size: 1.3rem;
+  font-weight: bold;
+  line-height: 1.2;
+}
+
+section p {
+  font-style: italic;
+  font-size: 1.125rem;
+  font-family: "Cardo", cursive;
+  line-height: 1.35;
+}
+```
+
+Now, style the links. These styles change the `<a>` tag into an inline block element so you can add padding to increase the clickable area. On focus, the 
+
+```css
+a {
+  background-color: #ffa600;
+  color: rgba(0 0 0 0.75);
+  padding: 0.75rem 1.5rem;
+  display: inline-block;
+  border-radius: 4px;
+  text-decoration: none;
+}
+
+a:hover {
+  background-color: #e69500;
+}
+
+a:focus {
+  outline: 1px dashed #e69500;
+  outline-offset: 3px;
+}
+```
+Format the content in the container with a grid. We use `calc()` to limit the grid size to 100% of the container, minus the padding and margin applied to the `<div>` containing element. We define the rows where the header and link take the minimum space their content requires (`min-content`), and the middle row takes the remainder (`auto`).
+
+```css
+main > section > div {
+  background-color: hsla(0, 0%, 0%, 0.75);
+  ...
+  height: calc(100% - 4rem);
+  display: grid;
+  grid-template-rows: min-content auto min-content;
+  align-items: center;
+}
+```
+
+### Hide with transform
+
+For screens Now, we hide the portion that we want to reveal on hover. To accomplish this, apply the `translateY()` to move the content vertically. Use `calc()` to move it by the card height (350px) minus the container top margin + container top padding + header size.
+
+We also apply a compound `@media` query that works on devices that hover and frequently use hover (`hover:hover`), has a minimum width of 700px, and the browser does not prevent animations:
+
+```css
+@media (hover: hover) and (min-width: 700px) and (prefers-reduced-motion: no-preference) {
+  main > section > div {
+    transform: translateY(calc(350px - 6rem));
+  }
+}
+```
+
+Next, hide the trailing content that does not display until the user hovers. To do this, we set an explicit height on the inner `<div>` container, and hide the overflow.
+
+Because some of the text content is visible, we also hide the non-header content by setting `opacity: 0;`. The additional `translateY` function adds more movement to the content with it displays during a hover action:
+
+```css
+@media (hover: hover) and (min-width: 700px) and (prefers-reduced-motion: no-preference) {
+  main > section > div {
+    ...
+    height: 5rem;                       /* otherwise, content displays on hover or focus */
+    overflow: hidden;                   /* hide overflow */
+  }
+
+  main > section > div > *:not(h2) {
+    opacity: 0;
+    transform: translateY(1rem);
+  }
+}
+```
+### Reveal with transform
+
+Finally, we add styles to reveal the hidden content. We animate the changes with this rule that transitions all properties over 700ms, and it starts slowly, speeds up, then slows down at the end (`ease-in-out`):
+
+```css
+transition: all 700ms ease-in-out;
+```
+
+We want to reveal the content when the user hovers or when it is in keyboard focus. For the keyboard focus, you use `:focus-within` so we apply styles when a descendant of the element is currently in focus. To complete the transition:
+- use `translateY(0)` to remove the vertical displacement
+- set the height of the inner containter to the height of the outer container minus its padding and margin
+- reset the opacity on the paragraph and link with `opacity: 1;`
+
+```css
+@media (hover: hover) and (min-width: 700px) and (prefers-reduced-motion: no-preference) {
+  main > section > div {
+    ...
+    transition: all 700ms ease-in-out;              /* apply animation */
+  }
+
+  main > section > div > *:not(h2) {
+    ...
+    transition: all 700ms ease-in-out;              /* apply animation */
+  }
+  section:hover div,
+  section:focus-within div {
+    transform: translateY(0);                       /* remove vertical displacement */
+    height: calc(350px - 4rem);                     /* container el height - (padding + margin) */
+  }
+
+  section:hover div > *:not(h2),
+  section:focus-within div > *:not(h2) {
+    opacity: 1;                                     /* reinstate content opacity */
+    transform: translateY(0);                       /* remove vertical displacement */
+  }
+}
+```

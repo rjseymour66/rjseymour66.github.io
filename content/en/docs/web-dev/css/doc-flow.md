@@ -1,5 +1,5 @@
 ---
-title: "Document flow and layout"
+title: "Doc flow and layout"
 # linkTitle: "CSS in Depth"
 weight: 40
 # description:

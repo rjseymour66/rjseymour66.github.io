@@ -105,7 +105,15 @@ img.compass {
   border: 1px solid red;
 }
 ```
+### vertical-align
 
+If you need to center an image in a button, use `vertical-align`:
+
+```css
+button img {
+  vertical-align: middle;
+}
+```
 
 ### flow-root
 

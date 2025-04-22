@@ -565,3 +565,45 @@ We want to reveal the content when the user hovers or when it is in keyboard foc
   outline-offset: 3px;
 }
 ```
+
+## Tables
+
+Tables have three sections:
+- Header: `<thead>`
+- Body: `<tbody>`
+- Footer: `<tfoot>`
+
+### tbody
+
+You can target specific columns in a table with the `nth-of-type(<n>)` pseudo class. This rule says, "In the `tbody`, select the second element of type `td` and make the font weight bold":
+
+```css
+tbody td:nth-of-type(2) {
+  font-weight: bold;
+}
+```
+
+To give the rows a zebra-like style, use the `nth-of-type(<n>)` pseudo class with the `even` (or `odd`) keyword as an argument. This rule gives all even-numbered rows a different background color:
+
+```css
+tbody tr:nth-of-type(even) {
+  background: #f2fcfc;
+}
+```
+
+### Borders
+
+By default, each table cell has a border. When you apply a visibile color to the border, it looks like each cell is a block. To get rid of these borders, collapse them. Then, you can add borders to only the top of the rows by targeting the `tr` element.
+
+**Make sure you collapse the borders on the `table` element**:
+
+```css
+table {
+  border-collapse: collapse;
+}
+
+tr {
+  border-top: 1px solid #aeb7b7;
+}
+
+```

@@ -79,20 +79,6 @@ If your font sizes change between screen sizes, they can change drastically at y
 
 Setting a responsive font size means that other elements on the page scale appropriately, and without breakpoints.
 
-### ch unit
-
-To ensure each line of content does not extend beyond a readable size, you can use the `ch` unit to set the `max-width` of a content block. A `ch` unit is as wide as the `0` (zero) character of the current font size:
-
-```css
-body {
-  ...
-  max-width: 78ch;
-  margin: 0 auto;
-  font-family: "Times New Roman", Times, serif;
-  border-left: 5px double rgba(0, 0, 0, 0.16);
-  min-height: 100vh;
-}
-```
 
 #### clamp()
 
@@ -122,6 +108,43 @@ This ruleset uses `0.5em` as the minimum font size, and it scales by `1svw` as y
     font-size: calc(0.5em + 1svw);
 }
 ```
+### ch unit
+
+To ensure each line of content does not extend beyond a readable size, you can use the `ch` unit to set the `max-width` of a content block. A `ch` unit is as wide as the `0` (zero) character of the current font size:
+
+```css
+body {
+  ...
+  max-width: 78ch;
+  margin: 0 auto;
+  font-family: "Times New Roman", Times, serif;
+  border-left: 5px double rgba(0, 0, 0, 0.16);
+  min-height: 100vh;
+}
+```
+
+## Numbers
+
+Fonts might use either old-style or modern numbers. Old-style numbers can display above the meanline (top of the font line) and below the baseline of the text. Modern numbers display within the meanline and baseline. Control this and other number features with `font-variant-numeric`. 
+
+### font-variant-numeric
+
+This property lets you control the following:
+- whether zeros have a slash
+- number alignment
+- how fractions are displayed
+
+To change old-style number alignment to modern, apply this ruleset:
+
+```css
+body {
+  font-family: "Raleway", sans-serif;
+  color: #171717;
+  font-variant-numeric: lining-nums;
+}
+```
+
+
 
 ## ems vs px
 

@@ -64,6 +64,47 @@ figure {
 }
 ```
 
+### aspect-ratio
+
+The aspect ratio is the proportional relationship of the image width and height, which is equal to the width / height. It isn't necessary many times, but including it reduces layout shifts when the browser has to reload. This happens because the browser knows the image size and can save room while it is being loaded.
+
+### shape-outside
+
+In some cases, you might have to wrap text around a square or rectangular image. You can do this with the `shape-outside` property, which accepts any of the following:
+- circle or ellipse
+- polygon
+- alpha channel of the image (?)
+- path
+- box model values like `margin-box`, `content-box`, etc.
+- linear-gradient
+
+This example uses the `circle()` function to define a circle. This function takes the radius of the circle, which we set at `50%`. It also uses the `clip-path` property to clip the image into a shape:
+
+> I did not get this to work correctly.
+
+```css
+img.compass {
+  aspect-ratio: 1;
+  float: right;
+  shape-outside: circle(50%);
+  clip-path: circle(50%);
+  margin-left: 1rem;
+}
+```
+
+Another option is combining `shape-outside` with a box-model value and `border-radius`. This `border-radius` clips the image and gives the image a circular shape, and `shape-outside: margin-box;` tells the text to flow around the image's margin-box size:
+
+```css
+img.compass {
+  aspect-ratio: 1;
+  float: right;
+
+  margin-left: 1rem;
+  border-radius: 50%;
+  shape-outside: margin-box;
+  border: 1px solid red;
+}
+```
 
 
 ### flow-root
@@ -185,3 +226,23 @@ rect:nth-child(1)  { fill: #1a9f8c }          /* element selector */
 ```
 
 For more information, see the [MDN docs](https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Attribute).
+
+### Floating SVGs
+
+You can float an SVG and wrap text around it by importing it with the `shape-outside` property and the `url()` function.
+
+> When you use `url()` with `shape-outside`, its important that the SVG resource is fetched by the browser, not read from the file system. Reading from the file system violates CORS policy.
+>
+> Note that the resource being fetched is the SVG path, not the actual image. You still need to have the image bundled with your website resources (HTML, CSS, etc.) so it renders in the browser.
+
+In addition to fetching the SVG shape, you have to add shape-margin to move the text away from the SVG path. We also add some `margin-right` (the image is floated left) so the text appears to flow more naturally around the image. Make sure your standard `margin*` value is less than or equal to your `shape-margin`, or the text won't wrap uniformly:
+
+```css
+img.dog {
+  aspect-ratio: 126/161;
+  float: left;
+  shape-outside: url(https://raw.githubusercontent.com/michaelgearon/Tiny-CSS-Projects/main/chapter-07/before/img/dog.svg);
+  shape-margin: 1em;
+  margin-right: 1em;
+}
+```

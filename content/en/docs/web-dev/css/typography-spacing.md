@@ -79,6 +79,21 @@ If your font sizes change between screen sizes, they can change drastically at y
 
 Setting a responsive font size means that other elements on the page scale appropriately, and without breakpoints.
 
+### ch unit
+
+To ensure each line of content does not extend beyond a readable size, you can use the `ch` unit to set the `max-width` of a content block. A `ch` unit is as wide as the `0` (zero) character of the current font size:
+
+```css
+body {
+  ...
+  max-width: 78ch;
+  margin: 0 auto;
+  font-family: "Times New Roman", Times, serif;
+  border-left: 5px double rgba(0, 0, 0, 0.16);
+  min-height: 100vh;
+}
+```
+
 #### clamp()
 
 Accepts a minimum, preferred, and maximum value:
@@ -308,8 +323,10 @@ Typographical terminology includes leading and tracking:
 
 To find the right values, test using values that are too tight and then too far apart and select the one that looks best. There are some general rules of thumb to help:
 - `line-height` is 1.2 by default. **This is usually too small--aim for 1.4 to 1.6**. Set this on the `<body>` element.
-  - Longer lines of text should have larger line height for readability
-  - Lines should be **no longer than 45 - 75 characters**
+- Unitless `line-height` values are computed relative to the font size of the element. Use unitless values!
+- Setting `line-height` to 1.2 is equivalent to setting it to `120%`.
+- Longer lines of text should have larger line height for readability
+- Lines should be **no longer than 45 - 75 characters**
 
 ### letter-spacing
 
@@ -343,7 +360,18 @@ p {
   hyphens: auto;
 }
 ```
+### Drop caps
 
+A drop cap is a large, decorative capital letter used as the first letter in a paragraph or section. This example targets the letter with pseudo-classes and uses `float` to place first letter on the left and let the text wrap around it. It also sets the `line-height` low because it is calculated using the larger font size:
+
+```css
+p:first-of-type::first-letter {
+  font-size: 6em;
+  float: left;
+  line-height: 0.5;
+  font-family: "Passions Conflict", cursive;
+}
+```
 
 
 ### Headings, small elements, and spacing

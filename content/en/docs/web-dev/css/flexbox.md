@@ -75,6 +75,21 @@ The shorthand `flex` property is usually all you need. For example, the followin
 
 When you need flex items to grow to fill their container, set `flex` to any value other than `0`.
 
+Another example sets `flex-basis` for each item to 33% of the flex container width. We also set `flex-shrink` to `1` so the items can shrink, as needed. This is helpful if you use a flex gap in your styles--the browser starts with the specified `flex-basis`, but then shrinks the flex items depending on other styles that use the same space, such as `gap`:
+
+```css
+dl {
+  display: flex;
+  justify-content: center;
+  gap: 12px;                  /* gap that takes away from flex item size */
+}
+
+dl > div {
+  flex-basis: 33%;            /* 1/3 of container */
+  flex-shrink: 1;             /* browser adjusts for gap */
+}
+```
+
 ## Flex direction
 
 Add the `flex-direction` style to the flex container:
@@ -155,6 +170,18 @@ Apply the following properties to the flex container:
 ## Use cases
 
 [Typical use cases](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Flexible_Box_Layout/Typical_Use_Cases_of_Flexbox)
+
+### Centered layout in viewport
+
+To center an element with Flexbox, you can make the `<body>` element the flex container, and then center the flex items verticaly and horizontally:
+
+```css
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+```
 
 ### Cards
 

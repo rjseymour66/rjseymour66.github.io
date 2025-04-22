@@ -22,6 +22,9 @@ If you need to use more than one of these, don't use the shorthand, use the indi
 ### linear-gradient()
 
 Use `linear-gradient()` as a value in the `background-image` property. It takes three parameters:
+```css
+background: linear-gradient(<angle>, <start-color>, <end-color>);
+```
 1. angle
    - `to right`
    - `to top`
@@ -45,6 +48,21 @@ Use `linear-gradient()` as a value in the `background-image` property. It takes 
   background-image: linear-gradient(90deg, white, blue);
 }
 ```
+
+### Background gradients
+
+If you use a linear gradient as the background, you need to set the `min-height` to `100vh`. Otherwise, the gradient repeats if the content is not as large as the viewport:
+
+```css
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
+```
+
+If you set `background-repeat: no-repeat` and the viewport is larger than the content, there will be a white space below the content.
 
 ### Multiple color stops
 

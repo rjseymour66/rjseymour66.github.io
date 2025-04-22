@@ -195,6 +195,15 @@ Negative margins make elements overlap or stretch wider than their containers. N
 > 
 > Prefer the `position` property when placing elements.
 
+You can calculate negative margin with the `calc()` function. This ruleset places an 1/3 of an image above its containing block using a negative `margin-top` and `calc()`:
+
+```css
+img.portrait {
+  ...
+  margin-top: calc(-1 * var(--image-size) / 3);
+}
+```
+
 ## Collapsed margins
 
 Top and bottom margins combine to form a single margin. This is called _collapsing_. By default, the user agent stylesheet adds top and bottom margin to block elements. For example, 1em top and bottom for `p` elements.

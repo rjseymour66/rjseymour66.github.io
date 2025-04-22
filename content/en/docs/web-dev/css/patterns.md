@@ -554,3 +554,14 @@ We want to reveal the content when the user hovers or when it is in keyboard foc
   }
 }
 ```
+
+## focus-visible outline for keyboard nav
+
+`focus-visible` can add an outline to UI elements when a user navigates to the element with the keyboard:
+
+```css
+*:focus-visible {
+  outline: 1px dotted var(--primary);
+  outline-offset: 3px;
+}
+```

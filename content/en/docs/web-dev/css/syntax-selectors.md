@@ -357,6 +357,7 @@ Here are examples to show how to use `:nth-child` pseudo-class:
 .myList:nth-child(3n) {...}       /* Selects every 3rd element with class myList */
 .myList:nth-child(3n + 3) {...}   /* Selects every 3rd element with class myList, beginning with the 3rd */
 .myList:nth-child(even) {...}     /* Selects every even element with class myList */
+td:nth-of-type(n + 3) {...}       /* Selects every table cell element, starting with the 3rd table cell */
 ```
 
 #### Pseudo-elements
@@ -401,6 +402,8 @@ The following example places the word "pre" before the tag in square braces:
   content: "pre"
 }
 
+input[type="number"] {...}  /* any input element with 'type="number"' */
+
 [src] {...}                 /* any element that has a src attribute. */
 img[src] {...}              /* img elements that have a src attribute. */
 img[src="puppy.jpg"] {...}  /* img elements with a src attribute that is exactly "puppy.jpg" */
@@ -410,7 +413,15 @@ img[src="puppy.jpg"] {...}  /* img elements with a src attribute that is exactly
 [src$=".jpg"] {...}         /* any src attribute that ends in '.jpg' */
 [for*="ill"] {...}          /* any for attribute that has 'ill' anywhere inside it */
 ```
+### attr()
 
+You can get the value of an attribute with the `attr()` function. Just pass the attribute name to the function. Here, we use the value of a `data-` element as the content of a table cell and append a colon:
+
+```css
+td[data-name]::before {
+  content: attr(data-name) ":";
+}
+```
 
 ### Universal selector
 

@@ -605,5 +605,59 @@ table {
 tr {
   border-top: 1px solid #aeb7b7;
 }
+```
 
+### Responsive tables
+
+Tables do not work well on mobile, so you can make them behave like cards on a smaller screen. This is a special circumstance where you want to use a `max-width` media query (rather than a mobile-first `min-width`) to apply styles until a specific width.
+
+To style the table for mobile:
+- make the table cells and table rows `display: block;`. Normally, these are display type `table-cell` and `table-row`
+- changing the display type means that the table does not take up its container's width. Make the table width `100%` to change this.
+- because the first column contains an image, float it left and add margin so there is space between it and the text
+- absolutely position the header off the page. Positioning leaves this available to screen readers. You can access the table header contents with the `data-name` attribute. Position it with a pseudo-selector that uses table cells for placement.
+- align the table cell data to the right
+- extract the header content with the `attr()` function and the `data-name` attribute. Float it left so it lines up along the floated image
+- change the footer row into a flex container, and update the flex item spacing and add padding
+
+```css
+table {
+  width: 100%;
+}
+
+@media (max-width: 549px) {
+  td,
+  tr {
+    display: block;
+  }
+  table td > img {
+    float: left;
+    margin-right: 10px;
+  }
+
+  thead {
+    position: absolute;
+    left: -9999rem;
+  }
+
+  td {
+    text-align: right;
+    padding: 5px;
+  }
+
+  td[data-name]::before {
+    content: attr(data-name) ":";
+    float: left;
+  }
+
+  tfoot tr {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+
+  tfoot th {
+    padding: 5px;
+  }
+}
 ```

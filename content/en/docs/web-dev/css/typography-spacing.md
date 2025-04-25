@@ -194,20 +194,30 @@ This example updates the line height on an inline list of metadata tags. Because
 }
 ```
 
-## Web fonts
+## Web fonts and local fonts
 
 A _font_ is a variant or weight of a specific type of fonts. _Typeface_ is the entire family of fonts--all available font weights, sizes, etc.
 
 Historically, web designers had to choose from a limited set of typefaces called _web-safe fonts_, like Arial, Helvetica, and Georgia. If you specified less-safe fonts, they would only show up for users that had those fonts installed on their systems.
 
-Now, web fonts use `@font-face` to tell the browser where to download the fonts for the web page. Easiest way to use fonts is through an online service:
+You can use web fonts or local/self-hosted fonts. Web fonts are imported from a service like Google Fonts, either in the HTML with a `<link>` tag or with an `@import` statement in the stylesheet. Local or self-hosted fonts are stored locally on your machine and imported using `@font-face`.
+
+Here are the advantages and disadvantages of each:
+
+|            | Advantages                                  | Disadvantages                                                                   |
+| ---------- | ------------------------------------------- | ------------------------------------------------------------------------------- |
+| web font   | Easy imports<br>Cached on user machine      | Extra call to import file<br>Privacy concerns<br>Service might discontinue font |
+| local font | No dependencies<br>More performance control | Manage performance<br>User won't have font cached                               |
+
+
+### Adding web fonts
+
+Web fonts tell the browser where to download the fonts for the web page. Easiest way to use fonts is through an online service:
 - [Google Fonts](https://fonts.google.com/)
 - [Font Library](https://fontlibrary.org/)
 - [Adobe Fonts (not free)](https://fonts.adobe.com/)
 
 You can include them with link tags in the HTML or `@import` statement at the top of the stylesheet.
-
-### Adding web fonts
 
 Google serves fonts in the WOFF2 format--Web Open Font Format, which is a compressed format designed for use over a network.
 
@@ -240,7 +250,9 @@ This adds [Google Fonts](https://fonts.google.com/):
 
 ### @font-face
 
-Use `@font-face` if you purchase fonts that aren't available at an online service.
+**Add `@font-face` at the top of the stylesheet.**
+
+Use `@font-face` for locally-stored, purchased fonts that aren't available at an online service. `@font-face` only makes the fonts avaialble to your CSS--you still have to apply it to elements.
 
 If you follow the last link in the Google fonts `<link>` set, you see a page that lists all font faces available to your page. Here is a specific rule for italic Roboto with font weight of 300. Each variant that you select has its own rule:
 
@@ -249,7 +261,7 @@ If you follow the last link in the Google fonts `<link>` set, you see a page tha
 @font-face {
   font-family: 'Roboto';            /* What you can reference in your stylesheet */
   font-style: italic;
-  font-weight: 300;
+  font-weight: 300 700;
   font-stretch: 100%;
   font-display: swap;
   /* Font file location for download */
@@ -259,10 +271,28 @@ If you follow the last link in the Google fonts `<link>` set, you see a page tha
 }
 ```
 
+- `font-family`: Name we use to refer to our font
+- `font-style`:
+- `font-weight`: Can load multiple font weights
+- `font-stretch`:
+- `font-display`: How the font is loaded. Font loading blocks other resources. `swap` means that the browser will load the font for a period of time. If the font isn't loaded after that time is up, then it loads other resources and finishes loading the font later.
+- `src`: Font file location for download. Accepts a comma-separated list of locations and formats that are loaded in order until success
+  
 Here are some links:
 
 - [W3 general info](https://www.w3schools.com/css/css3_fonts.asp)
 - [Font file formats](https://fileinfo.com/filetypes/font)
+
+### Common file types
+
+TLDR; Use WOFF or WOFF2
+
+- **TrueType (TTF)**: Not compressed
+- **Open Type (OTF)**: Evolution of TFF, more chars
+- **Embedded Open Type (EOT)**: Developed by MS, only supported by IE
+- **Web Open Font Format (WOFF)**: Recommended by W3C. Created for web, compressed, contains copyright metadata
+- **Web Open Font Format 2 (WOFF2)**: Continuation of WOFF, 30% more compressed
+- **SVG**: Created to allow embedded glyph information in SVGs before web fonts were widespread
 
 ### Custom @font-face
 
@@ -299,7 +329,43 @@ Here is a `@font-face` rule that you would add to your stylesheet. The `local()`
 
 ### Variable fonts
 
-Newer fonts are available as variable fonts, where you can use a single font file for a range of fonts. Read page 348-49 for details.
+Newer fonts are available as variable fonts, where you can use a single font file for a range of fonts. (Read page 348-49 for details).
+
+Basically, web fonts for different weights or sizes are included in a single font file. Italics are generally in their own file.
+
+Variable fonts are not widely supported. You should add them with a `@supports` at-rule so they are applied when supported. This example loads the fonts when they are supported and uses a `not` clause to load fallbacks:
+
+```css
+@supports (font-variation-settings: normal) {
+  @font-face {
+    font-family: "Open Sans";
+    src: url("fonts/open-sans-variable.woff2") format("woff2-variations");
+    font-style: normal;
+    font-weight: 100 800;
+    font-display: swap;
+  }
+}
+
+@supports not (font-variation-settings: normal) {
+  @font-face {
+    font-family: "Open Sans";
+    src: local("Open Sans Regular"), local("OpenSans-Regular"),
+      url("fonts/open-sans-regular.woff2") format("woff2"),
+      url("fonts/open-sans-regular.woff") format("woff");
+    font-weight: normal;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: "Open Sans";
+    src: local("Open SansBold"), local("OpenSans-Bold"),
+      url("fonts/open-sans-regular.woff2") format("woff2"),
+      url("fonts/open-sans-regular.woff") format("woff");
+    font-weight: bold;
+    font-display: swap;
+  }
+}
+```
 
 ## Performance
 

@@ -388,9 +388,30 @@ blockquote::after {
 }
 ```
 
+## background shorthand
+
+These are equivalent:
+
+```css
+.some-class {
+    background: url(image/path) left top / cover blue;
+}
+
+.some-class {
+    background-image: url(image/path);
+    background-position: left top;
+    background-size: cover;
+    background-color: blue;
+}
+```
+- `background-size: cover;` tells the browser to calculate the optimal size of the image to coer the entire element without distortion. If the image doesn't have the same aspect ratio to the element, parts of the element are clipped.
+  - If you don't want to clip the image, use `contain` instead of `cover`
+- `background-color: blue;` helps if the image takes too long to load, or if the image is transparent
+
+
 ## background-clip
 
-Along with `text-fill-color`, lets you apply a background image to text. These are experimental, so make sure you provide fallback properties:
+Along with `text-fill-color`, lets you apply a background image to text. Meaning, you can have large text, make it transparent, and show an image through the text as if the text clipped out that portion of the image. These are experimental, so make sure you provide fallback properties:
 - set `background-size: cover;` so the image covers the entire element. The browser automatically calculates the element width and height.
 - set `background-clip: text;` so the image shows only behind the letters. You need to add vendor prefixes for this.
 - set `<vendor>-text-fill-color: transparent;` so you can see teh image through the text. This supercedes `color`, so you can put it earlier in the cascade. Always add a appropriate `color` fallback in case this fails.
@@ -551,6 +572,113 @@ We want to reveal the content when the user hovers or when it is in keyboard foc
   section:focus-within div > *:not(h2) {
     opacity: 1;                                     /* reinstate content opacity */
     transform: translateY(0);                       /* remove vertical displacement */
+  }
+}
+```
+
+## Flip card with transform
+
+The general process:
+1. With absolute positioning, overlay the two elements that you want to flip, i.e. the front and the back of the card.
+2. Place the card with `backface-visibility` and `transform`. `backface-visibility` works when you use a 3D transform property.
+3. Animate the change with `transition`.
+
+Here is the abbreviated HTML:
+
+```html
+    <section class="card-item">
+      <!--Front of the card-->
+      <section class="card-item__side front">
+        ...
+      </section>
+
+      <!--Back of the card-->
+      <section class="card-item__side back">
+        ...
+      </section>
+    </section>
+```
+
+First, absolutely position the 'back' element and rotate it on its horizontal axis with `transform`. This rotation adds to the illusion that the card is actually being flipped over. We place this in a `hover` media query so machines with hover use the flip, but mobile devices (without hover capabilities) just display the images side-by-side:
+
+```css
+@media (hover: hover) {
+  .back {
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform: rotateY(-180deg);
+  }
+}
+```
+
+Next, apply the `transform` styles that work on hover:
+- `transform-style` tells the browser that we are trying to create a 3D effect.
+- `backface-visibility` works when you apply a 3D transform property, such as `rotateX()` or `rotateY()`. Here, we are telling the browser to hide the transformed element. In this case, it is the back of the card where we applied `transform: rotateY(-180deg);` previously in the `hover` media query.
+- 
+
+```css
+@media (hover: hover) {
+  ...
+  .card-item {
+    transform-style: preserve-3d;
+  }
+
+  .card-item__side {
+    backface-visibility: hidden;
+  }
+
+  .card-item:hover {
+    transform: rotateY(180deg);
+  }
+}
+```
+
+Now, we need to smoothly transition from the front of the card to the back of the card on hover. Do this with the `transform` property. Here, we add the `transition` property to the containing `card-item` element and add the `prefers-reduced-motion` condition to the media query:
+
+```css
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    ...
+  .card-item {
+    transform-style: preserve-3d;
+    transition: transform 350ms cubic-bezier(0.71, 0.03, 0.56, 0.85);
+  }
+    ...
+  .card-item:hover {
+    transform: rotateY(180deg);
+  }
+}
+```
+This rule:
+- applies a transistion to the `.card-item:hover { transform: rotateY(180deg); }` declaration
+- the animation takes 350ms
+- uses a cubic-bezier timing function that consists of four points:
+  - points one and four represent the start and end, respectively
+  - points two and three are handles on the points that are represented with x and y coordinates
+  - these are difficult to calculate by hand. Use [cubic-bezier](https://cubic-bezier.com/#.17,.67,.83,.67) or the browser dev tools.
+
+Here is the complete ruleset:
+
+```css
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .back {
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform: rotateY(-180deg);
+  }
+
+  .card-item {
+    transform-style: preserve-3d;
+    transition: transform 350ms cubic-bezier(0.71, 0.03, 0.56, 0.85);
+  }
+
+  .card-item__side {
+    backface-visibility: hidden;
+  }
+
+  .card-item:hover {
+    transform: rotateY(180deg);
   }
 }
 ```

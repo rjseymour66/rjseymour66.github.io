@@ -5,6 +5,8 @@ description: >
   Creating and styling forms.
 ---
 
+Forms are usually contained within the `<form>` element, and contain form fields, or "controls."
+
 ## Links
 
 - [Basic native form controls](https://developer.mozilla.org/en-US/docs/Learn/Forms/Basic_native_form_controls)
@@ -213,7 +215,7 @@ You should try to place the `<button>` attribute within the `<form>` element. If
 </section>
 ```
 
-## Organization
+## \<fieldset>
 
 You can group form inputs withe the `<fieldset>` element, and label each `<fieldset>` section with the `<legend>` element:
 
@@ -230,6 +232,18 @@ You can group form inputs withe the `<fieldset>` element, and label each `<field
   <label for="email">Email:</label>
   <input type="email" id="email" name="email">
 </fieldset>
+```
+
+### Hiding \<fieldset>
+
+You might want the structure of a `<fieldset>` container element, but you don't want to display it. These elements can seem out-of-date. Here is how to hide it:
+
+```css
+fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
 ```
 
 ## UX and styles
@@ -319,6 +333,28 @@ textarea {
 }
 ```
 
+### input styles
+
+This ruleset uses the `:not()` pseudo-selector to style any input that is not a checkbox or radio button. The most interesting part is how it uses `border-image` to apply a linear gradient to the input border. This is because you can apply gradients to image properties only:
+
+```css
+input:not([type="radio"], [type="checkbox"]),
+textarea,
+select {
+  font-size: 1rem;
+  font-family: inherit;
+  color: inherit;
+  border: none;
+  border-bottom: 1px solid var(--primary);
+  border-image: linear-gradient(to right, var(--primary), var(--accent)) 1;
+  padding: 0 0 0.25rem;
+  width: 100%;
+  background-color: var(--background-card);       /* for the select element */
+}
+```
+
+> You can also apply these styles to `<textarea>` and `<select>` elements.
+
 ### Legend placement
 
 If you want to move the legend description text, you have to make the fieldset `position: relative;` and the legend `position: absolute;`:
@@ -355,6 +391,14 @@ textarea {
 
   /* resize  : none; */
   overflow: auto;
+}
+```
+
+You can also limit which direction users can expand the textarea with the `resize` property. Here, we only let the user expand the textarea vertically:
+
+```css
+textarea {
+  resize: vertical;
 }
 ```
 
@@ -483,6 +527,97 @@ input[type="checkbox"]:disabled {
   background: #ddd;
   color: gray;
 }
+```
+
+### Updated style option
+
+Radio and check box styles are defined by the operating system, so you have limited options in styling the form control. The best solution is to remove the default form control altogether and building your own with the `inline-grid` display type and `::before` or `::after` pseudo-classes.
+
+The following example applies these rules:
+1. Remove the control element by setting the `appearance` to `none`.
+2. Inherit the border color from the parent element, the `<input>`.
+3. Set the display to `inline-grid` so you can easily center the disc or checkmark when checked. `inline-grid` is similar to `inline-block`--it has all the behaviors of grid, but it is placed inline in the document flow.
+4. Center the disc or checkmark when checked
+5. Set the border radius on the element
+6. Use the `:where()` pseudo-class to select a list of selectors without adding specificity (`:where()` has 0 specificity). This rule defines styles for the content in the disc or box when checked. Make it display as a block so you can assign width and height. Prefer `:where()` over `:is()` because `:is()` has a specificity value of the selector with the highest specificity.
+7. `:where()` to define `hover` and `checked` state styles.
+8. Define what the checked content looks like. The radio button is filled with a circle, but the checkbox uses a custom polygon to define the dimensions of the check box. Use an SVG editor like Inkscape or [bennettfeely.com](https://bennettfeely.com/clippy/) to design the polygon.
+9. Define the border colors for the checked content.
+
+
+```css
+input[type="radio"],
+input[type="checkbox"] {
+  appearance: none;                       /* 1 */
+  background-color: var(--background);
+  margin: 0;
+
+  width: 1.75em;
+  height: 1.75em;
+  border: 1px solid currentColor;         /* 2 */
+  display: inline-grid;                   /* 3 */
+  place-content: center;                  /* 4 */
+}
+
+input[type="radio"] {
+  border-radius: 50%;                     /* 5 */
+}
+
+input[type="checkbox"] {
+  border-radius: 4px;                     /* 5 */
+}
+
+:where(input[type="radio"], input[type="checkbox"])::before {             /* 6 */
+  display: block;
+  content: "";
+  width: 1em;
+  height: 1em;
+}
+
+:where(input[type="radio"], input[type="checkbox"]):hover::before {       /* 7 */
+  background: var(--hover);
+}
+
+:where(input[type="radio"], input[type="checkbox"]):checked::before {     /* 7 */
+  background: var(--accent);
+}
+
+input[type="radio"]::before {                                             /* 8 */
+  border-radius: 50%;
+}
+
+input[type="checkbox"]::before {
+  clip-path: polygon(14% 44%, 0% 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);   /* 8 */
+}
+
+:is(input[type="radio"], input[type="checkbox"]):checked {                    /* 9 */
+  border-color: var(--accent);
+}
+```
+When this is complete, you can format the label spacing with flexbox:
+
+```css
+label,
+legend {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin: 0 0 0.5rem 0;
+  font-size: 0.875rem;
+  color: var(--label-color);
+}
+```
+
+## Placeholder text
+
+Use the `:placeholder` pseudo-element to style default text. You can make the placeholder text smaller and lighter in color. Note that placeholder text does not replace labels:
+
+```css
+::placeholder {
+  color: var(--placeholder-color);
+  font-size: 0.75em;
+}
+
 ```
 
 ## Difficult items
@@ -826,9 +961,169 @@ You can select any number of checkboxes--they are not part of a group. This mean
 
 ### Submit button
 
-If the form's `action` attribute is blank, you can submit the form and see the query parameters in the browser URL box.
+If the form's `action` attribute is blank, you can submit the form and see the query parameters in the browser URL box. Here is a sample ruleset:
 
+```css
+button[type="submit"] {
+  border: none;
+  border-radius: 36px;
+  background: var(--accent);
+  color: var(--accent-contrast);
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0.5rem 2rem;
+}
+```
+### Errors
 
+The HTML includes validation checks such as `maxlength` and `required`. When you enter values that do not meet these requirements, the browser adds an `:invalid` pseudo-class to the element.
+
+The error is a span within a div. We hide the `<span>` within the div, not the entire div  because the form control's `aria-describedby` and error div's `id` field match. This is so screen readers know that the div contains additional information about that form control. Hiding only the span maintains the connection between the form control and the div.
+
+Because we're hiding the span, add the icon with the `::before` pseudo-element to the span
+
+```html
+<input
+  type="email"
+  id="email"
+  name="email"
+  maxlength="250"
+  required
+  aria-describedby="emailError"
+  placeholder="e.g. asmith@email.com"
+/>
+<!-- Associated error -->
+<div class="error" id="emailError">
+  <span role="alert">Please provide a valid email address</span>
+</div>
+```
+
+The corresponding styles:
+1. Styles the error message text
+2. Adds an icon before the span and styles it
+3. Hides the error message by default
+4. The JS file as a `.dirty` class to any form control that the user touches (this is done with the `blur` event, which happens when an element loses focus). If the form control does not meet the requirements after the user touches it, then the `:invalid` pseudo class is added along with the `.dirty` class. When these both occur, the span displays inline.
+5. The form control's border is changed for an `input` and `textarea` element.
+
+```css
+.error {                                /* 1 */
+  color: var(--error);
+  margin: 0.25rem 0 2rem;
+}
+
+.error span::before {                   /* 2 */
+  content: url("images/error.svg");
+  display: inline-block;
+  width: 1.25ex;
+  height: 1.25ex;
+  vertical-align: baseline;
+  margin-right: 0.5ch;
+}
+
+.error span {                           /* 3 */
+  display: none;
+}
+
+.dirty:invalid + .error span {          /* 4 */
+  display: inline;
+}
+
+:is(input, textarea).dirty:invalid {    /* 5 */
+  border-color: var(--error);
+  border-image: none;
+}
+```
+Here is the associated JS:
+
+```js
+/** On Load */
+
+(function () {
+    console.log('load');
+    const fields = getAllFieldsAsArray();
+    //  add blur listener to mark it as having been touched by the user
+    fields.forEach(input => input.addEventListener('blur', markAsDirty));
+})();
+
+function getAllFieldsAsArray() {
+    const fields = ['input', 'textarea', 'select'];
+    //  get arrays of each field types
+    return fields.map(fieldType => Array.from(document.querySelectorAll(fieldType)))
+        //  flatten the array
+        .flat();
+}
+
+function markAsDirty(event) {
+    event.target.classList.add('dirty');
+}
+
+function send(event) {
+    console.log('send');
+    event.preventDefault();
+}
+```
+
+### Hover and focus states
+
+Use the `:is()` pseudo-selector and `focus-visible` states to manage focus. `focus-visibile` adds styles when the user is interacting with an element with the keyboard only, not a mouse.
+
+The first ruleset adds a dashed red border when the element is in focus, and the second adds a red bottom border when it is in focus and invalid:
+
+```css
+:is(
+    input:not([type="radio"], [type="checkbox"]),
+    textarea,
+    select
+  ):focus-visible {
+  outline: none;
+  border-bottom: 1px dashed var(--primary);
+  border-image: none;
+}
+
+:is(
+    input:not([type="radio"], [type="checkbox"]).dirty:invalid,
+    textarea.dirty:invalid,
+    select.dirty:invalid
+  ):focus-visible {
+  border-color: var(--error);
+}
+```
+
+Here are the styles for checkboxes and radio buttons. We add a red, dashed line around each element:
+
+```css
+:where([type="radio"], [type="checkbox"]):focus-visible {
+  outline: 1px dashed var(--primary);
+  outline-offset: 2px;
+}
+```
+
+The hover states are simple--we change the cursor to a pointer for the `<select>` dropdown:
+
+```css
+select:hover {
+  cursor: pointer;
+}
+```
+
+### High contrast mode
+
+Operating systems let users limit the color palette for their device. This is called "high contrast mode." You can emulate this in Chrome dev tools:
+
+1. Open dev tools
+2. Click the vertical ellipses and select **More tools**
+3. Select **Rendering**
+4. In the **Rendering** tab, select **forced-clors:active** in the **Emulate CSS media feature forced-colors** dropdown.
+
+After you enable this, you can see that the checkbox and radio buttons are not visible. To fix this, add a `forced-colors` media query that changes the background to `CanvasText`. `CanvasText` this tells the browser to apply the same system color used for the text:
+
+```css
+@media (forced-colors: active) {
+  :where(input[type="radio"], input[type="checkbox"]):checked::before {
+    background-color: CanvasText;
+  }
+}
+```
 
 ## Form validation
 

@@ -429,6 +429,17 @@ h1 {
 }
 ```
 
+## Polka-dot background
+
+You can create a simple polka-dot pattern with radial gradient. This rule creates a small circle that transitions into a transparent color, and repeats across the entire page:
+
+```css
+body {
+  background-image: radial-gradient(var(--accent) 0.75px, transparent 0.75px);
+  background-size: 15px 15px;
+}
+```
+
 ## Summary cards with transform
 
 First, apply a background image and styles for the containing section. Here, we add the image with a size of `cover` so you can see as much of the image as possible within the containing element. We also add a `background-color` fallback in case the image doesn't load:

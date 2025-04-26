@@ -21,15 +21,24 @@ npm init -y                         # create new npm project
 npm install --save-dev sass         # install sass and add to package.json
 mkdir sass build                    # create two dirs
 touch sass/index.scss               # create main scss file
-vim package.json                    # create build scrip
+touch index.html                    # create html file in root dir, link build/styles.css
+vim package.json                    # edit generated scripts
+
+{
   ...
   "scripts": {
-    "sass": "sass sass/index.scss build/styles.css"
+    "start": "sass --watch sass/index.scss build/styles.css",
+    "build": "sass sass/index.scss build/styles.css"
   },
   ...
-npm run sass                        # run build script, [over]write build/styles.css 
+}
+
+npm run start       # starts a dev server for sass - updates when changes to files
+npm run build       # run build script, [over]write build/styles.css 
 ```
-When you run `npm run sass`, it creates a `styles.css.map` source map file that maps code in the `.css` output file to the `.scss` source file.
+When you run `npm run [start|build]`, npm does the following:
+1. Reads `sass/index.scss`
+2. Creates `build/style` and `build/styles.css.map`. The `.map` file maps code in the `.css` output file to the `.scss` source file so the browser knows where to find the styles
 
 ## Features
 
@@ -89,6 +98,26 @@ The preprocessor prepends the top-level selector to the nested selector with a s
 }
 .site-nav > li.is-active {
   display: block;
+}
+```
+
+Here's an example that uses pseudo-classes and the `&` operator. The `&` is like a stand in for the top level selector--in this case, the `a` selector:
+
+```css
+a {
+  font-weight: 800;
+  &:link,
+  &:visited {
+    color: $primary;
+    text-decoration-style: dotted;
+  }
+  &:hover {
+    text-decoration-style: dashed;
+  }
+  &:focus {
+    text-decoration-style: solid;
+    outline: none;
+  }
 }
 ```
 
@@ -156,6 +185,8 @@ html {
 ```
 ### Mixins
 
+> Mixins generate code, but extend adds selectors to the base.
+
 A mixin is a small, reusable chunk of CSS. Use this if you have some commonly repeated rules, or a font style that you need to repeat in multiple places throughout the stylesheet.
 
 Because mixins duplicate code, they compress well with `gzip`, which is how you should compress all network traffic.
@@ -214,10 +245,20 @@ Mixins can also accept parameters---like functions---and return styles. Paramete
 }
 ```
 
-To use the mixin, use the `@include` keyword, followed by the mixin name and arguments:
+This mixing uses [interpolation](#interpolation), which lets you parameterize a parameter:
 
 ```css
+@mixin handle-image($border-radius, $position, $side) {
+  border-radius: $border-radius;
+  object-position: $position;
+  float: $side;
+  margin-#{$side}: 0;           /* interpolation */
+}
+```
 
+To use the mixin, use the `@include` keyword, followed by the mixin name and arguments. In the stylesheet, the `@mixin` declaration must be before the rule that uses it:
+
+```css
 img:first-of-type { 
   @extend .image-base; 
   @include handle-img(20px 100px 10px 20px, center, left);
@@ -225,6 +266,8 @@ img:first-of-type {
 ```
 
 ### Extend
+
+> Mixins generate code, but extend adds selectors to the base.
 
 The `@extend` at-rule is similar to a mixin, but it doesn't copy declarations--it groups selectors and places them at an earlier location in the stylesheet. Because `@extend` moves the selector to an earlier location in the stylesheet, it might affect the cascade:
 
@@ -263,6 +306,110 @@ The `@extend` at-rule is similar to a mixin, but it doesn't copy declarations--i
 }
 ```
 
+### @each
+
+The `@each` at-rule iterates over all items in a list or map in order.
+
+First, you have to create a map, which is a list of key/value pairs that define what you want to apply to elements. Here is a map named `$callouts` that applies color variables and a basic `.callout` class:
+
+```css
+.callout {
+  border: 1px solid;
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+}
+
+$callouts: (
+  success: $success,
+  warning: $warning,
+  error: $error,
+);
+```
+
+Next, create the loop with `@each`:
+```css
+@each $type, $color in $callouts {
+  @debug $type, $color;
+}
+```
+Here is the basic structure and a description of the key elements:
+- `$type`: the key in the map. For example, `success`
+- `$color`: value of the key. For example, `$success`
+- `$callouts`: map that you want to iterate over
+- `@debug`: prints the `$type` and `$color` values to the console so we can make sure our loop is working correctly:
+  ```bash
+  sass/index.scss:81 Debug: success, #747d10
+  sass/index.scss:81 Debug: warning, #fc9d03
+  sass/index.scss:81 Debug: error, #940a0a
+  ```
+Finally, complete the loop. Here is the SASS input and truncated CSS output. This creates a rule named for each key in the map that does the following:
+- adds the basic `.callouts` ruleset with `@extends`
+- sets the border-color with the map value
+- nests a pseudo-element using the map key as part of the content, and capitalizes the map key
+
+```css
+/* SASS */
+@each $type, $color in $callouts {
+  @debug $type, $color;
+  .#{$type} {
+    @extend .callout;
+    border-color: $color;
+    &::before {
+      content: "#{$type}: ";
+      text-transform: capitalize;
+    }
+  }
+}
+
+/* CSS output */
+.callout, .error, .warning, .success {
+  border: 1px solid;
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+}
+
+.success {
+  border-color: #747d10;
+}
+.success::before {
+  content: "success: ";
+  text-transform: capitalize;
+}
+```
+
+## @if and @else conditionals
+
+You can add conditional statements to your styles, much like a programming language like Java. Here, we reuse the map iteration example from [@each](#each) to do the following:
+- if the map key equals "error", then change the font weight to `800`
+- otherwise, change the font weight to `500`
+
+```css
+@each $type, $color in $callouts {
+  @debug $type, $color;
+  .#{$type} {
+    @extend .callout;
+    background-color: scale-color($color, $lightness: +86%);
+    border-color: $color;
+    &::before {
+      content: "#{$type}: ";
+      text-transform: capitalize;
+      @if $type == "error" {              /* conditionals */
+        font-weight: 800;
+      } @else {
+        font-weight: 500;
+      }
+    }
+  }
+}
+```
+
+SCSS supports the following operators:
+- `==`: equals
+- `>`: greater than
+- `<`: less than
+- `and`: combinator
+- `or`: combinator
+
 ### Color manipulation
 
 The `color.adjust()` function lets you manipulate colors:
@@ -297,6 +444,32 @@ $yellow: color.adjust($green, $hue: -70deg);
   background-color: color.adjust($green, $hue: -70deg);
 }
 ```
+
+#### scale-color
+
+`scale-color` is a function that you can use to change the amount of red, green, blue, saturation, opacity, darkness, or lightness of a color. It works with either HSL or RGB, and you cannot mix the two.
+
+> This will come in handy when creating your color palette.
+
+Here, we use the [@each](#each) declaration we created earlier to add a background that increases the original color's lightness by 86%:
+
+```css
+@each $type, $color in $callouts {
+  @debug $type, $color;
+  .#{$type} {
+    @extend .callout;
+    background-color: scale-color($color, $lightness: +86%);    /* increase lightness */
+    border-color: $color;
+    &::before {
+      content: "#{$type}: ";
+      text-transform: capitalize;
+    }
+  }
+}
+
+```
+
+
 ### Interpolation
 
 Interpolation lets you parameterize a parameter. For example:

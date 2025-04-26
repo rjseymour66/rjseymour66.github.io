@@ -17,11 +17,13 @@ img {
 ```
 Setting the height and width on an image also helps the browser calculate the image size while it loads the other content. This might prevent strange rendering behavior during page loads.
 
-### object-position
+### object-fit and object-position
 
 An image might distort when you set its height and width dimensions. To prevent this, set `object-fit: cover;` to maintain the object's original aspect ratio while fitting inside the specified dimensions.
 
-When you apply `object-fit: cover;`, the browser clips the image. To change the image's position inside the container and manimpulate what part of the image is clipped, use the `object-position` property.
+When you apply `object-fit: cover;`, the browser clips the image.
+
+To change the image's position inside the container and manipulate what part of the image is clipped, use the `object-position` property. In other words, if you set `object-position: left;`, the browser places the left portion of the image into the dimensions.
 
 ### filters
 

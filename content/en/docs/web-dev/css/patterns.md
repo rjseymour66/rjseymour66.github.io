@@ -800,3 +800,34 @@ table {
   }
 }
 ```
+
+## outline-offset
+
+Use `outline-offset` to control where an element's outline is placed. Positive values move the outline farther from the element, and negative values place the outline within the element:
+
+```css
+.share__button:hover,
+.share__button:focus-visible {
+  cursor: pointer;
+  outline: 1px solid black;
+  outline-offset: -5px;
+}
+```
+
+## Transparent borders to prevent content shift
+
+If you add a border on a state like `:hover`, the content will shift after the state change if you don't add a transparent border to the stateless element:
+
+```css
+.share__link:link,
+.share__link:visited {
+  height: 48px;
+  width: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+}
+```
+

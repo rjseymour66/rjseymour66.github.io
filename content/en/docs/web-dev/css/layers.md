@@ -198,6 +198,9 @@ The subsequent sections provide brief examples of the types of styles you can in
 
 ### reset
 
+[Andy Bell's new reset suggestions](https://piccalil.li/blog/a-more-modern-css-reset/).
+
+
 Developers include a reset stylesheet to fix inconsistencies between default user-agent styles. This is not much of an issue anymore, but it is helpful to start at a baseline and apply styles from there.
 
 Add these styles to all projects as a reset:

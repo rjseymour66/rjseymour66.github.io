@@ -125,11 +125,17 @@ Use this when there is no element to reference with `aria-labelledby`.
 
 Web pages can be complex. If a user cannot view the screen to understand its layout, you need to create landmarks from elements and use elements like headings and lists to give the page structure for navigation.
 
-### \<section>
+### Sections
 
-This element creates a generic region that groups content thematically. Without a label, the `<section>` element is the same as a `<div>`, but they do not have the same use cases. For example, divs are used for styling or scripting purposes, while sections always group content. Sections without a label have a role of `generic`.
+This element creates a generic region that groups content thematically.
+
+#### generic sections
+
+Without a label, the `<section>` element is the same as a `<div>`, but they do not have the same use cases. For example, divs are used for styling or scripting purposes, while sections always group content. Sections without a label have a role of `generic`.
 
 Use `generic` landmarks only when no other landmark type applies.
+
+#### region sections
 
 When a `<section>` or `<div>` is given an accessible name with `aria-label` or `aria-labelledby`, it have a role of `region`. This also **promotes the element to a landmark**:
 
@@ -153,3 +159,32 @@ A region typically starts with a heading, and its contents should be listed in a
 ### Asides
 
 An `<aside>` contains content that is related to the nearby content, or it could be separate like a quote or advertising. An `<aside>` element has a role of `complementary`.
+
+### Articles
+
+An article is a _particular item_ or a _separate thing_--its any group of content that you could reuse and distribute elsewhere as a self-contained composition in a document:
+- blog post
+- comment
+- news article
+- interactive widget
+- product listing
+- forum post
+
+Third-party software like RSS feed readers often extracts article content and display it elsewhere.
+
+### Lists
+
+Group content in ordered or unordered lists for these additional a11y benefits:
+- Screen readers announce the total number of items in the list, and the index of the current item
+- Screen readers can announce that an item belongs to a list of _n_ items
+- Shortcuts to jump from list to list, item to item
+- Shortcuts to list all lists on a page and access them directly
+
+## Outline documents with headings
+
+If you have a complicated page, use headings to create a quick outline:
+- Screen readers announce the content of the heading along with its heading level
+- Don't skip heading levels when nesting
+- Always present the HTML content in order so screen readers can make sense of it
+  - Interface elements that a user should interact with before your content should come first. For example, a cookie banner or language selector.
+- If you need to reorder elements, use CSS

@@ -5,6 +5,12 @@ weight: 10
 # description:
 ---
 
+## Rules of ARIA use
+
+https://www.w3.org/TR/using-aria/#NOTES
+
+## Cheatsheet
+
 | ARIA Attribute     | Description                                                            | Use Case                                               | Example Snippet                                                          |
 | ------------------ | ---------------------------------------------------------------------- | ------------------------------------------------------ | ------------------------------------------------------------------------ |
 | `aria-label`       | Provides an accessible label for an element                            | When no visible label is available                     | `<button aria-label="Close"></button>`                                   |

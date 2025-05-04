@@ -274,3 +274,11 @@ toggle.addEventListener('click', (e) => {
 });
 ```
 
+## Make a div a button
+
+In general, you should always use buttons as buttons. If you have to use a div, make sure it does these things so it behaves exactly like a button:
+- `role="button"`
+- Focusable
+- Has focus styles
+- `keydown` event is listening for the Enter key
+- `keyup` event is listening for the Space key

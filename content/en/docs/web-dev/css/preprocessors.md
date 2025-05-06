@@ -17,12 +17,14 @@ A preprocessor takes the source file that you write and translates it into an ou
 ## Installation and setup
 
 ```bash
-npm init -y                         # create new npm project
-npm install --save-dev sass         # install sass and add to package.json
-mkdir sass build                    # create two dirs
-touch sass/index.scss               # create main scss file
-touch index.html                    # create html file in root dir, link build/styles.css
-vim package.json                    # edit generated scripts
+npm init -y                                           # create new npm project
+npm install --save-dev sass                           # install sass and add to package.json
+mkdir sass build                                      # create two dirs
+touch sass/index.scss                                 # create main scss file
+touch index.html                                      # create html file in root dir, link build/styles.css
+cp $HOME/Development/scss-partials/reset.scss sass/   # copy reset into your files
+echo '@use "reset";' > sass/index.scss               # include reset partial
+vim package.json                                      # edit generated scripts
 
 {
   ...

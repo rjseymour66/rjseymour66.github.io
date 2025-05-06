@@ -1,7 +1,7 @@
 ---
 title: "Sample styling sheet"
 linkTitle: "Sample styling sheet"
-weight: 301
+weight: 320
 description: >
   Sample styling sheet.
 ---

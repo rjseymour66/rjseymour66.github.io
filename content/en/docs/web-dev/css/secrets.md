@@ -336,3 +336,44 @@ You can also simplify things and just embed and SVG:
 
 ### Continuous image borders
 
+Set an image as the border with `backgound-clip` and `background-origin`. Apply two linear backgrounds to the element: the first is the background that looks like a nested div because its a linear gradient of the same colors, and the second is the image. Set the `background-clip` to `padding-box` on the first, and set it to `border-box` on the second.
+
+Set the `background-origin` to `border-box` so it doesn't repeat within the image:
+
+```css
+.image-border {
+    padding: 1em;
+    border: 3em solid transparent;
+    background: linear-gradient(white, white), url(/assets/background.jpg);
+    background-size: cover;
+    background-clip: padding-box, border-box;
+    background-origin: border-box;
+}
+```
+
+#### Vintage envelope
+
+This reuses the background border idea but creates a striped border with `repeating-linear-gradient`:
+
+```css
+  padding: 1em;
+  border: 1em solid transparent;
+  background: linear-gradient(white, white) padding-box,
+    repeating-linear-gradient(
+        -45deg,
+        red 0,
+        red 12.5%,
+        transparent 0,
+        transparent 25%,
+        #58a 0,
+        #58a 37.5%,
+        transparent 0,
+        transparent 50%
+      )
+      0 / 5em 5em;
+}
+```
+
+## Shapes
+
+### Flexible ellipses

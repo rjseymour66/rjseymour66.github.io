@@ -57,6 +57,18 @@ In the preceding example, you can add all the fallbacks to the `background` prop
 
 ## Backgrounds and borders
 
+### No scroll background
+
+This ruleset makes the background stick in the same spot, even if you scroll past it:
+
+```css
+body {
+    background: url(/assets/Green_Grass.JPG);
+    background-size: cover;
+    background-attachment: fixed;
+}
+```
+
 ### Translucent borders
 
 By default, borders extend underneath the border area, so it is hard to see transparent borders on elements with lighter backgrounds. To fix this, use the `background-clip` property to clip the background at the `padding-box`, rather than the `border-box`:
@@ -377,3 +389,258 @@ This reuses the background border idea but creates a striped border with `repeat
 ## Shapes
 
 ### Flexible ellipses
+
+`border-radius` accepts values in multiple formats:
+- `50% / 50%`: horizontal and vertical radii
+- `a b c d`: corners beginning at top-left. If you provide less than four values, the values are doubled--`c` is applied to `c` and `d`, two values means `a` is applied to `a` and `c` and `b` is applied to `b` and `d`.
+- `a b c d / v x y z`: horizonal and vertical radii for all four corners
+
+Make sure you understand which 
+
+```css
+.half-ellipses {
+    background: #fb3;
+    width: 200px;
+    height: 300px;
+    border-radius: 50% / 100% 100% 0 0;
+}
+
+.left-ellispses {
+    background: #fb3;
+    width: 200px;
+    height: 300px;
+    border-radius: 100% 0 0 100% / 50%;
+}
+
+.quarter-ellipses {
+    background: #fb3;
+    width: 200px;
+    height: 300px;
+    border-radius: 100% 0 0 0;
+}
+```
+
+### Diamond images
+
+Do this with `clip-path`. Clipping paths lets you clip the element into the shape that we want.
+
+This also includes a hover pseudo-class that reveals the entire image on hover:
+
+```css
+.picture {
+    width: 400px;
+    overflow: hidden;
+}
+
+.picture > img {
+    max-width: 100%;
+    clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+    transition: clip-path 300ms ease-in-out;
+}
+
+.picture > img:hover {
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+}
+```
+
+### Cutout corners
+
+The easiest way to do this is with `clip-path`.
+
+```css
+.picture {
+    padding: 20rem 30rem;
+    background: #58a;
+    clip-path: polygon(
+        20px 0,
+        calc(100% - 20px) 0,
+        100% 20px,
+        100% calc(100% - 20px),
+        calc(100% - 20px) 100%,
+        20px 100%,
+        0 calc(100% - 20px),
+        0 20px
+    );
+}
+```
+
+### Pie charts
+
+Use `conic-gradient`:
+
+```css
+.pie {
+  width: 100px;
+  height: 100px;
+  background: yellowgreen;
+  border-radius: 50%;
+
+  background-image: conic-gradient(
+    deeppink 20%,
+    #fb3 0,
+    #fb3 30%,
+    yellowgreen 0
+  );
+}
+```
+
+## Visual effects
+
+### Shadows
+
+Passing positive values to `box-shadow` can offset the shadow to the right and bottom. Negatives do the opposite. The last value you add is how much blur you want on the shadow. The shadow also respects the `border-radius` value.
+
+If you want to increase the size of the shadow, add the fourth value before the color, the spread radius.
+
+#### Duplicate offset (adjacent sides)
+
+This creates a duplicate of the element that is offset by `50px`:
+
+```css
+.box {
+    box-shadow: 50px 50px 0 20px black;
+}
+```
+
+#### Shadow on one side
+
+Use the spread radius here, and make one of the offset values `0`. Put the shadow on either side with a positive or negative spread radius:
+
+```css
+.box {
+    box-shadow: 0 50px 0 -20px black;
+}
+```
+
+#### Border/outline shadow
+
+`box-shadow` works only on HTML elements. If you want to include a pseudo-element or a decoration like an outline, you have to use `filter: drop-shadow();`.
+
+This takes an x-offset, y-offset, blur value, and color. This example creates a duplicate of the box and the outline offset:
+
+```css
+.box {
+    filter: drop-shadow(50px 50px 0 black);
+}
+```
+
+#### Frosted glass
+
+If you have text that you need to display over a background, apply a backdrop filter to the container element:
+
+```css
+main {
+    backdrop-filter: blur(10px);
+}
+```
+
+#### Folded corner effect
+
+Apply these styles to a div:
+
+```css
+.note {
+  height: 20rem;
+  width: 30rem;
+  //   background: yellowgreen;
+
+  position: relative;
+  background: linear-gradient(-150deg, transparent 1.5em, yellowgreen 0);
+
+  border-radius: 0.5em;
+}
+
+.note::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: linear-gradient(
+      to left bottom,
+      transparent 50%,
+      rgba(0, 0, 0, 0.2) 0,
+      rgba(0, 0, 0, 0.4)
+    )
+    100% 0 no-repeat;
+  width: 1.73em;
+  height: 3em;
+  transform: translateY(-1.3em) rotate(-30deg);
+  transform-origin: bottom right;
+  border-bottom-left-radius: inherit;
+  box-shadow: -0.2em 0.2em 0.3em -0.1em rgba(0, 0, 0, 0.15);
+}
+```
+
+## Typography
+
+### Custom underlines
+
+Here are some properties that you can manipulate to manipulate text underlines:
+
+```css
+.underline {
+  text-decoration: underline;
+  text-decoration-style: dashed;
+  text-underline-position: auto;
+  text-decoration-thickness: 3px;
+  text-underline-offset: 2px;
+}
+```
+
+### Letterpress
+
+This effect is supposed to give the impression of text pressed into the page. This works so long as the text is not completely black, and the background is not completely white. You need a dark text on a lighter background:
+
+```css
+.content {
+    background: hsl(210, 13%, 60%);
+    color: hsl(210, 13%, 30%);
+    text-shadow: 0 1px 1px hsla(0, 0%, 100%, 0.8);
+}
+```
+
+### Glowing text
+
+Use the blur value in `text-shadow` with some good colors to create a glowing text effect:
+
+```css
+.glow {
+    background: #203;
+    color: #ffc;
+    text-shadow: 0 0 0.1em, 0 0 0.3em;
+}
+```
+
+Here it is as a hover state:
+
+```css
+.glow:hover {
+  color: transparent;
+  text-shadow: 0 0 0.1em white, 0 0 0.3em white;
+}
+```
+
+### Extruding text
+
+This effect makes the text look 3D. You create it by applying multiple `text-shadow` properties with increasing x- and y-offset values:
+
+```css
+.box {
+    background: #58a;
+    color: #ffc;
+    text-shadow: 1px 1px black,
+                 2px 2px black,
+                 3px 3px black,
+                 4px 4px black,
+                 5px 5px black,
+                 6px 6px black,
+                 7px 7px black,
+                 8px 8px black;
+}
+```
+
+
+## User experience
+
+### Interactive image comparison
+

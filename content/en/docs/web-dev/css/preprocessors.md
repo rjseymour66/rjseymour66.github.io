@@ -19,24 +19,24 @@ A preprocessor takes the source file that you write and translates it into an ou
 ```bash
 npm init -y                                           # create new npm project
 npm install --save-dev sass                           # install sass and add to package.json
-mkdir sass build                                      # create two dirs
+mkdir sass dist                                       # create two dirs
 touch sass/index.scss                                 # create main scss file
-touch index.html                                      # create html file in root dir, link build/styles.css
+touch index.html                                      # create html file in root dir, link dist/styles.css
 cp $HOME/Development/scss-partials/reset.scss sass/   # copy reset into your files
-echo '@use "reset";' > sass/index.scss               # include reset partial
+echo '@use "reset";' > sass/index.scss                # include reset partial
 vim package.json                                      # edit generated scripts
 
 {
   ...
   "scripts": {
-    "start": "sass --watch sass/index.scss build/styles.css",
-    "build": "sass sass/index.scss build/styles.css"
+    "start": "sass --watch sass/index.scss dist/styles.css",
+    "build": "sass sass/index.scss dist/styles.css"
   },
   ...
 }
 
 npm run start       # starts a dev server for sass - updates when changes to files
-npm run build       # run build script, [over]write build/styles.css 
+npm run build       # run build script, [over]write dist/styles.css 
 ```
 When you run `npm run [start|build]`, npm does the following:
 1. Reads `sass/index.scss`

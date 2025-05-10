@@ -640,7 +640,109 @@ This effect makes the text look 3D. You create it by applying multiple `text-sha
 ```
 
 
-## User experience
+## Structure and Layout
 
-### Interactive image comparison
+### Sticky footer
 
+Flexbox makes the footer stick to the bottom. Make the `<body>` a flex container using the `column` layout that uses at least `100vh` of the viewport height, and then make whichever element contains your content (here, it is `<main>`) use `flex: 1;`. This makes the element use all available space:
+
+```css
+body {
+    display: flex;
+    flex-direction: column;
+
+    min-height: 100vh;
+}
+
+main {
+    flex: 1;
+}
+```
+
+## Transitions and animations
+
+### Blinking
+
+This might be a bad idea for people with reduced motion, but you can make an element blink with a keyframe that changes the `background` to `transparent`.
+
+Here is the keyframe:
+
+```css
+```css
+@keyframes blink {
+    50% {
+        background: transparent;
+    }
+}
+```
+
+This animation makes the circle blink one time per second for three seconds:
+
+```css
+.blinker {
+    animation: 1s blink 3 steps(1);
+}
+```
+
+This is more basic, and makes the keyframe blink six times per second for three seconds:
+
+```css
+.blinker {
+    animation: 1s blink 6;
+}
+```
+
+This makes the circle blink forever:
+
+```css
+.box {
+    animation: 1s blink infinite;
+}
+```
+
+### Typing simulation
+
+> This solution has the following requirements and restrictions:
+> - It will not work for a multi-line output
+> - It requires you specify the number of characters, so its not reusable
+
+This makes text appear one character at a time, like when you want to simulate a terminal entering a prompt. We will animate a `<p>` element with two keyframes.
+
+First, define the keyframes. The `typing` keyframes controls the width of the element. The idea is that the `<p>` element's width will increase from 0 to _n_ characters:
+
+```css
+@keyframes typing {
+  from {
+    width: 0;
+  }
+}
+```
+
+Next, we create an animation for the blinking cursor. We will use the `border-right` property so the cursor follows the expanding element. For example, if we used `border-left`, the cursor would just blink at the left of the `<p>` tag for the duration of the animation.
+
+Here, we create an animation that makes the border transparent:
+
+```css
+@keyframes caret {
+  50% {
+    border-color: transparent;
+  }
+}
+```
+
+Finally, define the styles for the text:
+- set `width` equal to the character count of the text + 1. The additional character lets the cursor blink in the space directly after the text.
+- don't allow text wrapping. Otherwise, the element will wrap within its current width
+- hide the overflow. This is what makes the text look like it is appearing on the screen
+- make the right border as wide as a single character
+- apply the animations. `typing` steps should equal the `width` value, and `caret` should begin after `typing` concludes (`2s`) and continue infinitely.
+
+```css
+.terminal > p {
+  width: 24ch;
+  white-space: nowrap;
+  overflow: hidden;
+  border-right: 1ch solid;
+  animation: typing 2s steps(24), caret 1s linear 2s infinite;
+}
+```

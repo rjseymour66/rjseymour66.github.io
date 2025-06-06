@@ -293,9 +293,27 @@ const firstAndLast = inventors.map(inventor => `${inventor.first} ${inventor.las
 
 ### sort()
 
+`sort` takes a function that takes two arguments to compare elements in an array. These are commonly represented as `a` and `b`. If the function returns `1`, then `a` comes first in the resulting array. Otherwise, `b` comes first.
+
+In the following example, we want to sort an array of inventor objects by age, where the first object was born the earliest, and the last object was born the latest. We compare `a.year` and `b.year`:
+- If `a.year` is greater than `b.year`, we want `a` to come after `b`. So, we return a number greater than `0` (we return `1`).
+- If `a.year` is less than `b.year`, we want it to come first, so we return `-1`. 
+
+In other words, write an expression that compares `a` and `b`. If you want `a` to come before `b` based on that criteria, return `-1`. Otherwise, return `1`.
+
+> Sorting numeric arrays depends on whether you want an ascending or descending sort. For ascending, you check whether `a` is greater than `b`. If `a` is greater, return `1` so it comes after `b`.
+
 ```js
 // Array.prototype.sort()
 // 3. Sort the inventors by birthdate, oldest to youngest
+
+const ordered = inventors.sort((a, b) => {
+  if (a.year > b.year) {
+    return 1;
+  } else {
+    return -1;
+  }
+})
 
 const age = inventors.sort(function (a, b) {
   return a.year > b.year ? 1 : -1;
@@ -304,22 +322,25 @@ const age = inventors.sort(function (a, b) {
 
 ### reduce()
 
-```js
-// Array.prototype.reduce()
-// 4. How many years did all the inventors live all together?
+The `reduce` function lets you calculate a sum using a running total. It is equivalent to a for loop that uses a variable to store the running total. For example:
 
-// As a for loop
+```js
 let totalYears = 0;
 
 for (let i = 0; i < inventors.length; i++) {
   totalYears += inventors[i].year;
 }
+```
 
-// with reduce()
+`reduce` accomplishes the same goal declaratively with arrow functions:
+
+```js
 const totalYears = inventors.reduce((total, inventor) => {
     return total + (inventor.passed - inventor.year);
 }, 0);
 ```
+
+Here, `total` is the _accumulator_, which is the variable that stores the running total. The function's return value is added to the accumulator. `inventor` is an element in the array, equivalent to the `inventors[i]` element in the for loop. After the function definition, there is a number. This is the starting value for the accumulator. For example, the initial value of `totalYears`  in the for loop.
 
 Reduce an object:
 
@@ -333,10 +354,11 @@ const data = ['car', 'car', 'truck', 'truck', 'bike', 'walk', 'car', 'van', 'bik
 // increment the number of items 
 const transportation = data.reduce((obj, item) => {
 
-    if (!obj[item]) {
-    obj[item] = 0;
+    if (!obj[item]) {     // if item is not already in obj
+      obj[item] = 0;      // add item to the obj
     }
-    obj[item]++;
+    
+    obj[item]++;          // if it is in the obj, increment its value
     return obj;
 }, {});
 ```

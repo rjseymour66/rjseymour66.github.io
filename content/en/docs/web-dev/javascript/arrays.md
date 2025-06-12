@@ -274,7 +274,9 @@ const p = inventors.filter(inventor => {
 
 ### map()
 
-`map()` accepts a function, and executes that function on all elements in an array to return a new array:
+`map()` accepts a function, and executes that function on all elements in an array to return a new array.
+
+These examples have a single statement, so there is no explicit `return`. `map` requires a `return` statement for multiple-line expressions: 
 
 ```js 
 let arr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]

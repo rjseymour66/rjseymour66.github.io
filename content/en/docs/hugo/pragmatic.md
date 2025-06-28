@@ -4,6 +4,38 @@ linkTitle: "Pragmatic"
 weight: 5
 ---
 
+## Ch 1
+
+### Creating your site
+
+Generate a website project with this command. It will create a directory using the provided `<site-name>`, so you might have to move all generated contents into the current working directory if you already have a git repo cloned:
+
+```bash
+hugo new site site-name       # create website
+mv site-name/* .              # move generated files to pwd
+rmdir site-name               # delete empty dir
+```
+
+### Directory structure
+
+https://gohugo.io/getting-started/directory-structure/
+
+```bash
+site-name
+├── archetypes              # md templates for your content types
+│   └── default.md
+├── assets                  # global resources like CSS, Sass, JS, etc
+├── content                 # md files that comprise the site content
+├── data                    # JSON, YAML, XML, etc files that you can extract to populate your site
+├── hugo.toml               # site config file
+├── i18n                    # translation tables for multilingual sites
+├── layouts                 # template files that define look and feel of site
+├── static                  # static assets (CSS, images, JS, ect) copied to the public/ dir when you build your site
+└── themes                  # themes that you download or create
+```
+
+
+
 ## Commands
 
 ```bash

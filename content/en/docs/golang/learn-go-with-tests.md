@@ -42,5 +42,30 @@ rm -v ${TARBALL}
 echo
 echo
 echo "Verify the installation with 'go version'"
-
 ```
+
+## go mod
+
+https://go.dev/doc/modules/gomod-ref
+
+If you plan to distribute your application, you need to tell others where your code is available for download. Thats what `go mod` does--it gives the name of the module and the download URL:
+
+```bash
+go mod init <path/to/module-name.com>
+```
+
+## Writing Tests
+
+When you write tests, you are using the compiler as a feedback mechanism. Here is the feedback loop:
+1. Write a test.
+2. Write code to make the compiler pass.
+3. Write another test.
+4. Run the test, see that it fails and make sure the error message is meaningful.
+5. Write code to make the compiler pass.
+6. Refactor.
+
+This makes sure that you are writing tested code with relative tests that are easier to debug when they fail.
+
+### Placeholder strings
+
+https://pkg.go.dev/fmt#hdr-Printing

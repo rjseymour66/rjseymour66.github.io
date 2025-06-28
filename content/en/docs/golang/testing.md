@@ -22,16 +22,16 @@ This package format requires that you import the source into the test file.
 
 The most useful are `t.Errorf()` and `t.Fatalf()`. The following table describes all available `t.*` test methods:
 
-| Method          | Description |
-|-----------------|:------------|
-| `t.Log()`        | Log a message. |
-| `t.Logf()`       | Log a formatted message.|
-| `t.Fail()`       | Mark the test as failed, but continue test execution. |
-| `t.FailNow()`    | Mark the test as failed, and immediately stop execution. |
-| `t.Error()`      | Combination of `Log()` and `Fail()`. |
-| `t.Errorf()`     | Combination of `Logf()` and `Fail()`. |
-| `t.Fatal()`      | Combination of `Log()` and `FailNow()`. |
-| `t.Fatalf()`     | Combination of `Logf()` and `FailNow()`. |
+| Method        | Description                                              |
+| ------------- | :------------------------------------------------------- |
+| `t.Log()`     | Log a message.                                           |
+| `t.Logf()`    | Log a formatted message.                                 |
+| `t.Fail()`    | Mark the test as failed, but continue test execution.    |
+| `t.FailNow()` | Mark the test as failed, and immediately stop execution. |
+| `t.Error()`   | Combination of `Log()` and `Fail()`.                     |
+| `t.Errorf()`  | Combination of `Logf()` and `Fail()`.                    |
+| `t.Fatal()`   | Combination of `Log()` and `FailNow()`.                  |
+| `t.Fatalf()`  | Combination of `Logf()` and `FailNow()`.                 |
 
 
 ## Write a test
@@ -212,11 +212,11 @@ Also called data-driven and parameterized tests. They verify code with varying i
 
 Imagine table-driven tests as actual tables, where the headers are struct fields, and the rows become individual slices in the test cases:
 
-| product     | rating  | price |
-|:------------|---------|-------|
-| prod one    | 5       | 20    |
-| prod two    | 10      | 30    |
-| prod three  | 15      | 40    |
+| product    | rating | price |
+| :--------- | ------ | ----- |
+| prod one   | 5      | 20    |
+| prod two   | 10     | 30    |
+| prod three | 15     | 40    |
 
 You can represent this in a test as follows:
 
@@ -261,6 +261,8 @@ for _, tt := range testCases {
 ```
 
 ### Subtests 
+
+Subtests let you run different testing scenarios for a testing context.
 
 Use `t.Run()` to run subtests. Subtests run in isolation, so you can use `t.Fatal[f]()` and not stop test execution. In addition, you can run subtests [in parallel](#parallel-testing).
 
@@ -323,26 +325,52 @@ func TestWithResources(t *testing.T)  {
 }
 ```
 
-### Helpers 
+### Helpers
 
 A test helper can improve readability of your tests. Unfortunately, when a test fails within the test helper, the testing package logs helper function line number after failure--this makes it difficult to pinpoint where the test failed.
 
-Use the `t.Helper()` function to designate a function as a helper function. the testing pacakge ignores the helper function line number and instead logs the line number of the failing test:
+Include the `t.Helper()` function to designate a function as a helper function. The testing package ignores the helper function line number and instead logs the line number of the failing test.
+
+Here is an example of a reusable assert statement that you could include at the end of the test or subtest:
 
 ```go
-func helper(t *testing.T)  {
-    t.Helper()
-    // helper logic 
+// Helper
+func assertCorrectMessage(t testing.TB, got, want string) {
+	t.Helper()
+	if got != want {
+		t.Errorf("got %q want %q", got, want)
+	}
 }
 
-func TestWithHelper(t *testing.T)  {
-    // testing...
-    helper(t)
-    // continue test ...
+// Helper in the test
+func TestWithAssert(t *testing.T) {
+	t.Run("saying hello to people", func(t *testing.T) {
+		got := Hello("Chris")
+		want := "Hello, Chris"
+
+		assertCorrectMessage(t, got, want)
+	})
+	t.Run("say 'Hello, World' when an empty string is supplied", func(t *testing.T) {
+		got := Hello("")
+		want := "Hello, World"
+
+		assertCorrectMessage(t, got, want)
+	})
 }
 ```
 
-Helper functions accept an instance of the testing.T type, so make sure you pass the `t` testing instance to the helper in the `TestXxx` function. This provides the helper with access to the testing instance as the rest of the test function.
+Helper functions accept an instance of the `testing.T` type, so make sure you pass the `t` testing instance to the helper in the `TestXxx` function. This provides the helper with access to the testing instance as the rest of the test function.
+
+To benchmark helper functions, include the `testing.TB` type so you an access the benchmarking package:
+
+```go
+func assertCorrectMessage(t testing.TB, got, want string) {
+	t.Helper()
+	if got != want {
+		t.Errorf("got %q want %q", got, want)
+	}
+}
+```
 
 ### Temporary directories
 
@@ -404,11 +432,11 @@ func ExampleURL_fields() {
 
 Testable examples use the following naming conventions:
 
-| Signature                    | Description |
-|:-----------------------------|:------------|
-| `func Example()`             | Example for the entire package. |
-| `func ExampleParse()`        | Example for the `Parse` function. |
-| `func ExampleURL()`          | Example for the `URL` type. |
+| Signature                    | Description                                          |
+| :--------------------------- | :--------------------------------------------------- |
+| `func Example()`             | Example for the entire package.                      |
+| `func ExampleParse()`        | Example for the `Parse` function.                    |
+| `func ExampleURL()`          | Example for the `URL` type.                          |
 | `func ExampleURL_Hostname()` | Example for the `Hostname` method on the `URL` type. |
 
 
@@ -551,6 +579,27 @@ $ go test -run=^$ -bench .
 ```
 
 The `^$` regex tells the runner to ignore tests other than the benchmarks.
+
+### Loops
+
+The `testing.B` package gives you access to the `Loop()` function that benchmarks your `for` loops. Set it up like this:
+
+```go
+func Benchmark(b *testing.B) {
+	//... setup ...
+	for b.Loop() {
+		//... code to measure ...
+	}
+	//... cleanup ...
+}
+```
+
+Run it with the `-benchmem` flag to see how much memory your loop uses:
+
+```bash
+go test -bench=. -benchmem
+```
+
 
 ### Sub-benchmarks
 

@@ -34,7 +34,93 @@ site-name
 └── themes                  # themes that you download or create
 ```
 
+### Building the home page
 
+Each type of page that you have in your site will have its own layout page. The home page has its own layout because you likely want your home page to be different than the rest of the site.
+
+Add all layouts in the `layouts/` directory. Here, we add the home page:
+
+```bash
+touch layouts/index.html
+```
+Here is the example layout:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ .Site.Title }}</title>
+  </head>
+  <body>
+    <h1>{{ .Site.Title }}</h1>      <!-- Site context -->
+
+    {{ .Content }}                  <!-- Page context -->
+  </body>
+</html>
+```
+
+The `{{ .Content }}` for the home page comes from a special markdown file, the `content/_index.md` file. To to complete the home page, create that file and enter content.
+
+### Creating content with archetypes
+
+Hugo has commands that create content pages with placeholder content. When you created the site with `hugo new site site-name`, Hugo created the `archetypes/default.md` page with this content:
+
+```md
++++
+date = '{{ .Date }}'
+draft = true
+title = '{{ replace .File.ContentBaseName "-" " " | title }}'
++++
+```
+
+The `hugo new` command uses this `default.md` page as its template:
+
+```bash
+hugo new pagename.md
+```
+
+### Archetypes and layouts
+
+When you run the `hugo new pagename.md` command, you generate a markdown file with the placeholder text in `archetypes/default.md`. This creates the content page, but Hugo won't generate an HTML page for this content unless there is a corresponding page in `layouts/`. The default single page layout that every content page uses is in `layouts/_default/`. This page can have any name at all, but here we name it `single.html` because it is the default layout for a single page of content:
+
+```bash
+touch layouts/_default/single.html
+```
+
+You can copy the skeleton from the `content/_index.html` page and then make updates for the single template.
+
+### Layout contexts
+
+When you create a layout page, you add go templating (`{{ .Content }}`) in the HTML. This data is replaced with site or page data when you build the website. Each page has a content context which determines the data you can access from the page. Layout pages use the Page context, represented by a dot (`.`). Here is a simple representation:
+
+```
+Context (.)
+├── Site
+│   └── Title
+├── Title
+├── Content
+```
+
+The `Site` data comes from the `hugo.toml` configuration file, and the Page context data comes from the markdown file associated with the page.
+
+### Generate public/ folder
+
+`hugo server` generates content in memory. To write contents to disk, run `hugo` with no arguments:
+
+```bash
+hugo
+```
+This generates your static site in the `public/` folder. This is the content that you upload to a CDN to publish the site (make it _public_...).
+
+When you remove or rename pages, you need to clean the `public/` folder. You can either delete it from the project, or you can add the `--cleanDestinationDir` flag when you build the site. You can also minify the files with the `--minify` flag:
+
+```bash
+hugo --cleanDestinationDir --minify
+```
+
+## Ch 2
 
 ## Commands
 

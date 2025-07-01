@@ -390,7 +390,7 @@ Use the following syntax to 'slice' a slice into a new slice:
 `slice`[_start_:_end_:[ _capacity_] ]
 
 _start_
-: Inclusive. The index position of the element that the new slice begins with.
+: Inclusive. The index position of the element that the new slice begins with. For example, `newTest := test[1:]` means "take everything from element at index 1 to the end of the slice, and place it in `newTest`.
 
 _end_
 : Non-inclusive. The index of the existing slice where you stop copying values to the new slice. The new slice ends with the value at `[end-1]`.
@@ -405,11 +405,11 @@ The start, end, and capacity values have a formula that you can use to correctly
 ```go
 newSlice := slice[2:3:4]
 ```
-| Value | Description | Formula |
-|:------|:------------|:--------|
-| 2     | start. The first element in the original slice, inclusive. | |
-| 3     | end. The index of the existing slice where the slicing stops, non-inclusive. | start + number of elements you want in the slice. |
-| 4     | capacity. Size of the new slice. | start + number of elements to include in the capacity. | 
+| Value | Description                                                                  | Formula                                                |
+| :---- | :--------------------------------------------------------------------------- | :----------------------------------------------------- |
+| 2     | start. The first element in the original slice, inclusive.                   |                                                        |
+| 3     | end. The index of the existing slice where the slicing stops, non-inclusive. | start + number of elements you want in the slice.      |
+| 4     | capacity. Size of the new slice.                                             | start + number of elements to include in the capacity. |
 
 #### Examples
 
@@ -494,6 +494,35 @@ for i := 2; i < len(slice); i++ {
     fmt.Printf("index: %d, value: %d", index, slice[i])
 }
 ```
+
+Here, we use `append` so we don't have to deal with capacity. In the first function, we create a slice with the capacity equal to the number of variadic arguments passed to the function. Then, we use a `for...range` loop to iterate over the arguments, assigning the sum of each argument to an index in the return slice.
+
+If we use `append`, we can just declare a slice, then range over arguments and append the sum of each argument to the slice:
+
+```go
+// before refactor
+func SumAll(numbersToSum ...[]int) []int {
+	lengthOfNumbers := len(numbersToSum)
+	sums := make([]int, lengthOfNumbers)
+
+	for i, numbers := range numbersToSum {
+		sums[i] += Sum(numbers)
+	}
+	return sums
+}
+
+// after
+func SumAll(numbersToSum ...[]int) []int {
+	var sums []int
+
+	for _, numbers := range numbersToSum {
+		sums = append(sums, Sum(numbers))
+	}
+
+	return sums
+}
+```
+
 
 ### Sorting slices 
 
@@ -731,3 +760,22 @@ ptr_addr:	0xc00009e210
 test:		test string
 &test:		0xc00009e210
 ```
+
+## Equality
+
+You can't use `==` to check whether two objects are equal. For any type, use `reflect.DeepEqual`. For slices, use `slices.Equal`.
+
+Here is `reflect.DeepEqual`:
+
+```go
+func TestSumAll(t *testing.T) {
+	got := SumAll([]int{1, 2}, []int{0, 9})
+	want := []int{3, 9}
+
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("got %v want %v", got, want)
+	}
+}
+```
+`reflect.DeepEqual` is not type safe--you can compare variables of different types without compilation errors--so be careful.
+

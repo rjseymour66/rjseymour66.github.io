@@ -4,9 +4,20 @@ linkTitle: "Pragmatic"
 weight: 5
 ---
 
-## Ch 1
+## Big ideas
 
-### Creating your site
+> The layout structure changed with Hugo 1.46. Here is a breakdown: https://gohugo.io/templates/new-templatesystem-overview/. Notable changes include the following:
+> - `layouts/_default/` directory is removed, and all layouts files go in the `layouts/`.
+> - `layouts/index.html` is now `layouts/home.html`
+
+- An archetype is a content template for a markdown page. A layout page is an HTML page that is generated from a markdown page. You need to associate a layout page with markdown pages generated from an archetype. For example, `layouts/<file>.html` is used for all pages.
+  
+  The home page is different--it generates `layouts/index.html` with content in `content/_index.md`.
+- `layouts/baseof.html` is the skeleton for all layout files--the "base of" all files. It contains partials that define the head, header, main, etc.
+- The default context for a layout page is the Page context (`.`).
+- Partial functions take a filename and a context.
+
+## Ch 1 Creating your site
 
 Generate a website project with this command. It will create a directory using the provided `<site-name>`, so you might have to move all generated contents into the current working directory if you already have a git repo cloned:
 
@@ -41,7 +52,7 @@ Each type of page that you have in your site will have its own layout page. The 
 Add all layouts in the `layouts/` directory. Here, we add the home page:
 
 ```bash
-touch layouts/index.html
+touch layouts/home.html
 ```
 Here is the example layout:
 
@@ -86,7 +97,7 @@ hugo new pagename.md
 When you run the `hugo new pagename.md` command, you generate a markdown file with the placeholder text in `archetypes/default.md`. This creates the content page, but Hugo won't generate an HTML page for this content unless there is a corresponding page in `layouts/`. The default single page layout that every content page uses is in `layouts/_default/`. This page can have any name at all, but here we name it `single.html` because it is the default layout for a single page of content:
 
 ```bash
-touch layouts/_default/single.html
+touch layouts/single.html
 ```
 
 You can copy the skeleton from the `content/_index.html` page and then make updates for the single template.
@@ -105,6 +116,7 @@ Context (.)
 
 The `Site` data comes from the `hugo.toml` configuration file, and the Page context data comes from the markdown file associated with the page.
 
+
 ### Generate public/ folder
 
 `hugo server` generates content in memory. To write contents to disk, run `hugo` with no arguments:
@@ -120,7 +132,270 @@ When you remove or rename pages, you need to clean the `public/` folder. You can
 hugo --cleanDestinationDir --minify
 ```
 
-## Ch 2
+## Ch 2 Building a theme
+
+
+Create a new theme with this command. It will generate theme directories in `/themes/<theme-name>`:
+
+```bash
+hugo new theme theme-name
+```
+To use a theme in your site, add it to the config file:
+
+```toml
+theme = "theme-name"
+```
+
+A basic theme needs only these files:
+
+```bash
+layouts/
+├── default/
+│   └── list.html       
+│   └── single.html     # default archetype
+├── index.html          # home page
+```
+### Partials
+
+`layouts/baseof.html` is the skeleton for all layout files--the "base of" all files. It contains partials that define the head, header, main, etc. A partial is a file that contains commonly reused parts of the layout, such as the head, header, etc. 
+
+To build a partial, add an `.html` file to `layouts/_partials/`, and add a partial function reference where you want Hugo to generate the output:
+
+```go
+{{- partial "filename.html" . -}}
+```
+A partial function takes a filename and a context. The default context for a layout page is the Page context. Here, we grab the Page context with the dot (`.`), which represents the current context.
+
+The dashes before and after the double curly braces (`-`) tells Hugo to remove any whitespace in the output files.
+
+#### Creating a partial
+
+1. Create the partial HTML file in `theme/theme-name/layouts/_partials`:
+   ```bash
+   touch theme/theme-name/layouts/_partials/nav.html
+   ```
+2. Add your HTML and any Go templating.
+3. Go where you want to use the partial, and add the partial function with Go templates:
+   ```go
+   {{ partial "nav.html" . }}
+   ```
+
+### Content blocks
+
+A content block is defined with the `block` function. Here is an example from the `baseof.html` page:
+
+```html
+...
+<main>
+    {{ block "main" . }}{{ end }}
+</main>
+...
+```
+This line tells Hugo to find the main block in the content file, and generate it here. This means that you don't have to duplicate your head, header, footer, and other boilerplate HTML in your layout files.
+
+So, `baseof.html` has a `<main>` element with a `main` block that takes the current Page context. This function renders content placed in layout pages. It is a placeholder for the `main` blocks defined in your layout pages. `single.html` defines only a `main` content block, so Hugo performs the following:
+1. Finds `content/*.md` files that use the `single.html` layout, and grabs the content in the `.md` file.
+2. Formats the content using the `main` block in `single.html`.
+3. Generates a page using `baseof.html` as the template, and the `single.html` markdown content as the `main` block.
+
+Here is the `single.html` layout file that defines its main block:
+
+```go
+{{ define "main" }}         // start main block      
+  <h2>{{ .Title }}</h2>     // h2 starts the main block
+  
+  {{ .Content }}            // Page content is pulled in
+  
+{{ end }}                   // end main block
+```
+So, Hugo generates HTML with the page title and content in `content/file.md`, then places it in the `<main>` block of `baseof.html`.
+
+
+### Adding CSS
+
+If you're using Hugo Pipes to process your asset files (minify, bundle, etc), place them in the `theme-name/assets/` directory. Otherwise, place them in the `theme/theme-name/static/` directory.
+
+Place all theme-specific styles in the `theme/theme-name/` directory tree. Site-specific images and files should go in your site directories.
+
+After you define your theme styles in `theme/theme-name/static/css/style.css`, load them into your site in the `layouts/_partials/head.html` partial with this tag:
+
+```html
+<link rel="stylesheet" href="{{ "css/style.css" | relURL }}">
+```
+Here, we pipe the static directory and filename to the `relURL` function. This function takes the argument and transforms it into a relative URL from the current page. So, no matter where you are in your website, the CSS link always works.
+
+To create an absolute URL that includes the site domain, use `absURL`.
+
+## Ch 3 Adding Content Sections
+
+Archetypes are content templates. You can create a new archetype in your site or theme, then generate a markdown page using the template with this command:
+
+```bash
+hugo new <archetype>/filename.md
+```
+Hugo will create an `<archetype>` directory if it doesn't exist, and then create the `filename.md` file using the archetype as a template. For example, if you want to create a blog post, you create an archetype titled `posts.md`, then run this command to create your first post:
+
+```bash
+hugo new posts/first-post.md
+```
+Hugo first looks for the `posts` archetype in your site, then in the theme, and then it falls back to the `default.md` archetypes.
+
+### Section layouts
+
+Each directory, or section, in your `content/` directory can have a default page that lists the content of the directory. This used to be called the `list.html` page, but it was renamed to `section.html`.
+
+To loop over all the pages in the current directory, use the `range` function with the `Pages` collection:
+
+```go
+{{ define "main" }}
+  <h1>{{ .Title }}</h1>
+  {{ .Content }}
+  {{ range .Pages }}
+    <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
+    {{ .Summary }}
+  {{ end }}
+{{ end }}
+```
+
+The `Pages` collection contains all the pages in the current section. `range` iterates over the collection, which lets you access `Page` properties like `Title` and `LinkTitle`. (`LinkTitle` returns the `linkTitle` frontmatter property or the page title as a fallback.) `RelPermalink` constructs a relative link from the site root (`PermaLink` returns the absolute URL, including the site root).
+
+#### Custom section layouts
+
+To create a custom section layout for a specific directory tree, add a directory in `layouts/` with the same name as the content directory, and then add a `section.html` file:
+
+```bash
+docsite
+│
+...
+├── content
+│   ...
+│   ├── projects                    # matches themes/docsite/layouts/projects
+│   │   ├── awesomeco.md
+│   │   ├── _index.md               # uses themes/docsite/layouts/projects/section.html
+│   │   └── jabberwocky.md
+│   ...
+...
+└── themes
+    └── docsite
+        ...
+        ├── layouts
+        │   ...
+        │   ├── projects            # matches content/projects
+        │   │   ├── section.html    # layout for content/project/<list>
+        │   │   └── single.html
+        │   ├── section.html        # layout for content/*/<list>
+        │   ...
+        ... 
+```
+
+### Section page content
+
+If you want to add custom content to this page, add a `{{ .Content }}` block to `section.html`, and create an `_index.md` file in the directory and add content.
+
+## Left-hand TOC
+
+You can loop through all pages in the site or all pages in the section with the `Site.RegularPages` variable.
+
+This template page creates two sections and lays them side-by-side with flexbox:
+
+```html
+{{ define "main" }}
+    <div class="project-container">
+        <section class="project-list">
+            <h2>Projects</h2>
+            <ul>
+                {{ range .Site.RegularPages }}
+                    <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
+                {{ end }}
+            </ul>
+        </section>
+        <section class="project">
+                <h2>{{ .Title }}</h2>
+                {{ .Content }}
+        </section>
+    </div>
+{{ end }}
+```
+
+Here are the styles that lay each section side-by-side with flexbox:
+
+```css
+.project-container {
+    display: flex;
+}
+.project-container .project-list {
+    width: 20%;
+}
+.project-container .project {
+    flex: 1;
+}
+```
+
+The `<ul>` contains a `range` function that iterates over a collection of Pages. Here, you loop over all pages in the site:
+
+```go
+{{ range .Site.RegularPages }}
+    <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
+{{ end }}
+```
+
+Or you use the [where](https://gohugo.io/functions/collections/where/) function to specify a specifiy collection of pages. Here, you look in the "projects" folder for the pages:
+
+```go
+(where .Site.RegularPages "Type" "in" "projects")
+```
+
+`Type` is a built-in Hugo page property that defaults to the first directory name under content/ where the page lives.
+
+Here is another example that displays the most recently added file in the projects directory:
+
+```go
+{{ $recent := first 1 (sort (where .Site.RegularPages "Section" "projects") "Date" "desc") }}
+    {{ with index $recent 0 }}
+        <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+{{ end }}
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## Default page types
+
+| Page Type                   | Description                                                                            | Default Layout Used            |
+| --------------------------- | -------------------------------------------------------------------------------------- | ------------------------------ |
+| `single`                    | A single content file (e.g. `content/posts/my-post.md`)                                | `layouts/single.html`          |
+| `section` (formerly `list`) | A list of content under a section (e.g. `content/posts/_index.md` or `content/posts/`) | `layouts/section.html`         |
+| `home`                      | The homepage (`/`)                                                                     | `layouts/index.html`           |
+| `term`                      | A list of all pages for a taxonomy term (e.g. `/tags/foo/`)                            | `layouts/terms.html`           |
+| `taxonomy`                  | A list of all terms under a taxonomy (e.g. `/tags/`)                                   | `layouts/taxonomy.html`        |
+| `404`                       | The 404 error page                                                                     | `layouts/404.html`             |
+| `rss`                       | RSS feed for a section or taxonomy                                                     | `layouts/rss.xml` or `rss.xml` |
+| `robots.txt`                | Robots.txt page                                                                        | `layouts/robots.txt`           |
+| `sitemap.xml`               | Sitemap                                                                                | `layouts/sitemap.xml`          |
+
+
+## Important layout files
+
+| File                    | Used For                     |
+| ----------------------- | ---------------------------- |
+| `layouts/single.html`   | Default for regular content  |
+| `layouts/section.html`  | Sections and list pages      |
+| `layouts/index.html`    | Homepage                     |
+| `layouts/terms.html`    | Pages for each taxonomy term |
+| `layouts/taxonomy.html` | Overview of taxonomy terms   |
+| `layouts/404.html`      | Custom 404 page              |
+
+
 
 ## Commands
 

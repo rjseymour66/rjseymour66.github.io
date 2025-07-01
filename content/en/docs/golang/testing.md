@@ -340,6 +340,11 @@ func assertCorrectMessage(t testing.TB, got, want string) {
 	if got != want {
 		t.Errorf("got %q want %q", got, want)
 	}
+
+	// optionally prints function input:
+	if got != want {
+		t.Errorf("got %q want %q given, %v", got, want, numbers)
+	}
 }
 
 // Helper in the test

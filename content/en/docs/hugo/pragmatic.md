@@ -378,18 +378,6 @@ Here is another example that displays the most recently added file in the projec
 ```
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 ## Default page types
 
 | Page Type                   | Description                                                                            | Default Layout Used            |
@@ -415,6 +403,77 @@ Here is another example that displays the most recently added file in the projec
 | `layouts/terms.html`    | Pages for each taxonomy term |
 | `layouts/taxonomy.html` | Overview of taxonomy terms   |
 | `layouts/404.html`      | Custom 404 page              |
+
+
+## Ch 4 Working with data
+
+> Info about Google Analytics is on pg 36.
+
+### Site configuration data
+
+Access data in `hugo.toml` with the `.Site` object. Hugo has many [configuration settings](https://gohugo.io/configuration/all/) that you can add. Here, we add a [params](https://gohugo.io/configuration/params/) section with the author and description field:
+
+```toml
+[params]
+  author = "Arthur Gname"
+  description = "My portfolio site"
+```
+
+We want to add this info to the `<head>` on all pages, so we go to `themes/docsite/layouts/_partials/head/head.html` and add the following:
+
+```html
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="author" content="{{ .Site.Params.author }}">
+<meta name="description" content="{{ .Site.Params.description }}">
+...
+```
+
+### Front matter data
+
+Start at top of page 38
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

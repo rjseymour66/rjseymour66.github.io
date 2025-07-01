@@ -240,6 +240,27 @@ hugo new posts/first-post.md
 ```
 Hugo first looks for the `posts` archetype in your site, then in the theme, and then it falls back to the `default.md` archetypes.
 
+### Create a content section
+
+The requirements for a new content section. For example, to create a new section called "Tutorials":
+1. Create a new archetype named `tutorials.md`:
+   ```bash
+   touch archetypes/tutorials.md
+   ```
+2. Create a single page template and section (list) template:
+   ```bash
+   mkdir theme/docsite/layouts/tutorials
+   touch theme/docsite/layouts/tutorials/{single.html,section.html}
+   ```
+3. Create a content page:
+   ```bash
+   hugo new tutorials/filename.md
+   ```
+4. Optionally, create an `_index.md` page to add custom content to tutorial section's landing page:
+   ```bash
+   touch content/tutorials/_index.md
+   ```
+
 ### Section layouts
 
 Each directory, or section, in your `content/` directory can have a default page that lists the content of the directory. This used to be called the `list.html` page, but it was renamed to `section.html`.

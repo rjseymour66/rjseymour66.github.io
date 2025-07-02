@@ -431,14 +431,76 @@ We want to add this info to the `<head>` on all pages, so we go to `themes/docsi
 
 ### Front matter data
 
-Start at top of page 38
+You can access a page's front matter in the layout. All front matter fields are added to the `.Params` collection, so use that to access the value. If you are uses a native [parameter](https://gohugo.io/content-management/front-matter/#parameters), you don't have to use `.Params`:
 
+```toml
++++
+title = "{{ replace .Name "-" " " | title }}"
+draft = false
+image = "https://placehold.co/640x150"
+alt_text = "{{ replace .Name "-" " " | title }} screenshot"
+summary = "Summary of the {{ replace .Name "-" " " | title }} project"
+tech_used =  ["Javascript", "CSS", "HTML"]
+description = "this is it"
++++
+```
 
+```go
+<section class="project">
+        <h2>{{ .Title }}</h2>
+        {{ .Content }}
+        <img src="{{ .Params.image }}" alt="{{ .Params.alt_text }}">
 
+        <h3>Tech used</h3>
+        <ul>
+            {{ range .Params.tech_used }}
+                <li>{{ . }}</li>
+            {{ end }}
+        </ul>
+</section>
+```
 
+The `{{ .Summary }}` example here is in `section.html`, but it works because the context of each `range` loop is a `.Page`:
 
+```go
+{{ range .Pages }}
+<section class="project">
+    <h3><a href="{{ .RelPermalink }}">{{ .Title }}</a></h3>
+    <p>{{ .Summary }}</p>
+</section>
+{{ end }}
+```
 
+### Conditionally displaying data
 
+#### with
+
+When you need to conditionally display values, use `with`. `with` rebinds the context to the value that you pass it. This is great when you have values that are defined but are empty. For example, a default value like `description`. If you don't give it a value, it is avaialable but empty.
+
+To demonstrate, this `with` expression changes the context from the outer context (such as `.Page`) and changes it to the `Page.Description` context. So, when the following line uses only the current context (`{{ . }}`), it prints the `Page.Description` value. If that value is empty, it executes the `else` block:
+
+```go
+{{- with .Page.Description -}}          // rebind to .Page.Description context
+    {{ . }}                             // . refers to .Page.Description. If its empty, skip
+{{- else -}}                            // Otherwise, use the .Site.Params.description
+    {{ .Site.Params.description }}
+{{- end -}}">
+```
+So, if you have a `description` value in the page frontmatter, it uses that value. Otherwise, it uses the description in the `hugo.toml` config file.
+
+#### IsHome
+
+Here, we use an if/else clause to change the page title, depending on whether we are on the home page:
+
+```go
+<title>
+    {{- if .Page.IsHome -}}
+        {{ .Site.Title }}
+    {{- else -}}
+        {{ .Title }} - {{ .Site.Title }}
+    {{- end -}}
+</title>
+```
 
 
 

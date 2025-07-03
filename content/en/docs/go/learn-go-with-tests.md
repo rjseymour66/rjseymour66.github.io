@@ -291,3 +291,73 @@ You can delete items from a map with the built-in function `delete`. It takes th
 ```go
 delete(mapName, key)
 ```
+
+## Dependency injection
+
+Dependency injection means thta you can inject (pass in) a dependency at runtime. The dependencies--like a DB connection or printing to STDOUT--is passed into the function rather than being hardcoded. Dependency injection lets you write general-purpose functions, and it faciliates testing.
+
+One way to do this is to pass an interface rather than a concrete type:
+
+```go
+func Greet(writer io.Writer, name string) {
+    fmt.Fprintf(writer, "Hello, %s", name)
+}
+```
+
+Use `bytes.Buffer{}` to test anything with the `io.Writer` interface.
+
+## Mocking
+
+### Test spies
+
+A testing spy is a test double (like a mock or stub) that records information about how it's used, so your test can make assertions about:
+
+- What methods were called
+- How many times
+- With what arguments
+- And in what order
+- A spy is a kind of test double that records what happened.
+- Use it when you need to assert behavior, not just results.
+- It’s ideal for testing side effects and interactions in Go, especially when paired with interfaces and dependency injection.
+
+What makes it a spy:
+
+- Behaves like the real dependency (implements the same interface)
+- Tracks internal state or call history
+- Is inspected after the test to verify behavior
+
+Unlike mocks, spies typically don’t enforce expectations upfront (e.g., "this method must be called once"). You test after the fact.
+
+Use a spy to test side effects and interactions.
+
+- For example:
+- Did we call Sleep() 3 times?
+- Did we write to a file before sleeping?
+- Did a logger get used properly?
+
+## Concurrency
+
+Use concurrency for the part of the code that you want to run faster. The other parts should run linearly.
+
+### Race condition
+
+A race condition is a bug that occurs when software is dependent on the timing and sequence of events. Go has a built-in race detector:
+
+```bash
+go test -race
+```
+
+### Channels
+
+Channels can help solve data race condiitons.
+
+- send expressions send values to a channel
+- receive expressions assign a value in a channel to a variable
+
+```go
+// send expression
+resultChannel <- result{u, wc(u)}
+
+// receive expression
+r := <-resultChannel
+```

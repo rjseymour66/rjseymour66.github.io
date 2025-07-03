@@ -486,6 +486,17 @@ The `{{ .Summary }}` example here is in `section.html`, but it works because the
 {{ end }}
 ```
 
+### Config file fallback data
+
+This example uses the `keywords = []...` front matter field. Otherwise, it uses the `[keywords]` section in `hugo.toml`. If there are no keywords in either, nothing is displayed. Notice that the front matter field has a captial 'K', and the config file field is lowercase. Also notice that you have a `with else` clause, not just an `else if`:
+```go
+{{- with .Page.Keywords -}}
+    <meta name="keywords" content="{{ delimit . ", " }}">
+{{- else with .Site.Params.keywords -}}
+    <meta name="keywords" content="{{ delimit . ", " }}">
+{{- end -}}
+```
+
 ### Conditionally displaying data
 
 #### with

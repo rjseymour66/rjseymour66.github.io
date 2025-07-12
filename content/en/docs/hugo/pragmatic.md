@@ -4,6 +4,84 @@ linkTitle: "Pragmatic"
 weight: 5
 ---
 
+## Debugging
+
+### Inspect variables
+
+```go
+<pre>{{ . | jsonify (dict "indent" "  ") | safeHTML }}</pre>
+```
+### Print specific values
+
+```go
+{{ printf "Page title: %s" .Title }}
+{{ printf "Permalink: %s" .Permalink }}
+```
+
+### Stop and log errors
+
+```go
+{{ errorf "Missing param: %s" .Params.missingThing }}
+```
+### Verbose build
+
+```bash
+hugo --verbose
+```
+### Highlight undefined variables
+
+```go
+{{ if not .Params.title }}
+  <strong style="color:red">Missing title param</strong>
+{{ end }}
+```
+### Print current page context
+
+```go
+<pre>{{ .File | jsonify (dict "indent" "  ") | safeHTML }}</pre>
+```
+### Inspect .Site.Menus and .Children
+
+```go
+<pre>{{ site.Menus.main | jsonify (dict "indent" "  ") | safeHTML }}</pre>
+```
+### Debug layouts 
+
+```bash
+hugo --debug
+```
+
+OR
+
+```html
+<p>Layout: {{ .Layout }}</p>
+<p>Type: {{ .Type }}</p>
+<p>Kind: {{ .Kind }}</p>
+```
+### Dump page variables
+
+```go
+<pre>{{ . | printf "%#v" | safeHTML }}</pre>
+```
+
+### Conditional logic to prevent noise
+
+```go
+{{ with .Params.tags }}
+  {{ range . }}
+    {{ printf "Tag: %s" . }}
+  {{ end }}
+{{ else }}
+  <p>No tags found.</p>
+{{ end }}
+```
+
+### Rerender on changes (template debugging)
+
+```bash
+hugo server --disableFastRender
+```
+
 ## Big ideas
 
 > The layout structure changed with Hugo 1.46. Here is a breakdown: https://gohugo.io/templates/new-templatesystem-overview/. Notable changes include the following:

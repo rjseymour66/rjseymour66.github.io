@@ -5,6 +5,18 @@ description: >
   Setting up a Go project.
 ---
 
+## Production-ready checklist
+
+| Category      | Requirement                                                                                 |
+| ------------- | ------------------------------------------------------------------------------------------- |
+| Reliability   | ✅ Graceful shutdown<br>✅ Timeouts<br>✅ Panic recovery (optional)                            |
+| Observability | ✅ Logs with context (structured logging preferred)<br>⬜ Tracing (OpenTelemetry)             |
+| Testing       | ✅ Unit tests<br>⬜ Integration tests                                                         |
+| Security      | ✅ JSON validation<br>⬜ Input sanitation if needed<br>⬜ TLS (behind reverse proxy or native) |
+| Performance   | ✅ Minimal allocations<br>⬜ Benchmark tests                                                  |
+| Deployment    | ✅ Buildable with Go modules<br>✅ Single binary<br>⬜ Dockerfile                              |
+| Operations    | ⬜ Health check endpoint<br>⬜ Metrics (Prometheus)                                           |
+| Documentation | ✅ Self-explanatory code<br>⬜ README.md with usage and curl examples                         |
 
 ## Requirements analysis
 
@@ -319,5 +331,5 @@ func main() {
 Plan your routes:
 
 | Method | Pattern | Handler | Action |
-|:-------|:--------|:--------|:-------|
-|  |  |  |
+| :----- | :------ | :------ | :----- |
+|        |         |         |

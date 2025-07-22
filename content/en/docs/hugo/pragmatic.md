@@ -6,6 +6,12 @@ weight: 5
 
 ## Debugging
 
+### Inspect object
+
+```go
+<pre>{{ debug.Dump .Page }}</pre>
+```
+
 ### Inspect variables
 
 ```go

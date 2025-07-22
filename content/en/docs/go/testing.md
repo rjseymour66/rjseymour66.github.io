@@ -1583,3 +1583,340 @@ func readBody(scanner *bufio.Scanner) string {
     return strings.TrimSuffix(buf.String(), "\n")               // remove final newline
 }
 ```
+
+## Templates
+
+[Calhoun.io blogs](https://www.calhoun.io/intro-to-templates-p1-contextual-encoding/) have helpful information about templates.
+
+The basic format of all these examples:
+
+- the program parses the template
+- uses the template to render a post to any `io.Writer`
+
+Basic template:
+
+```go
+func Render(w io.Writer, p Post) error {
+
+    templ, err := template.New("blog").Parse(postTemplate)
+    if err != nil {
+        return err
+    }
+
+    if err := templ.Execute(w, p); err != nil {
+        return err
+    }
+
+    return nil
+}
+```
+
+Embedded in FS. This lets you load multiple templates and combine them.
+
+```go
+func Render(w io.Writer, p Post) error {
+
+    templ, err := template.ParseFS(postTemplates, "templates/*.gohtml")
+    if err != nil {
+        return err
+    }
+
+    if err := templ.Execute(w, p); err != nil {
+        return err
+    }
+
+    return nil
+}
+```
+
+With multiple templates, where you import into other files:
+
+```go
+func Render(w io.Writer, p Post) error {
+
+    templ, err := template.ParseFS(postTemplates, "templates/*.gohtml")
+    if err != nil {
+        return err
+    }
+
+    if err := templ.ExecuteTemplate(w, "blog.gohtml", p); err != nil {
+        return err
+    }
+
+    return nil
+}
+```
+
+### Benchmarking templates
+
+A program must parse the template files repeatedly, and this affects performance. Here is the benchmark test before we refactor:
+
+```bash
+$ go test -bench=.
+goos: darwin
+goarch: arm64
+pkg: learngotests/renderer
+cpu: Apple M3 Pro
+BenchmarkRender-11        149312          8087 ns/op
+PASS
+ok      learngotests/renderer   1.455s
+```
+
+To improve this, we create a type that holds the parsed template and has a method to rerender the template:
+
+```go
+var (
+    //go:embed "templates/*"
+    postTemplates embed.FS
+)
+
+type Post struct {
+    Title       string
+    Body        string
+    Description string
+    Tags        []string
+}
+
+type PostRenderer struct {
+    templ *template.Template
+}
+
+func NewPostRenderer() (*PostRenderer, error) {
+    templ, err := template.ParseFS(postTemplates, "templates/*.gohtml")
+    if err != nil {
+        return nil, err
+    }
+
+    return &PostRenderer{templ: templ}, nil
+}
+
+func (r *PostRenderer) Render(w io.Writer, p Post) error {
+
+    if err := r.templ.ExecuteTemplate(w, "blog.gohtml", p); err != nil {
+        return err
+    }
+
+    return nil
+}
+```
+
+Here are the tests:
+
+```go
+
+func TestRender(t *testing.T) {
+    var (
+        aPost = Post{
+            Title:       "hello world",
+            Body:        "This is a post",
+            Description: "This is a description",
+            Tags:        []string{"go", "tdd"},
+        }
+    )
+
+    postRenderer, err := NewPostRenderer()
+
+    if err != nil {
+        t.Fatal(err)
+    }
+
+    t.Run("it converts a single post into HTML", func(t *testing.T) {
+        buf := bytes.Buffer{}
+
+        if err := postRenderer.Render(&buf, aPost); err != nil {
+            t.Fatal(err)
+        }
+
+        approvals.VerifyString(t, buf.String())
+    })
+}
+
+func BenchmarkRender(b *testing.B) {
+    var (
+        aPost = Post{
+            Title:       "hello world",
+            Body:        "This is a post",
+            Description: "This is a description",
+            Tags:        []string{"go", "tdd"},
+        }
+    )
+
+    postRenderer, err := NewPostRenderer()
+
+    if err != nil {
+        b.Fatal(err)
+    }
+
+    for b.Loop() {
+        postRenderer.Render(io.Discard, aPost)
+    }
+
+}
+```
+
+Here are the post-refactor benchmarks:
+
+```go
+$ go test -bench=.
+goos: darwin
+goarch: arm64
+pkg: learngotests/renderer
+cpu: Apple M3 Pro
+BenchmarkRender-11       1847904           629.1 ns/op
+PASS
+ok      learngotests/renderer   1.434s
+```
+
+### FuncMaps
+
+Before you parse a template, you can use a `FuncMap` to define functions that are called within your template. Here, we define a `sanitizeTitle` function between the `New` and `Parse` template methods. Our template string calls the function on the first title occurence:
+
+```go
+func (r *PostRenderer) RenderIndex(w io.Writer, posts []Post) error {
+    indexTemplate := `<ol>{{range .}}<li><a href="/post/{{sanitizeTitle .Title}}">{{.Title}}</a></li>{{end}}</ol>`
+
+    templ, err := template.New("index").Funcs(template.FuncMap{
+        "sanitizeTitle": func(title string) string {
+            return strings.ToLower(strings.Replace(title, " ", "-", -1))
+        },
+    }).Parse(indexTemplate)
+    if err != nil {
+        return err
+    }
+
+    if err := templ.Execute(w, posts); err != nil {
+        return err
+    }
+
+    return nil
+}
+```
+
+The problem with this approach is that you can only test the sanitize function by generating HTML output. You can't test the actual function itself. Also, you should avoid logic in templates at all costs.
+
+The solution is to use a ["view model"](https://stackoverflow.com/questions/11064316/what-is-viewmodel-in-mvc/11074506#11074506), which is a type that represents the data that you want to display on the page and can be saved to a database. A view model is different from the domain model because it contains only information that you want to display in the UI.
+
+To fix this, we create a view model that contains testable data and logic for our view:
+
+```go
+type PostViewModel struct {
+    Title, SanitizedTitle, Description, Body string
+    Tags                                     []string
+}
+```
+
+Here, we call the `.SanitizedTitle` function in place of the URL title:
+
+```go
+func (r *PostRenderer) RenderIndex(w io.Writer, posts []Post) error {
+    indexTemplate := `<ol>{{range .}}<li><a href="/post/{{.SanitizedTitle}}">{{.Title}}</a></li>{{end}}</ol>`
+
+    templ, err := template.New("index").Parse(indexTemplate)
+    if err != nil {
+        return err
+    }
+
+    if err := templ.Execute(w, posts); err != nil {
+        return err
+    }
+
+    return nil
+}
+
+func (p Post) SanitizedTitle() string {
+    return strings.ToLower(strings.Replace(p.Title, " ", "-", -1))
+}
+```
+
+## Approval tests
+
+[Approval tests](https://github.com/approvals/go-approval-tests)
+
+```bash
+go get github.com/approvals/go-approval-tests
+```
+
+An approval tool compares program output with an approved file that you created. Use this instead of using golden files. A golden file is the master file that you test your development code against.
+
+## Generics
+
+Types exist so you can tell the compiler what form of data to look for: a string, int, etc. Generics let you design functions that do not requrethat accept types that do not require concrete types, but rather types that have the behavior you need.
+
+Generic functions need a type parameter that includes a description of your generic type and a label. Here, `T` is the label, and `comparable` is the description:
+
+```go
+func AssertEqual[T comparable](t *testing.T, got, want T) {
+    t.Helper()
+    if got != want {
+        t.Errorf("got %v, want %v", got, want)
+    }
+}
+```
+
+Alternately, you can use the empty interface (`interface{}` or `any`), which lets you pass any type. Make sure you use the `%+v` format in formatted strings.
+
+The problem with `any` is that we are not telling the compiler anything about the types we pass to the function. There are absolutely NO constraints, which can lead to runtime errors. Generics let you provide some guidance (constraings) to the compiler. Also, you don't have to make type assertions if your function returns a generic type, the caller can use the type as it is returned.
+
+Here is an implementation using generics:
+
+```go
+type Stack[T any] struct {
+    values []T
+}
+
+func NewStack[T any]() *Stack[T] {
+    return new(Stack[T])
+}
+
+func (s *Stack[T]) Push(value T) {
+    s.values = append(s.values, value)
+}
+
+func (s *Stack[T]) IsEmpty() bool {
+    return len(s.values) == 0
+}
+
+func (s *Stack[T]) Pop() (T, bool) {
+    if s.IsEmpty() {
+        var zero T
+        return zero, false
+    }
+
+    index := len(s.values) - 1
+    el := s.values[index]
+    s.values = s.values[:index]
+    return el, true
+}
+```
+
+Here are the tests:
+
+```go
+type Stack[T any] struct {
+    values []T
+}
+
+func NewStack[T any]() *Stack[T] {
+    return new(Stack[T])
+}
+
+func (s *Stack[T]) Push(value T) {
+    s.values = append(s.values, value)
+}
+
+func (s *Stack[T]) IsEmpty() bool {
+    return len(s.values) == 0
+}
+
+func (s *Stack[T]) Pop() (T, bool) {
+    if s.IsEmpty() {
+        var zero T
+        return zero, false
+    }
+
+    index := len(s.values) - 1
+    el := s.values[index]
+    s.values = s.values[:index]
+    return el, true
+}
+```

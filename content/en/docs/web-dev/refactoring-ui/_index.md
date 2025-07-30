@@ -120,3 +120,86 @@ $fs-72: 72px;
 
 ### Fonts
 
+If you don't know what you're doing, use the system font stack:
+
+```css
+-apple-system, Segoe UI, Roboto, Noto Sans, Ubuntu, Cantarell, Helvetica Neue;
+```
+
+Otherwise, follow these rules:
+- Pick a neutral sans-serif
+- Ignore typefaces with less than 5 weights. They are usually not as well-crafted and are less popular. On Google fonts, filter your search with **Number of styles** and select **10+**.
+- Sort by popularity if you really don't know
+
+Consider letter spacing and x-height. The x-height is the size of the lowercase letter:
+- Smaller text should have higher x-height and wider letter-spacing
+- Fonts for larger text like headings have a shorter x-height and tighter letter spacing
+
+### Line length
+
+Paragraphs should be 45-75 characters wide. Use the `ch` unit for exact characters, or use 20-35ems.
+
+### Alignment
+
+Always align by baseline, not the center.
+
+### Line-height
+
+- Line-height should be proportional to your line length. Shorter lines can use 1.5, but longer lines might need close to 2.
+- Small text needs more line height
+- Larger text can use much less, closer to 1
+
+### Links
+
+If the link is not part of the main user path, maybe you don't need special styles on them. Instead, you could use only an underline or change the color only on hover.
+
+
+### Numbers
+
+Right-align numbers in a table so users can compare them by decimal place.
+
+### Letter spacing
+
+If you selected a popular typeface, you should trust its designer and leave the letter-spacing alone.
+
+Here are scenarios where you might consider changeing the letter spacing:
+- Headings for fonts optimized for small sizes. Adjust the letter-spacing to something like `-0.05em;`. This strategy works only for small text fonts. In other words, you cannot use heading style fonts (ex: Oswald) and increase the spacing.
+
+Lowercase letters have visual variety and are easily distinguished from each other. They have ascenders and descenders that go above the x-height and below the baseline, respectively. Uppercase letters are not as distinguishable. Increase letter spacing when you use all caps to help with this. Start with something like `0.05em`.
+
+
+## Color
+
+Use HSL. The browser only understands HSL.
+- HSB is common in design software
+- Hex and RGB
+
+HSL represents colors using attributes that the human-eye can intuitively perceive:
+- hue: position on the color wheel. There are 360 degrees, where 0 and 360 are equal. 0 is red, 120 is green, 240 is blue
+- saturation: how colorful or vivid the color looks. 0% is grey (no color) and 100% is vibrant and intense. Hue needs saturation, or the color is grey regardless of its degree on the color wheel.
+- lightness: how close a color is to black or white. 0% is pure black, 50% is the pure color at the given hue, and 100% is pure white.
+
+### Categories
+
+You always need more colors than you think. Your color palette should include colors from three categories: greys, primary colors, and accent colors.
+
+#### Greys
+
+8-10 shades.
+
+Use greys for text, backgrounds, panels, form controls, etc. Stay away from true black--start with dark grey and work up to white.
+
+#### Primary colors
+
+5-10 shades.
+
+Primary colors determine the overall look of the site. Use for primary actions, active navigation elements. Darker shades are good for text, very light shades are great for backgrounds and alerts.
+
+#### Accent colors
+
+Up to 10 different colors with 5-10 shades _each_.
+
+Accent colors get the user's attention or emphasize states, like red for a destructive action, yellow for a warning, or green for something positive (think callouts).
+
+### Defining shades
+

@@ -1,6 +1,6 @@
 ---
 title: "Syntax and selectors"
-# linkTitle: "CSS in Depth"
+linkTitle: "xSyntax and selectors"
 weight: 20
 # description:
 ---

@@ -170,6 +170,10 @@ Lowercase letters have visual variety and are easily distinguished from each oth
 
 ## Color
 
+> You can't rely on color alone. If color indicates a state, figure out a way to indicate the state with color and maybe an icon. Colorblind people cannot understand states if they are indicated with color only.
+>
+> If you are using colors to show a difference (ex. pie chart), try using lighter and darker shades (contrast) of the same color to indicate the difference. People with colorblindness can tell the difference in contrast rather than color.
+
 Use HSL. The browser only understands HSL.
 - HSB is common in design software
 - Hex and RGB
@@ -178,6 +182,9 @@ HSL represents colors using attributes that the human-eye can intuitively percei
 - hue: position on the color wheel. There are 360 degrees, where 0 and 360 are equal. 0 is red, 120 is green, 240 is blue
 - saturation: how colorful or vivid the color looks. 0% is grey (no color) and 100% is vibrant and intense. Hue needs saturation, or the color is grey regardless of its degree on the color wheel.
 - lightness: how close a color is to black or white. 0% is pure black, 50% is the pure color at the given hue, and 100% is pure white.
+
+
+> Don't let the lightness wash out the colors. Increase your saturation as the lightness increases from 50%.
 
 ### Categories
 
@@ -188,6 +195,13 @@ You always need more colors than you think. Your color palette should include co
 8-10 shades.
 
 Use greys for text, backgrounds, panels, form controls, etc. Stay away from true black--start with dark grey and work up to white.
+
+Your greys don't have to be grey. Grey has a saturation of 0%, which is no color at all. In reality, many colors in designs look grey but are just very saturated colors. You can make them warmer or cooler. This is called 'changing the temperature':
+- Cooler: saturate with blue
+- Warmer: saturate with yellow or orange
+
+To maintain a consistent temperature, increase the saturation for lighter and darker shades.
+
 
 #### Primary colors
 
@@ -201,5 +215,22 @@ Up to 10 different colors with 5-10 shades _each_.
 
 Accent colors get the user's attention or emphasize states, like red for a destructive action, yellow for a warning, or green for something positive (think callouts).
 
-### Defining shades
+### Changing brightness
 
+When you want to change how light a color looks, you naturally increase the lightness value. All this does is move the color closer to black or white, and the color loses some of its intensity.
+
+You can _rotate the hue_ to update the brightness:
+- Brighter: Rotate to the nearest bright hue, either 60 (yellow), 180 (cyan), or 300 (magenta) degrees.
+- Darker: Rotate to nearest dark hue, 0 (red), 120 (green), or 240 (blue) degrees.
+
+### Text contrast
+
+Text under 18px needs to have a contrast ratio or 4.5:1, and larger text needs a ratio of 3:1. Using light text on dark backgrounds is an issue because you have to use a pretty dark background for sufficient text contrast, and this can draw attention to the wrong areas.
+
+The solution is to use lighter backgrounds with dark text. This is called 'flipping the contrast', and it doesn't interfere with other actions on the page.
+
+### Colored text
+
+For colored text on a colored background, its not enough to tweak the lightness and saturation. This often requires that you get very close to pure white.
+
+The solution is to rotate the hue closer to a brighter color like cyan (180), magenta (300), or yellow (60).

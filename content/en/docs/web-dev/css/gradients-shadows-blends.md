@@ -1,6 +1,6 @@
 ---
 title: "Gradients, shadows, and blend modes"
-linkTitle: "Gradients, shadows, blends"
+linkTitle: "xGradients, shadows, blends"
 weight: 160
 # description:
 ---

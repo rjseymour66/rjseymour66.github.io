@@ -1,6 +1,6 @@
 ---
 title: "Masks, shapes, and clipping"
-linkTitle: "Masks, shapes, clipping"
+linkTitle: "xMasks, shapes, clipping"
 weight: 170
 # description:
 ---

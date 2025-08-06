@@ -1,6 +1,6 @@
 ---
 title: "Animations"
-# linkTitle: ""
+linkTitle: "xAnimations"
 weight: 200
 # description:
 ---

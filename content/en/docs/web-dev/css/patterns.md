@@ -1,6 +1,6 @@
 ---
 title: "Patterns and components"
-linkTitle: "Patterns"
+linkTitle: "xPatterns"
 weight: 300
 # description:
 ---

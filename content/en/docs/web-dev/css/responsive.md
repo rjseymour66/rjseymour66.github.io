@@ -1,6 +1,6 @@
 ---
 title: "Responsive design"
-linkTitle: "Responsive"
+linkTitle: "xResponsive"
 weight: 100
 # description:
 ---

@@ -1,6 +1,6 @@
 ---
 title: "Box Model"
-# linkTitle: "CSS in Depth"
+linkTitle: "xBox Model"
 weight: 50
 # description:
 ---

@@ -1,6 +1,6 @@
 ---
 title: "Positioning and stacking context"
-linkTitle: "Positioning"
+linkTitle: "xPositioning"
 weight: 90
 # description:
 ---

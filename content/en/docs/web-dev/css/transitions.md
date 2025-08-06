@@ -1,6 +1,6 @@
 ---
 title: "Transitions"
-linkTitle: ""
+linkTitle: "xTransitions"
 weight: 180
 # description:
 ---

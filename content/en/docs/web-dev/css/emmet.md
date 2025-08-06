@@ -1,6 +1,6 @@
 ---
 title: "Emmet for VSCode"
-linkTitle: "Emmet"
+linkTitle: "xEmmet"
 weight: 240
 # description:
 ---

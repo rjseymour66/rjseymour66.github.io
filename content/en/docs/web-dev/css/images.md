@@ -1,6 +1,6 @@
 ---
 title: "Images and SVGs"
-linkTitle: "Images"
+linkTitle: "xImages"
 weight: 220
 # description:
 ---

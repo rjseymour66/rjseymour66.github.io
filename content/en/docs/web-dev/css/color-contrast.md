@@ -1,6 +1,6 @@
 ---
 title: "Color and contrast"
-linkTitle: "Color"
+linkTitle: "xColor"
 weight: 140
 # description:
 ---

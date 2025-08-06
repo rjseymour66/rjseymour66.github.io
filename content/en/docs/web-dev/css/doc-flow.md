@@ -1,6 +1,6 @@
 ---
 title: "Doc flow and layout"
-# linkTitle: "CSS in Depth"
+linkTitle: "xDoc flow and layout"
 weight: 40
 # description:
 ---

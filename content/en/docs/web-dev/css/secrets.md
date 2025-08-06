@@ -1,6 +1,6 @@
 ---
 title: "Secrets"
-# linkTitle: ""
+linkTitle: "xSecrets"
 weight: 5
 # description:
 ---

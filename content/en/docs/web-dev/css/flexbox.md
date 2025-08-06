@@ -1,6 +1,6 @@
 ---
 title: "Flexbox"
-# linkTitle: "CSS in Depth"
+linkTitle: "xFlexbox"
 weight: 70
 # description:
 ---

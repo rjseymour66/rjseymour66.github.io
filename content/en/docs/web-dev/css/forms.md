@@ -1,5 +1,6 @@
 ---
 title: "Forms"
+linkTitle: "xForms"
 weight: 230
 description: >
   Creating and styling forms.

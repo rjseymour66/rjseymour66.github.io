@@ -1,6 +1,6 @@
 ---
 title: "Sample styling sheet"
-linkTitle: "Sample styling sheet"
+linkTitle: "xSample styling sheet"
 weight: 320
 description: >
   Sample styling sheet.

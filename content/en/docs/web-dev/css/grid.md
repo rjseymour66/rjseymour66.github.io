@@ -1,6 +1,6 @@
 ---
 title: "Grid"
-# linkTitle: "CSS in Depth"
+linkTitle: "xGrid"
 weight: 80
 # description:
 ---

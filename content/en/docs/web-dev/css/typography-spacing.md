@@ -1,6 +1,6 @@
 ---
 title: "Typography and spacing"
-linkTitle: "Typography"
+linkTitle: "xTypography"
 weight: 150
 # description:
 ---

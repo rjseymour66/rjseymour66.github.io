@@ -361,6 +361,275 @@ resultChannel <- result{u, wc(u)}
 // receive expression
 r := <-resultChannel
 ```
+
+## Repetition in loops
+
+If you find yourself repeating yourself in loops, that probably means there is an abstraction in the loop, particularly if there is a `break` statement.
+
+Think about ways that you can remove a `for` loop and maybe make it a `switch` statement:
+
+```go
+// original
+for i := arabic; i > 0; i-- {
+    if i == 5 {
+        result.WriteString("V")
+        break
+    }
+    if i == 4 {
+        result.WriteString("IV")
+        break
+    }
+    result.WriteString("I")
+}
+
+// refactored
+for arabic > 0 {
+    switch {
+    case arabic > 4:
+        result.WriteString("V")
+        arabic -= 5
+    case arabic > 3:
+        result.WriteString("IV")
+        arabic -= 4
+    default:
+        result.WriteString("I")
+        arabic--
+    }
+}
+```
+
+## Switch statements
+
+When you have extensive `switch` statements, that might mean you are capturing data or behavior in imperative code when it should be captured in a struct.
+
+For example:
+
+```go
+// original
+func ConvertToRoman(arabic int) string {
+
+    var result strings.Builder
+
+    for arabic > 0 {
+        switch {
+        case arabic > 4:
+            result.WriteString("V")
+            arabic -= 5
+        case arabic > 3:
+            result.WriteString("IV")
+            arabic -= 4
+        default:
+            result.WriteString("I")
+            arabic--
+        }
+    }
+
+    return result.String()
+}
+
+// refactored
+type RomanNumeral struct {
+    Value  int
+    Symbol string
+}
+
+var allRomanNumerals = []RomanNumeral{
+    {50, "L"},
+    {10, "X"},
+    {9, "IX"},
+    {5, "V"},
+    {4, "IV"},
+    {1, "I"},
+}
+
+func ConvertToRoman(arabic int) string {
+
+    var result strings.Builder
+
+    for _, numeral := range allRomanNumerals {
+        for arabic >= numeral.Value {
+            result.WriteString(numeral.Symbol)
+            arabic -= numeral.Value
+        }
+    }
+
+    return result.String()
+}
+```
+
+The refactored code declares rules about the numerals as data, rather than keeping it in an algorithm. Loop through the available Roman number values, and if `arabic` is greater or equal than a Roman numeral arabic value, write the corresponding `Symbol` to the string builder.
+
+## Property-based tests
+
+Property-based tests evaluate the rules of your domain. For example, if we are building a tool that converts Roman numerals to Arabic, we have these rules:
+
+- Can't have more than 3 consecutive symbols
+- Only I (1), X (10) and C (100) can be "subtractors"
+- Taking the result of ConvertToRoman(N) and passing it to ConvertToArabic should return us N
+
+These are rules that help define our _domain_. Property-based tests test these rules and make sure that our code adheres to them.
+
+## Quick testing library
+
+[Quick testing library](https://pkg.go.dev/testing/quick)
+
+Here is a quick example:
+
+```go
+func TestPropertiesOfConversion(t *testing.T) {
+    assertion := func(arabic uint16) bool {
+        if arabic > 3999 {
+            t.Log("testing", arabic)
+        }
+        roman := ConvertToRoman(arabic)
+        fromRoman := ConvertToArabic(roman)
+        return fromRoman == arabic
+    }
+
+    if err := quick.Check(assertion, &quick.Config{
+        MaxCount: 1000,
+    }); err != nil {
+        t.Error("failed checks", err)
+    }
+}
+```
+
+## General
+
+When writing tests:
+
+- Write the test how you want to use the code from a consumer's point of view.
+- Don't think about implementation. Focus on the what and why, but not the how.
+
+[Sliming](https://deniseyu.github.io/leveling-up-tdd/) is when you test the structure of the code--the interface. You don't need to test the logic. Sliming is usually the first iteration where your tests pass, but they contain no logic. For example, your first test fails because you haven't defined a function or object. Your next step passes, but it doesn't solve your problem. Its a skeleton for your code. Here is an example:
+
+```go
+func NewPostsFromFS(fileSystem fs.FS) []Post {
+    return []Post{{}, {}}
+}
+```
+
+### Function arguments
+
+To loosen coupling, always think about your function arguments. What functionality do you need? Can you replace it with an interface?
+
+## Reading files
+
+Suggested reading:
+
+- [A Tour of Go 1.16's io/fs package](https://benjamincongdon.me/blog/2021/01/21/A-Tour-of-Go-116s-iofs-package/)
+- [Discussion on GitHub](https://github.com/golang/go/issues/41190)
+
+For tests, use [fstest](https://pkg.go.dev/testing/fstest) for file system interactions.
+
+To mimic a filesystem, use `.MapFS`. It simulates an fs as a map, so you don't have to save files on disk. Us this where a function accepts a filesystem (`fs.FS`), such as `fs.ReadFile(fs, "filename.md")` so you don't have to rely on disk IO. It has the following definition, where `string` is the filepath and `MapFile` is a data structure that holds file content and metadata:
+
+```go
+type MapFS map[string]*MapFile
+
+
+type MapFile struct {
+    Data    []byte      // file content
+    Mode    fs.FileMode // fs.FileInfo.Mode
+    ModTime time.Time   // fs.FileInfo.ModTime
+    Sys     any         // fs.FileInfo.Sys
+}
+```
+
+Here is an example implementation, where the key is the filename, and the value defines the file contents:
+
+```go
+fs := fstest.MapFS{
+    "hello world.md": {Data: []byte("hi")},
+    "hello-world.md": {Data: []byte("hola")},
+}
+```
+
+### Scanner
+
+[`bufio.Scanner`](https://pkg.go.dev/bufio#Scanner) is an interface for reading newline-delimited lines of text from a file. You just call `Scan()` to read the line, and then call `Text()` to extract the text:
+
+```go
+scanner := bufio.NewScanner(filename)
+
+scanner.Scan()
+lineOne := scanner.Text()
+
+scanner.Scan()
+lineTwo := scanner.Text()
+```
+
+Here is a refactoring:
+
+```go
+readLine := func() string {
+    scanner.Scan()
+    return scanner.Text()
+}
+
+lineOne := readLine()[7:]
+lineTwo := readLine()[13:]
+```
+
+And refactored yet again...:
+
+```go
+scanner := bufio.NewScanner(postBody)
+
+readMetaLine := func(tagName string) string {
+    scanner.Scan()
+    return strings.TrimPrefix(scanner.Text(), tagName)
+}
+```
+
+Here, we scan the lines of a file into a buffer. Use `Fprintln` because the scanner removes newline characters, and we need to maintain them in this case. we use the `TrimSuffix()` function to remove the final newline. In addition, this example shows how you can ignore a line:
+
+```go
+scanner.Scan() // ignore a line
+
+buf := bytes.Buffer{}
+for scanner.Scan() {
+    fmt.Fprintln(&buf, scanner.Text())
+}
+body := strings.TrimSuffix(buf.String(), "\n")
+```
+
+#### Example
+
+Here is a full example of what you can do with a single scanner:
+
+- scan a single line and return the line
+- create a function that accepts a scanner and returns text
+
+```go
+func newPost(postBody io.Reader) (Post, error) {
+    scanner := bufio.NewScanner(postBody)                       // create the scanner
+
+    readMetaLine := func(tagName string) string {
+        scanner.Scan()                                          // read a line
+        return strings.TrimPrefix(scanner.Text(), tagName)      // return the text
+    }
+
+    return Post{
+        Title:       readMetaLine(titleSeparator),
+        Description: readMetaLine(descriptionSeparator),
+        Tags:        strings.Split(readMetaLine(tagsSeparator), ", "),
+        Body:        readBody(scanner),
+    }, nil
+}
+
+func readBody(scanner *bufio.Scanner) string {
+    scanner.Scan()                                              // ignore a line
+
+    buf := bytes.Buffer{}                                       // create a buffer
+    for scanner.Scan() {                                        // scan text until there EOF
+        fmt.Fprintln(&buf, scanner.Text())                      // write line to buffer
+    }
+
+    return strings.TrimSuffix(buf.String(), "\n")               // remove final newline
+}
+```
+
 ## Templates
 
 [Calhoun.io blogs](https://www.calhoun.io/intro-to-templates-p1-contextual-encoding/) have helpful information about templates.

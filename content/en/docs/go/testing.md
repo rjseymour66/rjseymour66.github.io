@@ -1792,7 +1792,7 @@ func (r *PostRenderer) RenderIndex(w io.Writer, posts []Post) error {
 }
 ```
 
-The problem with this approach is that you can only test the sanitize function by generating HTML output. You can't test the actual function itself. Also, you should avoid logic in templates at all costs.
+The problem with this approach is that you can only test the sanitize the function by generating HTML output. You can't test the actual function itself. Also, you should avoid logic in templates at all costs.
 
 The solution is to use a ["view model"](https://stackoverflow.com/questions/11064316/what-is-viewmodel-in-mvc/11074506#11074506), which is a type that represents the data that you want to display on the page and can be saved to a database. A view model is different from the domain model because it contains only information that you want to display in the UI.
 

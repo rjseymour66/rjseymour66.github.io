@@ -361,6 +361,181 @@ resultChannel <- result{u, wc(u)}
 // receive expression
 r := <-resultChannel
 ```
+## select
+
+`select` synchronizes processes. You wait on multiple channels--the first channel that sends a value "wins", and its code is executed. Here, we are trying to figure out which process finishes first:
+
+```go
+func Racer(a, b string) (winner string, error error) {
+    select {
+    case <-ping(a):
+        return a, nil
+    case <-ping(b):
+        return b, nil
+    case <-time.After(10 * time.Second):
+        return "", fmt.Errorf("timed out waiting for %s and %s", a, b)
+    }
+}
+
+func ping(url string) chan struct{} {
+    ch := make(chan struct{})
+    go func() {
+        http.Get(url)
+        close(ch)
+    }()
+    return ch
+}
+```
+
+The `select` statement waits on two channels with a blocking call (waiting on a value). When the channel points to a value or a `case` statement (`val := <- ch` or `case <-func(x)`), you are waiting on a value to pass to the channel.
+
+The `ping` function uses a `chan struct{}`. The empty struct is the data type that uses the least amount of memory, so we use that for the signal. This works because we are just closing the `chan` when a value is received--we are not sending anything.
+
+Always use `make` to create a chan. Using `var` initiates the variable as the type's zero value. This is `nil` for a `chan`, and if you send a `nil` value into a channel it blocks forever.
+
+### time.After
+
+`time.After` is great add a timeout and make sure you don't write code that blocks forever. This function returns a `chan Time` value when the Duration argument has elapsed. In the preceding example, the `select` statement returns an error if more than 10s elapses from the time the function executes.
+
+### time package
+
+You can measure how long an HTTP call (or any other process) takes to finish with the `time` package:
+
+```go
+startA := time.Now()
+http.Get(a)
+aDuration := time.Since(startA) // returns a time.Duration value
+```
+
+### httptest servers
+
+When you want to test an HTTP service, use the `httptest.NewServer` method. It will spin up a test server on an open port so you can test your HTTP code.
+
+Remember to close the server right after you start it so it stops listening on any other port and cleans up any other resources.
+
+```go
+func TestRacer(t *testing.T) {
+
+    slowServer := makeDelayedServer(20 * time.Millisecond)
+    fastServer := makeDelayedServer(0 * time.Millisecond)
+
+    defer slowServer.Close()
+    defer fastServer.Close()
+
+    slowURL := slowServer.URL
+    fastURL := fastServer.URL
+
+    want := fastURL
+    got := Racer(slowURL, fastURL)
+
+    if got != want {
+        t.Errorf("got %q, want %q", got, want)
+    }
+}
+
+func makeDelayedServer(delay time.Duration) *httptest.Server {
+    return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+        time.Sleep(delay)
+        w.WriteHeader(http.StatusOK)
+    }))
+}
+```
+
+## Configurable functions
+
+If you want to create a function and a configurable version of that function:
+
+- Create a `var` that holds the value you want to configure
+- Create the basic function, which does not accept an argument of the var type. It should returns a instance of the configurable function that DOES accept the `var`. You don't have to add logic to this function, it just decorates the configurable function.
+- Create a configurable function that accepts a value of the var type.
+
+```go
+var tenSecondTimout = 10 * time.Second
+
+func Racer(a, b string) (winner string, error error) {
+    return ConfigurableRacer(a, b, tenSecondTimout)
+}
+
+func ConfigurableRacer(a, b string, timeout time.Duration) (winner string, error error) {
+    select {
+    case <-ping(a):
+        return a, nil
+    case <-ping(b):
+        return b, nil
+    case <-time.After(timeout):
+        return "", fmt.Errorf("timed out waiting for %s and %s", a, b)
+    }
+}
+```
+
+## Reflection
+
+Reflection is the ability of a program to examine its own structure, particularly through types.
+
+Go blog: [The Laws of Reflection](https://go.dev/blog/laws-of-reflection)
+
+In some scenarios, you want to write a function where you don't know the type at compile time.
+
+## Sync
+
+Sync lets you define a waitgroup that waits for a specified number of goroutines to finish. The main goroutine sets the number of goroutines to wait for with `Add`. When each goroutine is done, it calls `Done` to tell the wait group it is done executing. When all goroutines finish and call `Done`, the code continues executing.
+
+In the meantime, the waitgroup calls `Wait` and blocks until all goroutines are complete:
+
+```go
+var wg sync.WaitGroup
+wg.Add(wantedCount)
+
+for i := 0; i < wantedCount; i++ {
+    go func() {
+        counter.Inc()
+        wg.Done()
+    }()
+}
+wg.Wait()
+```
+
+### Mutexes
+
+A mutex is a "mutual exclusion" lock. It locks your values so that only one goroutine or process can access the value at a time. Make sure that you always provide a name to the mutex, or you might expose the `Lock` and `Unlock` methods in the public API. This is because embedding types make the type's methods part of the public interface.
+
+Here is a struct with a mutex, and a simple implementation of the mutex:
+
+```go
+type Counter struct {
+    mu    sync.Mutex
+    value int
+}
+
+func NewCounter() *Counter {        // constructor so users know not to initialize a Counter any other way
+    return &Counter{}
+}
+
+func (c *Counter) Inc() {
+    c.mu.Lock()
+    defer c.mu.Unlock()
+    c.value++
+}
+```
+
+> We ran `go vet`, and it explained that our tests copied the mutex—it copied its value rather than mutate the value at an address. This is an issue, so we created a constructor that returns a pointer to a Counter struct.
+
+### go vet
+
+Use `go vet` in build scripts so you can catch subtle bugs.
+
+### channels vs mutexes
+
+- Channels when passing ownership of data
+- Mutexes for managing state
+
+| Situation                                                    | Use                                                         |
+| ------------------------------------------------------------ | ----------------------------------------------------------- |
+| Communicating between goroutines with no shared memory       | ✅ **Channels**                                              |
+| Managing shared in-memory data with concurrent access        | ✅ **Mutexes**                                               |
+| Want to coordinate work without giving direct access to data | ✅ **Channels**                                              |
+| Performance-critical shared data structure                   | ✅ **Mutexes** (more efficient than channels in tight loops) |
+
 
 ## Repetition in loops
 

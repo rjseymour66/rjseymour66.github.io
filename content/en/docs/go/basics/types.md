@@ -11,7 +11,7 @@ Go is statically typed, which means that the compiler wants to know the type for
 
 Types tell the compiler how much memory to allocate (its size) and what the memory represents. Some types get their representation based on the machine architecture (64- vs 32-bit).
 
-### User-defined types
+### xUser-defined types
 
 There are 2 ways to declare a user-defined type in Go:
 1. Use the keyword `struct` to create a composite type:
@@ -66,7 +66,7 @@ type Distance int64
 type List []string
 ```
 
-### Methods
+### xMethods
 
 Methods add behavior to user-defined types:
 

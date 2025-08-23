@@ -125,7 +125,7 @@ The following are reference types:
 - channel
 - function types
 
-### Interfaces
+### xInterfaces
 
 Interfaces are types that declare behavior. They are implemented by user-defined types through methods. If a type implements an interface with a method, then a value of that user defined type can be assigned to values of the interface type.
 

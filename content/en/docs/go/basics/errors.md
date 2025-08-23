@@ -21,7 +21,7 @@ value, err := funcThatReturnsValandErr() {
 The preceding example sends the error to STDERR and exits the program.
 
 
-## Compact error checking
+## xCompact error checking
 
 If a function or method returns only an error, you can assign any error and check it for `nil` on the same line:
 ```go
@@ -32,9 +32,10 @@ if err := returnErr(); err != nil {
 ## Basic error handling
 
 `fmt.Errorf` creates a custom formatted error:
+
 ```go
 return fmt.Errorf("Error: %s is not a valid string", s)
-
+```
 
 ## Compact error checking
 

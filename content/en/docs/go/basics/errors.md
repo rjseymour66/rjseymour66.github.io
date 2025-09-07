@@ -37,15 +37,6 @@ if err := returnErr(); err != nil {
 return fmt.Errorf("Error: %s is not a valid string", s)
 ```
 
-## Compact error checking
-
-If a function or method returns only an error, you can assign any error and check it for `nil` on the same line:
-```go
-if err := returnErr(); err != nil {
-    // handle error
-}
-```
-
 ## Check for specific errors with .Is()
 
 Check if an error is a specific object type with the [`.Is()` function](https://pkg.go.dev/errors#Is). This function accepts the error value and an error type for comparison. This function is helpful during testings.

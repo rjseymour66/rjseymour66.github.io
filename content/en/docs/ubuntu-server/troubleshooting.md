@@ -1,6 +1,6 @@
 ---
 title: "Troubleshooting your server"
-linkTitle: "Troubleshooting"
+linkTitle: "xTroubleshooting"
 weight: 200
 # description:
 ---

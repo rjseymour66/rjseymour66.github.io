@@ -1,6 +1,6 @@
 ---
 title: "Logging"
-linkTitle: "Logs"
+linkTitle: "xLogs"
 # weight: 1000
 # description:
 ---
@@ -162,15 +162,15 @@ ls -l /var/log/ | grep logtest
 
 Describes the common `syslogd` log files and the types of events they log:
 
-| File | Events |
-|:---|:---|
-| `auth.log` | System auth and security |
-| `boot.log` | Boot-related |
-| `dmesg` | Kernel-ring device driver |
+| File       | Events                      |
+| :--------- | :-------------------------- |
+| `auth.log` | System auth and security    |
+| `boot.log` | Boot-related                |
+| `dmesg`    | Kernel-ring device driver   |
 | `dpkg.log` | Software package management |
-| `kern.log` | Kernel events |
-| `syslog` | All logs |
-| `wtmp` | User sessions |
+| `kern.log` | Kernel events               |
+| `syslog`   | All logs                    |
+| `wtmp`     | User sessions               |
 
 ## journald
 

@@ -1,6 +1,6 @@
 ---
 title: "Terraform cloud deployments"
-linkTitle: "Terraform"
+linkTitle: "xTerraform"
 weight: 180
 # description:
 ---

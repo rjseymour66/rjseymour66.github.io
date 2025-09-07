@@ -1,6 +1,6 @@
 ---
 title: "Managing databases"
-linkTitle: "Databases"
+linkTitle: "xDatabases"
 weight: 120
 # description:
 ---

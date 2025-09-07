@@ -1,6 +1,6 @@
 ---
 title: "Preventing disasters"
-linkTitle: "Disasters"
+linkTitle: "xDisasters"
 weight: 210
 # description:
 ---

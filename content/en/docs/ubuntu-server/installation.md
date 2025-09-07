@@ -1,5 +1,5 @@
 ---
-title: "Installing Ubuntu Server"
+title: "xInstalling Ubuntu Server"
 linkTitle: "Installation"
 weight: 1
 # description:

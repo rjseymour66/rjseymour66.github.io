@@ -1,5 +1,5 @@
 ---
-title: "Regex"
+title: "xRegex"
 weight: 400
 description: >
   Regex cheatsheet.

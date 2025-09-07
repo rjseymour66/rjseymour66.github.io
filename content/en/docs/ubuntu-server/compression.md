@@ -1,6 +1,6 @@
 ---
 title: "Compression and archives"
-linkTitle: "Compression"
+linkTitle: "xCompression"
 # weight: 1000
 # description:
 ---

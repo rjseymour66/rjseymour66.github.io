@@ -1,6 +1,6 @@
 ---
 title: "Users, groups, and permissions"
-linkTitle: "Users/groups"
+linkTitle: "xUsers/groups"
 weight: 10
 # description:
 ---

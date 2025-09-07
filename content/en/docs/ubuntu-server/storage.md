@@ -1,6 +1,6 @@
 ---
 title: "Managing storage volumes"
-linkTitle: "Storage"
+linkTitle: "xStorage"
 weight: 80
 # description:
 ---

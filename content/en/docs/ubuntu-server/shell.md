@@ -1,6 +1,6 @@
 ---
 title: "Bash shell"
-linkTitle: "Shell"
+linkTitle: "xShell"
 weight: 50
 # description:
 ---

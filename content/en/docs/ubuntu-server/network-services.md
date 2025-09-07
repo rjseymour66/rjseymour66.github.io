@@ -1,6 +1,6 @@
 ---
 title: "Network services"
-linkTitle: "Network services"
+linkTitle: "xNetwork services"
 weight: 100
 # description:
 ---

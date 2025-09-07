@@ -1,6 +1,6 @@
 ---
 title: "Monitoring system resources"
-linkTitle: "System resources"
+linkTitle: "xSystem resources"
 weight: 70
 # description:
 ---

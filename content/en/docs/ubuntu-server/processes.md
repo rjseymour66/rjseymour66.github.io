@@ -1,6 +1,6 @@
 ---
 title: "Controlling and managing processes"
-linkTitle: "Processes"
+linkTitle: "xProcesses"
 weight: 60
 # description:
 ---

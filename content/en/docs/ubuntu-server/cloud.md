@@ -1,6 +1,6 @@
 ---
 title: "Deploying Ubuntu in the Cloud"
-linkTitle: "Cloud"
+linkTitle: "xCloud"
 weight: 170
 # description:
 ---

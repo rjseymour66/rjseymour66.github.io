@@ -1,6 +1,6 @@
 ---
 title: "Navigating the filesystem"
-linkTitle: "Filesystem"
+linkTitle: "xFilesystem"
 weight: 30
 # description:
 ---

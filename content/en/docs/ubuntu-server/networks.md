@@ -1,6 +1,6 @@
 ---
 title: "Connecting to networks"
-linkTitle: "Networks"
+linkTitle: "xNetworks"
 weight: 90
 # description:
 ---

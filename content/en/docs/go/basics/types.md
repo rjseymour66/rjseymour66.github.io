@@ -218,7 +218,7 @@ type passUpdater interface {
 // user
 
 ```
-## Loops
+## xLoops
 
 In Go, every loop is a `for` loop:
 
@@ -260,7 +260,7 @@ for _, value := range iterable {
 ```
 > The `for range` loop operates on a copy of the value, so do not expect the values to mutate.
 
-## Arrays
+## xArrays
 
 ### Internals
 
@@ -302,7 +302,7 @@ array2 := [3]*string{new(string), new(string), new(string)}
 *array2[1] = "Blue"
 ```
 
-## Slices
+## xSlices
 
 The slice type is a dynamic array that can grow and shrink as you see fit. 
 
@@ -558,7 +558,7 @@ func fName(slice []int) []int {
 }
 ```
 
-## Maps
+## xMaps
 
 A map provides you with an unordered collection of key/value pairs. maps are unordered collections, and there’s no way to predict the order in which the key/value pairs will be returned because a map is implemented using a hash table
 The map’s hash table contains a collection of buckets. When you’re storing, removing, or looking up a key/value pair, everything starts with selecting a bucket. This is performed by passing the key—specified in your map operation—to the map’s hash function. The purpose of the hash function is to generate an index that evenly distributes key/value pairs across all available buckets.

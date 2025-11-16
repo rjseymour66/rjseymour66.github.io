@@ -9,7 +9,7 @@ Place both internal and external tests in the same folder as the code they test.
 - _Internal tests_ verify code from the same package. They are called 'white-box tests' and can test exported and unexported identifiers.
 - _External tests_ verify code from another package. They are called 'black-box tests'. External tests use the `_test` suffix in the package name. For example, `package url_test`.
 
-## Package naming
+## xPackage naming
 
 Place `*_test.go` files in the same directory as the code that you are testing. For external (integration) tests, use the original package name followed by `_test`. For example:
 
@@ -34,7 +34,7 @@ The most useful are `t.Errorf()` and `t.Fatalf()`. The following table describes
 | `t.Fatalf()`  | Combination of `Logf()` and `FailNow()`.                 |
 
 
-## Write a test
+## xWrite a test
 
 Each test function must use the `TestXxx(t *testing.T)` signature, or the Go compiler does not recognize and run the test. For example, the following test verifies the functionality of a simple `Add(a, b int) int` function:
 
@@ -55,7 +55,7 @@ Act
 Assert
 : Verify that the code returned the correct values. You can use the `got`/`want` or `got`/`expected` formatting.
 
-### Arrange
+### xArrange
 
 A common way to arrange a test is to use table tests. Table tests are a way to provide multiple test cases that you loop over and test during the `Act` stage. To set up a table test, complete the following:
 1. Create a `testCase` struct that models the inputs and expected outputs of the test:
@@ -86,7 +86,7 @@ A common way to arrange a test is to use table tests. Table tests are a way to p
         },
    }
    ```
-### Act
+### xAct
 
 Within the same `TestAdd()` function, write a `for range` loop. This is where you execute each test case with the code that you are testing. Use the `t.Run()` subtest method in the `for range` loop to run each individual test case with a name. `t.Run()` accepts two parameters: the name of the test, and an unnamed test function:
 
@@ -101,7 +101,7 @@ for name, tc := range tt {
 ```
 In the previous example, `name` is the key in the `tt` map, and `tc` is the `testCase` struct in the `tt` map.
 
-### Assert
+### xAssert
 
 In the assert step, you compare the actual values (what you got in the Act step) with the expected value, which is usually a field in the `testCase` struct. Asserts are generally `if` statements that return a formatted error with `t.Errorf` when the `got` and `expected` values do not match:
 
@@ -116,7 +116,7 @@ for name, tc := range tt {
 	})
 }
 ```
-#### Assert helper
+#### xAssert helper
 
 Writing assert logic can get tedious, so you should extract it into a helper function. Add the following code to `/internal/assert/assert.go`:
 
@@ -150,9 +150,9 @@ for name, tc := range tt {
 }
 ```
 
-## Test flags
+## xTest flags
 
-### shuffle
+### xshuffle
 
 Add the `-shuffle=on` flag to execute tests in a random order:
 
@@ -160,14 +160,14 @@ Add the `-shuffle=on` flag to execute tests in a random order:
 $ go test -v -shuffle=on
 ```
 
-### failfast
+### xfailfast
 
 Stops tests in a single package if there is a failing test. This is helpful if you want to work on the first failing test:
 
 ```go
 $ go test -v -failfast
 ```
-### run
+### xrun
 
 Provide the name of a specific test that you want to run:
 
@@ -181,7 +181,7 @@ $ go test -v -run=TestName/^with_port
 // run a specific subtest
 $ go test -v -run=TestName/with_port
 ```
-### short
+### xshort
 
 Use the short flag to skip long-running tests, like integration tests. To designate a test as a short test, add the following snippet at the beginning of the test function:
 
@@ -206,7 +206,7 @@ $ go test -v -short ./...
 
 In Go, a _unit_ is a package, and a _unit test_ verifies the behavior of a single package. Unit tests test simple pieces of code, such as functions or methods.
 
-### Table-driven tests
+### xTable-driven tests
 
 Also called data-driven and parameterized tests. They verify code with varying inputs. You can also implement subtests that run tests in isolation.
 
@@ -260,7 +260,7 @@ for _, tt := range testCases {
 }
 ```
 
-### Subtests 
+### xSubtests 
 
 Subtests let you run different testing scenarios for a testing context.
 
@@ -278,7 +278,7 @@ for name, tc := range tt {
 }
 ```
 
-### Parallel testing 
+### xParallel testing 
 
 Tests that have `t.Parallel()` on the first line of the `t.Run()` function.
 
@@ -290,7 +290,7 @@ $ go test -parallel=4 ./...
 
 Tests marked with `t.Parallel()` are run in parallel with _and only with_ other parallel tests.
 
-### Skipping tests 
+### xSkipping tests 
 
 Use `t.Skip()` to skip tests during execution. Use this with `testing.Short()` and the `-test.short` argument to tell the testing package to skip specific tests.
 
@@ -309,7 +309,7 @@ To skip this test, use `-test.short` when you execute the tests:
 $ go test -v -test.short
 ```
 
-### Cleanup 
+### xCleanup 
 
 Use `t.Cleanup()` to clean up testing resources. The `Cleanup()` method is available to helper and testing methods, so it cancels after they are complete. The standard `defer` function operator executes a function before it completes, even if it is a helper function.
 
@@ -325,7 +325,7 @@ func TestWithResources(t *testing.T)  {
 }
 ```
 
-### Helpers
+### xHelpers
 
 A test helper can improve readability of your tests. Unfortunately, when a test fails within the test helper, the testing package logs helper function line number after failure--this makes it difficult to pinpoint where the test failed.
 
@@ -377,7 +377,7 @@ func assertCorrectMessage(t testing.TB, got, want string) {
 }
 ```
 
-### Temporary directories
+### xTemporary directories
 
 The testing type provides the `TempDir()` function to create a temporary directory that is deleted automatically when testing completes. This means that you do not have to write cleanup logic:
 

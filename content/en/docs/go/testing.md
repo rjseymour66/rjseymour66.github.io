@@ -407,7 +407,7 @@ The `main` method uses globals, which you cannot easily test. The trick is to pu
 
 The flag package uses `NewFlagSet` function to create the default flag set, `CommandLine`.
 
-## Testable examples
+## xTestable examples
 
 [Blog post](https://go.dev/blog/examples)
 
@@ -433,7 +433,7 @@ func ExampleURL_fields() {
 }
 ```
 
-### Naming conventions
+### xNaming conventions
 
 Testable examples use the following naming conventions:
 
@@ -445,7 +445,7 @@ Testable examples use the following naming conventions:
 | `func ExampleURL_Hostname()` | Example for the `Hostname` method on the `URL` type. |
 
 
-### godoc server
+### xgodoc server
 
 You can generate docs that include your [testable examples](#testable-examples) with `godoc`. The following command installs the latest version:
 

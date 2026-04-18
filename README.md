@@ -1,0 +1,2 @@
+# freeme
+Hugo documentation theme

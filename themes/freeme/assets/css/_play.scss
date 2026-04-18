@@ -1,0 +1,54 @@
+.flex-container {
+  border: 2px solid red;
+  max-width: 500px;
+
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+
+  //   align-items: center;
+  height: 50svh;
+}
+
+.flex-item {
+  color: #fff;
+  font-weight: bold;
+  background: blue;
+  border-radius: 5px;
+}
+
+.flex-item.four {
+  height: 50%;
+
+  flex-grow: 0;
+  flex-shrink: 1;
+  align-self: flex-end;
+}
+
+.flex-item {
+  flex-basis: 60px;
+}
+
+.cards {
+  border: 1px solid blue;
+  display: flex;
+
+  min-height: 10rem;
+}
+
+.card {
+  border: 1px solid red;
+  display: flex;
+  flex-direction: column;
+  //   height: 100rem;
+
+  background: orange;
+
+  footer {
+    background: yellowgreen;
+  }
+}
+
+.card__content {
+  flex-grow: 1;
+}

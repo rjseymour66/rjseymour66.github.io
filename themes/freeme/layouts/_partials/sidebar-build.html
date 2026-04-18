@@ -1,0 +1,24 @@
+{{- $section := .Root -}}
+{{- $current := .Current -}}
+{{- $depth := .Depth | default 0 -}}
+
+{{- $items := slice }}
+{{- with $section.RegularPages }}{{ $items = append $items . }}{{ end }}
+{{- with $section.Sections }}{{ $items = append $items . }}{{ end }}
+{{- $sorted := sort $items "Weight" "Title" }}
+
+<ul class="{{ if gt $depth 0 }}sidebar-section{{ else }}sidebar-list{{ end }}">
+  {{- range $item := $sorted }}
+  {{- $isActive := eq $item.RelPermalink $current.RelPermalink }}
+  <li class="sidebar-item{{ if $isActive }} active{{ end }}">
+      <a href="{{ $item.RelPermalink }}" class="toc-link">{{ $item.LinkTitle }}</a>
+      {{- if $item.IsSection }}
+        {{ partial "sidebar-build.html" (dict
+          "Root" $item
+          "Current" $current
+          "Depth" (add $depth 1)
+        ) }}
+      {{- end }}
+    </li>
+  {{- end }}
+</ul>

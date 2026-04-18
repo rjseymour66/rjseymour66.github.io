@@ -1,0 +1,14 @@
+{{ $toc := .TableOfContents }}
+{{ $ulOnly := replaceRE `(?s).*?(<ul>.*</ul>).*` `$1` $toc }} <!-- grab only contents in TOC nav item -->
+
+
+<!-- {{ $ulStyled := $ulOnly | 
+    replaceRE `<ul>` `<ul class="page-toc">` | 
+    replaceRE `<li>` `<li class="page-heading">`
+}} -->
+
+<div class="content-toc__inner">
+    <nav class="content-toc__nav">
+        {{ $ulOnly | safeHTML }}
+    </nav>
+</div>

@@ -1,0 +1,220 @@
+// Spacing and padding
+// https://utopia.fyi/space/calculator/
+$space-025: 0.25rem;
+$space-050: 0.5rem;
+$space-075: 0.75rem;
+$space-0: 1rem;
+$space-1: 1.5rem;
+$space-2: 2rem;
+$space-3: 3rem;
+$space-4: 4rem;
+$space-6: 6rem;
+$space-8: 8rem;
+$space-12: 12rem;
+$space-24: 24rem;
+$space-32: 32rem;
+$space-40: 40rem;
+$space-48: 48rem;
+
+// fluid typography
+// https://www.fluid-type-scale.com/
+// https://typescale.com/
+// https://utopia.fyi/type/calculator/
+
+/* @link https://utopia.fyi/type/calculator?c=360,16,1.333,1240,17,1.333,7,2,&s=0.75|0.5|0.25,1.5|2|3|4|6,s-l&g=s,l,xl,12 */
+
+$fs--3: unquote("clamp(0.5628rem, 0.5484rem + 0.064vw, 0.598rem)");
+$fs--2: unquote("clamp(0.7502rem, 0.731rem + 0.0852vw, 0.7971rem)");
+$fs--1: unquote("clamp(0.875rem, 0.8494rem + 0.1136vw, 0.9375rem)");
+$fs-0: unquote("clamp(1rem, 0.9744rem + 0.1136vw, 1.0625rem)");
+$fs-1: unquote("clamp(1.333rem, 1.2989rem + 0.1515vw, 1.4163rem)");
+$fs-2: unquote("clamp(1.7769rem, 1.7315rem + 0.2019vw, 1.8879rem)");
+$fs-3: unquote("clamp(2.3686rem, 2.308rem + 0.2692vw, 2.5166rem)");
+$fs-4: unquote("clamp(3.1573rem, 3.0766rem + 0.3588vw, 3.3547rem)");
+$fs-5: unquote("clamp(4.2087rem, 4.1011rem + 0.4783vw, 4.4718rem)");
+$fs-6: unquote("clamp(5.6102rem, 5.4668rem + 0.6375vw, 5.9609rem)");
+$fs-7: unquote("clamp(7.4784rem, 7.2872rem + 0.8498vw, 7.9458rem)");
+
+// font weight
+$fw-100: 100;
+$fw-200: 200;
+$fw-300: 300;
+$fw-400: 400;
+$fw-500: 500;
+$fw-600: 600;
+$fw-700: 700;
+$fw-800: 800;
+$fw-900: 900;
+
+$heading-letter-spacing: -0.0125em;
+
+// $font-sizes: (
+//   -2: clamp(0.5628rem, 0.5196rem + 0.1919vw, 0.6683rem),
+//   -1: clamp(0.7502rem, 0.6926rem + 0.2557vw, 0.8908rem),
+//   0: clamp(1rem, 0.9233rem + 0.3409vw, 1.1875rem),
+//   1: clamp(1.333rem, 1.2308rem + 0.4544vw, 1.5829rem),
+//   2: clamp(1.7769rem, 1.6406rem + 0.6058vw, 2.1101rem),
+//   3: clamp(2.3686rem, 2.1869rem + 0.8075vw, 2.8127rem),
+//   4: clamp(3.1573rem, 2.9152rem + 1.0764vw, 3.7493rem),
+//   5: clamp(4.2087rem, 3.8859rem + 1.4348vw, 4.9979rem),
+//   6: clamp(5.6102rem, 5.1799rem + 1.9126vw, 6.6622rem),
+//   7: clamp(7.4784rem, 6.9048rem + 2.5495vw, 8.8806rem)
+// );
+
+///////////////////////////////////////////
+/// colors
+///
+
+$primary-950: hsl(250, 88%, 23%);
+$primary-900: hsl(253, 80%, 35%);
+$primary-800: hsl(253, 83%, 42%);
+$primary-700: hsl(253, 84%, 50%);
+$primary-base: hsl(252, 100%, 50%);
+$primary-500: hsl(249, 100%, 65%);
+$primary-400: hsl(246, 100%, 75%);
+$primary-300: hsl(243, 100%, 84%);
+$primary-200: hsl(240, 100%, 91%);
+$primary-100: hsl(243, 100%, 95%);
+$primary-50: hsl(240, 100%, 97%);
+
+$grey-950: hsl(254, 11%, 23%);
+$grey-900: hsl(253, 10%, 35%);
+$grey-800: hsl(251, 10%, 42%);
+$grey-700: hsl(251, 12%, 55%);
+$grey-base: hsl(251, 12%, 55%);
+$grey-500: hsl(248, 13%, 66%);
+$grey-400: hsl(244, 14%, 76%);
+$grey-300: hsl(240, 13%, 85%);
+$grey-200: hsl(240, 14%, 92%);
+$grey-100: hsl(240, 13%, 95%);
+$grey-50: hsl(240, 17%, 98%);
+
+$ac-yellow-950: hsl(41, 89%, 14%);
+$ac-yellow-900: hsl(43, 77%, 26%);
+$ac-yellow-800: hsl(46, 86%, 29%);
+$ac-yellow-700: hsl(50, 98%, 33%);
+$ac-yellow-600: hsl(55, 100%, 41%);
+$ac-yellow-base: hsl(60, 100%, 50%);
+$ac-yellow-400: hsl(63, 100%, 53%);
+$ac-yellow-300: hsl(66, 100%, 63%);
+$ac-yellow-200: hsl(68, 100%, 76%);
+$ac-yellow-100: hsl(71, 100%, 88%);
+$ac-yellow-50: hsl(70, 100%, 95%);
+
+$ac-red-950: hsl(0, 90%, 15%);
+$ac-red-900: hsl(0, 74%, 31%);
+$ac-red-800: hsl(0, 83%, 35%);
+$ac-red-700: hsl(0, 88%, 42%);
+$ac-red-600: hsl(0, 86%, 51%);
+$ac-red-base: hsl(0, 100%, 56%);
+$ac-red-400: hsl(0, 100%, 70%);
+$ac-red-300: hsl(0, 100%, 81%);
+$ac-red-200: hsl(0, 100%, 89%);
+$ac-red-100: hsl(0, 100%, 94%);
+$ac-red-50: hsl(0, 100%, 97%);
+
+$ac-green-950: hsl(126, 100%, 10%);
+$ac-green-900: hsl(124, 77%, 20%);
+$ac-green-800: hsl(122, 86%, 23%);
+$ac-green-700: hsl(122, 97%, 27%);
+$ac-green-600: hsl(122, 100%, 35%);
+$ac-green-base: hsl(120, 100%, 49%);
+$ac-green-400: hsl(119, 96%, 55%);
+$ac-green-300: hsl(117, 100%, 66%);
+$ac-green-200: hsl(116, 100%, 79%);
+$ac-green-100: hsl(114, 100%, 89%);
+$ac-green-50: hsl(111, 100%, 95%);
+
+// $ac-yellow-950: ;
+// $ac-yellow-900: ;
+// $ac-yellow-800: ;
+// $ac-yellow-700: ;
+// $ac-yellow-600: ;
+// $ac-yellow-500: ;
+// $ac-yellow-400: ;
+// $ac-yellow-300: ;
+// $ac-yellow-200: ;
+// $ac-yellow-100: ;
+// $ac-yellow-50: ;
+
+// $min-height: calc(100vh- $navigation-header-height)
+
+$main-top-margin: 1rem;
+$sticky-sidebar-top-margin: 2rem;
+$content-padding-top: 1rem;
+$g-left-padding: 2.5rem;
+$content-border-radius: 5px;
+
+// fonts
+$fw-bold: 700;
+
+// header
+$bg-header: $primary-base;
+$clr-header-font: $primary-900;
+$clr-header-bg: $grey-100;
+$clr-menu-active: $primary-900;
+$clr-menu-inactive: $primary-400;
+
+// content
+$clr-content-bg: $grey-100;
+$clr-sidebar-bg: $grey-100;
+$clr-content-font: $grey-950;
+$clr-inline-mono-bg: $grey-300;
+
+$sp-inline-mono: $space-025;
+
+$clr-ol-counter: $primary-900;
+$clr-ol-counter-bg: $primary-200;
+$fs-ol-counter: $fs--1;
+
+$clr-thead-bg: $grey-300;
+$clr-thead-font: $grey-950;
+$clr-tbody-border: $grey-base;
+$clr-tbody-stripe: $grey-50;
+
+$sp-table-margin: $space-1;
+$sp-table-side-padding: $space-0;
+$sp-th-padding: $space-0;
+$sp-td-padding: $space-050;
+
+$fs-code: $fs--1;
+
+// content-toc
+$clr-content-toc-font: $primary-500;
+$clr-content-toc-hover: $primary-base;
+$sp-content-toc-items-top: $space-025;
+$sp-content-toc-items-padding: $space-025;
+$sp-content-toc-nested-padding: $space-1;
+
+// sidebar
+$sp-sidebar-items-top: $space-025;
+$sp-sidebar-items-padding: $space-025;
+
+$clr-sidebar-bg-hover: $primary-100;
+
+// links
+$link: $primary-base;
+$link-visited: $primary-500;
+$link-hover: $grey-50;
+$link-hover-bg: $primary-500;
+
+// admonitions
+$note-bg: $primary-50;
+$note-heading: $primary-800;
+$note-p: $primary-base;
+$note-border: $primary-500;
+
+$warning-bg: $ac-yellow-100;
+$warning-heading: $ac-yellow-950;
+$warning-p: $ac-yellow-800;
+$warning-border: $ac-yellow-700;
+
+$error-bg: $ac-red-100;
+$error-heading: $ac-red-950;
+$error-p: $ac-red-800;
+$error-border: $ac-red-700;
+
+$tip-bg: $ac-green-100;
+$tip-heading: $ac-green-950;
+$tip-p: $ac-green-800;
+$tip-border: $ac-green-700;

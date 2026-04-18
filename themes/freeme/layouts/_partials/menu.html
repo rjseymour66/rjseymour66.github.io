@@ -1,0 +1,58 @@
+{{- /*
+Renders a menu for the given menu ID.
+
+@context {page} page The current page.
+@context {string} menuID The menu ID.
+
+@example: {{ partial "menu.html" (dict "menuID" "main" "page" .) }}
+*/}}
+
+{{- $page := .page }}
+{{- $menuID := .menuID }}
+
+{{- with index site.Menus $menuID }}
+  <nav>
+    <ul class="site-nav">
+      {{- partial "inline/menu/walk.html" (dict "page" $page "menuEntries" .) }}
+    </ul>
+  </nav>
+{{- end }}
+
+{{- define "_partials/inline/menu/walk.html" }} <!-- define the partial. could be layouts/partials/inline/menu/walk.html -->
+  {{- $page := .page }}                         <!-- get current page object -->
+  {{- range .menuEntries }}                     <!-- loop over entry in current menu level -->
+    {{- $attrs := dict "href" .URL }}           <!-- create map with href -->
+    {{- if $page.IsMenuCurrent .Menu . }}       <!-- if this is the current page -->
+      {{- $attrs = merge $attrs (dict "class" "active" "aria-current" "page") }}    <!-- add active and aria to link -->
+    {{- else if $page.HasMenuCurrent .Menu .}}                                      <!-- add ancestor class to subpage -->
+      {{- $attrs = merge $attrs (dict "class" "ancestor dropdown" "aria-current" "true" "id" "dropdown") }}
+    {{- end }}
+    {{- $name := .Name }}       <!--  -->
+    {{- with .Identifier }}     <!--  -->
+      {{- with T . }}           <!--  -->
+        {{- $name = . }}        <!--  -->
+      {{- end }}
+    {{- end }}
+    <li>
+      <a
+        {{- range $k, $v := $attrs }}                     
+          {{- with $v }}
+            {{- printf " %s=%q" $k $v | safeHTMLAttr }}
+          {{- end }}
+        {{- end -}}
+      >{{ $name }}</a>
+      {{- with .Children }}
+        <ul>
+          {{- partial "inline/menu/walk.html" (dict "page" $page "menuEntries" .) }}
+        </ul>
+      {{- end }}
+    </li>
+  {{- end }}
+{{- end }}
+
+
+<!-- <pre>{{ jsonify site.Menus.main | safeHTML }}</pre> -->
+<!-- <pre>{{ site.Menus.main | jsonify (dict "indent" "  ") | safeHTML }}</pre> -->
+ <!-- <pre>{{ .menuID | jsonify (dict "indent" "  ") | safeHTML }}</pre>
+
+ <pre>{{ site.Menus.main | jsonify (dict "indent" "  ") | safeHTML }}</pre> -->

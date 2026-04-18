@@ -1,0 +1,108 @@
+<!-- <pre>{{ . | jsonify (dict "indent" "  ") | safeHTML }}</pre> -->
+
+
+
+<!-- <pre>{{ printf "Parent: %s" (.Parent | jsonify (dict "indent" "  ") | safeHTML) }}</pre> -->
+
+
+{{ $first := "Ryan" }}
+{{ $last := "Seymour" }}
+{{ $age := 41 }}
+
+<p>My name is {{ $first }} {{ $last }} and I will be {{ add $age 1 }} in a few weeks.</p>
+
+{{ $currentContext := .Page }}
+
+{{ $title := .Page.Title }}
+
+<p>The current context is {{ $currentContext }}. The page title is {{ $title }}.</p>
+
+
+{{ $parent := .Page.Parent }}
+{{ $grandParent := .Page.Parent.Parent }}
+{{ $greatGrandparent := .Page.Parent.Parent.Parent }}
+
+{{ $sectionParent := .Page.Section }}
+<p>Section: {{ $sectionParent }}</p>
+
+
+<p>The parent is {{ $parent }}. You can chain `.Parent` values. For example:</p>
+<ul>
+    <li>Parent of this page: {{ $parent }}</li>
+    <li>Grandparent of this page: {{ $grandParent }}</li>
+    <li>Great-grandparent of this page: {{ $greatGrandparent }}</li>
+    <li>Great-great-grandparent of this page: There is not one, so it fails</li>
+</ul>
+
+
+<h2>Context</h2>
+
+<h3>Page context</h3>
+
+<!-- <pre>{{ .Page | jsonify (dict "indent" "  ") | safeHTML }}</pre> -->
+
+
+<h3>Shortcode context</h3>
+
+{{- $currentContext := . -}}
+{{- $page := .Page -}}
+<p>$currentContext := .: {{ . }}</p>
+<p>$page := .Page: {{ .Page }}</p>
+
+
+<h3>range and with context</h3>
+
+<p>.Page.Title: {{ .Page.Section }}</p>
+
+{{ range slice "one" "two" "three" (dict "test" 1) }}
+    <p>{{ . }}</p>
+{{ end }}
+
+{{ with "dogs" }}
+    <p>{{ $.Page }} - {{ . }}</p>
+{{ end }}
+
+{{ " lowercase" | strings.ToUpper }}
+
+
+
+{{ $evens := 2 }}
+{{ range slice 4 6 8 10 }}
+    {{ $evens = add $evens . }}
+{{ end }}
+<p>Evens: {{ $evens }}</p>
+
+
+{{ $odds := slice 1 3 5 7 9}}
+<p>$odds: {{ $odds }}</p>
+<p>Seconds index: {{ index $odds 2 }}</p>
+
+
+{{ $myMap := dict "one" 1 "two" 2 "three" 3 "four" 4 }}
+<p>$myMap: {{ $myMap }}</p>
+<p>$myMap.two: {{ $myMap.two }}</p>
+
+{{ $page := .Page }}
+<p>Page: {{ $page.Pages.ByTitle }}</p>
+
+<p></p>
+
+<!-- <pre>{{ . | jsonify (dict "indent" "  ") | safeHTML }}</pre> -->
+
+{{/*
+1. Scope it to the current section.
+2. Get all RegularPages and put them in a variable regPages.
+3. Get all Sections and put them in a variable sections  
+4. Combine regPages and sections into a slice named combined.
+5. Sort combined by weight and then by title.
+*/}}
+
+<h2>Sidebar</h2>
+
+{{ $page := .Page }}
+{{ $section := .Page.Section }}
+{{ $regPages := $page.RegularPages }}
+
+<p>Page: {{ $page }}</p>
+<p>Section: {{ $section }}</p>
+<p>Regular pages: {{ $regPages }}</p>

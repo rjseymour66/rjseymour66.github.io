@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760">
+  <defs>
+    <style>
+      .title { font: 700 26px Arial, sans-serif; fill: #0f172a; }
+      .subtitle { font: 400 14px Arial, sans-serif; fill: #334155; }
+      .box-title { font: 700 16px Arial, sans-serif; fill: #0f172a; }
+      .box-text { font: 400 13px Arial, sans-serif; fill: #1e293b; }
+      .small { font: 400 12px Arial, sans-serif; fill: #334155; }
+      .stroke { stroke: #334155; stroke-width: 1.5; }
+      .arrow { stroke: #0f172a; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+      .dashed { stroke-dasharray: 6 4; }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#0f172a" />
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1200" height="760" fill="#f8fafc" />
+  <text x="40" y="48" class="title">Project Architecture: link URL shortener</text>
+  <text x="40" y="74" class="subtitle">Layered design with consumer-defined interfaces, adapter implementations, and cross-cutting middleware.</text>
+
+  <!-- Composition root -->
+  <rect x="40" y="110" width="1120" height="90" rx="10" fill="#e2e8f0" class="stroke" />
+  <text x="60" y="142" class="box-title">Composition root: cmd/linkd</text>
+  <text x="60" y="165" class="box-text">Parses config, builds logger + trace handler, dials database, wires handlers and middleware, starts HTTP server.</text>
+  <text x="60" y="185" class="small">Routes: POST /shorten, GET /r/{key}, /health</text>
+
+  <!-- Delivery layer -->
+  <rect x="40" y="230" width="520" height="190" rx="10" fill="#dbeafe" class="stroke" />
+  <text x="60" y="262" class="box-title">Delivery layer: rest</text>
+  <text x="60" y="285" class="box-text">HTTP handlers, request decode/encode, redirects, error-to-status mapping.</text>
+  <text x="60" y="312" class="box-text">Defines consumer interfaces:</text>
+  <text x="80" y="336" class="box-text">- Shortener: Shorten(context.Context, link.Link) (link.Key, error)</text>
+  <text x="80" y="358" class="box-text">- Resolver: Resolve(context.Context, link.Key) (link.Link, error)</text>
+  <text x="60" y="388" class="small">Consumer-first contract: rest depends on behavior, not concrete storage type.</text>
+
+  <!-- Domain layer -->
+  <rect x="600" y="230" width="560" height="190" rx="10" fill="#dcfce7" class="stroke" />
+  <text x="620" y="262" class="box-title">Domain layer: link</text>
+  <text x="620" y="285" class="box-text">Core model and rules: Link, Key, Validate, Shorten.</text>
+  <text x="620" y="310" class="box-text">Shared error taxonomy: ErrBadRequest, ErrConflict, ErrNotFound, ErrInternal.</text>
+  <text x="620" y="336" class="box-text">Optional in-memory adapter: link.Shortener (same behavior surface).</text>
+  <text x="620" y="388" class="small">Business rules are centralized and reused by all adapters.</text>
+
+  <!-- Storage adapter -->
+  <rect x="40" y="460" width="520" height="180" rx="10" fill="#fee2e2" class="stroke" />
+  <text x="60" y="492" class="box-title">Infrastructure adapter: sqlite</text>
+  <text x="60" y="515" class="box-text">Dial(), schema bootstrap, SQL-backed Shortener/Resolve implementation.</text>
+  <text x="60" y="540" class="box-text">Translates DB-specific errors to domain errors (e.g., PK violation -> conflict).</text>
+  <text x="60" y="567" class="box-text">Persists and retrieves link records from SQLite.</text>
+
+  <!-- Cross-cutting -->
+  <rect x="600" y="460" width="560" height="180" rx="10" fill="#fef3c7" class="stroke" />
+  <text x="620" y="492" class="box-title">Cross-cutting utilities: kit/*</text>
+  <text x="620" y="515" class="box-text">hlog: request duration/status logging middleware.</text>
+  <text x="620" y="538" class="box-text">traceid: request-scoped trace IDs + slog handler enrichment.</text>
+  <text x="620" y="561" class="box-text">hio: small HTTP helpers (handler chaining, JSON decode, responder).</text>
+  <text x="620" y="595" class="small">Applied at composition root so business code stays focused.</text>
+
+  <!-- Data store -->
+  <rect x="430" y="670" width="340" height="58" rx="10" fill="#e9d5ff" class="stroke" />
+  <text x="450" y="705" class="box-title">SQLite database (links table from schema.sql)</text>
+
+  <!-- Arrows -->
+  <path class="arrow" d="M300 200 L300 230" />
+  <path class="arrow" d="M900 200 L900 230" />
+  <path class="arrow" d="M560 325 L600 325" />
+  <path class="arrow" d="M300 420 L300 460" />
+  <path class="arrow" d="M900 420 L900 460" />
+  <path class="arrow dashed" d="M560 548 L600 548" />
+  <path class="arrow" d="M300 640 L430 699" />
+
+  <!-- Legend -->
+  <rect x="880" y="665" width="280" height="75" rx="8" fill="#ffffff" class="stroke" />
+  <text x="895" y="688" class="small">Solid arrow: runtime call dependency</text>
+  <text x="895" y="710" class="small">Dashed arrow: shared contracts / utilities</text>
+  <text x="895" y="732" class="small">Interfaces are implicit in Go (method set match)</text>
+</svg>

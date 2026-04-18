@@ -1,0 +1,646 @@
++++
+title = 'Layers'
+date = '2025-08-06T10:42:11-04:00'
+weight = 10
+draft = false
++++
+
+{{< admonition "Layer support" note >}}
+Check which browsers support layers at https://caniuse.com. There is also a [polyfill for layers](https://www.oddbird.net/2022/06/21/cascade-layers-polyfill/) if there is no support.
+{{< /admonition >}}
+
+Cascade layers let you group styles into named buckets and declare an explicit priority order between those buckets. This gives you reliable control over which styles win when rules conflict, without relying on specificity tricks or source order. Styles that are not in a layer always take precedence over styles that are in a layer.
+
+Without layers, specificity determines which rule applies. Consider a design system where a global `a:any-link` rule has higher specificity than a `.button-link` modifier:
+
+```css
+/* 0,1,1 specificity — wins */
+a:any-link {
+    color: red;
+}
+
+/* 0,1,0 specificity — loses, even though you want it to apply */
+.button-link {
+    color: blue;
+}
+```
+
+To fix this without layers, you'd have to increase `.button-link`'s specificity, adding more complexity each time a conflict appears. Layers solve this by letting you assign an explicit priority order, so layer position determines precedence instead of selector specificity.
+
+## Syntax
+
+Apply the `@layer` at-rule to define a layer. A layer that appears later in the stylesheet takes precedence over layers that appear before it. In this example, the `theme` layer overrides the `global` layer's link styles because it is declared last:
+
+```css
+@layer global {
+    a:any-link {
+        color: blue;
+        font-weight: bold;
+    }
+}
+
+@layer theme {
+    .button {
+        display: inline-block;
+        padding: 0.5rem;
+        color: white;
+        background-color: blue;
+        font-weight: normal;
+        text-decoration: none;
+    }
+}
+```
+
+### Order and priority
+
+{{< admonition "Tip" tip >}}
+Styles that are not in a layer take precedence over styles in a layer. If you use layers, place all styles inside a layer. Unlayered styles are good for debugging.
+{{< /admonition >}}
+
+Decide the priority order of layers and declare them upfront. Declare all layers in a single line at the top of the stylesheet, in increasing order of precedence:
+
+{{< highlight css "hl_lines=1" >}}
+@layer reset, lowest, higher, highest;
+
+@layer reset {...}
+@layer lowest {...}
+@layer higher {...}
+@layer highest {...}
+{{< /highlight >}}
+
+If you do not declare layers upfront, the browser orders them by where they appear in the stylesheet. You can define a layer, then add styles to it later in the stylesheet without changing its priority. The first `@layer` declaration establishes the priority.
+
+In this example, the `lowest` layer still has the lowest priority even though it appears twice, after another layer:
+
+```css
+@layer lowest {
+    /* styles */
+}
+
+@layer higher-than-lowest {
+    /* styles */
+}
+
+@layer lowest {
+    /* additional lowest styles */
+}
+```
+
+### !important and priority
+
+Layer priority is reversed when you add `!important` to a layer. For example, `!important` styles in the `reset` layer take precedence over `!important` styles in the `highest` layer. This works because you usually apply the most general styles to lower-priority layers, so you want these `!important` styles to apply across layers:
+
+```css
+@layer reset, lowest, higher, highest;
+```
+
+### Nesting layers
+
+Nesting one or more layers within a layer provides more granular control. When you import a stylesheet, the importing stylesheet respects any layers defined in the imported stylesheet.
+
+You can nest layers with indentation, or you can use dot notation. Dot notation is easier to reference at a later time:
+
+```css
+/* identation notation */
+@layer components {
+    @layer first {...}
+    @layer second {...}
+}
+
+/* dot notation */
+@layer components.first {...}
+@layer components.second {...}
+```
+
+### revert-layer and all
+
+The `revert-layer` keyword removes any styles applied by the author styles and restores the user-agent styles. Use this if you have a global styles layer and want to override these styles on a higher-priority layer:
+
+{{< highlight css "hl_lines=11" >}}
+@layer global, theme;
+
+@layer global {
+    a:any-link {
+        font-weight: bold;
+    }
+}
+
+@layer theme {
+    .main-content a:any-link {
+        font-weight: revert-layer;
+    }
+}
+{{< /highlight >}}
+
+If you don't want to revert each property individually, you can use the `all` property. `all` accepts these values:
+- `initial`
+- `inherit`
+- `unset`
+- `revert`
+- `revert-layer`
+
+These styles revert all layer properties on an element:
+
+{{< highlight css "hl_lines=11" >}}
+@layer global, theme;
+
+@layer global {
+    a:any-link {
+        font-weight: bold;
+    }
+}
+
+@layer theme {
+    .main-content a:any-link {
+        all: revert-layer;
+    }
+}
+{{< /highlight >}}
+
+### Anonymous layers
+
+You don't have to name layers---they are still applied using stylesheet order---but names provide a helpful reference them later and for general flexibility:
+
+```css
+@layer {
+    /* styles */
+}
+
+@layer {    /* these styles are applied */
+    /* styles */
+}
+```
+
+### Assign stylesheet to layer
+
+You can import and assign a stylesheet to a layer:
+
+```css
+@import url("styles.css") layer(base);
+
+@layer base {
+    /* additional styles */
+}
+```
+
+## Organization
+
+Layers are new, but there are organizational patterns you can use. Here are recommended naming conventions and structure:
+
+```css
+@layer reset, theme, global, layout, modules, utilities;
+```
+They have the following order of precedence:
+1. `utilities`: short reusable styles
+2. `modules`: reusable units
+3. `layout`: primary page structure
+4. `global`: universal fonts, colors, etc. Sometimes called the `base` layer.
+5. `theme`: custom property colors
+6. `reset`: adjust user-agent styles
+7. (Optional) `states`: Dynamically-added styles depending on the state or status of a module. You can also add them in the `modules` layer.
+   Ex: states of a dropdown menu
+
+The subsequent sections provide brief examples of the types of styles you can include in each layer.
+
+### reset
+
+[Andy Bell's new reset suggestions](https://piccalil.li/blog/a-more-modern-css-reset/).
+
+
+Developers include a reset stylesheet to fix inconsistencies between default user-agent styles. This is not much of an issue anymore, but it is helpful to start at a baseline and apply styles from there.
+
+Add these styles to all projects as a reset:
+
+```css
+@layer reset {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  body,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  p,
+  figure,
+  picture {
+    margin: unset;
+  }
+
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
+  }
+
+  img,
+  picture,
+  svg,
+  canvas {
+    display: block;
+    max-inline-size: 100%;
+    height: auto;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+```
+
+#### Reset examples
+
+- [Reboot, Resets, and Reasoning](https://css-tricks.com/reboot-resets-reasoning/): This CSS article provides some background on resets.
+- [Meyers reset](https://meyerweb.com/eric/tools/css/reset/): Most popular, undoes default user agent styles.
+- [Normalize](https://necolas.github.io/normalize.css/): Tweaks styles to make them consistent.
+- [Browser default styles](https://browserdefaultstyles.com/): Look up elements and see default user agent styles, support, etc.
+
+### theme
+
+This layer should set these styles:
+- custom properties: Set site-wide custom properties here. The priority is lower so you can easily override them at a higher-priority layer.
+- `accent-color`: Sets the accent color for elements like checkboxes, radio buttons, range inputs, progress bars
+- `color-scheme`: Set to `light` or `dark` so the browser (user-agent) can determine good default styles for form inputs and scrollbars.
+
+Here is a sample of how to set this up. A real site would use many more custom properties:
+
+```css
+@layer theme {
+  :root {
+    --brand-color: #0063cc;
+    --background-color-1: #edf3fa;
+    --background-color-2: #c6cdd5;
+    --foreground-color-1: #edf3fa;
+    --foreground-color-2: #c6cdd5;
+    --font-main: "Helvetica Neue", Arial, sans-serif;
+    --font-heading: Georgia, sans-serif
+
+    accent-color: var(var(--brand-color))
+    color-scheme: light;
+  }
+}
+```
+
+Here is a more comprehensive example:
+
+```css
+:root {
+  --clr-accent-500: hsl(12, 60%, 45%);
+  --clr-accent-400: hsl(12, 88%, 59%);
+  --clr-accent-300: hsl(12, 88%, 75%);
+  --clr-accent-100: hsl(13, 100%, 96%);
+
+  --clr-primary-400: hsl(228, 39%, 23%);
+
+  --clr-neutral-900: hsl(232, 12%, 13%);
+  --clr-neutral-100: hsl(0 0% 100%);
+
+  --ff-primary: "Be Vietnam Pro", sans-serif;
+
+  --ff-body: var(--ff-primary);
+  --ff-heading: var(--ff-primary);
+
+  --fw-regular: 400;
+  --fw-semi-bold: 500;
+  --fw-bold: 700;
+
+  --fs-300: 0.8125rem;
+  --fs-400: 0.875rem;
+  --fs-500: 0.9375rem;
+  --fs-600: 1rem;
+  --fs-700: 1.875rem;
+  --fs-800: 2.5rem;
+  --fs-900: 3.5rem;
+
+  --fs-body: var(--fs-400);
+  --fs-primary-heading: var(--fs-800);
+  --fs-secondary-heading: var(--fs-700);
+  --fs-nav: var(--fs-500);
+  --fs-button: var(--fs-300);
+
+  --size-100: 0.25rem;
+  --size-200: 0.5rem;
+  --size-300: 0.75rem;
+  --size-400: 1rem;
+  --size-500: 1.5rem;
+  --size-600: 2rem;
+  --size-700: 3rem;
+  --size-800: 4rem;
+  --size-900: 5rem;
+}
+
+@media (min-width: 50em) {
+  :root {
+    --fs-body: var(--fs-500);
+    --fs-primary-heading: var(--fs-900);
+    --fs-secondary-heading: var(--fs-800);
+
+    --fs-nav: var(--fs-300);
+  }
+}
+```
+
+### global
+
+Set all the default values that you want applied through the site:
+- font styles
+- background colors
+- font colors
+- form inputs and labels
+- code blocks
+- blockquotes
+- link states like `:hover`
+
+```css
+@layer global {
+  :root {
+    font-size: clamp(1rem, 0.4rem + 0.8svw, 1.2rem);
+  }
+
+  body {
+    font-family: var(--font-main);
+    background-color: var(--background-color-1);
+    color: var(--foreground-color-1)
+  }
+
+  a:any-link {
+    color: var(--brand-color)
+  }
+
+  h1 {
+    font-family: var(--font-heading);
+    font-size: 2.2rem;
+  }
+
+  h2 {
+    font-size: 1.125rem;
+  }
+
+  @media (min-width: 768px) {
+    h1 {
+      font-size: 3rem;
+    }
+    h2 {
+      font-size: 2rem;
+    }
+  }
+}
+```
+
+### layout
+
+Defines styles that structure a page from the outside in--the high-level page layout:
+- header
+- footer
+- sidebars
+- home page, article layouts
+
+Layer priority means that you do not have to worry about specificity with layers, so you can use IDs in layers because of the override behavior.
+
+{{< admonition "When to use IDs" tip >}}
+Only use IDs if you plan to use them once on the stylesheet. If you need to reference them elsewhere, use classes.
+{{< /admonition >}}
+
+```css
+@layer layout {
+  #homepage {
+    display: grid;
+    grid-template-areas: 
+      "header header"
+      "main sidebar"
+      "footer footer";
+    grid-template-columns: 1fr 300px;
+    gap: 1rem;
+  }
+
+  #homepage > header,
+  #homepage > footer {
+    grid-column: span 2;
+  }
+
+  #article > main {
+    max-inline-size: 1000px;
+    margin-inline: auto;
+  }
+}
+```
+
+### modules
+
+Modules are reusable units, also called components, blocks, or objects. Examples include:
+- dropdown menus
+- modals
+- banner images
+- nav bars
+- information cards
+
+```css
+@layer modules {
+  .nav-menu {                   /* Nav menu module */
+    margin-block: unset;
+    padding-inline: unset;
+    border: 1px solid #ccc;
+    list-style: none;
+  }
+
+  .nav-menu > li + li {
+    border-top: 1px solid #ccc;
+  }
+
+  .nav-menu > li > a {
+    display: block;
+    padding: 0.8em 1em;
+    color: inherit;
+    font-weight: normal;
+  }
+
+  .nav-menu > li > a:hover {
+    color: var(--brand-color);
+    background-color: white;
+  }
+
+  .card {                       /* Card module */
+    padding: 1rem;
+    border-radius: 0.5rem;
+    background-color: #fff;
+  }
+
+  .card > h3 {
+    align-self: end;
+    margin-block: 0;
+    padding-block-end: 0.5rem;
+    border-block-end: 1px solid #eee;
+  }
+}
+```
+
+### utilities
+
+Utility classes do a single, specific thing like center text or hide an element. These rulesets generally contain one declaration. They are quick helpers that you don't want to override. You probably won't need more than a dozen of these:
+
+```css
+@layer utilities {
+  .text-center {
+    text-align: center;
+  }
+
+  .hidden {
+    display: none;
+  }
+
+  .border-radius {
+    border-radius: 1rem;
+  }
+}
+```
+
+## :is() and :where()
+
+### :is()
+
+`:is()` is a pseudo-class that takes one or more arguments as a selector, then applies rules to all selectors that match:
+- Specificity is derived from whichever argument has the highest specificity
+- Does not work with pseudo-element selectors, like `::before`.
+- If you include a selector that is not supported in a browser, then `is:()` still works on selectors that are supported.
+
+```css
+.contact-form input,
+.contact-form textarea,
+.contact-form select {
+    padding: 5px 10px;
+}
+
+/* is equivalent to */
+.contact-form :is(input, textarea, select) {
+    padding: 5px 10px;
+}
+```
+
+### :where()
+
+The same as `:is()`, but always reduces the specificity to zero. Useful if you want to select an element based on ID but don't want to override other styles on the same layer:
+
+```css
+/* 0,0,1 specificity */
+:where(#login-form) input
+
+/* 0,0,1 */
+a:where(:any-link) {
+    color: blue;
+}
+
+/* 0,1,0 */
+.button {
+    color: red;
+}
+```
+
+## Nesting
+
+You can nest styles in CSS like you can SASS. The child rule is an additional selector on the parent rule:
+- Specificity is determined by the final, joined selector
+- Avoid nesting too many levels because it creates too high a specificity
+
+```css
+.card {
+    padding: 1rem;
+    background-color: #fff
+
+    > h3 {
+        margin: 0 aut;
+    }
+
+    .card-body {
+        padding: 0 1em;
+    }
+}
+```
+
+### Nesting selector (&)
+
+Lets you create a compound selector with nesting.
+
+When you nest a selector, it creates a descendant selector by default (`selector1 selector2`) with a space in between. You might want to create a compound selector (`selector1.selector2`). Use a `&` in the selector:
+- can target psuedo classes and psuedo elements
+- derives its specificity from the highest specificity of the selectors
+
+```css
+/* equivalent to .modal.is-open */
+.modal {
+    display: none;
+
+    &.is-open {
+        display: block;
+    }
+}
+
+.button {
+    background-color: blue;
+
+    &:hover {
+        background-color: red;
+    }
+
+    &::after {
+        content: 'test';
+    }
+}
+
+/* 1,1,1 specificity, even if input:focus is matched */
+input,
+#login-form button {
+    &:focus {
+        border-color: #ccc;
+    }
+}
+```
+
+Behind the scenes, the browser warps the parent selectors in `:is()` and appends the child selector. The following two rulesets are equivalent:
+
+```css
+button,
+input,
+textarea,
+select {
+  &.invalid {
+    border: 1px solid red;
+  }
+}
+
+:is(button, input, textarea, select).invalid {
+  border: 1px solid red;
+}
+```
+
+### Media queries
+
+Nest media queries to keep related code together:
+
+```css
+h1 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 2.2rem;
+
+  @media (min-width: 800px) {
+    font-size: 2.6rem;
+  }
+
+  @media (min-width: 1200px) {
+    font-size: 3rem;
+  }
+}
+```
+
+You can also nest `@layers` and `@supports` rules.

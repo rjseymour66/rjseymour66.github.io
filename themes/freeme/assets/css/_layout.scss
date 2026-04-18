@@ -1,0 +1,110 @@
+@import "variables";
+@import "mixins";
+
+body {
+  display: flex;
+  flex-direction: column;
+
+  min-height: 100svh;
+}
+
+header,
+footer {
+  flex-grow: 0;
+  flex-shrink: 0;
+}
+
+main {
+  background-color: $primary-200;
+  flex-grow: 1;
+
+  display: flex;
+  flex-direction: row;
+}
+
+.content-wrapper {
+  flex-basis: 0;
+  flex-grow: 999;
+
+  display: flex;
+
+  margin-block-start: $main-top-margin;
+}
+
+.sidebar-inner,
+.content,
+.content-toc__inner {
+  padding-block-start: $content-padding-top;
+}
+
+.content {
+  background-color: $clr-content-bg;
+
+  flex-basis: 0;
+  flex-grow: 999;
+
+  padding-inline-start: 3rem;
+
+  // min-inline-size: 75ch;
+
+  // border: 1px solid blue;
+}
+
+.content__inner {
+  max-width: 75ch;
+
+  // border: 1px solid red;
+}
+
+.content-toc {
+  flex-basis: 312px;
+  flex-grow: 1;
+
+  // margin-inline-start: 0.25rem;
+}
+
+.content-toc__nav ul {
+  list-style: none;
+}
+
+.content-toc__nav ul ul {
+  padding-inline-start: $sp-content-toc-nested-padding;
+}
+
+.content-toc__inner {
+  max-height: 100vh;
+  overflow-y: auto;
+  direction: rtl;
+  scrollbar-color: red;
+}
+
+.content-toc__inner > * {
+  direction: ltr;
+}
+
+.content-toc a {
+  display: block;
+  color: $clr-content-toc-font;
+  padding: $sp-content-toc-items-padding;
+}
+.content-toc a:hover {
+  color: $clr-content-toc-hover;
+}
+
+.content-toc__nav ul > li + li {
+  margin-block-start: $sp-content-toc-items-top;
+}
+
+.content-toc__inner {
+  background-color: $clr-content-bg;
+}
+
+.content-toc__inner {
+  @include sticky-nav;
+}
+
+div > pre {
+  max-width: 100%;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}

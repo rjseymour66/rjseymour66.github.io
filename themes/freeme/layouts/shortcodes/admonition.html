@@ -1,0 +1,14 @@
+{{- $validTypes := slice "note" "warning" "error" "tip" -}}
+
+{{ $title := .Get 0 }}
+{{ $type := .Get 1 }}
+
+{{ $isValid := in $validTypes $type }}
+{{ if not $isValid }}
+    {{ errorf "%s not valid callout type" $type }}
+{{ end }}
+
+<div class="admonition{{ with $type }} {{ . }}{{ end }}">
+    <h3>{{ $title | markdownify }}</h3>
+    <p>{{ .Inner | markdownify }}</p>
+</div>

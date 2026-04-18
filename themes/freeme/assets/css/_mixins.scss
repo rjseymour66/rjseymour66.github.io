@@ -1,0 +1,6 @@
+@mixin sticky-nav {
+  position: sticky;
+  top: $sticky-sidebar-top-margin;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}

@@ -1,0 +1,86 @@
+<p>Many resource methods work with images.</p>
+
+<h2>Content</h2>
+
+<p>Returns the content of the resource, usually from the assets/ directory. You need to first use with and the .Get method to retrieve the resource, which also changes the context to that resource. Then, you can use .Content to work with the contents of the file.</p>
+
+<p>This returns a template.HTML when it is a page, or it returns a string. Use this to get JS, CSS, image, and other pages.</p>
+
+<p>Content: </p>
+
+{{ with resources.Get "test/test.txt" }}
+  {{ .Content | len }} 
+{{ end }}
+
+<h2>GetRemote</h2>
+
+<h3>Data</h3>
+
+<p>The .Data method returns the body of an HTTP request. You send the HTTP request with resource.GetRemote.</p>
+
+<p>It has these methods:</p>
+<ul>
+    <li>ContentLength</li>
+    <li>ContenType</li>
+    <li>Headers</li>
+    <li>Status</li>
+    <li>StatusCode</li>
+    <li>TransferEncoding</li>
+</ul>
+
+<h3>Err</h3>
+
+<p>Returns the error message if a resource.GetRemote HTTP request fails. By default, Hugo fails the build if the request returns an error. You can handle the error and fail the build with errorf. You can log the error as a warning with warnf rather than fail the build.</p>
+
+<h3>MediaType</h3>
+
+<p>Media type of the given resource. It has methods to return the type, main type, subtype, and more.</p>
+
+{{ with resources.Get "test/test.txt" }}
+  {{ .MediaType }} 
+{{ end }}
+
+<h3>ResourceType</h3>
+
+<p>Returns the main type of the resource's media type:</p>
+
+{{ with resources.Get "test/test.txt" }}
+  {{ .ResourceType }} 
+{{ end }}
+
+{{ with resources.Get "test/test.txt" }}
+  {{ .MediaType.MainType }} 
+{{ end }}
+
+
+
+<h3>Name</h3>
+
+<p>Returns the name of the resource or its file path as a fallback. If it is a page resource in a page bundle and you create an element in the resources array in the front matter, the Name method returns the value of the name parameter. Otherwise, it returns the filepath.</p>
+
+<p>For remote resources, it returns a hashed file name.</p>
+
+{{ with resources.Get "test/test.txt" }}
+  {{ .Name }} 
+{{ end }}
+
+<h3>Params</h3>
+
+<p>Only works with page resources. Returns values defined in the resources.params front matter.</p>
+
+<h3>Permalink and RelPermalink</h3>
+
+<p>Returns and publishes the resource's permalink (absolute path) or relpermalink (relative path). It publishes the resource to the public/ directory with a hash:</p>
+
+{{ with resources.Get "test/test.txt" }}
+  {{ .Permalink }} 
+{{ end }}
+
+<h3>Title</h3>
+
+<p>For a page resource, returns the title defined in the front matter. For a global resource, returns the relative path or hashed file name of the resource.</p>
+
+
+{{ with resources.Get "test/test.txt" }}
+  {{ .Title }} 
+{{ end }}

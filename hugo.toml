@@ -1,0 +1,77 @@
+baseURL = 'https://example.org/'
+languageCode = 'en-us'
+title = 'Freebie'
+theme = 'freeme'
+
+
+[menus]
+[[menus.main]]
+  name = 'Hugo'
+  pageRef = '/hugo'
+  weight = 10
+  identifier = 'hugo'
+
+  # [[menus.main]]
+  #   name = 'Pragmatic'
+  #   pageRef = '/hugo/pragmatic'
+  #   weight = 10
+  #   parent = 'hugo'
+
+
+[[menus.main]]
+  name = 'Linux'
+  pageRef = '/linux'
+  weight = 20
+
+[[menus.main]]
+  name = 'Web Development'
+  pageRef = '/webdev'
+  weight = 30
+
+[[menus.main]]
+  name = 'CSS'
+  pageRef = '/css'
+  weight = 40
+
+[[menus.main]]
+  name = 'Javascript'
+  pageRef = '/javascript'
+  weight = 50
+
+[[menus.main]]
+  name = 'Go'
+  pageRef = '/go'
+  weight = 60
+
+[[menus.main]]
+  name = 'Bash'
+  pageRef = '/bash-rev'
+  weight = 70
+
+[[menus.main]]
+  name = 'Python'
+  pageRef = '/python'
+  weight = 80
+
+[[menus.main]]
+  name = 'git'
+  pageRef = '/git'
+  weight = 90
+
+
+[[menus.main]]
+  name = 'SQL'
+  pageRef = '/sql'
+  weight = 100
+
+
+[module]
+[module.hugoVersion]
+  extended = false
+  min = '0.146.0'
+
+
+[markup]
+  [markup.highlight]
+    # lineNos = true
+    style = 'github-dark'

@@ -1,0 +1,85 @@
+@import "variables";
+@import "mixins";
+
+.sidebar {
+  flex-basis: 320px;
+  flex-grow: 1;
+
+  margin-block-start: $main-top-margin;
+}
+
+.sidebar-inner {
+  margin-inline: 1rem;
+}
+
+.sidebar-list,
+.sidebar-section {
+  list-style: none;
+  padding-inline-start: $g-left-padding;
+}
+
+.sidebar-section {
+  display: none;
+}
+
+.sidebar-item a {
+  display: block;
+  padding: $sp-sidebar-items-padding;
+}
+
+.sidebar-item a:visited {
+  color: $link;
+}
+
+:not(:first-of-type).sidebar-item a {
+  margin-block-start: $sp-sidebar-items-top;
+}
+
+.sidebar-item .sidebar-section {
+  padding-inline-start: 1rem;
+}
+
+.sidebar-item a:hover {
+  background-color: $clr-sidebar-bg-hover;
+}
+
+.sidebar-item:has(.sidebar-section) {
+  position: relative;
+}
+
+.sidebar-item:has(.sidebar-section)::before {
+  content: "\25B8";
+  display: block;
+  position: absolute;
+  left: 90%;
+  top: -2px;
+  font-weight: bold;
+  color: inherit;
+}
+
+.sidebar-item.active::before,
+.sidebar-item:has(.sidebar-section .active)::before {
+  transform: rotate(90deg);
+  top: 0;
+}
+
+.sidebar-item.active > .sidebar-section {
+  display: block;
+}
+
+.sidebar-item:has(.sidebar-section .active) > .sidebar-section {
+  display: block;
+}
+
+.sidebar-item.active {
+  font-weight: bold;
+}
+
+.sidebar-item.active .sidebar-section {
+  font-weight: normal;
+}
+
+.sidebar-inner {
+  @include sticky-nav;
+  background-color: $clr-sidebar-bg;
+}

@@ -1,0 +1,13 @@
+{{ $top := partial "get-top-section.html" . }}
+
+
+<div class="sidebar-inner">
+    <!-- <h3>{{ .Page.Section | strings.FirstUpper }}</h3> -->
+    <nav class="sidebar-nav">
+        {{ partial "sidebar-build.html" (dict
+            "Root" $top
+            "Current" .
+            "Depth" 0
+        ) }}
+    </nav>
+</div>

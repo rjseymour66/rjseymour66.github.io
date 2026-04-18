@@ -1,0 +1,23 @@
+{{ define "main" }}
+    <aside class="sidebar">
+      {{- partial "sidebar-nav" . -}}
+    </aside>
+    <div class="content-wrapper index">
+      <div class="content">
+        <article class="content__inner">
+          <h1>{{ .Title }}</h1>
+          {{ .Content }}
+          {{ range .Pages }}
+            <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
+            <!-- {{ .Summary }} -->
+          {{ end }}
+        </article>
+      </div>
+      <aside class="content-toc">
+        <!-- {{- partial "content-toc" . -}} -->
+      </aside>
+    </div>
+
+{{ end }}
+
+

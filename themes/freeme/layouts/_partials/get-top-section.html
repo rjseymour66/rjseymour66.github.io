@@ -1,0 +1,17 @@
+{{- $top := .CurrentSection -}}
+{{- with $top.Parent }}
+  {{- if .IsSection }}
+    {{- $top = . -}}
+    {{- with .Parent }}
+      {{- if .IsSection }}
+        {{- $top = . -}}
+        {{- with .Parent }}
+          {{- if .IsSection }}
+            {{- $top = . -}}
+          {{- end }}
+        {{- end }}
+      {{- end }}
+    {{- end }}
+  {{- end }}
+{{- end }}
+{{ return $top }}

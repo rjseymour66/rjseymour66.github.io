@@ -1,0 +1,107 @@
+@import "variables";
+
+dl > dt {
+  font-weight: $fw-bold;
+}
+
+dl > dd + dt {
+  margin-block-start: 0.5rem;
+}
+
+code {
+  display: inline-block;
+  background-color: $clr-inline-mono-bg;
+  border-radius: $content-border-radius;
+  padding-inline: $sp-inline-mono;
+  line-height: 1.3;
+}
+
+pre code {
+  background-color: unset;
+}
+
+.highlight > pre {
+  // border: 3px solid red;
+  border-radius: 5px;
+  padding: 1rem;
+}
+
+.content__inner ul,
+.content__inner ol {
+  padding-inline-start: $space-2;
+  margin-block: $space-075;
+
+  > li:not(:last-child) {
+    margin-block-end: $space-050;
+  }
+}
+
+.content__inner ul > li::marker {
+  color: $clr-content-font;
+}
+
+.content__inner ol {
+  list-style-type: none;
+  counter-reset: custom-counter;
+}
+
+.content__inner ol > li {
+  position: relative;
+  padding-inline-start: 1rem;
+  counter-increment: custom-counter;
+}
+
+.content__inner ol > li::before {
+  content: counter(custom-counter);
+  position: absolute;
+  left: -25px;
+  top: 2.25px;
+  color: $clr-ol-counter;
+  font-size: $fs-ol-counter;
+  background: $clr-ol-counter-bg;
+  height: 24px;
+  width: 24px;
+  line-height: $space-1;
+  border-radius: 50%;
+  text-align: center;
+}
+
+@mixin admonition($bg, $heading, $font, $border) {
+  padding: 1rem;
+  margin-block: $space-1;
+  border-radius: 5px;
+  border: 1px solid $border;
+  background: $bg;
+  color: $font;
+
+  > * {
+    margin: unset;
+  }
+
+  > h3 {
+    font-size: $fs-0;
+    font-weight: $fw-600;
+    color: $heading;
+  }
+}
+
+.note {
+  @include admonition($note-bg, $note-heading, $note-p, $note-border);
+}
+
+.warning {
+  @include admonition(
+    $warning-bg,
+    $warning-heading,
+    $warning-p,
+    $warning-border
+  );
+}
+
+.error {
+  @include admonition($error-bg, $error-heading, $error-p, $error-border);
+}
+
+.tip {
+  @include admonition($tip-bg, $tip-heading, $tip-p, $tip-border);
+}

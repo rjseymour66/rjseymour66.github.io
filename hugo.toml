@@ -45,7 +45,7 @@ theme = 'freeme'
 
 [[menus.main]]
   name = 'Bash'
-  pageRef = '/bash-rev'
+  pageRef = '/bash'
   weight = 70
 
 [[menus.main]]

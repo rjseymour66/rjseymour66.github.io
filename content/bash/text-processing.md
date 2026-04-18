@@ -1,6 +1,6 @@
 ---
 title: "Text processing"
-weight: 30
+weight: 40
 description: >
   Filtering, transforming, and extracting data from text files with grep, sed, awk, and the core text tools.
 ---

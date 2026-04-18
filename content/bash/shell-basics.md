@@ -37,11 +37,11 @@ compgen -k    # keywords only
 
 Every process on Linux has three streams connected to it by default:
 
-| Stream | File descriptor | Default source or destination |
-|:-------|:----------------|:------------------------------|
-| `stdin`  | 0 | Keyboard input |
-| `stdout` | 1 | Terminal (standard output) |
-| `stderr` | 2 | Terminal (error messages) |
+| Stream   | File descriptor | Default source or destination |
+| :------- | :-------------- | :---------------------------- |
+| `stdin`  | 0               | Keyboard input                |
+| `stdout` | 1               | Terminal (standard output)    |
+| `stderr` | 2               | Terminal (error messages)     |
 
 These streams let programs work together without knowing anything about each other. A program reads from stdin and writes to stdout. The shell connects programs by wiring one program's stdout to the next program's stdin.
 
@@ -51,15 +51,15 @@ Redirection changes where a stream goes without modifying the program. The shell
 
 The following table shows common redirection operators:
 
-| Operator | Effect |
-|:---------|:-------|
+| Operator | Effect                                                  |
+| :------- | :------------------------------------------------------ |
 | `>`      | Write stdout to a file. Creates or overwrites the file. |
-| `>>`     | Append stdout to a file |
-| `<`      | Read stdin from a file instead of the keyboard |
-| `2>`     | Write stderr to a file |
-| `2>>`    | Append stderr to a file |
-| `&>`     | Write stdout and stderr to a file |
-| `&>>`    | Append stdout and stderr to a file |
+| `>>`     | Append stdout to a file                                 |
+| `<`      | Read stdin from a file instead of the keyboard          |
+| `2>`     | Write stderr to a file                                  |
+| `2>>`    | Append stderr to a file                                 |
+| `&>`     | Write stdout and stderr to a file                       |
+| `&>>`    | Append stdout and stderr to a file                      |
 
 Redirect command output to a file for later review:
 
@@ -73,7 +73,7 @@ Redirect only error messages to a log file, discarding normal output:
 cp -r /data /backup 2> /tmp/copy_errors.log
 ```
 
-Send both stdout and stderr to the same file -- useful when running unattended jobs:
+Send both stdout and stderr to the same file. This useful when running unattended jobs or when you don't want to output any information to the screen, but you want to review it later:
 
 ```bash
 find /home -name "*.conf" &> /tmp/find_results.txt
@@ -131,13 +131,13 @@ The key principle behind pipelines is that each command does one thing well. Com
 
 The following table shows common glob patterns:
 
-| Pattern  | Matches |
-|:---------|:--------|
+| Pattern  | Matches                                  |
+| :------- | :--------------------------------------- |
 | `*`      | Any number of characters, including none |
-| `?`      | Any single character |
-| `[abc]`  | Any single character in the set |
-| `[a-z]`  | Any single character in the range |
-| `[!abc]` | Any single character not in the set |
+| `?`      | Any single character                     |
+| `[abc]`  | Any single character in the set          |
+| `[a-z]`  | Any single character in the range        |
+| `[!abc]` | Any single character not in the set      |
 
 List all `.conf` files in `/etc`:
 
@@ -190,14 +190,20 @@ ls "$target_dir"
 
 Common environment variables include:
 
-| Variable    | Description |
-|:------------|:------------|
-| `HOME`      | Path to your home directory |
-| `USER`      | Your username |
-| `PATH`      | Colon-separated list of directories searched for executables |
-| `SHELL`     | Path to your default shell |
-| `HISTFILE`  | Path to your command history file |
-| `EDITOR`    | Your preferred text editor |
+| Variable       | Description                                                                    |
+| :------------- | :----------------------------------------------------------------------------- |
+| `HOME`         | Path to your home directory                                                    |
+| `USER`         | Your username                                                                  |
+| `PATH`         | Colon-separated list of directories searched for executables                   |
+| `SHELL`        | Path to your default shell                                                     |
+| `BASH_VERSION` | Version string of the running bash instance (for example, `5.1.16(1)-release`) |
+| `BASHPID`      | Process ID of the current bash shell                                           |
+| `HOSTNAME`     | Hostname of the current machine                                                |
+| `OSTYPE`       | Operating system type (for example, `linux-gnu` or `darwin`)                   |
+| `HISTFILE`     | Path to your command history file                                              |
+| `EDITOR`       | Your preferred text editor                                                     |
+| `RANDOM`       | Returns a pseudo-random integer between 0 and 32767 each time it is referenced |
+| `UID`          | Numeric user ID of the current user                                            |
 
 Print all environment variables sorted alphabetically:
 
@@ -292,11 +298,11 @@ Single quotes, double quotes, and backslashes each change how the shell evaluate
 
 The following table summarizes their behavior:
 
-| Quoting style | Effect |
-|:--------------|:-------|
-| `'single'`    | Every character is literal, including `$` and `\` |
+| Quoting style | Effect                                                                        |
+| :------------ | :---------------------------------------------------------------------------- |
+| `'single'`    | Every character is literal, including `$` and `\`                             |
 | `"double"`    | Most characters are literal. The shell still expands `$`, `\`, and backticks. |
-| `\backslash`  | Treats the immediately following character as literal |
+| `\backslash`  | Treats the immediately following character as literal                         |
 
 Compare single and double quote behavior:
 
@@ -346,11 +352,11 @@ When bash starts, it runs configuration files to prepare the environment. Which 
 
 The following table shows the relevant configuration files:
 
-| File type | When it runs | System-wide location | Personal location |
-|:----------|:-------------|:---------------------|:------------------|
-| Startup   | Login shell  | `/etc/profile`       | `~/.bash_profile`, `~/.profile` |
-| Init      | All non-login shells | `/etc/bash.bashrc` | `~/.bashrc` |
-| Cleanup   | Login shell exit | `/etc/bash.bash_logout` | `~/.bash_logout` |
+| File type | When it runs         | System-wide location    | Personal location               |
+| :-------- | :------------------- | :---------------------- | :------------------------------ |
+| Startup   | Login shell          | `/etc/profile`          | `~/.bash_profile`, `~/.profile` |
+| Init      | All non-login shells | `/etc/bash.bashrc`      | `~/.bashrc`                     |
+| Cleanup   | Login shell exit     | `/etc/bash.bash_logout` | `~/.bash_logout`                |
 
 Add `PATH` customizations, `CDPATH`, and exported variables to `~/.bash_profile`. Add aliases, functions, and local variable definitions to `~/.bashrc`. Have `~/.bash_profile` source `~/.bashrc` so that interactive terminal sessions pick up both:
 
@@ -361,6 +367,124 @@ fi
 ```
 
 Storing your personal configuration files in a version-controlled repository (such as a dotfiles repo on GitHub) makes it easy to reproduce your environment on a new machine.
+
+## Restricted shell
+
+Start bash with `-r` (or run it as `rbash`) to launch a restricted shell. A restricted shell limits what users can do, making it useful for locked-down accounts or controlled execution environments:
+
+```bash
+bash -r
+rbash
+```
+
+The restricted shell blocks the following actions:
+
+- Changing directories with `cd`
+- Modifying `PATH`, `SHELL`, `ENV`, or `BASH_ENV`
+- Running commands that contain a `/` in the name or path
+- Redirecting output with `>`, `>>`, `&>`, or `<>`
+- Using `exec` to replace the shell process
+
+Restrictions take effect after bash processes any startup files (`~/.bash_profile`, `~/.bashrc`). A user cannot turn off restricted mode with `set +r` once the shell is running.
+
+To give a user a restricted shell as their login shell, set their shell to `rbash` in `/etc/passwd`:
+
+```bash
+sudo usermod -s /bin/rbash username
+```
+
+## Control operators
+
+Control operators tell bash how to sequence and connect commands. They are not commands themselves — bash evaluates them as part of parsing the command line.
+
+| Operator | Name            | Effect                                                                               |
+| :------- | :-------------- | :----------------------------------------------------------------------------------- |
+| `&`      | Background      | Run the preceding command in a background subshell                                   |
+| `&&`     | AND             | Run the next command only if the preceding command succeeded (exit status 0)         |
+| `\|`     | Pipe            | Connect stdout of the preceding command to stdin of the next                         |
+| `\|\|`   | OR              | Run the next command only if the preceding command failed (non-zero exit status)     |
+| `;`      | Sequencer       | Run the next command after the preceding command finishes, regardless of exit status |
+| `;;`     | Case terminator | End a `case` clause                                                                  |
+| `(` `)`  | Subshell        | Group commands and run them in a subshell                                            |
+
+### &: background execution
+
+`&` runs a command in a background subshell and immediately returns the prompt. The shell prints the job number and PID:
+
+```bash
+./long_backup.sh &
+[1] 48732
+```
+
+The background process inherits the current environment but runs independently. Use `wait` to block until it finishes:
+
+```bash
+./build.sh &
+./test.sh &
+wait    # block until both jobs complete
+```
+
+### &&: conditional AND
+
+`&&` runs the right-hand command only if the left-hand command exits with status 0. This is the standard pattern for chaining dependent steps:
+
+```bash
+make && make install
+git add . && git commit -m "update config"
+```
+
+If `make` fails, `make install` does not run.
+
+### |: pipe
+
+`|` connects the stdout of the left command to the stdin of the right command. Each command runs as its own process in parallel:
+
+```bash
+ps aux | grep nginx
+cat /var/log/syslog | grep ERROR | wc -l
+```
+
+### ||: conditional OR
+
+`||` runs the right-hand command only if the left-hand command fails. Use it to provide a fallback or to print an error message:
+
+```bash
+ping -c1 8.8.8.8 || echo "Network unreachable"
+mkdir /tmp/work || exit 1
+```
+
+### ;: sequencer
+
+`;` runs commands in sequence, one after the other, regardless of whether the previous command succeeded. It is equivalent to pressing Enter between commands:
+
+```bash
+apt update; apt upgrade; apt autoremove
+```
+
+Use `;` when the commands are independent and you do not need to check exit status between them. Use `&&` when each step depends on the one before it.
+
+### ;;: case terminator
+
+`;;` ends a clause inside a `case` statement. Bash jumps to `esac` after executing the matching clause:
+
+```bash
+case "$1" in
+    start)  systemctl start myapp ;;
+    stop)   systemctl stop myapp ;;
+    *)      echo "Usage: $0 start|stop" ;;
+esac
+```
+
+### ( ): subshell grouping
+
+Enclosing commands in parentheses runs them in a subshell. The subshell inherits the parent's environment but any changes — directory changes, variable assignments — do not affect the parent:
+
+```bash
+(cd /tmp && tar -xzf archive.tar.gz)    # parent shell stays in its original directory
+(export DEBUG=1; ./run_tests.sh)        # DEBUG is set only for this subshell
+```
+
+Use a subshell when you need to isolate side effects from the rest of the script.
 
 ## Remote commands with SSH
 

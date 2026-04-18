@@ -58,11 +58,15 @@ theme = 'freeme'
   pageRef = '/git'
   weight = 90
 
+[[menus.main]]
+  name = 'Writing'
+  pageRef = '/writing'
+  weight = 100
 
 [[menus.main]]
   name = 'SQL'
   pageRef = '/sql'
-  weight = 100
+  weight = 110
 
 
 [module]

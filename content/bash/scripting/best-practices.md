@@ -1,6 +1,6 @@
 ---
 title: "Best practices"
-weight: 0
+weight: 70
 description: >
   Idioms, conventions, and structural patterns for readable, reliable bash scripts.
 ---

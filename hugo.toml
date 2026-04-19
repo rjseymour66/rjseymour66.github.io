@@ -68,6 +68,11 @@ theme = 'freeme'
   pageRef = '/sql'
   weight = 110
 
+[[menus.main]]
+  name = 'Security'
+  pageRef = '/security'
+  weight = 120
+
 
 [module]
 [module.hugoVersion]

@@ -1,6 +1,6 @@
 ---
 title: "Shell efficiency"
-weight: 50
+weight: 60
 description: >
   History, job control, command substitution, xargs, one-liners, and time-saving techniques.
 ---

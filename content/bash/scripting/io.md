@@ -101,7 +101,7 @@ done < /etc/passwd
 
 ## Here documents
 
-A *here document* supplies multi-line input to a command without requiring a separate file. Everything between the opening and closing delimiter is treated as stdin. The delimiter can be any word — `EOF` is conventional but not required.
+A *here document* supplies multi-line input to a command without requiring a separate file. Everything between the opening and closing delimiter is treated as stdin. The delimiter can be any word. `EOF` is conventional but not required.
 
 ### Writing a login banner
 
@@ -147,11 +147,11 @@ log_level = warn
 EOF
 ```
 
-Use a quoted delimiter here to prevent variable expansion — config files typically contain literal values, not shell expressions.
+Use a quoted delimiter here to prevent variable expansion. Config files typically contain literal values, not shell expressions.
 
 ## Command substitution
 
-The `$()` syntax tells bash to run the command inside the parentheses in a subshell, then replace the entire expression with that command's stdout. Use it anywhere you need the output of a command as a value—in a variable assignment, inside a string, or as an argument to another command.
+The `$()` syntax tells bash to run the command inside the parentheses in a subshell, then replace the entire expression with that command's stdout. Use it to assign output to a variable, embed it in a string, or pass it as an argument to another command.
 
 ```bash
 TODAY=$(date +%Y-%m-%d)

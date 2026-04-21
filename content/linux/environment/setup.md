@@ -258,6 +258,38 @@ The Prompt Statement variables control how bash displays prompts. Add customizat
 
 `PS1` is the default interactive prompt displayed before every command. It supports escape sequences for dynamic content such as the username, hostname, and current directory. For a complete list of options, see the [phoenixNap bash prompt guide](https://phoenixnap.com/kb/change-bash-prompt-linux).
 
+### Show the current git branch
+
+Define a function that reads the current branch and embed it in `PS1`. The function returns nothing outside a git repository, so the parentheses only appear when you are inside one.
+
+Add to `~/.bashrc`:
+
+```bash
+git_branch() {
+    local branch
+    branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
+    [[ -n "$branch" ]] && echo " ($branch)"
+}
+
+export PS1='\u@\h:\w$(git_branch)\n\$ '
+```
+
+The prompt looks like this inside a repository:
+
+```
+user@host:~/projects/myapp (main)
+$
+```
+
+And like this outside one:
+
+```
+user@host:~
+$
+```
+
+`git rev-parse --abbrev-ref HEAD` returns the short branch name. Redirecting stderr to `/dev/null` suppresses the error git prints when the current directory is not a repository. `[[ -n "$branch" ]]` ensures the parentheses are omitted entirely when the function returns nothing.
+
 ### PS2
 
 `PS2` is the continuation prompt displayed when a command spans multiple lines. The default value is `>`. Set a custom value to make multi-line input easier to read:

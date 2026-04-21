@@ -33,7 +33,7 @@ Run `set` to display all global variables. Run `printenv` to display only export
 
 ### Unset a variable
 
-`unset` removes a variable from the current shell environment. After unsetting, any reference to the variable returns an empty string — unless you have `set -u` enabled, in which case bash treats it as an error:
+`unset` removes a variable from the current shell environment. After unsetting, any reference to the variable returns an empty string. With `set -u` enabled, bash treats the reference as an error instead:
 
 ```bash
 tmpdir="/tmp/build"
@@ -231,7 +231,7 @@ unset SERVERS               # delete the entire array
 echo ${SERVERS[@]}          # (empty)
 ```
 
-Removing an element leaves a gap in the index — the remaining elements do not shift. If your code iterates by index, account for the missing slot. Iterating with `"${SERVERS[@]}"` skips empty slots automatically.
+Removing an element leaves a gap in the index. The remaining elements do not shift. If your code iterates by index, account for the missing slot. Iterating with `"${SERVERS[@]}"` skips empty slots automatically.
 
 To remove an element and repack the array into contiguous indices, reassign it:
 
@@ -355,7 +355,7 @@ echo $result    # 8
 | `/`      | Integer division                 |
 | `%`      | Modulo                           |
 
-Every token — numbers, operators, and variables — must be a separate argument separated by spaces. Operators that are also shell metacharacters (`*`, `(`, `)`) must be escaped or quoted:
+Every token must be a separate argument separated by spaces. This includes numbers, operators, and variables. Operators that are also shell metacharacters (`*`, `(`, `)`) must be escaped or quoted:
 
 ```bash
 expr 10 + 2          # 12

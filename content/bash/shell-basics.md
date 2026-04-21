@@ -399,30 +399,12 @@ Control operators tell bash how to sequence and connect commands. They are not c
 
 | Operator | Name            | Effect                                                                               |
 | :------- | :-------------- | :----------------------------------------------------------------------------------- |
-| `&`      | Background      | Run the preceding command in a background subshell                                   |
 | `&&`     | AND             | Run the next command only if the preceding command succeeded (exit status 0)         |
 | `\|`     | Pipe            | Connect stdout of the preceding command to stdin of the next                         |
 | `\|\|`   | OR              | Run the next command only if the preceding command failed (non-zero exit status)     |
 | `;`      | Sequencer       | Run the next command after the preceding command finishes, regardless of exit status |
 | `;;`     | Case terminator | End a `case` clause                                                                  |
 | `(` `)`  | Subshell        | Group commands and run them in a subshell                                            |
-
-### &: background execution
-
-`&` runs a command in a background subshell and immediately returns the prompt. The shell prints the job number and PID:
-
-```bash
-./long_backup.sh &
-[1] 48732
-```
-
-The background process inherits the current environment but runs independently. Use `wait` to block until it finishes:
-
-```bash
-./build.sh &
-./test.sh &
-wait    # block until both jobs complete
-```
 
 ### &&: conditional AND
 
@@ -485,6 +467,125 @@ Enclosing commands in parentheses runs them in a subshell. The subshell inherits
 ```
 
 Use a subshell when you need to isolate side effects from the rest of the script.
+
+## Job control
+
+Job control is bash's system for managing multiple commands running in the same terminal session. Each command you run is a *job*. By default, jobs run in the foreground and you wait for them to finish before you get your prompt back. Job control lets you push long-running commands to the background so your terminal stays free, check what is running, and pull jobs back when you need them.
+
+### &: background execution
+
+Appending `&` to a command starts it in the background. Bash prints the job number in brackets and the process ID, then returns the prompt immediately:
+
+```bash
+./long_backup.sh &
+[1] 48732
+```
+
+The job number (`[1]`) is how bash tracks the job within the session. Background jobs still write to your terminal by default. Redirect their output to keep your terminal clean:
+
+```bash
+./long_backup.sh > backup.log 2>&1 &
+```
+
+Start a development web server in the background while you continue working in the same terminal:
+
+```bash
+python3 -m http.server 8080 &
+[1] 52301
+```
+
+### jobs: listing background jobs
+
+`jobs` lists every job currently managed by the shell, along with its status and the command that started it:
+
+```bash
+jobs
+[1]-  Running     ./long_backup.sh &
+[2]+  Running     python3 -m http.server 8080 &
+```
+
+The `+` marks the *current job*, which is the one `fg` and `bg` act on by default. The `-` marks the previous job. Status is one of `Running`, `Stopped`, or `Done`.
+
+Pass `-l` to include the PID alongside each job:
+
+```bash
+jobs -l
+[1]-  48732 Running     ./long_backup.sh &
+[2]+  52301 Running     python3 -m http.server 8080 &
+```
+
+### fg: bringing a job to the foreground
+
+`fg` moves a background job to the foreground. Without an argument, it resumes the current job:
+
+```bash
+fg
+```
+
+To bring a specific job to the foreground, pass its job number prefixed with `%`:
+
+```bash
+fg %2
+```
+
+You started a log monitoring command in the background, finished other work, and now want to watch it:
+
+```bash
+tail -f /var/log/nginx/access.log &
+[1] 53100
+
+# ... do other work ...
+
+fg %1
+tail -f /var/log/nginx/access.log
+```
+
+Once a job is in the foreground, press `Ctrl+C` to stop it or `Ctrl+Z` to suspend it and send it back to the stopped state.
+
+### Ctrl+Z and bg: suspending and resuming
+
+`Ctrl+Z` suspends the foreground job and returns the prompt. The job is paused, not killed:
+
+```bash
+./long_backup.sh
+^Z
+[1]+  Stopped     ./long_backup.sh
+```
+
+Run `bg` to resume the stopped job in the background:
+
+```bash
+bg %1
+[1]+ ./long_backup.sh &
+```
+
+This is useful when you started a command in the foreground and realize mid-run that you want your terminal back without losing the work already done.
+
+### nohup: surviving logout
+
+When you close a terminal or disconnect from SSH, bash sends the HUP (hangup) signal to all jobs in the session. By default that kills them. `nohup` runs a command that ignores HUP, so it keeps running after you log out.
+
+Run a long job that must survive a disconnection:
+
+```bash
+nohup ./long_backup.sh &
+[1] 58423
+nohup: ignoring input and appending output to 'nohup.out'
+```
+
+By default `nohup` redirects output to `nohup.out` in the current directory. Redirect to a specific file to keep things organized:
+
+```bash
+nohup ./long_backup.sh > /var/log/backup.log 2>&1 &
+```
+
+Check progress by tailing the log file:
+
+```bash
+tail -f /var/log/backup.log
+```
+
+`nohup` is the standard choice when you need a process to keep running after you close your SSH session. For processes that need to survive reboots or run on a schedule, use a systemd service instead.
 
 ## Remote commands with SSH
 

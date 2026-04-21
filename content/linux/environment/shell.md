@@ -47,6 +47,52 @@ The shell records every command you run in `~/.bash_history`. To prevent a comma
 | `<space><cmd>`           | Run a command without saving it to history         |
 | `HISTCONTROL=ignoreboth` | Add to `~/.bashrc` to enable space-prefix behavior |
 
+## Record a terminal session with `script`
+
+The `script` command records everything printed to your terminal — commands and output — to a file. It starts a subshell. Everything you do in that subshell is captured until you type `exit` or press `Ctrl+D`.
+
+#### Document a server build
+
+Run `script` before setting up a new server. The output file becomes a full audit trail of every command and its result:
+
+```bash
+script ~/setup-$(hostname)-$(date +%F).log
+# ... run your installation and configuration commands ...
+exit
+```
+
+#### Capture a troubleshooting session to share
+
+Record a session while diagnosing a problem, then share the file with a teammate who needs to reproduce the issue or review what you tried:
+
+```bash
+script /tmp/debug-nginx.log
+systemctl status nginx
+journalctl -u nginx --since "1 hour ago"
+curl -I localhost
+exit
+```
+
+#### Append to an ongoing log
+
+Use `-a` to add to an existing file instead of overwriting it. Useful when a task spans multiple sessions:
+
+```bash
+script -a ~/change-window.log
+```
+
+#### Replay a session
+
+Record timing data alongside the output, then replay the session at its original speed:
+
+```bash
+script --timing=timing.log session.log
+# ... work ...
+exit
+
+scriptreplay --timing=timing.log session.log
+```
+
 ## Aliases
 
 An alias substitutes a short command for a longer one. Add aliases to `~/.bashrc` to make them permanent across sessions.
@@ -67,6 +113,7 @@ alias mem10='ps -L aux | sort -nr -k 4 | head -10'   # list top 10 memory-consum
 alias lsmount='mount | column -t'                    # list mounted filesystems in columns
 ```
 
+For a reference list of common aliases for system administration and penetration testing, see [Best practices](/bash/scripting/best-practices/#common-aliases).
 
 ## Scripts
 

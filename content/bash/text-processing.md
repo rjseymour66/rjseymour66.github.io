@@ -17,10 +17,10 @@ The real power is in combining these tools in pipelines. Each command in a pipel
 
 The following table shows the common options:
 
-| Option | Counts |
-|:-------|:-------|
-| `-l`   | Lines only |
-| `-w`   | Words only |
+| Option | Counts          |
+| :----- | :-------------- |
+| `-l`   | Lines only      |
+| `-w`   | Words only      |
 | `-c`   | Characters only |
 
 Count lines in a log file to check whether it has grown since last night:
@@ -71,14 +71,14 @@ tac /var/log/apache2/access.log | head -20    # most recent 20 requests
 
 The following table shows the main options:
 
-| Option        | Behavior |
-|:--------------|:---------|
-| `-fN`         | Print field N (tab-delimited) |
-| `-f2,4`       | Print fields 2 and 4 |
-| `-f2-4`       | Print fields 2 through 4 |
-| `-cN`         | Print character N |
-| `-c2-4`       | Print characters 2 through 4 |
-| `-d,`         | Change the field delimiter to `,` |
+| Option  | Behavior                          |
+| :------ | :-------------------------------- |
+| `-fN`   | Print field N (tab-delimited)     |
+| `-f2,4` | Print fields 2 and 4              |
+| `-f2-4` | Print fields 2 through 4          |
+| `-cN`   | Print character N                 |
+| `-c2-4` | Print characters 2 through 4      |
+| `-d,`   | Change the field delimiter to `,` |
 
 Extract the username field from `/etc/passwd`:
 
@@ -159,16 +159,16 @@ rev /etc/shells | cut -d'/' -f1 | rev       # extract shell name from each path
 
 The following table shows common options:
 
-| Option | Behavior |
-|:-------|:---------|
-| `-r`   | Reverse (descending) order |
-| `-n`   | Numeric sort |
-| `-nr`  | Numeric descending |
-| `-u`   | Remove duplicate lines |
-| `-f`   | Ignore case |
+| Option | Behavior                               |
+| :----- | :------------------------------------- |
+| `-r`   | Reverse (descending) order             |
+| `-n`   | Numeric sort                           |
+| `-nr`  | Numeric descending                     |
+| `-u`   | Remove duplicate lines                 |
+| `-f`   | Ignore case                            |
 | `-k N` | Sort by field N (whitespace-delimited) |
-| `-t ,` | Change field delimiter to `,` |
-| `-o`   | Write output to the specified file |
+| `-t ,` | Change field delimiter to `,`          |
+| `-o`   | Write output to the specified file     |
 
 Sort a log file by the third column (for example, HTTP status code):
 
@@ -190,13 +190,13 @@ sort -k 2.4,2.5 filename.txt
 
 The following table shows common options:
 
-| Option | Behavior |
-|:-------|:---------|
+| Option | Behavior                                       |
+| :----- | :--------------------------------------------- |
 | `-c`   | Prefix each line with the count of occurrences |
-| `-d`   | Print only lines that appear more than once |
-| `-u`   | Print only lines that appear exactly once |
-| `-i`   | Ignore case when comparing |
-| `-f N` | Skip the first N fields before comparing |
+| `-d`   | Print only lines that appear more than once    |
+| `-u`   | Print only lines that appear exactly once      |
+| `-i`   | Ignore case when comparing                     |
+| `-f N` | Skip the first N fields before comparing       |
 
 Find the most common HTTP status codes in an access log:
 
@@ -210,9 +210,9 @@ Find the grade that appears most often in a grades file:
 cut -f1 grades | sort | uniq -c | sort -nr | head -1 | cut -c9
 ```
 
-## Pattern matching with grep
+## `grep` for pattern matching
 
-`grep` searches files for lines that match a pattern and prints each matching line. It is the most frequently used filtering tool on the command line.
+`grep` stands for Global Regular Expression Print, taken from the `ed` command `g/re/p`. It searches files for lines that match a pattern and prints each matching line. It is the most frequently used filtering tool on the command line.
 
 ```bash
 grep [OPTIONS] PATTERN [FILE...]
@@ -220,21 +220,22 @@ grep [OPTIONS] PATTERN [FILE...]
 
 The following table shows common options:
 
-| Option  | Behavior |
-|:--------|:---------|
-| `-c`    | Print a count of matching lines instead of the lines themselves |
-| `-E`    | Enable extended regular expressions (ERE) |
-| `-f`    | Read patterns from a file |
-| `-i`    | Ignore case |
-| `-l`    | Print only filenames of files with at least one match |
-| `-n`    | Print the line number before each match |
-| `-o`    | Print only the matching text, not the full line |
-| `-q`    | Silent mode -- exit status only, no output |
-| `-r`    | Recursively search directories |
-| `-R`    | Recursive search, following symbolic links |
-| `-v`    | Invert match: print lines that do not match |
-| `-w`    | Match whole words only |
-| `-P`    | Enable Perl-compatible regular expressions |
+| Option | Behavior                                                            |
+| :----- | :------------------------------------------------------------------ |
+| `-c`   | Print a count of matching lines instead of the lines themselves     |
+| `-e`   | Specify a pattern. Repeat the flag to match any of several patterns |
+| `-E`   | Enable extended regular expressions (ERE)                           |
+| `-f`   | Read patterns from a file                                           |
+| `-i`   | Ignore case                                                         |
+| `-l`   | Print only filenames of files with at least one match               |
+| `-n`   | Print the line number before each match                             |
+| `-o`   | Print only the matching text, not the full line                     |
+| `-q`   | Silent mode -- exit status only, no output                          |
+| `-r`   | Recursively search directories                                      |
+| `-R`   | Recursive search, following symbolic links                          |
+| `-v`   | Invert match: print lines that do not match                         |
+| `-w`   | Match whole words only                                              |
+| `-P`   | Enable Perl-compatible regular expressions                          |
 
 Search for failed SSH login attempts in the auth log:
 
@@ -274,48 +275,72 @@ grep -E '^(web|app|db)-[0-9]+' /etc/hosts       # match server naming patterns
 egrep "(daemon|nobody).*nologin" /etc/passwd
 ```
 
+### Matching multiple patterns
+
+Two approaches let you match lines that contain any one of several patterns.
+
+Use `|` inside a single expression with `-E`. The shell treats the whole thing as one pattern:
+
+```bash
+grep -E "error|warning|critical" /var/log/syslog
+grep -E "^root|^daemon|^nobody" /etc/passwd
+```
+
+Use `-e` to supply each pattern as a separate flag. Each `-e` argument is an independent pattern and the result is identical, but the form is easier to read when patterns are long or contain characters that would conflict inside a single regex:
+
+```bash
+grep -e "error" -e "warning" -e "critical" /var/log/syslog
+grep -e "^root" -e "^daemon" -e "^nobody" /etc/passwd
+```
+
+Both forms print every line that matches at least one pattern. For large sets of patterns, store them one per line in a file and load them with `-f`:
+
+```bash
+grep -f patterns.txt /var/log/syslog
+```
+
 ### Regex reference
 
 The following table describes regex metacharacters:
 
-| Metacharacter | Matches |
-|:--------------|:--------|
-| `.`           | Any single character except newline |
-| `*`           | Zero or more of the preceding character |
+| Metacharacter | Matches                                      |
+| :------------ | :------------------------------------------- |
+| `.`           | Any single character except newline          |
+| `*`           | Zero or more of the preceding character      |
 | `+`           | One or more of the preceding character (ERE) |
 | `?`           | Zero or one of the preceding character (ERE) |
-| `^`           | Start of line |
-| `$`           | End of line |
-| `[abc]`       | Any character in the set |
-| `[^abc]`      | Any character not in the set |
-| `[a-z]`       | Any character in the range |
-| `\`           | Escape the following character |
+| `^`           | Start of line                                |
+| `$`           | End of line                                  |
+| `[abc]`       | Any character in the set                     |
+| `[^abc]`      | Any character not in the set                 |
+| `[a-z]`       | Any character in the range                   |
+| `\`           | Escape the following character               |
 
 The following table describes POSIX character classes for use inside `[[ ]]`:
 
-| Class        | Matches |
-|:-------------|:--------|
-| `[:alnum:]`  | Alphanumeric characters |
-| `[:alpha:]`  | Alphabetic characters |
-| `[:digit:]`  | Digits |
-| `[:lower:]`  | Lowercase letters |
-| `[:upper:]`  | Uppercase letters |
+| Class        | Matches                          |
+| :----------- | :------------------------------- |
+| `[:alnum:]`  | Alphanumeric characters          |
+| `[:alpha:]`  | Alphabetic characters            |
+| `[:digit:]`  | Digits                           |
+| `[:lower:]`  | Lowercase letters                |
+| `[:upper:]`  | Uppercase letters                |
 | `[:space:]`  | Whitespace including line breaks |
-| `[:punct:]`  | Punctuation |
-| `[:xdigit:]` | Hexadecimal digits |
+| `[:punct:]`  | Punctuation                      |
+| `[:xdigit:]` | Hexadecimal digits               |
 
 ### Perl regex shortcuts
 
 These shortcuts require the `-P` flag:
 
-| Shortcut | Matches |
-|:---------|:--------|
-| `\s`     | Any whitespace |
-| `\S`     | Any non-whitespace |
-| `\d`     | Any digit |
-| `\D`     | Any non-digit |
+| Shortcut | Matches                                    |
+| :------- | :----------------------------------------- |
+| `\s`     | Any whitespace                             |
+| `\S`     | Any non-whitespace                         |
+| `\d`     | Any digit                                  |
+| `\D`     | Any non-digit                              |
 | `\w`     | Word character (letter, digit, underscore) |
-| `\W`     | Non-word character |
+| `\W`     | Non-word character                         |
 
 ### Quantifiers
 
@@ -337,9 +362,9 @@ egrep '<([a-zA-Z]*)>.*</\1>' file.html
 
 The `\1` means "whatever was matched inside the first set of parentheses."
 
-## Stream editing with sed
+## `sed` for stream editing
 
-`sed` transforms text by applying a sequence of instructions called a *sed script* to each line of input. The most common script replaces one string with another:
+`sed` stands for Stream EDitor. It transforms text by applying a sequence of instructions called a *sed script* to each line of input. The most common script replaces one string with another:
 
 ```bash
 sed 's/regexp/replacement/' input-file
@@ -353,21 +378,21 @@ echo "one one two" | sed 's/one/yes/g'          # yes yes two
 
 The following table shows common sed commands:
 
-| Script                     | Effect |
-|:---------------------------|:-------|
-| `s/old/new/`               | Replace first occurrence per line |
-| `s/old/new/g`              | Replace all occurrences per line |
-| `s/old/new/i`              | Case-insensitive replacement |
-| `s/old/new/gI`             | Global case-insensitive replacement |
-| `2s/old/new/`              | Replace only on line 2 |
-| `s/old/new/3`              | Replace only the third occurrence on each line |
-| `-i`                       | Modify the file in place |
-| `d`                        | Delete matching lines |
-| `/pattern/d`               | Delete lines matching a pattern |
-| `nd`                       | Delete line number n |
-| `-n 'Np'`                  | Print only line N |
-| `-n '/pattern/p'`          | Print lines matching a pattern |
-| `y/abc/xyz/`               | Translate characters (like `tr`) |
+| Script            | Effect                                         |
+| :---------------- | :--------------------------------------------- |
+| `s/old/new/`      | Replace first occurrence per line              |
+| `s/old/new/g`     | Replace all occurrences per line               |
+| `s/old/new/i`     | Case-insensitive replacement                   |
+| `s/old/new/gI`    | Global case-insensitive replacement            |
+| `2s/old/new/`     | Replace only on line 2                         |
+| `s/old/new/3`     | Replace only the third occurrence on each line |
+| `-i`              | Modify the file in place                       |
+| `d`               | Delete matching lines                          |
+| `/pattern/d`      | Delete lines matching a pattern                |
+| `nd`              | Delete line number n                           |
+| `-n 'Np'`         | Print only line N                              |
+| `-n '/pattern/p'` | Print lines matching a pattern                 |
+| `y/abc/xyz/`      | Translate characters (like `tr`)               |
 
 Replace a hostname in a configuration file:
 
@@ -387,6 +412,113 @@ Print a specific line range:
 sed -n '5,10p' /var/log/syslog      # print lines 5 through 10
 ```
 
+### Deleting lines
+
+The `d` command deletes lines. Address a line by number, by `$` for the last line, or by a pattern.
+
+#### Delete the first line
+
+Line `1` is the address. `d` deletes it and sed moves on to the next line.
+
+```bash
+sed '1d' file.txt
+```
+
+#### Delete the last line
+
+`$` matches the last line of the file regardless of how many lines there are.
+
+```bash
+sed '$d' file.txt
+```
+
+#### Delete a specific line by number
+
+Replace `3` with the line number you want to remove.
+
+```bash
+sed '3d' file.txt
+```
+
+#### Delete a range of lines
+
+Specify the start and end line numbers separated by a comma. Both lines are included in the deletion.
+
+```bash
+sed '2,4d' file.txt         # delete lines 2 through 4
+```
+
+#### Delete multiple non-consecutive lines
+
+Chain separate `-e` expressions to target lines that are not adjacent to each other.
+
+```bash
+sed -e '1d' -e '5d' -e '9d' file.txt
+```
+
+### Printing line ranges
+
+`-n` suppresses default output so only the lines you explicitly print with `p` appear. Without `-n`, matching lines would print twice.
+
+#### Print a specific line
+
+Supply the line number followed by `p`. The `-n` flag ensures only that line appears in the output.
+
+```bash
+sed -n '4p' file.txt
+```
+
+#### Print a range of lines
+
+Separate the start and end line numbers with a comma. Both lines are included.
+
+```bash
+sed -n '5,10p' /var/log/syslog
+```
+
+#### Print from a line number to the end of the file
+
+`$` means the last line, so `20,$` reads as "from line 20 to the end."
+
+```bash
+sed -n '20,$p' file.txt
+```
+
+#### Print lines matching a pattern
+
+Wrap the pattern in `/` delimiters. sed prints every line where the pattern matches.
+
+```bash
+sed -n '/ERROR/p' /var/log/app.log
+```
+
+### Editing files in place
+
+`-i` writes the result back to the file instead of printing to stdout. Always test your expression without `-i` first.
+
+#### Linux
+
+Run without `-i` to preview, then add `-i` to apply the change.
+
+```bash
+sed 's/old-server/new-server/g' config.conf         # preview the change
+sed -i 's/old-server/new-server/g' config.conf      # apply it
+```
+
+Pass a suffix to keep a backup copy before editing.
+
+```bash
+sed -i.bak 's/old/new/g' file.txt       # original saved as file.txt.bak
+```
+
+#### macOS
+
+`-i` requires an explicit backup extension. Pass an empty string to skip the backup.
+
+```bash
+sed -i '' 's/old/new/g' file.txt
+```
+
 ### Subexpressions
 
 Subexpressions let you capture and rearrange parts of a matched string. Wrap the part you want to capture in `\(` and `\)`, then reference it in the replacement with `\1`, `\2`, and so on.
@@ -404,6 +536,32 @@ Rename image files by moving a version number from the end of the name to before
 sed "s/image\.jpg\.\([1-3]\)/image\1.jpg/"
 ```
 
+### Removing whitespace
+
+Remove leading spaces from the start of each line:
+
+```bash
+sed 's/^ *//' file.txt
+```
+
+Remove trailing spaces from the end of each line:
+
+```bash
+sed 's/ *$//' file.txt
+```
+
+Remove both leading and trailing spaces in a single command by chaining two substitutions with `-e`:
+
+```bash
+sed -e 's/^ *//' -e 's/ *$//' file.txt
+```
+
+Remove all spaces from every line:
+
+```bash
+sed 's/ //g' file.txt
+```
+
 ### Long regex patterns
 
 Break a long regex into named shell variables for readability:
@@ -419,14 +577,49 @@ replacement='\1\t\2\t\3\n'
 sed "s/$regexp/$replacement/g" data.txt
 ```
 
-## Report generation with awk
+## `awk` for filtering fields
 
-`awk` processes structured text files and generates reports. It reads each line, splits it into fields, and runs your *awk program* against each line. Fields are referenced as `$1`, `$2`, and so on. `$0` is the entire line and `$NF` is the last field.
+`awk` is named after its creators: Alfred Aho, Peter Weinberger, and Brian Kernighan. It processes structured text files and generates reports. It reads each line, splits it into fields, and runs your *awk program* against each line. Fields are referenced as `$1`, `$2`, and so on. `$0` is the entire line and `$NF` is the last field.
 
 ```bash
 awk '{print $2}' /etc/hosts                     # print second column of hosts file
 awk -F: '{print $1}' /etc/passwd                # usernames, colon-delimited
 df | awk 'FNR>1 {print $4}'                     # available space, skip header
+```
+
+### -F: changing the field delimiter
+
+By default, awk splits each line on whitespace. Whitespace means one or more spaces or tabs. Leading and trailing whitespace is ignored, so fields always start with a non-space character. Use `-F` to specify a different delimiter. The delimiter can be a single character or a regular expression:
+
+```bash
+awk -F: '{print $1}' /etc/passwd          # split on colon, print username
+awk -F, '{print $2}' report.csv           # split on comma, print second column
+awk -F'\t' '{print $3}' data.tsv          # split on tab, print third column
+awk -F/ '{print $NF}' /etc/shells         # split on slash, print last field
+```
+
+You can also set the delimiter inside the program using the `FS` variable in a `BEGIN` block. This is useful when the delimiter itself is complex or when you want the program to be self-contained:
+
+```bash
+awk 'BEGIN {FS=":"} {print $1, $6}' /etc/passwd    # username and home directory
+awk 'BEGIN {FS=","} {print $1}' report.csv
+```
+
+### NF: number of fields
+
+`NF` is a built-in variable that holds the number of fields in the current line. Because `$NF` evaluates to the field at position `NF`, it always refers to the last field regardless of how many fields the line has. Use `$(NF-1)` to get the second-to-last field:
+
+```bash
+awk '{print NF}' /etc/passwd            # print the field count for each line
+awk '{print $NF}' /etc/passwd           # print the last field of each line
+awk '{print $(NF-1)}' /etc/passwd       # print the second-to-last field
+awk 'NF > 3' report.txt                 # print only lines with more than 3 fields
+```
+
+Extract the filename from each path in a list, without knowing how many directories deep each path goes:
+
+```bash
+echo "/var/log/nginx/access.log" | awk -F/ '{print $NF}'    # access.log
 ```
 
 ### Filtering with patterns
@@ -478,23 +671,23 @@ md5sum *.jpg | awk '{counts[$1]++} END {for (key in counts) print counts[key], k
 
 The following table shows common awk programs:
 
-| Program | Description |
-|:--------|:------------|
-| `'{print $1}'` | Print first column |
-| `'{print $1, $3}'` | Print columns 1 and 3 |
-| `'NR==3'` | Print line 3 |
-| `'NR>=2 && NR<=4'` | Print lines 2 to 4 |
-| `'/pattern/'` | Print lines matching pattern |
-| `'!/pattern/'` | Print lines not matching pattern |
-| `'{print NR, $0}'` | Print lines with line numbers |
-| `'$2 > 50'` | Print lines where field 2 is greater than 50 |
-| `'{sum+=$1} END {print sum}'` | Sum field 1 |
-| `'{sum+=$1} END {print sum/NR}'` | Average of field 1 |
-| `'BEGIN {FS=","} {print $1}'` | Comma-delimited: print first field |
-| `'{print toupper($1)}'` | Convert first field to uppercase |
-| `'{sub(/old/, "new"); print}'` | Replace first occurrence per line |
-| `'{gsub(/old/, "new"); print}'` | Replace all occurrences per line |
-| `'{print $NF}'` | Print last field |
+| Program                          | Description                                  |
+| :------------------------------- | :------------------------------------------- |
+| `'{print $1}'`                   | Print first column                           |
+| `'{print $1, $3}'`               | Print columns 1 and 3                        |
+| `'NR==3'`                        | Print line 3                                 |
+| `'NR>=2 && NR<=4'`               | Print lines 2 to 4                           |
+| `'/pattern/'`                    | Print lines matching pattern                 |
+| `'!/pattern/'`                   | Print lines not matching pattern             |
+| `'{print NR, $0}'`               | Print lines with line numbers                |
+| `'$2 > 50'`                      | Print lines where field 2 is greater than 50 |
+| `'{sum+=$1} END {print sum}'`    | Sum field 1                                  |
+| `'{sum+=$1} END {print sum/NR}'` | Average of field 1                           |
+| `'BEGIN {FS=","} {print $1}'`    | Comma-delimited: print first field           |
+| `'{print toupper($1)}'`          | Convert first field to uppercase             |
+| `'{sub(/old/, "new"); print}'`   | Replace first occurrence per line            |
+| `'{gsub(/old/, "new"); print}'`  | Replace all occurrences per line             |
+| `'{print $NF}'`                  | Print last field                             |
 
 ## Generating text
 
@@ -504,15 +697,15 @@ The following table shows common awk programs:
 
 The following table shows common format strings:
 
-| Format string       | Example output           | Description |
-|:--------------------|:-------------------------|:------------|
-| `%Y-%m-%d`          | 2025-03-29               | ISO 8601 date |
-| `%d-%m-%Y`          | 29-03-2025               | Day-Month-Year |
-| `%m/%d/%Y`          | 03/29/2025               | Month/Day/Year (US) |
+| Format string       | Example output           | Description          |
+| :------------------ | :----------------------- | :------------------- |
+| `%Y-%m-%d`          | 2025-03-29               | ISO 8601 date        |
+| `%d-%m-%Y`          | 29-03-2025               | Day-Month-Year       |
+| `%m/%d/%Y`          | 03/29/2025               | Month/Day/Year (US)  |
 | `%A, %B %d, %Y`     | Saturday, March 29, 2025 | Full date with names |
-| `%H:%M:%S`          | 14:30:15                 | 24-hour time |
-| `%Y-%m-%d %H:%M:%S` | 2025-03-29 14:30:15      | Full timestamp |
-| `%s`                | 1743456615               | Unix epoch seconds |
+| `%H:%M:%S`          | 14:30:15                 | 24-hour time         |
+| `%Y-%m-%d %H:%M:%S` | 2025-03-29 14:30:15      | Full timestamp       |
+| `%s`                | 1743456615               | Unix epoch seconds   |
 
 Generate a timestamped filename for a log archive:
 

@@ -111,7 +111,7 @@ cp $FILE /backup/
 cp "$FILE" /backup/
 ```
 
-Quote every variable expansion unless you specifically want word splitting. If you do want word splitting—for example, when expanding an array of arguments—use `"${array[@]}"`, which expands each element as a separately quoted word.
+Quote every variable expansion unless you specifically want word splitting. If you do want word splitting, use `"${array[@]}"` instead. It expands each element as a separately quoted word, which is the correct form when passing an array of arguments.
 
 ## `[[ ]]` instead of `[ ]` for conditionals
 
@@ -339,3 +339,105 @@ bash -n my_script.sh
 ```
 
 Run with `bash -x` to trace execution line by line when debugging unexpected behavior. Wrap individual sections in `set -x` / `set +x` to limit the trace to the part that matters.
+
+## Where to store scripts
+
+Store personal scripts in `~/bin` or `~/.local/bin`. Both are conventional locations for user scripts and keep them separate from system binaries. Use `/usr/local/bin` for scripts that every user on the system should be able to run.
+
+| Directory        | Use for                                      |
+| :--------------- | :------------------------------------------- |
+| `~/bin`          | Personal scripts, available only to you      |
+| `~/.local/bin`   | Personal scripts (XDG convention, preferred on modern distros) |
+| `/usr/local/bin` | System-wide scripts available to all users   |
+
+Create `~/bin` if it does not exist, then make the script executable:
+
+```bash
+mkdir -p ~/bin
+cp my_script.sh ~/bin/my_script
+chmod +x ~/bin/my_script
+```
+
+## Adding scripts to PATH
+
+`PATH` is a colon-separated list of directories bash searches when you run a command by name. Adding your script directory to `PATH` lets you run your scripts from anywhere without typing the full path.
+
+Add `~/bin` to `PATH` in `~/.bashrc` so it is available in every new terminal session:
+
+```bash
+export PATH="$HOME/bin:$PATH"
+```
+
+Reload your shell to apply the change immediately:
+
+```bash
+source ~/.bashrc
+```
+
+Confirm bash can find the script:
+
+```bash
+which my_script
+```
+
+On Ubuntu 20.04 and later, `~/.local/bin` is added to `PATH` automatically if it exists. Create the directory and it will be available in your next login session without any changes to `.bashrc`.
+
+## Common aliases
+
+Define aliases in `~/.bashrc` so they are available in every interactive session.
+
+### System administration
+
+```bash
+# Navigation
+alias ..='cd ..'                # go up one directory
+alias ...='cd ../..'            # go up two directories
+alias ll='ls -lah'              # long list with hidden files, human-readable sizes
+alias la='ls -A'                # list all files except . and ..
+
+# Safety
+alias rm='rm -i'                # prompt before deleting
+alias cp='cp -i'                # prompt before overwriting
+alias mv='mv -i'                # prompt before overwriting
+alias mkdir='mkdir -pv'         # create parent directories as needed, print each one created
+
+# System information
+alias df='df -h'                # disk usage in human-readable units
+alias du='du -h'                # directory sizes in human-readable units
+alias free='free -h'            # RAM and swap in human-readable units
+alias ports='ss -tulnp'         # show all listening TCP/UDP ports with associated PIDs
+alias ps='ps aux'               # all running processes with user, CPU, and memory stats
+
+# Logs
+alias syslog='sudo tail -f /var/log/syslog'     # stream the system log in real time
+alias authlog='sudo tail -f /var/log/auth.log'  # stream login and authentication events
+
+# Convenience
+alias grep='grep --color=auto'                        # highlight matches in output
+alias reload='source ~/.bashrc'                       # apply .bashrc changes without restarting the shell
+alias myip='curl -s ifconfig.me'                      # print your public IP address
+alias update='sudo apt update && sudo apt upgrade -y' # fetch and install all available updates
+```
+
+### Penetration testing
+
+```bash
+# Nmap
+alias nmap='nmap -v'                    # enable verbose output on every scan
+alias nmapq='nmap -T4 -F'              # fast scan of the 100 most common ports
+alias nmapf='nmap -sV -sC -O -A'       # full scan: service versions, default scripts, OS detection
+alias nmapall='nmap -p- -T4'           # scan all 65535 ports at aggressive timing
+
+# Listeners
+alias listen='nc -lvnp 4444'           # open a netcat listener on port 4444 for reverse shells
+
+# Web
+alias myip='curl -s ifconfig.me'       # print your public IP address
+alias pubip='curl -s ipinfo.io/ip'     # alternate public IP lookup
+alias headers='curl -sI'              # print HTTP response headers only, no body
+
+# Recon
+alias hosts='cat /etc/hosts'           # print local hostname-to-IP mappings
+alias routes='ip route show'           # print the kernel routing table
+alias arp='arp -a'                     # print the ARP cache showing known hosts on the local network
+```

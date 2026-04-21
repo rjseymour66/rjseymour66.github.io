@@ -177,7 +177,36 @@ trap "rm -f $LOCKFILE" EXIT    # clean up lock file when the script exits
 
 ### case statements
 
-The `case` statement matches a value against patterns and runs the corresponding commands. It is the bash equivalent of `switch` in other languages. End each case block with `;;` and the default case with `*`:
+The `case` statement evaluates an EXPRESSION once and compares it against each PATTERN in order. When a PATTERN matches, its commands run and the statement exits. If no PATTERN matches, nothing runs.
+
+```bash
+case EXPRESSION in
+    PATTERN)
+        commands
+        ;;
+    PATTERN | PATTERN)
+        commands
+        ;;
+    *)
+        default commands
+        ;;
+esac
+```
+
+Each block ends with `;;`. The catch-all `*)` matches anything and must come last. `esac` closes the statement.
+
+#### Pattern types
+
+| Pattern | Matches |
+| :------ | :------ |
+| `word` | The exact string `word` |
+| `word1 \| word2` | Either `word1` or `word2` |
+| `[Yy]` | Any single character listed in brackets |
+| `*.log` | Any string ending in `.log` (glob) |
+| `??` | Any two-character string |
+| `*` | Anything; use as the catch-all default |
+
+Match a specific environment and fall through to a default on unknown input:
 
 ```bash
 case "$ENVIRONMENT" in
@@ -200,9 +229,38 @@ case "$ENVIRONMENT" in
 esac
 ```
 
+#### Command dispatch
+
+`case` is the standard pattern for routing subcommands in a CLI tool. The EXPRESSION is the subcommand argument; each PATTERN is a command name:
+
+```bash
+case "$1" in
+    start)
+        systemctl start myapp
+        ;;
+    stop)
+        systemctl stop myapp
+        ;;
+    restart)
+        systemctl restart myapp
+        ;;
+    status)
+        systemctl status myapp
+        ;;
+    help|-h|--help)
+        usage
+        ;;
+    *)
+        echo "Unknown command: $1" >&2
+        usage
+        exit 2
+        ;;
+esac
+```
+
 ## Loops
 
-End every loop with `done`.
+Every loop uses a keyword for the loop type, the condition, then a `;do (...) done` clause.
 
 ### for loops
 
@@ -284,11 +342,74 @@ done
 
 ### Loop control keywords
 
-The following table describes loop control keywords:
-
 | Keyword    | Effect                                               |
 | :--------- | :--------------------------------------------------- |
 | `break`    | Exits the loop immediately                           |
 | `continue` | Skips to the next iteration                          |
 | `exit`     | Exits the entire script with an optional status code |
 | `return`   | Returns from a function with an optional status code |
+
+### break
+
+Use `break` when you've found what you were looking for and continuing would waste work. It exits the loop immediately and resumes execution after `done`.
+
+Search a list of servers for the first one that responds, then stop:
+
+```bash
+ACTIVE_SERVER=""
+
+for server in web-01 web-02 web-03; do
+    if ping -c1 -q "$server" &>/dev/null; then
+        ACTIVE_SERVER="$server"
+        break    # no need to check the rest
+    fi
+done
+
+if [[ -n "$ACTIVE_SERVER" ]]; then
+    echo "Deploying to $ACTIVE_SERVER"
+else
+    echo "No servers available" >&2
+    exit 1
+fi
+```
+
+`break` also works in `while` loops to exit once a condition is met, useful when polling for a process to start or a file to appear:
+
+```bash
+echo "Waiting for nginx..."
+while true; do
+    if pgrep -x nginx &>/dev/null; then
+        echo "nginx is up"
+        break
+    fi
+    sleep 2
+done
+```
+
+### continue
+
+Use `continue` to skip a specific iteration and move on to the next one. It keeps the loop running but avoids processing items that don't meet a condition.
+
+Process log files but skip any that are empty:
+
+```bash
+for logfile in /var/log/*.log; do
+    if [[ ! -s "$logfile" ]]; then
+        continue    # skip empty files
+    fi
+    echo "Processing $logfile ($(wc -l < "$logfile") lines)"
+    grep "ERROR" "$logfile" >> /tmp/errors.log
+done
+```
+
+Skip hosts that don't respond instead of aborting the whole loop:
+
+```bash
+for host in "${HOSTS[@]}"; do
+    if ! ping -c1 -q "$host" &>/dev/null; then
+        echo "Skipping unreachable host: $host" >&2
+        continue
+    fi
+    ssh "$host" "./deploy.sh"
+done
+```

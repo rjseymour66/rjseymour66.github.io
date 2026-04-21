@@ -44,7 +44,7 @@ exit 1    # general failure
 exit 2    # invalid argument or usage error
 ```
 
-The caller — another script, a CI pipeline, or a shell — reads the exit code from `$?` and decides what to do next. A non-zero code causes `&&` chains to stop and `set -e` scripts to abort.
+The caller reads the exit code from `$?` and decides what to do next. The caller might be another script, a CI pipeline, or a shell. A non-zero code causes `&&` chains to stop and `set -e` scripts to abort.
 
 Establish a consistent convention at the top of each script so the codes are easy to audit:
 

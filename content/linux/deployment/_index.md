@@ -12,3 +12,4 @@ Automating infrastructure provisioning and application deployment. Topics includ
 
 - write script to setup ssh on local and remote
 - write script to setup all steps in /environment/new-sysadmin/
+- script to deploy any type of VM in KVM

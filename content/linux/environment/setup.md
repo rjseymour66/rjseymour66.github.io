@@ -23,6 +23,41 @@ Environment variables store information about the current shell session, such as
 | `env`      | Display all exported environment variables                    |
 | `printenv` | Display all or specific environment variables                 |
 | `$VARNAME` | Print the value of a specific variable                        |
+
+### Add a directory to PATH
+
+`PATH` is an environment variable that lists the directories bash searches when you run a command. Add a directory to `PATH` to make its executables available without typing the full path.
+
+To add a directory for the current session only, run:
+
+```bash
+export PATH="$PATH:/your/directory"
+```
+
+Always include `$PATH` at the start of the new value. Omitting it replaces the existing list instead of extending it, which breaks most commands.
+
+To make the change permanent, add the same line to `~/.bashrc` or `~/.exports`:
+
+```bash
+# ~/.exports
+export PATH="$PATH:/your/directory"
+```
+
+Reload the file for the change to take effect in the current session:
+
+```bash
+source ~/.bashrc
+```
+
+For example, to add `~/tools` to your PATH:
+
+```bash
+# ~/.exports
+export PATH="$PATH:$HOME/tools"
+```
+
+`$HOME` expands to your home directory path, making the entry portable across accounts.
+
 ### Environment files
 
 User environment files are copied from `/etc/skel` at account creation. Users can edit them afterward. Bash reads these files in order and stops at the first one it finds:

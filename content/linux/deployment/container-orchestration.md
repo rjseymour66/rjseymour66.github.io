@@ -248,3 +248,101 @@ Verify the service is running:
 ```bash
 k get service
 ```
+
+## Docker 
+
+
+### Checking running containers
+
+`docker ps` lists all running containers. Each row shows the container ID, image, command, age, status, exposed ports, and name. Use this as your first check when a service is not responding:
+
+```bash
+docker ps
+CONTAINER ID   IMAGE          COMMAND                  CREATED       STATUS       PORTS                NAMES
+a3f2b1c4d5e6   nginx:latest   "/docker-entrypoint.…"   2 hours ago   Up 2 hours   0.0.0.0:80->80/tcp   web
+```
+
+To include stopped containers, add `-a`. This is useful when a container has exited unexpectedly and you need to inspect its last state or retrieve logs:
+
+```bash
+docker ps -a
+CONTAINER ID   IMAGE          COMMAND      CREATED       STATUS                    PORTS   NAMES
+a3f2b1c4d5e6   nginx:latest   "/docker…"   2 hours ago   Up 2 hours                80/tcp  web
+b7c8d9e0f1a2   alpine         "/bin/sh"    3 hours ago   Exited (1) 2 hours ago            worker
+```
+
+The exit code in the `STATUS` column tells you how the container stopped. Exit code `0` means it finished cleanly. Any non-zero code indicates an error — check the logs with `docker logs <name>`.
+
+To print only container names, useful in scripts or when many containers are running:
+
+```bash
+docker ps --format "{{.Names}}"
+web
+worker
+```
+
+Common format fields:
+
+| Field         | Description               |
+| :------------ | :------------------------ |
+| `{{.ID}}`     | Shortened container ID    |
+| `{{.Image}}`  | Image name and tag        |
+| `{{.Status}}` | Running status and uptime |
+| `{{.Ports}}`  | Port mappings             |
+| `{{.Names}}`  | Container name            |
+
+## Docker Compose
+
+{{< admonition "Lab environment" tip >}}
+This section shows the instructions to set up a lab with Docker Compose. You can quickly set it all up with these steps:
+1. Clone https://github.com/dolevf/Black-Hat-Bash
+2. `cd ./Black-Hat-Bash/lab`
+3. `sudo make init`
+{{< /admonition>}}
+
+Docker Compose manages multiple Docker containers through a single YAML file called a _Compose file_. Each container, its network, and its volumes are defined once and brought up or torn down with a single command.
+
+### Install Docker and Docker Compose
+
+1. Install prerequisite packages. `ca-certificates` lets your system validate TLS certificates when downloading from external servers. `gnupg` processes the cryptographic signature on Docker's key. Without both, the key download and repo validation in step 2 fail silently or with opaque errors:
+   ```bash
+   sudo apt install ca-certificates curl gnupg -y
+   ```
+
+2. Create the keyring directory and download Docker's GPG key. `apt` requires every third-party repository to be signed by a trusted key. Placing the key under `/etc/apt/keyrings/` rather than the legacy `/etc/apt/trusted.gpg.d/` scopes it to a specific repository through the `signed-by` attribute in step 3, a meaningful security boundary when you manage multiple third-party sources. The `chmod a+r` ensures `apt` can read the key after dropping privileges during package operations:
+   ```bash
+   sudo install -m 0755 -d /etc/apt/keyrings
+   curl -fsSL https://download.docker.com/linux/debian/gpg \
+       | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+   sudo chmod a+r /etc/apt/keyrings/docker.gpg
+   ```
+
+3. Add the Docker apt repository. The `[signed-by=...]` attribute ties packages from this repo to the Docker key specifically. A repo entry without it implicitly trusts all keys in your keyring, which is a supply-chain risk. The shell substitutions make the command portable across architectures and Debian releases without editing:
+   ```bash
+   echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] \
+       https://download.docker.com/linux/debian \
+       $(. /etc/os-release && echo "$VERSION_CODENAME") stable" \
+       | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+   ```
+
+4. Update the package index and install Docker. Docker Compose v2 ships as a plugin binary rather than a standalone script. Without `docker-compose-plugin`, `docker compose` returns an error even though Docker itself is installed:
+   ```bash
+   sudo apt update -y
+   sudo apt install docker-ce docker-ce-cli containerd.io docker-compose-plugin -y
+   ```
+
+5. Enable the Docker service and start it immediately. The `--now` flag combines `enable` and `start` in one command. `enable` alone configures the service to start at boot but leaves it stopped this session. `start` alone runs it now but not after a reboot:
+   ```bash
+   sudo systemctl enable docker --now
+   ```
+
+6. Verify the installation. This confirms the plugin binary is installed and the Docker CLI can locate it, surfacing PATH or plugin directory misconfigurations before you attempt to run an actual Compose file:
+   ```bash
+   docker compose --help
+   ```
+
+7. Add your user to the `docker` group to run Docker commands without `sudo`. The `-a` flag appends `docker` to your existing groups. Without it, `usermod` replaces all supplementary groups with only `docker`, locking you out of everything else. `newgrp docker` activates the group change in your current shell without a logout:
+   ```bash
+   sudo usermod -aG docker $USER
+   newgrp docker
+   ```

@@ -64,7 +64,33 @@ fi
 
 ## Parsing flags with getopts
 
-`getopts` parses short flags in a standard format. Define accepted flags in the option string; append `:` to any flag that takes an argument:
+`getopts` is a bash built-in that parses short flags (`-v`, `-e production`) one at a time from the argument list. Each call to `getopts` reads the next flag and stores it in a variable you name — conventionally `opt`. You call it in a `while` loop so it processes every flag in sequence.
+
+**The option string**
+
+The option string (`'e:vh'`) lists every flag the script accepts. A colon after a letter means that flag requires an argument. In `'e:vh'`, `-e` requires an argument, `-v` and `-h` do not:
+
+| Character | Meaning                             |
+| :-------- | :---------------------------------- |
+| `e:`      | `-e` accepts an argument            |
+| `v`       | `-v` is a boolean flag, no argument |
+| `h`       | `-h` is a boolean flag, no argument |
+
+**Special variables**
+
+| Variable | Set by  | Contains                                        |
+| :------- | :------ | :---------------------------------------------- |
+| `opt`    | you     | The current flag letter (`e`, `v`, `h`, or `?`) |
+| `OPTARG` | getopts | The argument passed to a flag that requires one  |
+| `OPTIND` | getopts | The index of the next unprocessed argument       |
+
+When `getopts` encounters an unknown flag, it sets `opt` to `?`. The `*` pattern in `case` catches this and triggers the usage message.
+
+**`shift $(( OPTIND - 1 ))`**
+
+After the loop, `OPTIND` points to the first argument that was not a flag. `shift` removes all the parsed flags from `$@` so `$1` becomes the first positional argument — typically the subcommand.
+
+Define accepted flags in the option string; append `:` to any flag that takes an argument:
 
 ```bash
 VERBOSE=0

@@ -275,11 +275,29 @@ Nov 26 03:40:03 ubuntu-24 systemd[1]: Finished sysstat-collect.service - system 
 
 ## Searching logs
 
-Linux provides three tools for searching and processing log files. Each serves a different purpose:
+Linux provides four tools for searching and processing log files. Each serves a different purpose:
 
+- `tail` follows a log file and prints new lines as they are written. Use it to monitor a file in real time.
 - `grep` finds lines that match a pattern. Use it to locate specific events quickly.
 - `awk` processes log lines and applies conditions, counts, or extractions. Use it when you need to compute or summarize data across multiple lines.
 - `sed` transforms text streams with substitutions and filters. Use it to reformat log output or strip unwanted content before saving or further processing.
+
+### tail
+
+`tail -f` follows a plain text log file and prints new lines as they arrive. Use it to monitor `/var/log/` files in real time, especially for services that write outside of journald:
+
+```bash
+tail -f /var/log/syslog
+tail -f /var/log/auth.log
+```
+
+To follow multiple files at once, `tail` labels each line with its source:
+
+```bash
+tail -f /var/log/syslog /var/log/auth.log
+```
+
+Press `Ctrl+C` to stop following.
 
 ### grep
 

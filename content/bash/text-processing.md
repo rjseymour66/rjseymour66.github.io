@@ -726,9 +726,22 @@ seq -w 1 5          # 1 2 3 4 5 with zero-padded width
 seq -s, 1 5         # 1,2,3,4,5 (comma-separated)
 ```
 
+Use `seq` in a loop to generate structured output, like a list of IP addresses:
+
+```bash
+#!/usr/bin/env bash
+
+# Generate IP addresses from a given range
+for ip in $(seq 1 254); do
+    echo "172.16.10.${ip}" >> 172-16-10-hosts.txt    
+done
+```
+
 ### Brace expansion
 
 Brace expansion generates sequences of numbers or letters directly in the shell without a separate program:
+
+#### Sequences
 
 ```bash
 echo {1..5}                     # 1 2 3 4 5
@@ -738,12 +751,36 @@ echo {A..Z} | tr -d ' '         # ABCDEFGHIJKLMNOPQRSTUVWXYZ (no spaces)
 echo {A..Z} | tr ' ' '\n'       # one letter per line
 ```
 
+#### Files and directories
+
 Brace expansion is useful for creating numbered files or directories in bulk:
 
 ```bash
 mkdir -p logs/{jan,feb,mar,apr,may,jun,jul,aug,sep,oct,nov,dec}
 touch report_{2023..2025}.txt
 ```
+
+#### echo and sed
+
+Combine brace expansion with `sed` to generate a one-per-line list without a loop:
+
+```bash
+echo 10.1.0.{1..254} | sed 's/ /\n/g'
+```
+
+- `echo 10.1.0.{1..254}` expands the brace sequence and prints all 254 addresses on a single space-separated line.
+- `sed 's/ /\n/g'` replaces every space with a newline, putting each address on its own line.
+
+#### printf
+
+`printf` with brace expansion is a concise way to generate formatted output for each value in a sequence:
+
+```bash
+printf "10.1.0.%d\n" {1..254}
+```
+
+- `%d` formats each expanded value as a decimal integer.
+- `\n` prints each address on its own line.
 
 ### yes
 

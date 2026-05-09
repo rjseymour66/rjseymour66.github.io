@@ -73,6 +73,11 @@ theme = 'freeme'
   pageRef = '/security'
   weight = 120
 
+[[menus.main]]
+  name = 'SW Dev'
+  pageRef = '/software-development'
+  weight = 120
+
 
 [module]
 [module.hugoVersion]

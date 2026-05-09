@@ -692,6 +692,27 @@ sleep 0.5                       # pause for half a second
 sleep 2h                        # pause for 2 hours (suffixes: s, m, h, d)
 ```
 
+### timeout
+
+Runs a command and kills it if it hasn't exited within the specified duration. Useful when a command can stall indefinitely and `-W` or similar flags don't cover all failure modes such as slow DNS resolution.
+
+Common options:
+
+| Option        | Description                                                                  |
+|:--------------|:-----------------------------------------------------------------------------|
+| `-s signal`   | Signal to send on expiry (default: SIGTERM)                                  |
+| `-k duration` | Send SIGKILL if the process is still running after this additional delay     |
+
+Common usage:
+
+```bash
+timeout 5s ping -c 1 host                           # kill ping if it hasn't finished in 5 seconds
+timeout 5s ping -c 1 -W 1 "${host}" &> /dev/null   # reachability check with hard deadline
+timeout -s SIGKILL 10s ./long-running-script.sh     # force-kill after 10 seconds
+```
+
+Duration suffixes: `s` (seconds), `m` (minutes), `h` (hours), `d` (days). A bare number is treated as seconds.
+
 ## Networking
 
 ### arp
@@ -703,6 +724,79 @@ Common usage:
 ```bash
 arp -a                          # display the ARP table
 ```
+
+### arp-scan
+
+Discovers hosts on a local network by sending *ARP packets* to every address in a range and recording which ones respond.
+
+ARP (Address Resolution Protocol) maps IP addresses to MAC addresses at Layer 2 of the OSI model, the data link layer. Because ARP operates below IP, it only works within a single network segment. Packets never cross a router, making `arp-scan` reliable for local network discovery where ICMP ping scans can be blocked by host firewalls.
+
+When `arp-scan` sends an ARP request to an IP address, any live host on that segment must respond with its MAC address to communicate. The tool collects those responses and displays the IP-to-MAC mapping for each host that replied.
+
+Common options:
+
+| Option          | Description                                                  |
+|:----------------|:-------------------------------------------------------------|
+| `-I interface`  | Network interface to send packets on                         |
+| `-l`            | Scan all hosts on the local network of the chosen interface  |
+| `-f file`       | Read target hosts from a file, one address per line          |
+| `--retry=N`     | Send each ARP request N times (default: 2)                   |
+| `--timeout=N`   | Milliseconds to wait for a reply (default: 500)              |
+| `-g`            | Ignore duplicate responses from the same host                |
+
+#### Single host
+
+Scan one IP address to confirm it is live and retrieve its MAC address:
+
+```bash
+arp-scan 172.16.10.10 -I br_public
+Interface: br_public, type: EN10MB, MAC: de:06:27:4e:8b:01, IPv4: 172.16.10.1
+Starting arp-scan 1.10.0 with 1 hosts (https://github.com/royhills/arp-scan)
+172.16.10.10    ea:21:3b:d3:be:cd    (Unknown: locally administered)
+
+1 packets received by filter, 0 packets dropped by kernel
+Ending arp-scan 1.10.0: 1 hosts scanned in 0.348 seconds (2.87 hosts/sec). 1 responded
+```
+
+The output shows the interface details, then one line per responding host: IP address, MAC address, and vendor. `locally administered` means the MAC was assigned manually rather than burned into hardware by the manufacturer.
+
+#### Subnet sweep
+
+Scan every address in a CIDR range. `arp-scan` sends an ARP request to all 256 addresses and reports which ones reply:
+
+```bash
+arp-scan 172.16.10.0/24 -I br_public
+Interface: br_public, type: EN10MB, MAC: de:06:27:4e:8b:01, IPv4: 172.16.10.1
+Starting arp-scan 1.10.0 with 256 hosts (https://github.com/royhills/arp-scan)
+172.16.10.10    ea:21:3b:d3:be:cd    (Unknown: locally administered)
+172.16.10.11    1a:94:51:d8:e2:ee    (Unknown: locally administered)
+172.16.10.12    86:5e:f8:1d:71:1b    (Unknown: locally administered)
+172.16.10.13    ca:3b:ee:2b:b8:5d    (Unknown: locally administered)
+
+4 packets received by filter, 0 packets dropped by kernel
+Ending arp-scan 1.10.0: 256 hosts scanned in 2.004 seconds (127.74 hosts/sec). 4 responded
+```
+
+The summary line shows how many hosts were scanned, how long it took, and how many responded.
+
+#### Scan from a file
+
+Read target addresses from a file instead of specifying a range on the command line. Useful when you have a pre-generated list of hosts to check:
+
+```bash
+arp-scan -f files/172-16-10-hosts.txt -I br_public
+Interface: br_public, type: EN10MB, MAC: de:06:27:4e:8b:01, IPv4: 172.16.10.1
+Starting arp-scan 1.10.0 with 254 hosts (https://github.com/royhills/arp-scan)
+172.16.10.10    ea:21:3b:d3:be:cd    (Unknown: locally administered)
+172.16.10.11    1a:94:51:d8:e2:ee    (Unknown: locally administered)
+172.16.10.12    86:5e:f8:1d:71:1b    (Unknown: locally administered)
+172.16.10.13    ca:3b:ee:2b:b8:5d    (Unknown: locally administered)
+
+4 packets received by filter, 0 packets dropped by kernel
+Ending arp-scan 1.10.0: 254 hosts scanned in 1.972 seconds (128.80 hosts/sec). 4 responded
+```
+
+The file contains one IP address per line. The host count in the header reflects the number of lines in the file rather than a CIDR range size.
 
 ### curl
 
@@ -760,6 +854,56 @@ Common usage:
 netstat -an | grep :80                              # connections on port 80
 netstat -tlnp                                       # listening TCP ports with process info
 ss -tlnp                                            # modern equivalent with ss
+```
+
+### nmap
+
+Scans networks and hosts to discover open ports, running services, and live systems. Commonly used for network inventory, security auditing, and reconnaissance.
+
+Common options:
+
+| Option          | Description                                              |
+|:----------------|:---------------------------------------------------------|
+| `-sn`           | Ping sweep: send ICMP requests to every address in a range to discover live hosts, without scanning ports |
+| `-p port`       | Scan a specific port or range (`-p 22`, `-p 1-1024`)     |
+| `-sV`           | Detect service versions on open ports                    |
+| `-O`            | Detect the operating system                              |
+| `-A`            | Aggressive scan: OS, versions, scripts, and traceroute   |
+| `-T0` to `-T5`  | Timing template: 0 (slowest/stealthy) to 5 (fastest)    |
+| `-oN file`      | Save output to a file in normal format                   |
+
+Common usage:
+
+```bash
+nmap -sn 172.16.10.0/24                         # discover live hosts on a subnet
+
+# extract just the IP addresses from a ping scan
+nmap -sn 172.16.10.0/24 | grep "Nmap scan" | awk -F'report for ' '{print $2}'
+```
+
+### ping
+
+Sends ICMP echo requests to a host to test reachability and measure round-trip time.
+
+Common options:
+
+| Option        | Description                                              |
+|:--------------|:---------------------------------------------------------|
+| `-c count`    | Stop after sending `count` packets                       |
+| `-i interval` | Wait `interval` seconds between packets (default 1)      |
+| `-t ttl`      | Set the IP time-to-live                                  |
+| `-s size`     | Set the packet payload size in bytes                     |
+| `-q`          | Quiet: print only the summary                            |
+| `-w deadline` | Stop after `deadline` seconds regardless of packet count |
+| `-W timeout`  | Seconds to wait for a reply before giving up             |
+
+Common usage:
+
+```bash
+ping google.com                         # continuous ping until interrupted
+ping -c 4 192.168.1.1                   # send exactly 4 packets
+ping -c 1 -q 10.0.0.1                   # quiet single-packet reachability check
+ping -c 5 -i 0.2 host                   # fast ping: 5 packets, 0.2s apart
 ```
 
 ### scp

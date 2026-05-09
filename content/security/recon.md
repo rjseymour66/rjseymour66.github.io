@@ -9,7 +9,7 @@ Reconnaissance is the first phase of any attack or security assessment. Before e
 
 Security professionals perform the same reconnaissance. Understanding what an attacker can discover about your systems lets you reduce your exposure before someone takes advantage of it.
 
-## Passive vs. active reconnaissance
+## Passive vs. active
 
 Reconnaissance falls into two categories:
 
@@ -30,3 +30,4 @@ A thorough reconnaissance phase surfaces:
 
 Defenders use this same lens to audit their own attack surface. If you can find it, an attacker can too.
 
+## Subdomains in Kali

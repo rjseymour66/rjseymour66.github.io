@@ -45,6 +45,8 @@ STARTDIR=${2:-.}                 # use second arg, or default to current directo
 
 ### if / elif / else
 
+#### File and directory tests
+
 End every `if` block with `fi`. The condition can be a command (any exit status), a test in `[ ]`, or a compound test in `[[ ]]`:
 
 ```bash
@@ -58,6 +60,8 @@ else
 fi
 ```
 
+#### Pattern matching
+
 Use `[[ ]]` for pattern matching and string comparisons, which handles special characters more safely:
 
 ```bash
@@ -67,6 +71,8 @@ fi
 ```
 
 ### Commands as conditions
+
+#### Exit status
 
 Any command can serve as an `if` condition. The shell runs the command and tests its exit code: `0` is true, any non-zero value is false.
 
@@ -98,6 +104,26 @@ if ! pgrep -x nginx > /dev/null; then
     exit 1
 fi
 ```
+
+#### Suppress output
+
+When you only care whether a command succeeds, redirect its output to `/dev/null` to keep the terminal clean:
+
+```bash
+if ping -c 1 -W 1 "${host}" &> /dev/null; then
+    echo "${host} is up"
+fi
+```
+
+`&>` redirects both stdout and stderr to `/dev/null`, discarding all output. Use it when the command's exit code is the signal and its output would just be noise. Without it, `ping` prints round-trip statistics to the terminal on every check.
+
+Use `&> /dev/null` when:
+
+- Running commands in loops where per-iteration output is unwanted
+- Checking reachability, process existence, or file accessibility
+- The result is communicated by what your script does next, not by the command's own output
+
+#### Short-circuit operators
 
 For simple one-liners, `&&` and `||` are shorter alternatives. `&&` runs the second command only if the first succeeds; `||` runs it only if the first fails:
 
@@ -264,6 +290,8 @@ Every loop uses a keyword for the loop type, the condition, then a `;do (...) do
 
 ### for loops
 
+#### List
+
 Iterate over a list of values:
 
 ```bash
@@ -272,6 +300,8 @@ for server in web-01 web-02 web-03; do
     ssh "$server" "./deploy.sh"
 done
 ```
+
+#### Directory
 
 Iterate over all files in a directory:
 
@@ -283,6 +313,8 @@ for file in $(ls /var/log/*.log | sort); do
 done
 ```
 
+#### C-style numeric
+
 Use C-style syntax for numeric loops:
 
 ```bash
@@ -292,6 +324,8 @@ done
 ```
 
 ### while loops
+
+#### Condition loop
 
 Run while a condition is true:
 
@@ -310,13 +344,33 @@ while (( RETRIES < MAX_RETRIES )); do
 done
 ```
 
-Read a file line by line with a while loop:
+#### Read file line by line
 
 ```bash
 while read -r LINE; do
     echo "Processing: $LINE"
 done < /etc/hosts
 ```
+
+The same pattern works in a script that takes arguments. This script accepts a domain and a file of subdomains, then prints each fully qualified domain name:
+
+```bash
+#!/usr/bin/env bash
+DOMAIN="${1}"
+FILE="${2}"
+
+while read -r subdomain; do
+    echo "${subdomain}.${DOMAIN}"
+done < "${FILE}"
+```
+
+Run it with:
+
+```bash
+bash expand-subdomains.sh example.com subdomains.txt
+```
+
+#### Pipe input
 
 A while loop that renames files containing spaces by replacing spaces with underscores:
 
@@ -353,6 +407,8 @@ done
 
 Use `break` when you've found what you were looking for and continuing would waste work. It exits the loop immediately and resumes execution after `done`.
 
+#### for loop
+
 Search a list of servers for the first one that responds, then stop:
 
 ```bash
@@ -373,6 +429,8 @@ else
 fi
 ```
 
+#### while loop
+
 `break` also works in `while` loops to exit once a condition is met, useful when polling for a process to start or a file to appear:
 
 ```bash
@@ -390,6 +448,8 @@ done
 
 Use `continue` to skip a specific iteration and move on to the next one. It keeps the loop running but avoids processing items that don't meet a condition.
 
+#### Skip empty files
+
 Process log files but skip any that are empty:
 
 ```bash
@@ -401,6 +461,8 @@ for logfile in /var/log/*.log; do
     grep "ERROR" "$logfile" >> /tmp/errors.log
 done
 ```
+
+#### Skip unreachable hosts
 
 Skip hosts that don't respond instead of aborting the whole loop:
 

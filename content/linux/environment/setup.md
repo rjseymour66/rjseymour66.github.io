@@ -28,6 +28,8 @@ Environment variables store information about the current shell session, such as
 
 `PATH` is an environment variable that lists the directories bash searches when you run a command. Add a directory to `PATH` to make its executables available without typing the full path.
 
+#### Current session
+
 To add a directory for the current session only, run:
 
 ```bash
@@ -35,6 +37,8 @@ export PATH="$PATH:/your/directory"
 ```
 
 Always include `$PATH` at the start of the new value. Omitting it replaces the existing list instead of extending it, which breaks most commands.
+
+#### Permanent
 
 To make the change permanent, add the same line to `~/.bashrc` or `~/.exports`:
 
@@ -57,6 +61,17 @@ export PATH="$PATH:$HOME/tools"
 ```
 
 `$HOME` expands to your home directory path, making the entry portable across accounts.
+
+#### Append from terminal
+
+To append the line from the terminal without opening an editor:
+
+```bash
+echo 'export PATH="$PATH:$HOME/bin"' >> ~/.bashrc
+```
+
+- Single quotes prevent the shell from expanding `$PATH` and `$HOME` immediately. The literal string is written to the file, so bash expands the variables each time `.bashrc` loads.
+- `>>` appends to the file. Using `>` would overwrite it.
 
 ### Environment files
 

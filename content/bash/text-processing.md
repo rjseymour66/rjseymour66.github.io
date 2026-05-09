@@ -412,6 +412,14 @@ Print a specific line range:
 sed -n '5,10p' /var/log/syslog      # print lines 5 through 10
 ```
 
+Append a domain suffix to every line in a file:
+
+```bash
+sed 's/$/.example.com/g' files/subdomains-1000.txt
+```
+
+`$` matches the end of each line, so the replacement appends `.example.com` after the last character on every line.
+
 ### Deleting lines
 
 The `d` command deletes lines. Address a line by number, by `$` for the last line, or by a pattern.

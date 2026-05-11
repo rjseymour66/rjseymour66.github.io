@@ -31,3 +31,6 @@ A thorough reconnaissance phase surfaces:
 Defenders use this same lens to audit their own attack surface. If you can find it, an attacker can too.
 
 ## Subdomains in Kali
+
+
+

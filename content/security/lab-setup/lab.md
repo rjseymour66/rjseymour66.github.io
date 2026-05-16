@@ -1047,20 +1047,32 @@ scans all 65,535 ports in seconds, then passes the open ports it finds to Nmap f
 service and version detection. This two-phase approach is much faster than running Nmap
 alone across all ports.
 
+#### Setup
+
 In the lab, rustscan runs through Docker. `init.sh` pulls the image and adds an alias to
 `~/.bashrc`:
 
 ```bash
-alias rustscan='docker run --network=host -it --rm --name rustscan rustscan/rustscan:2.1.1'
+alias rustscan='docker run --network=host -it --rm --init --name rustscan rustscan/rustscan:2.1.1'
 ```
 
 After logging out and back in, type `rustscan` to invoke it.
 
-Scan a single target across all ports:
+`--init` injects a minimal init process (tini) as PID 1 inside the container. Without it, Ctrl+C does not stop the scan because signals sent to the container go to PID 1, which is a shell script that does not forward them to RustScan. With `--init`, tini receives the signal and forwards it to RustScan, so Ctrl+C works as expected.
+
+If a scan is interrupted and the container is not cleaned up, remove it before rerunning:
+
+```bash
+docker rm -f rustscan
+```
+
+#### Single target
 
 ```bash
 rustscan -a 172.16.10.10
 ```
+
+#### Nmap integration
 
 Pass Nmap flags for service and version detection using `--` as a separator:
 
@@ -1068,11 +1080,13 @@ Pass Nmap flags for service and version detection using `--` as a separator:
 rustscan -a 172.16.10.10 -- -sV -sC
 ```
 
-Scan multiple targets in one command:
+#### Multiple targets
 
 ```bash
 rustscan -a 172.16.10.10,172.16.10.11,172.16.10.12
 ```
+
+#### Port range
 
 Scan a specific port range and raise the file descriptor limit for speed:
 
@@ -1080,7 +1094,7 @@ Scan a specific port range and raise the file descriptor limit for speed:
 rustscan -a 172.16.10.10 -r 1-10000 --ulimit 5000
 ```
 
-The key flags are:
+#### Flags
 
 | Flag             | Description                                        |
 | ---------------- | -------------------------------------------------- |
@@ -1092,8 +1106,9 @@ The key flags are:
 | `--timeout <ms>` | Per-port timeout in milliseconds                   |
 | `--`             | Passes remaining arguments directly to Nmap        |
 
-In the lab, run rustscan against the public subnet machines during reconnaissance to
-discover open ports quickly before deeper enumeration with Nmap:
+#### Lab usage
+
+Run rustscan against the public subnet machines during reconnaissance to discover open ports quickly before deeper enumeration with Nmap:
 
 ```bash
 rustscan -a 172.16.10.10,172.16.10.11,172.16.10.12,172.16.10.13 -- -sV

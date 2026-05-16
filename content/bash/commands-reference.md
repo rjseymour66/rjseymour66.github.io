@@ -547,6 +547,26 @@ mv *.log /var/archive/                              # move files to another dire
 mv /tmp/new_config.conf /etc/app/config.conf        # deploy a new config
 ```
 
+### namei
+
+Follows a pathname component by component and displays the permissions of each part. Use it to diagnose `Permission denied` errors caused by a directory in the path rather than the file itself.
+
+Common options:
+
+| Option | Description |
+|:-------|:------------|
+| `-l`   | Long format: show permissions, owner, and group for each component |
+| `-m`   | Show only the mode bits for each component |
+| `-o`   | Show owner and group |
+| `-x`   | Show mount point information |
+
+Common usage:
+
+```bash
+namei -l /etc/nginx/nginx.conf              # check permissions on every path component
+namei -l /home/ryan/scripts/hosts.txt       # diagnose permission denied on a deeply nested file
+```
+
 ### rm
 
 Removes files and directories.

@@ -671,7 +671,7 @@ After the script runs, each `port-N.txt` file contains one IP per line: every ho
 
 ## Banner grabbing
 
-When you connect to a network service, the service often responds with a text message before you send anything. This message is called a *banner*. It typically identifies the software, its version, and sometimes the underlying operating system. Banner grabbing is the technique of reading these banners to map what is running on each open port.
+When you connect to a remote network service, the service publishes a text message to greet the client before any data is exchanged. This message is called a *banner*. It typically identifies the software, its version, and sometimes the underlying operating system. *Banner grabbing* is the process of extracting these banners to map what is running on each open port.
 
 After a port scan tells you which ports are open, banner grabbing tells you what is behind them. Use it to:
 
@@ -708,24 +708,24 @@ The script reads a list of IP addresses from a file and attempts to grab the ban
 FILE="${1}"
 PORT="${2}"
 
-if [[ "$#" -ne 2 ]]; then                                               # 1
+if [[ "$#" -ne 2 ]]; then                                                # 1
     echo "Usage: ${0} <file> <port>"
     exit 1
 fi
 
-if [[ ! -f "${FILE}" ]]; then                                           # 2
+if [[ ! -f "${FILE}" ]]; then                                            # 2
     echo "File: ${FILE} was not found."
     exit 1
 fi
 
-if [[ ! "${PORT}" =~ ^[0-9]+$ ]]; then                                  # 3
+if [[ ! "${PORT}" =~ ^[0-9]+$ ]]; then                                   # 3
     echo "${PORT} must be a number."
     exit 1
 fi
 
 while read -r ip; do                                                     # 4
     echo "Running netcat on ${ip}:${PORT}"
-    result=$(echo -e "\n" | nc -v -w 1 "${ip}" "${PORT}" 2> /dev/null)  # 5
+    result=$(echo -e "\n" | nc -v -w 1 "${ip}" "${PORT}" 2> /dev/null)   # 5
     if [[ -n "${result}" ]]; then                                        # 6
         echo "============"
         echo "+ IP Address: ${ip}"
@@ -751,4 +751,191 @@ Three guard clauses validate input before the loop runs. The `while` loop reads 
 6. If `result` is non-empty, prints the IP address and banner in a formatted block.
 
 
+### HTTP banners
+
+To grab banners from web servers, use `curl` with the `--head` flag to send an HTTP HEAD request. The HEAD method retrieves only the response headers without fetching the full response body, making it faster and less intrusive than a GET request.
+
+Web servers typically advertise themselves in the `Server` response header, often including the application name and version. This makes HTTP banner grabbing a reliable way to fingerprint web technologies.
+
+```bash
+curl --head 172.16.10.10:8081
+HTTP/1.1 200 OK                                # 1
+Server: Werkzeug/3.0.1 Python/3.12.3          # 2
+Date: Sun, 17 May 2026 21:26:48 GMT
+Content-Type: text/html; charset=utf-8         # 3
+Content-Length: 7176                           # 4
+Connection: close                              # 5
+```
+
+The request sends a HEAD to port 8081 on the target. The response reveals:
+
+1. The server accepted the request and the resource exists.
+2. The web server is Werkzeug 3.0.1 running on Python 3.12.3, indicating a Python web application.
+3. The resource serves HTML content encoded in UTF-8.
+4. The response body is 7,176 bytes, though HEAD does not return it.
+5. The server closes the TCP connection after the response.
+
+```bash
+#!/bin/bash
+DEFAULT_PORT="80"
+
+read -r -p "Type a target IP address: " ip                                        # 1
+read -r -p "Type a target port (default: 80): " port                              # 2
+
+if [[ -z "${ip}" ]]; then                                                          # 3
+    echo "You must provide an IP address"
+    exit 1
+fi
+
+if [[ -z "${port}" ]]; then                                                        # 4
+    echo "You did not provide a specific port, defaulting to ${DEFAULT_PORT}"
+    port="${DEFAULT_PORT}"
+fi
+
+echo "Attempting to grab the Server header of ${ip}..."
+
+result=$(curl -s --head "http://${ip}:${port}" | grep Server | awk -F':' '{print $2}' )  # 5
+
+echo "Server header for ${ip} on port ${port} is: ${result}"                      # 6
+```
+
+The script prompts interactively for a target IP and port, then extracts the `Server` header from the HTTP response. Two guard clauses handle missing input before the request runs:
+
+1. Prompts for the target IP address and assigns it to `ip`.
+2. Prompts for a port number and assigns it to `port`. If the user presses Enter without a value, `port` is empty.
+3. Checks whether `ip` is empty. If so, prints an error and exits.
+4. Checks whether `port` is empty. If so, sets `port` to `DEFAULT_PORT` and continues.
+5. Sends a silent HEAD request (`-s` suppresses progress output), pipes the output through `grep` to isolate the `Server` header line, then uses `awk` to extract the value after the colon.
+6. Prints the server header value for the target IP and port.
+
+### Nmap scripts
+
+Nmap includes a scripting engine that extends its functionality with Lua scripts stored in `/usr/share/nmap/scripts`. The `banner.nse` script connects to open ports and reads their banners, combining port discovery and banner capture in a single pass.
+
+Use `-sV` with `--script=banner.nse` and `-iL` to grab banners from a list of hosts:
+
+```bash
+nmap -sV --script=banner.nse -iL files/172-16-10-hosts.txt
+```
+
+- `-sV`: enables service version detection
+- `--script=banner.nse`: runs the banner script against each open port
+- `-iL files/172-16-10-hosts.txt`: reads targets from a file rather than specifying them on the command line
+
+Each banner result begins with `|_banner` or `|_http-server-header`. Pipe through `grep` to extract only those lines across all hosts:
+
+```bash
+nmap -sV --script=banner.nse -iL files/172-16-10-hosts.txt | grep "|_banner\||_http-server-header"
+|_banner: SSH-2.0-OpenSSH_10.2p1 Debian-6
+|_http-server-header: Werkzeug/3.0.1 Python/3.12.3
+|_banner: 220 (vsFTPd 3.0.5)
+|_http-server-header: Apache/2.4.58 (Ubuntu)
+|_http-server-header: Apache/2.4.57 (Debian)
+|_banner: SSH-2.0-OpenSSH_9.6p1 Ubuntu-3ubuntu13.16
+```
+
+The `grep` pattern matches two output prefixes:
+
+- `|_banner`: raw banners from non-HTTP services such as SSH and FTP
+- `|_http-server-header`: the `Server` header extracted from HTTP responses
+
+The output identifies four distinct server types across the subnet: two SSH hosts (OpenSSH on Debian and Ubuntu), one FTP server (vsFTPd 3.0.5), and three web servers (Werkzeug on Python, and two Apache instances on Ubuntu and Debian).
+
+## Detecting OSs
+
+Nmap can guess a target's operating system using *TCP/IP fingerprinting* as part of its OS detection scan. Every OS implements the TCP/IP stack differently: packet window sizes, TTL values, TCP options, and how the stack responds to unusual or malformed packets all vary by implementation. Nmap crafts packets in various ways, analyzes the responses, and compares the results against a database of known OS fingerprints to identify the most likely match.
+
+Use the `-O` flag to enable OS detection. It requires at least one open and one closed port on the target for reliable results, and must run as root to craft raw packets:
+
+```bash
+sudo nmap -O -iL files/172-16-10-hosts.txt
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-05-17 17:57 -0400
+Nmap scan report for 172.16.10.1
+Host is up (0.00019s latency).
+Not shown: 999 filtered tcp ports (no-response)
+PORT   STATE SERVICE
+22/tcp open  ssh
+Warning: OSScan results may be unreliable because we could not find at least 1 open and 1 closed port
+Device type: general purpose
+Running: Linux 2.6.X|5.X
+OS CPE: cpe:/o:linux:linux_kernel:2.6.32 cpe:/o:linux:linux_kernel:5 cpe:/o:linux:linux_kernel:6
+OS details: Linux 2.6.32, Linux 5.0 - 6.2
+Network Distance: 0 hops
+
+Nmap scan report for 172.16.10.10
+Host is up (0.00016s latency).
+Not shown: 999 closed tcp ports (reset)
+PORT     STATE SERVICE
+8081/tcp open  blackice-icecap
+MAC Address: F2:7B:0C:80:01:81 (Unknown)
+Device type: general purpose
+Running: Linux 4.X|5.X
+OS CPE: cpe:/o:linux:linux_kernel:4 cpe:/o:linux:linux_kernel:5
+OS details: Linux 4.15 - 5.19
+Network Distance: 1 hop
+```
+
+Each host report includes OS detection fields after the port table:
+
+- `Warning: OSScan results may be unreliable`: Nmap needs at least one open and one closed port to fingerprint reliably. `172.16.10.1` has only open and filtered ports, so the result is less certain.
+- `Device type`: the general category of the device, such as general purpose, router, or printer.
+- `Running`: the detected OS family and kernel version range. The `|` separates multiple candidates.
+- `OS CPE`: *Common Platform Enumeration* identifiers — standardized strings that reference specific OS versions in vulnerability databases.
+- `OS details`: the most specific version match Nmap found based on the fingerprint comparison.
+- `Network Distance`: the number of hops between the scanning host and the target. A distance of `0` means the target is the scanning host itself. A distance of `1` means the target is directly connected.
+
+#### OS detection script
+
+The script runs an Nmap OS detection scan against one or more hosts and prints a clean summary of each IP and its detected OS.
+
+```bash
+#!/bin/bash
+HOSTS="$*"                                                               # 1
+
+if [[ "${EUID}" -ne 0  ]]; then                                          # 2
+    echo "The Nmap OS detection scan type (-O) requires root privileges"
+    exit 1
+fi
+
+if [[ "$#" -eq 0 ]]; then                                                # 3
+    echo "you must pass an IP or an IP range"
+    exit 1
+fi
+
+echo "Running an OS Detection Scan against ${HOSTS}..."
+
+nmap_scan=$(sudo nmap -O ${HOSTS} -oG -)                                 # 4
+
+while read -r line; do                                                   # 5
+    ip=$(echo "${line}" | awk '{print $2}')                              # 6
+    os=$(echo "${line}" | awk -F'OS: ' '{print $2}' | sed 's/Seq.*//g') # 7
+
+    if [[ -n "${ip}" ]] && [[ -n "${os}" ]]; then                        # 8
+        echo "IP: ${ip} OS: ${os}"
+    fi
+done <<< "${nmap_scan}"
+```
+
+```bash
+sudo bash os_detection.sh 172.16.10.0/24
+Running an OS Detection Scan against 172.16.10.0/24...
+IP: 172.16.10.10 OS: Linux 4.15 - 5.19
+IP: 172.16.10.11 OS: Linux 4.15 - 5.19
+IP: 172.16.10.12 OS: Linux 4.15 - 5.19
+IP: 172.16.10.13 OS: Linux 4.15 - 5.19
+IP: 172.16.10.1 OS: Linux 2.6.32|Linux 5.0 - 6.2
+```
+
+Two guard clauses validate privileges and input before the scan runs. The `while` loop processes each line of greppable Nmap output:
+
+1. Assigns all positional arguments to `HOSTS` as a single space-separated string, allowing the script to accept an IP address or a CIDR range.
+2. Checks `EUID` (effective user ID). A value other than `0` means the script is not running as root. OS detection requires raw packet privileges, so the script exits.
+3. Checks that at least one argument was provided. If `$#` is `0`, no targets were given and the script exits.
+4. Runs the OS detection scan in greppable output format (`-oG -`). The `-` sends output to stdout so it can be captured in the variable rather than written to a file.
+5. Reads each line of `nmap_scan` one at a time.
+6. Extracts the IP address from the second field of the greppable output line.
+7. Splits the line on `OS: ` and takes everything after it, then strips from `Seq` onwards. The `Seq` token marks the start of sequence number data that follows the OS field in greppable output.
+8. Prints the IP and OS only when both variables are non-empty, filtering out lines that contain no OS detection data.
+
+`done <<< "${nmap_scan}"` feeds the entire `nmap_scan` variable into the loop as standard input using a *here-string*, processing the captured Nmap output line by line without writing it to a file.
 

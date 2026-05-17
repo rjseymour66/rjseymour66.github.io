@@ -603,4 +603,152 @@ The `while` loop processes each line of the filtered nmap output:
 
 `done <<< "${RESULT}"` feeds the entire `RESULT` variable into the loop as standard input using a here-string.
 
+## Detecting open ports
+
+Port scanners show you what's open right now. In lab environments and CTF challenges, you often need to know the moment a specific port becomes available: when a target finishes booting, when a service restarts after a crash, or when a firewall rule changes and exposes a previously closed port. Polling manually wastes time. A watchdog script automates the wait by scanning in a loop, alerting you the instant the port opens, and immediately running service detection to capture version information.
+
+Common scenarios:
+
+- Waiting for a GNS3 device to finish booting before attempting SSH or Telnet
+- Monitoring a CTF target for a service that starts after a delay
+- Detecting when a service restarts after exploitation or a configuration change
+- Catching a port that opens intermittently under specific conditions
+
+### Port watchdog script
+
+The script takes a target IP and port as arguments, polls with RustScan until the port opens, then runs an Nmap service scan and logs the results.
+
+```bash
+#!/bin/bash
+LOG_FILE="watchdog.log"
+IP_ADDRESS="${1}"                                                         # 1
+WATCHED_PORT="${2}"
+
+service_discovery() {
+    local host
+    local port
+    host="${1}"
+    port="${2}"
+
+    nmap -sV -p "${port}" "${host}" >>"${LOG_FILE}"                      # 2
+}
+
+while true; do
+    port_scan=$(docker run --network=host -it --rm --init \              # 3
+        --name rustscan rustscan/rustscan:2.1.1 \
+        -a "${IP_ADDRESS}" -g -p "${WATCHED_PORT}")
+    if [[ -n "${port_scan}" ]]; then                                     # 4
+        echo "${IP_ADDRESS} has started responding on port ${WATCHED_PORT}!"
+        echo "Performing a service discovery..."
+        if service_discovery "${IP_ADDRESS}" "${WATCHED_PORT}"; then     # 5
+            echo "Wrote port scan data to ${LOG_FILE}"
+            break
+        fi
+    else
+        echo "Port is not yet open, sleeping for 5 seconds"
+        sleep 5                                                           # 6
+    fi
+done
+```
+
+Run it with the target IP and port as arguments:
+
+```bash
+bash watchdog.sh 172.16.10.11 22
+```
+
+The `service_discovery` function runs Nmap service detection and logs the results. The `while true` loop polls with RustScan on a five-second interval until the port responds:
+
+1. Reads the target IP and port from the first and second positional arguments.
+2. Runs a service version scan (`-sV`) against the specific port and appends the output to `LOG_FILE`. `>>` appends rather than overwrites, preserving earlier scan data.
+3. Runs RustScan in a Docker container and captures its output. `--network=host` gives the container access to the host network. `--rm` removes the container after it exits. `-g` enables greppable output: RustScan returns an empty string when the port is closed and a result line when it is open.
+4. Tests whether `port_scan` is non-empty. A non-empty result means the port is up.
+5. Calls `service_discovery` and checks its exit code. If Nmap succeeds, `break` exits the loop.
+6. Waits five seconds before the next poll when the port is still closed.
+
 After the script runs, each `port-N.txt` file contains one IP per line: every host in the subnet with port N open.
+
+
+## Banner grabbing
+
+When you connect to a network service, the service often responds with a text message before you send anything. This message is called a *banner*. It typically identifies the software, its version, and sometimes the underlying operating system. Banner grabbing is the technique of reading these banners to map what is running on each open port.
+
+After a port scan tells you which ports are open, banner grabbing tells you what is behind them. Use it to:
+
+- Identify software and versions running on open ports
+- Find services running versions with known vulnerabilities
+- Narrow your attack surface to specific targets before exploitation
+
+### Passive banner grabbing
+
+Passive banner grabbing collects banner information without connecting directly to the target. Instead, you query third-party databases that have already scanned the internet and indexed the results. Shodan, ZoomEye, and Censys store banner data collected from their own scans and let you search by IP, port, service, or version string.
+
+Use passive banner grabbing when:
+
+- You need to stay undetected and avoid generating logs on the target
+- You are in the early stages of external reconnaissance
+- You want a quick overview of a target's exposed services without touching it
+
+### Active banner grabbing
+
+Active banner grabbing connects directly to a service and reads its response. Tools like Netcat, Telnet, and curl work for text-based protocols. Nmap's `-sV` flag automates this across all open ports simultaneously.
+
+Use active banner grabbing when:
+
+- You are operating in an authorized pentest or lab environment
+- You need current, accurate version information rather than cached data
+- Passive sources don't have data on the target
+
+#### Banner grabbing script
+
+The script reads a list of IP addresses from a file and attempts to grab the banner on a specified port from each host.
+
+```bash
+#!/bin/bash
+FILE="${1}"
+PORT="${2}"
+
+if [[ "$#" -ne 2 ]]; then                                               # 1
+    echo "Usage: ${0} <file> <port>"
+    exit 1
+fi
+
+if [[ ! -f "${FILE}" ]]; then                                           # 2
+    echo "File: ${FILE} was not found."
+    exit 1
+fi
+
+if [[ ! "${PORT}" =~ ^[0-9]+$ ]]; then                                  # 3
+    echo "${PORT} must be a number."
+    exit 1
+fi
+
+while read -r ip; do                                                     # 4
+    echo "Running netcat on ${ip}:${PORT}"
+    result=$(echo -e "\n" | nc -v -w 1 "${ip}" "${PORT}" 2> /dev/null)  # 5
+    if [[ -n "${result}" ]]; then                                        # 6
+        echo "============"
+        echo "+ IP Address: ${ip}"
+        echo "+ Banner: ${result}"
+        echo "============"
+    fi
+done < "${FILE}"
+```
+
+Run it with a hosts file and port number:
+
+```bash
+bash banner-grab.sh hosts.txt 22
+```
+
+Three guard clauses validate input before the loop runs. The `while` loop reads each IP from the file and attempts a banner grab:
+
+1. Checks that exactly two arguments were provided. If not, prints a usage message and exits.
+2. Checks that the file exists. If not, prints an error and exits.
+3. Validates that the port is a number using a regex match (`^[0-9]+$`). If not, prints an error and exits.
+4. Reads each IP address from `FILE` one line at a time and runs Netcat against it.
+5. Sends a newline to the target port and captures the response. `-v` enables verbose output. `-w 1` sets a one-second connection timeout. `2> /dev/null` suppresses connection error messages.
+6. If `result` is non-empty, prints the IP address and banner in a formatted block.
+
+
+

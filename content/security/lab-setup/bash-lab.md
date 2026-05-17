@@ -1,7 +1,7 @@
 +++
 title = 'Bash Lab'
 date = '2026-05-03T08:37:16-04:00'
-weight = 80
+weight = 20
 draft = false
 +++
 

@@ -68,3 +68,494 @@ Vector databases store data as high-dimensional vectors and retrieve results thr
 - *Image and video search*: find visually similar images or video frames based on content rather than metadata
 - *Anomaly detection*: identify data points that deviate significantly from established patterns in your dataset
 - *Deduplication*: detect and merge near-duplicate records by comparing their vector representations
+
+## Data persistence and management
+
+How you access and manage data shapes your application's testability, maintainability, and performance. Three abstraction levels exist, each with different tradeoffs: direct database access, the repository pattern, and object-relational mapping.
+
+### Direct database access
+
+At this level, you write raw SQL or a database-specific query language. Direct access gives you full control over queries, but you take on responsibility for connection management, result scanning, and query correctness.
+
+In Go, the `database/sql` package provides a standard interface for relational databases. The example uses `pgx` (`github.com/jackc/pgx/v5`), the recommended PostgreSQL driver:
+
+```go
+import (
+    "context"
+    "database/sql"
+    _ "github.com/jackc/pgx/v5/stdlib" // registers the PostgreSQL driver
+)
+
+func getActiveProducts(ctx context.Context, db *sql.DB) ([]Product, error) {
+    rows, err := db.QueryContext(ctx, `
+        SELECT id, name, price
+        FROM products
+        WHERE active = true
+        ORDER BY name
+    `)
+    if err != nil {
+        return nil, err
+    }
+    defer rows.Close()
+
+    var products []Product
+    for rows.Next() {
+        var p Product
+        if err := rows.Scan(&p.ID, &p.Name, &p.Price); err != nil {
+            return nil, err
+        }
+        products = append(products, p)
+    }
+    return products, rows.Err()
+}
+```
+
+You control exactly what hits the database. Use direct access when:
+
+- query performance is critical
+- you need database-specific features like `RETURNING` clauses or CTEs
+- you want to avoid the overhead of an abstraction layer
+
+### Repository pattern
+
+The repository pattern places an abstraction layer between your business logic and data access code. It exposes a collection-like interface for working with domain objects, hiding how the underlying storage layer fetches and stores data.
+
+The pattern offers three advantages:
+
+- Separation of concerns: business logic never references SQL or connection details
+- Testability: you can swap the real implementation for a fake during tests
+- Code organization: all data access for a given type lives in one place
+
+Define a Go interface that describes the operations your application needs:
+
+```go
+var ErrNotFound = errors.New("not found")
+
+type UserRepository interface {
+    GetByID(ctx context.Context, id int64) (*User, error)
+    Save(ctx context.Context, user *User) error
+    Delete(ctx context.Context, id int64) error
+}
+```
+
+Implement the interface against a real database:
+
+```go
+type postgresUserRepository struct {
+    db *sql.DB
+}
+
+func NewUserRepository(db *sql.DB) UserRepository {
+    return &postgresUserRepository{db: db}
+}
+
+func (r *postgresUserRepository) GetByID(ctx context.Context, id int64) (*User, error) {
+    row := r.db.QueryRowContext(ctx, "SELECT id, name, email FROM users WHERE id = $1", id)
+    var u User
+    if err := row.Scan(&u.ID, &u.Name, &u.Email); err != nil {
+        return nil, err
+    }
+    return &u, nil
+}
+
+func (r *postgresUserRepository) Save(ctx context.Context, user *User) error {
+    return r.db.QueryRowContext(ctx,
+        "INSERT INTO users (name, email) VALUES ($1, $2) ON CONFLICT (email) DO UPDATE SET name = EXCLUDED.name RETURNING id",
+        user.Name, user.Email,
+    ).Scan(&user.ID)
+}
+
+func (r *postgresUserRepository) Delete(ctx context.Context, id int64) error {
+    _, err := r.db.ExecContext(ctx, "DELETE FROM users WHERE id = $1", id)
+    return err
+}
+```
+
+For tests, implement the same interface in memory instead of connecting to a database:
+
+```go
+type inMemoryUserRepository struct {
+    users map[int64]*User
+    next  int64
+}
+
+func newInMemoryUserRepository() *inMemoryUserRepository {
+    return &inMemoryUserRepository{users: make(map[int64]*User)}
+}
+
+func (r *inMemoryUserRepository) GetByID(_ context.Context, id int64) (*User, error) {
+    u, ok := r.users[id]
+    if !ok {
+        return nil, ErrNotFound
+    }
+    return u, nil
+}
+
+func (r *inMemoryUserRepository) Save(_ context.Context, user *User) error {
+    r.next++
+    user.ID = r.next
+    r.users[user.ID] = user
+    return nil
+}
+
+func (r *inMemoryUserRepository) Delete(_ context.Context, id int64) error {
+    delete(r.users, id)
+    return nil
+}
+```
+
+Your tests use the in-memory version without needing a running database:
+
+```go
+func TestSaveAndGet(t *testing.T) {
+    repo := newInMemoryUserRepository()
+
+    if err := repo.Save(t.Context(), &User{Name: "Alice", Email: "alice@example.com"}); err != nil {
+        t.Fatal(err)
+    }
+
+    got, err := repo.GetByID(t.Context(), 1)
+    if err != nil {
+        t.Fatal(err)
+    }
+    if got.Name != "Alice" {
+        t.Errorf("want Alice, got %s", got.Name)
+    }
+}
+```
+
+### Object-relational mapping
+
+*Object-relational mapping* (ORM) is the highest level of abstraction for database interaction. An ORM bridges the gap between object-oriented programming and relational databases by mapping your domain types directly to database tables. You work with structs and method calls rather than SQL strings.
+
+*GORM* is the most widely used ORM in Go. Define a struct and GORM handles table creation, queries, and updates:
+
+```go
+import "gorm.io/gorm"
+
+type Product struct {
+    gorm.Model
+    Name  string
+    Price float64
+    Stock int
+}
+
+// Create a record
+db.Create(&Product{Name: "Widget", Price: 9.99, Stock: 100})
+
+// Find by primary key
+var p Product
+db.First(&p, 1)
+
+// Update a field
+db.Model(&p).Update("Price", 12.99)
+
+// Delete
+db.Delete(&p)
+```
+
+ORMs let you move quickly because you write less boilerplate and avoid raw SQL for common operations. The tradeoff is opacity: when queries misbehave, you need to understand both the ORM's behavior and the SQL it generates. Use `db.Debug()` to log generated queries during development.
+
+Each GORM method returns `*gorm.DB`. Check its `Error` field in production code to handle failures. The example above omits these checks for brevity.
+
+`gorm.Model` embeds a `DeletedAt` field that enables soft deletes. `db.Delete(&p)` sets `DeletedAt` to the current time rather than removing the row. Subsequent queries exclude soft-deleted records by default.
+
+Use an ORM when:
+
+- you want to move quickly on a new project
+- your query patterns are simple
+- schema migrations and model changes happen often
+
+Prefer direct access or the repository pattern when:
+
+- query performance is a primary concern
+- you need complex joins, CTEs, or database-specific features
+- debugging generated SQL is slowing you down
+
+## Database connections and transactions
+
+### Database connections
+
+Most applications use a *connection pool* to reuse database connections rather than opening a new one for each operation. Opening a connection is expensive: it requires a network round trip, authentication, and resource allocation on the server. A pool keeps a set of connections open and lends them to goroutines on demand.
+
+In Go, `*sql.DB` is itself a connection pool. `sql.Open` registers the driver and validates the connection string but does not open a connection. Call `db.PingContext` after opening to verify the database is reachable:
+
+```go
+import (
+    "context"
+    "database/sql"
+    "time"
+    _ "github.com/jackc/pgx/v5/stdlib"
+)
+
+func openDB(dsn string) (*sql.DB, error) {
+    db, err := sql.Open("pgx", dsn)
+    if err != nil {
+        return nil, err
+    }
+
+    db.SetMaxOpenConns(25)
+    db.SetMaxIdleConns(25)
+    db.SetConnMaxLifetime(5 * time.Minute)
+
+    ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+    defer cancel()
+
+    if err := db.PingContext(ctx); err != nil {
+        return nil, err
+    }
+
+    return db, nil
+}
+```
+
+Three settings control pool behavior:
+
+- `SetMaxOpenConns`: the maximum number of open connections to the database. Setting this prevents your application from overwhelming the database server.
+- `SetMaxIdleConns`: the maximum number of idle connections the pool retains. Idle connections are ready for reuse without the cost of opening a new one.
+- `SetConnMaxLifetime`: the maximum time a connection stays in the pool before the pool closes and replaces it. Rotating connections prevents issues with stale or dropped connections.
+
+### Transactions
+
+A *transaction* groups multiple database operations into a single unit of work that either succeeds completely or fails completely. If any operation within the transaction fails, the database rolls back all changes made since the transaction began, leaving the data in its original state.
+
+Use a transaction any time two or more operations must succeed together. A funds transfer is a good example: you must debit one account and credit another. If the credit fails after the debit succeeds, the data is corrupted.
+
+```go
+func transferFunds(ctx context.Context, db *sql.DB, fromID, toID int64, amount float64) error {
+    tx, err := db.BeginTx(ctx, nil)
+    if err != nil {
+        return err
+    }
+    defer tx.Rollback()
+
+    _, err = tx.ExecContext(ctx,
+        "UPDATE accounts SET balance = balance - $1 WHERE id = $2",
+        amount, fromID,
+    )
+    if err != nil {
+        return err
+    }
+
+    _, err = tx.ExecContext(ctx,
+        "UPDATE accounts SET balance = balance + $1 WHERE id = $2",
+        amount, toID,
+    )
+    if err != nil {
+        return err
+    }
+
+    return tx.Commit()
+}
+```
+
+`defer tx.Rollback()` is the idiomatic Go pattern for transaction cleanup. If `tx.Commit()` succeeds, the deferred `Rollback` is a no-op. If any operation fails before `Commit`, the function returns early and the deferred `Rollback` cleans up the transaction.
+
+`db.BeginTx` accepts a `*sql.TxOptions` argument for setting the isolation level. Passing `nil` uses the database default, which is sufficient for most use cases.
+
+## Consistency models
+
+The foundation of any system lies in its ability to manage data reliably while delivering high performance.
+
+### Consistency models
+
+Consistency models define how your application handles data accuracy across different parts of the system. While transactions maintain data integrity on individual operations, consistency models determine how that integrity is maintained across multiple servers or when multiple users access the same information simultaneously.
+
+*Consistency* is the guarantee that any transaction brings the database from one valid state to another, ensuring all data adheres to defined rules, constraints, and relationships without contradiction.
+
+#### Strong consistency
+
+Each part of your system sees the same data at the same time. The system may temporarily block operations to maintain this guarantee, prioritizing accuracy over availability.
+
+Consider a bank account balance. When you withdraw money at an ATM, every system must immediately reflect the updated balance. If your balance is $500 and you withdraw $300, no other ATM or online banking session can show $500 after the transaction completes. The system accepts temporary blocking because accuracy is non-negotiable.
+
+#### Eventual consistency
+
+The system prioritizes availability by allowing temporary inconsistency that resolves over time. The system remains operational during partial outages. It works well when immediate accuracy is not critical.
+
+Consider a social media like count. When you like a post, different users may see slightly different counts for a few seconds while servers synchronize. The brief inconsistency is acceptable because the application must remain available globally and the exact count is not critical to any individual user.
+
+#### Causal consistency
+
+The system maintains order between causally related operations. This provides a middle ground between strong and eventual consistency.
+
+Consider a comment thread. If you post a reply to a comment, every user who sees your reply must also see the original comment you replied to. The system does not require all users to see all comments in the same order, but it guarantees that causally related content appears in the correct sequence.
+
+#### Session consistency
+
+The system ensures consistency within individual user sessions while allowing differences between sessions. This creates a reliable experience for each user without requiring global synchronization.
+
+Consider an online checkout. During your session, every page shows the same cart contents and prices. Another user's session may reflect different inventory availability, but your session remains internally consistent throughout. The system avoids the cost of global synchronization while still delivering a predictable experience for each user.
+
+### CAP theorem and its implications
+
+The *CAP theorem* explains a fundamental trade-off in distributed systems: you can guarantee only two of the following three properties at the same time.
+
+- *Consistency*: every read receives the most recent write or an error. All nodes in the system see the same data at the same time.
+- *Availability*: every request receives a non-error response, even if the data is not the most recent. The system stays operational.
+- *Partition tolerance*: the system continues to operate even when network failures prevent some nodes from communicating with others.
+
+In any real distributed system, network partitions are inevitable. The practical choice is between consistency and availability when a partition occurs. This trade-off produces three system designs:
+
+#### CP systems
+
+CP systems prioritize consistency and partition tolerance. When a partition occurs, the system refuses requests that cannot be served consistently rather than returning stale data. Banking applications, inventory management systems, and financial services use this design because incorrect data is more costly than temporary unavailability.
+
+#### AP systems
+
+AP systems prioritize availability and partition tolerance, accepting eventual consistency. When a partition occurs, the system continues to serve requests with potentially stale data, and reconciles differences once the partition heals. Content delivery networks (CDNs) and social media feeds use this design because users expect the application to respond immediately even if the data is slightly out of date.
+
+#### CA systems
+
+CA systems prioritize consistency and availability but cannot tolerate network partitions. They typically run as single-node databases or tightly coupled clusters on reliable networks. Traditional relational database management systems (RDBMS) fall into this category. CA designs are rare in modern distributed architectures because partition tolerance is necessary at any meaningful scale.
+
+### Choosing the right consistency model
+
+Match the consistency model to your application's tolerance for stale data and its availability requirements.
+
+- *Strong consistency*: financial transactions, payment processing, inventory systems where overselling has direct costs, medical records, and authentication systems.
+- *Eventual consistency*: social media feeds, view and like counters, recommendation engines, search indexes, and DNS records.
+- *Causal consistency*: comment threads, collaborative editors, chat applications, and version control systems.
+- *Session consistency*: shopping carts, user preference settings, draft editors, and personalized dashboards.
+
+When designing a new system, identify the cost of stale data for each operation. Use strong consistency only where incorrect data causes real harm. For everything else, choosing a weaker model improves availability and performance.
+
+## Caching strategies
+
+*Caching* is a technique that stores frequently used data in faster storage locations to reduce response time and database load. When your application requests data, the cache acts as a quick-access storage layer between your application and the database.
+
+A cache stores data in memory, reducing response times by 10x to 100x or more. It introduces complexity around data freshness and adds another potential point of failure. A good caching strategy defines how your application manages the relationship between cached data and the source of truth in your database.
+
+### Common caching strategies
+
+The three main caching strategies differ in when and how they update the cache relative to the database.
+
+#### Cache-aside
+
+In the *cache-aside* pattern, also called lazy loading, your application code manages both the cache and the database directly. The cache is populated on demand: data is only loaded when a request misses.
+
+On a cache miss, the application queries the database, writes the result to the cache, and returns the data. On a cache hit, the application reads directly from the cache.
+
+```go
+func GetProduct(ctx context.Context, cache *redis.Client, db *sql.DB, id int64) (*Product, error) {
+    key := fmt.Sprintf("product:%d", id)
+
+    val, err := cache.Get(ctx, key).Result()
+    if err == nil {
+        var p Product
+        if err := json.Unmarshal([]byte(val), &p); err != nil {
+            return nil, err
+        }
+        return &p, nil
+    }
+    if !errors.Is(err, redis.Nil) {
+        return nil, err
+    }
+
+    row := db.QueryRowContext(ctx, "SELECT id, name, price FROM products WHERE id = $1", id)
+    var p Product
+    if err := row.Scan(&p.ID, &p.Name, &p.Price); err != nil {
+        return nil, err
+    }
+
+    data, err := json.Marshal(p)
+    if err != nil {
+        return nil, err
+    }
+    _ = cache.Set(ctx, key, data, 5*time.Minute).Err()
+
+    return &p, nil
+}
+```
+
+The error from `cache.Set` is intentionally discarded. A failed cache write is not fatal in this pattern because the application already fetched the data from the database and will re-fetch on the next cache miss.
+
+Use cache-aside when:
+
+- read-heavy workloads dominate
+- data changes infrequently
+- you can tolerate brief inconsistency between the cache and the database
+
+#### Write-through
+
+In the *write-through* pattern, every write operation updates both the cache and the database at the same time. The cache always reflects the latest state.
+
+```go
+func SaveProduct(ctx context.Context, cache *redis.Client, db *sql.DB, p *Product) error {
+    _, err := db.ExecContext(ctx,
+        "INSERT INTO products (name, price) VALUES ($1, $2) ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, price = EXCLUDED.price",
+        p.Name, p.Price,
+    )
+    if err != nil {
+        return err
+    }
+
+    data, err := json.Marshal(p)
+    if err != nil {
+        return err
+    }
+    key := fmt.Sprintf("product:%d", p.ID)
+    return cache.Set(ctx, key, data, 5*time.Minute).Err()
+}
+```
+
+Use write-through when:
+
+- you need strong consistency between the cache and the database
+- data is read frequently after being written
+- read performance matters more than write performance
+
+#### Write-behind
+
+In the *write-behind* pattern, also called write-back, the application writes data to the cache immediately and updates the database asynchronously. This improves write performance but introduces the risk of data loss if the cache fails before the database is updated.
+
+```go
+func SaveProductAsync(ctx context.Context, cache *redis.Client, queue chan<- *Product, p *Product) error {
+    data, err := json.Marshal(p)
+    if err != nil {
+        return err
+    }
+    key := fmt.Sprintf("product:%d", p.ID)
+    if err := cache.Set(ctx, key, data, 5*time.Minute).Err(); err != nil {
+        return err
+    }
+
+    select {
+    case queue <- p:
+        return nil
+    case <-ctx.Done():
+        return ctx.Err()
+    }
+}
+```
+
+The application writes to the cache and queues the database write for a background worker. If the process crashes before the worker flushes the queue, those writes are lost.
+
+Use write-behind when:
+
+- your application is write-heavy and needs maximum write throughput
+- you can accept some risk of data loss in exchange for better performance
+- eventual consistency between the cache and the database is acceptable
+
+### When to use caching
+
+Caching adds a moving part to your application that can fail, consume memory, and serve stale data. Before adding a cache, confirm that the complexity is justified. A cache makes sense when your database must handle a high volume of simultaneous queries and response times are no longer acceptable.
+
+A *cache eviction policy* determines which items the cache removes when it reaches capacity. The most common policy is Least Recently Used (LRU), which removes the item that was accessed longest ago. Other policies include Least Frequently Used (LFU), which removes the item accessed least often, and Time-To-Live (TTL), which expires items after a fixed duration regardless of access patterns.
+
+Ask these questions before adding a cache:
+
+- How often does the data change?
+- What is the cost of serving stale data?
+- How expensive are your current queries?
+- Are there current performance bottlenecks that a cache would address?
+
+If data changes frequently, the cost of keeping it fresh may outweigh the performance benefit. If queries are cheap and response times are acceptable, a cache adds complexity without measurable gain.
+
+### Caching and consistency
+
+When you cache data, you create a temporary copy that may become stale when the original changes. Each caching strategy handles this differently.
+
+- Cache-aside with *TTL* (time-to-live): the cache entry expires after a fixed duration, forcing a fresh database read on the next request. This limits how stale cached data can become without requiring explicit invalidation.
+- Write-through gives you strong consistency between the cache and the database, but every write pays the cost of updating both.
+- Write-behind accepts temporary inconsistency in favor of write performance. If the cache fails before the database is updated, those writes are lost.

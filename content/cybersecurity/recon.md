@@ -908,12 +908,12 @@ nmap_scan=$(sudo nmap -O ${HOSTS} -oG -)                                 # 4
 
 while read -r line; do                                                   # 5
     ip=$(echo "${line}" | awk '{print $2}')                              # 6
-    os=$(echo "${line}" | awk -F'OS: ' '{print $2}' | sed 's/Seq.*//g') # 7
+    os=$(echo "${line}" | awk -F'OS: ' '{print $2}' | sed 's/Seq.*//g')  # 7
 
     if [[ -n "${ip}" ]] && [[ -n "${os}" ]]; then                        # 8
         echo "IP: ${ip} OS: ${os}"
     fi
-done <<< "${nmap_scan}"
+done <<< "${nmap_scan}"                                                  #9
 ```
 
 ```bash
@@ -936,6 +936,63 @@ Two guard clauses validate privileges and input before the scan runs. The `while
 6. Extracts the IP address from the second field of the greppable output line.
 7. Splits the line on `OS: ` and takes everything after it, then strips from `Seq` onwards. The `Seq` token marks the start of sequence number data that follows the OS field in greppable output.
 8. Prints the IP and OS only when both variables are non-empty, filtering out lines that contain no OS detection data.
+9. Feeds the entire `nmap_scan` variable into the loop as standard input using a *here-string*, processing the captured Nmap output line by line without writing it to a file.
 
-`done <<< "${nmap_scan}"` feeds the entire `nmap_scan` variable into the loop as standard input using a *here-string*, processing the captured Nmap output line by line without writing it to a file.
+
+## Analyzing websites and JSON
+
+When you identify an open web port, fingerprint the service to map the technology stack before probing further. *WhatWeb* identifies web frameworks, server software, and version information by analyzing HTTP headers, cookies, and HTML. The default output gives a quick summary. When you need to extract specific values or feed results into scripts, use the `--log-json` flag to produce structured JSON and pipe it to `jq` to isolate exactly what you need.
+
+```bash
+whatweb 172.16.10.10:8081
+http://172.16.10.10:8081 [200 OK] Country[RESERVED][ZZ], HTML5, HTTPServer[Werkzeug/3.0.1 Python/3.12.3], IP[172.16.10.10], Python[3.12.3], Title[Menu], Werkzeug[3.0.1], X-UA-Compatible[ie=edge]
+```
+
+Running `whatweb` against a host produces a one-line summary of everything the tool detected:
+
+- `200 OK`: the server responded successfully
+- `Country[RESERVED][ZZ]`: the IP is in a private range, not publicly routed
+- `HTTPServer[Werkzeug/3.0.1 Python/3.12.3]`: the server runs Werkzeug, a Python WSGI library used by Flask
+- `Python[3.12.3]`: the Python version running the application
+- `Title[Menu]`: the page title, which may hint at the application's purpose
+- `Werkzeug[3.0.1]`: the Werkzeug version. Combined with the Python version, this narrows the attack surface to known vulnerabilities in that release
+
+```bash
+whatweb 172.16.10.10:8081 --log-json=/dev/stdout --quiet | jq
+[
+  {
+    "target": "http://172.16.10.10:8081",
+    "http_status": 200,
+    "request_config": {
+      "headers": {
+        "User-Agent": "WhatWeb/0.6.3"
+      }
+    },
+    ...
+  }
+]
+```
+
+`--log-json` takes a file path and writes JSON-formatted results to that file. Passing `/dev/stdout` works because stdout is exposed as a file on Linux, which sends the output to the pipe instead of disk. `--quiet` suppresses the normal text output so only the JSON reaches the pipe. Piping to `jq` with no filter pretty-prints the full JSON structure, letting you explore the available fields before writing a targeted query.
+
+```bash
+whatweb 172.16.10.10:8081 --log-json=/dev/stdout --quiet | jq '.[0].plugins.HTTPServer.string[0]'
+"Werkzeug/3.0.1 Python/3.12.3"
+```
+
+
+```bash
+whatweb 172.16.10.10:8081 --log-json=/dev/stdout --quiet | jq '.[0].plugins.IP.string[0]'
+"172.16.10.10"
+```
+
+The jq path `.[0].plugins.HTTPServer.string[0]` navigates the JSON structure:
+
+- `.[0]`: the `.` represents the current input. Every jq path starts from `.` as the root. `[0]` selects the first element of that array. WhatWeb returns an array of results, one per target
+- `.plugins`: accesses the `plugins` object containing all detected technologies
+- `.HTTPServer`: selects the HTTPServer plugin entry
+- `.string[0]`: each plugin stores its detected values in a `string` array. `[0]` retrieves the first value
+
+The fourth example follows the same pattern, substituting `.IP` for `.HTTPServer` to extract the server's IP address from the same JSON structure.
+
 

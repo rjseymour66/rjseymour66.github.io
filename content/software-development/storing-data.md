@@ -559,3 +559,351 @@ When you cache data, you create a temporary copy that may become stale when the 
 - Cache-aside with *TTL* (time-to-live): the cache entry expires after a fixed duration, forcing a fresh database read on the next request. This limits how stale cached data can become without requiring explicit invalidation.
 - Write-through gives you strong consistency between the cache and the database, but every write pays the cost of updating both.
 - Write-behind accepts temporary inconsistency in favor of write performance. If the cache fails before the database is updated, those writes are lost.
+
+## Planning for data growth
+
+Planning for growth means regularly reviewing performance metrics and capacity needs. Watch for these key indicators before they become critical:
+
+- Query response times exceeding acceptable thresholds
+- Database CPU consistently above a certain percentage
+- Memory usage climbing steadily over time
+- An increase in user complaints about slow load times
+
+These signals tell you that your current infrastructure is approaching its limits. Acting on them before they become outages gives you time to scale deliberately rather than reactively.
+
+### Scaling strategies
+
+*Vertical scaling* adds resources to your existing database server, such as increasing CPU cores or RAM. It is the simplest approach and requires no changes to your application code. Vertical scaling has a ceiling: at some point, adding more resources to a single server becomes too expensive or reaches the hardware limit.
+
+*Horizontal scaling* distributes your data across multiple servers. Use it when vertical scaling reaches its limits or when you need geographic distribution for global applications.
+
+Two common horizontal scaling techniques are read replicas and sharding.
+
+*Read replicas* are copies of your primary database that serve read operations. They reduce load on the primary database by routing read queries to one or more replicas. The primary database handles all writes and replicates changes to the replicas asynchronously.
+
+*Sharding* partitions your data across multiple databases based on a *shard key*. Each shard holds a subset of the data. For example, you might shard a user table by user ID range so that users 1–1,000,000 live on one database and users 1,000,001–2,000,000 live on another. Sharding scales both reads and writes but adds significant complexity to your application and queries.
+
+#### Read replicas vs. caching
+
+Both read replicas and caches reduce load on the primary database, but they work differently.
+
+- Read replicas provide eventual consistency automatically. The database engine handles replication and your application code requires no changes.
+- Caches require application code changes to populate, invalidate, and manage consistency. In exchange, they deliver lower latency than replicas because data is stored in memory closer to your application.
+
+Use read replicas when you want to scale reads with minimal application changes. Use a cache when latency is the primary concern and you can manage the additional complexity.
+
+### Maintaining performance during growth
+
+As your data grows, queries that performed well at small scale can degrade. Build these practices into your regular operations to catch problems early.
+
+*Data archiving* moves older, infrequently accessed records out of your primary tables into separate archive tables or cold storage. Smaller tables mean faster queries and more efficient indexes.
+
+Database *indexes* speed up queries by allowing the database to find rows without scanning the entire table. Review your indexes regularly: add indexes for columns that appear frequently in WHERE clauses, JOIN conditions, or ORDER BY expressions, and remove unused indexes that slow down writes without benefiting reads.
+
+Schedule regular database maintenance tasks including:
+
+- analyzing query performance to identify slow queries
+- reviewing execution plans for queries that have degraded over time
+- running optimizer statistics updates so the query planner makes accurate decisions
+- reclaiming space from deleted rows through vacuuming or reorganization, depending on your database engine
+
+## Querying and managing data performance
+
+A poorly optimized query can consume excessive server resources, create bottlenecks, and lead to a frustrating user experience. Writing efficient queries and understanding how the database processes them helps you avoid these problems before they reach production.
+
+### Efficient query writing
+
+Efficient queries request only the data they need. Selecting unnecessary columns wastes memory, increases network transfer, and prevents the database from using covering indexes.
+
+### Basic query optimization
+
+The first step in optimization is identifying what makes queries inefficient. Full-table scans, unindexed filters, and returning more data than needed are the most common causes.
+
+Always specify the columns you need rather than using `SELECT *`:
+
+```sql
+-- Avoid: returns every column, including ones your application never uses
+SELECT * FROM orders WHERE customer_id = 123;
+
+-- Prefer: returns only what your application needs
+SELECT id, total, created_at FROM orders WHERE customer_id = 123;
+```
+
+Specifying columns lets the database use *covering indexes*, where the index itself contains all the data the query needs, eliminating reads from the table.
+
+Consider pagination for any query that may return a large result set. Returning thousands of rows at once strains both the database and the client. Fetching a fixed number of rows per request keeps response times predictable.
+
+### Prepared statements
+
+A *prepared statement* is a precompiled SQL query that lets you safely insert data values at runtime. The database parses and optimizes the query once, then reuses that execution plan for subsequent calls with different parameters. This improves performance for repeated queries and prevents SQL injection by handling parameter escaping automatically.
+
+In Go, `db.PrepareContext` compiles the statement and `stmt.QueryContext` executes it with the provided values:
+
+```go
+func GetProductsByCategory(ctx context.Context, db *sql.DB, category string, maxPrice float64) ([]Product, error) {
+    stmt, err := db.PrepareContext(ctx, `
+        SELECT id, name, price
+        FROM products
+        WHERE category = $1 AND price < $2
+        ORDER BY price
+    `)
+    if err != nil {
+        return nil, err
+    }
+    defer stmt.Close()
+
+    rows, err := stmt.QueryContext(ctx, category, maxPrice)
+    if err != nil {
+        return nil, err
+    }
+    defer rows.Close()
+
+    var products []Product
+    for rows.Next() {
+        var p Product
+        if err := rows.Scan(&p.ID, &p.Name, &p.Price); err != nil {
+            return nil, err
+        }
+        products = append(products, p)
+    }
+    return products, rows.Err()
+}
+```
+
+The `$1` and `$2` placeholders are PostgreSQL positional parameters. Go's `database/sql` driver passes values separately from the query string, so the database treats them as data rather than SQL. This makes it structurally impossible to inject SQL through parameter values.
+
+For frequently called queries, prepare statements once at application startup and store them as struct fields rather than preparing on each call.
+
+### Index management
+
+Database indexes solve slow queries by creating a lookup structure that maps column values directly to the rows where they are stored. Instead of scanning every row in a table, the database consults the index and jumps directly to the matching rows.
+
+```sql
+-- Index on a frequently queried column
+CREATE INDEX idx_orders_customer_id ON orders(customer_id);
+
+-- Composite index for queries that filter on multiple columns
+CREATE INDEX idx_orders_customer_status ON orders(customer_id, status);
+
+-- Check index usage in PostgreSQL
+SELECT indexname, idx_scan, idx_tup_read, idx_tup_fetch
+FROM pg_stat_user_indexes
+WHERE relname = 'orders';
+```
+
+Indexes are not free. They consume storage and slow down write operations because the database must update each index whenever data changes.
+
+Index these columns for the most performance gain:
+
+- columns used frequently in WHERE clauses
+- columns used in JOIN conditions
+- columns used in ORDER BY or GROUP BY clauses
+- combinations of columns that appear together in filters (use a composite index)
+- avoid indexing columns with low cardinality, such as a boolean field with only two possible values
+
+### Handling large result sets
+
+*Pagination* lets you navigate through query results in manageable chunks. Instead of fetching every matching row at once, you fetch a fixed number per request and let the caller advance through pages.
+
+Offset-based pagination uses `LIMIT` to cap the number of rows returned and `OFFSET` to skip rows from previous pages:
+
+```go
+func GetProducts(ctx context.Context, db *sql.DB, page, pageSize int) ([]Product, error) {
+    offset := (page - 1) * pageSize
+    rows, err := db.QueryContext(ctx, `
+        SELECT id, name, price
+        FROM products
+        ORDER BY id
+        LIMIT $1 OFFSET $2
+    `, pageSize, offset)
+    if err != nil {
+        return nil, err
+    }
+    defer rows.Close()
+
+    var products []Product
+    for rows.Next() {
+        var p Product
+        if err := rows.Scan(&p.ID, &p.Name, &p.Price); err != nil {
+            return nil, err
+        }
+        products = append(products, p)
+    }
+    return products, rows.Err()
+}
+```
+
+Page 1 passes `offset = 0`, page 2 passes `offset = pageSize`, and so on. The `ORDER BY id` clause is required: without a consistent sort order, the database may return the same row on multiple pages or skip rows entirely.
+
+Offset-based pagination degrades at high page numbers. To reach page 1000 with a page size of 20, the database scans and discards 19,980 rows before returning the 20 you need. For deep pagination, consider *keyset pagination* instead, which filters on the last seen value rather than a row offset.
+
+### Tools and best practices
+
+A *query planner* acts as a compiler for SQL. When you submit a query, the planner analyzes it and determines the most efficient way to retrieve the data. It considers available indexes, table statistics, row counts, and the cost of different execution strategies before choosing a plan.
+
+PostgreSQL's query planner uses a *cost-based optimizer*. It assigns an estimated cost to each possible execution strategy, where cost is measured in units representing disk reads, CPU time, and memory usage. The planner chooses the strategy with the lowest estimated total cost.
+
+The planner relies on table statistics collected by the `ANALYZE` command. These statistics include column cardinality, data distribution, and row counts. Stale statistics cause the planner to make poor decisions. Run `ANALYZE` after large data changes, or configure `autovacuum` to keep statistics current automatically.
+
+### Using query execution plans
+
+Most databases expose the query planner's chosen strategy through the `EXPLAIN` command. Running `EXPLAIN` before a query shows the execution plan the database will use without executing the query. Adding `ANALYZE` executes the query and shows actual row counts and timing alongside the estimates.
+
+```sql
+EXPLAIN ANALYZE
+SELECT o.id, o.total, c.name
+FROM orders o
+JOIN customers c ON c.id = o.customer_id
+WHERE o.created_at > '2024-01-01'
+ORDER BY o.total DESC
+LIMIT 20;
+```
+
+An execution plan typically shows:
+
+- Scan type: whether the database used a sequential scan (full table), index scan, or index-only scan for each table
+- Join strategy: how tables were joined (nested loop, hash join, or merge join)
+- Estimated vs actual rows: how accurately the planner predicted row counts. Large discrepancies indicate stale statistics.
+- Cost estimates: startup cost and total cost for each operation, in planner units
+- Actual timing: with `EXPLAIN ANALYZE`, the real execution time for each step
+
+### Database monitoring and analysis
+
+Real-world performance depends on how your application interacts with the database under load. Understanding that behavior requires *observability*: the ability to understand the internal state of a system based on the outputs it produces.
+
+Three concepts form the foundation of database observability:
+
+- *Logging* captures discrete events as they happen. Database logs record slow queries, connection errors, lock conflicts, and failed authentication attempts. Configure your database to log queries that exceed a threshold (in PostgreSQL, set `log_min_duration_statement`) so you can identify and optimize the slowest operations.
+
+- *Metrics* are numeric measurements collected over time. Key database metrics include query latency (p50, p95, p99), connection pool utilization, cache hit rate, replication lag, and disk I/O. Metrics let you spot trends before they become incidents. A steadily rising p99 latency is a warning sign even if average latency looks healthy.
+
+- *Tracing* tracks a request as it moves through your system, from the HTTP handler to the service layer to the database query and back. A trace shows the full call chain and the time spent at each step, making it possible to identify which database query is responsible for a slow API response.
+
+Real-world scenarios where observability provides actionable insights:
+
+- A spike in p99 query latency without a corresponding spike in p50 latency points to a specific slow query rather than general load. Use logs to identify the query and `EXPLAIN ANALYZE` to diagnose it.
+- Connection pool exhaustion shows up as a sudden increase in request latency and errors. Metrics on pool utilization reveal whether you need more connections or whether a slow query is holding connections longer than expected.
+- A distributed trace reveals that a single API endpoint makes 50 database queries per request. The fix is to batch those queries or cache the results rather than optimizing each individual query.
+- Replication lag metrics alert you when a read replica falls behind the primary, preventing your application from routing reads to a replica serving data too stale for the use case.
+
+### Balancing complexity and performance
+
+Query optimization sometimes produces code that is harder to read and maintain. The goal is not maximum performance at any cost. It is to meet your performance requirements with the simplest code that achieves them.
+
+Consider fetching a user and their recent orders. A readable approach uses two queries:
+
+```go
+func getUserOrders(ctx context.Context, db *sql.DB, userID int64) (*UserOrders, error) {
+    var u User
+    err := db.QueryRowContext(ctx,
+        "SELECT id, name, email FROM users WHERE id = $1", userID,
+    ).Scan(&u.ID, &u.Name, &u.Email)
+    if err != nil {
+        return nil, err
+    }
+
+    rows, err := db.QueryContext(ctx, `
+        SELECT id, total, created_at
+        FROM orders
+        WHERE user_id = $1
+        ORDER BY created_at DESC
+        LIMIT 10
+    `, userID)
+    if err != nil {
+        return nil, err
+    }
+    defer rows.Close()
+
+    var orders []Order
+    for rows.Next() {
+        var o Order
+        if err := rows.Scan(&o.ID, &o.Total, &o.CreatedAt); err != nil {
+            return nil, err
+        }
+        orders = append(orders, o)
+    }
+    return &UserOrders{User: u, Orders: orders}, rows.Err()
+}
+```
+
+This makes two round trips to the database. Combining the queries into a single JOIN reduces that to one, but produces code that is harder to read, test, and modify:
+
+```sql
+SELECT u.id, u.name, u.email, o.id, o.total, o.created_at
+FROM users u
+JOIN orders o ON o.user_id = u.id
+WHERE u.id = $1
+ORDER BY o.created_at DESC
+LIMIT 10;
+```
+
+Choose the simpler two-query version first. Switch to the JOIN only if profiling shows the extra round trip is a measurable bottleneck for real users.
+
+## Data migration and transformation
+
+Development teams regularly upgrade database systems, connect with external services, or combine data from multiple sources. Each scenario requires moving data from one place to another. Planning how data moves, transforms, and synchronizes is as important as the migration itself.
+
+### Understanding data movement fundamentals
+
+A successful migration requires careful planning, execution, and validation. Skipping any of these phases risks data loss, downtime, or inconsistencies that are costly to correct after the fact.
+
+#### Big bang vs phased migration
+
+A *big bang migration* moves all data at one time, typically during a scheduled downtime window. The approach is simpler to execute because the source system is frozen while the migration runs. The risk is proportional to data volume: the larger the dataset, the longer the downtime window and the more damage a failure can cause.
+
+A *phased migration* moves data in stages. You migrate a segment, validate that it arrived correctly, then move the next segment. Phased migrations keep the source system online and limit the blast radius of any individual failure. The tradeoff is increased complexity: you must run both systems in parallel until the migration is complete.
+
+Choose a phased migration for any dataset where extended downtime is unacceptable.
+
+#### ETL processes
+
+*ETL* (Extract, Transform, Load) is the standard pattern for moving data between systems.
+
+- *Extraction* reads data from the source system. Extraction can trigger rate limits on external APIs or place performance load on the source database. Batch your reads and schedule extraction during off-peak hours when possible.
+- *Transformation* reshapes the extracted data to match the target system's structure and constraints. Transformation exposes data quality issues: missing required fields, inconsistent formats, duplicate records, and values that violate the target schema. Build validation into this stage rather than discovering problems at load time.
+- *Loading* writes the transformed data into the target system. Loading can trigger constraint violations, foreign key failures, and uniqueness conflicts. Process records in transactions so a failed batch can roll back cleanly.
+
+ETL requires detailed error handling and logging. Each stage should record which records succeeded, which failed, and why. Without this, identifying and reprocessing failed records becomes a manual investigation.
+
+#### Data synchronization
+
+When you run source and target systems in parallel during a migration, you need a strategy to keep them in sync. Three approaches handle this well.
+
+*Message queues* capture writes to the source system as events and replay them against the target. The queue acts as a buffer, decoupling the migration from the application's write path and allowing the target to catch up asynchronously.
+
+*Change data capture* (CDC) reads the database's transaction log to stream changes in real time. CDC requires no changes to application code and captures every insert, update, and delete as it happens. Tools like Debezium work directly with PostgreSQL's logical replication.
+
+*Reconciliation processes* periodically compare source and target data to find and correct discrepancies. Use reconciliation as a safety net alongside queues or CDC rather than as the primary sync mechanism.
+
+### Handling schema changes
+
+Table structures change as applications evolve. Fields get added, removed, renamed, or have their types modified. Without a controlled process, schema changes become a source of risk for every team member touching the database.
+
+#### Version control for data structures
+
+Without version control for your schema, you risk losing critical migration history, overwriting a colleague's changes, and losing the ability to roll back a problematic change.
+
+Tools like Flyway, Liquibase, and Rails Migrations solve this by tracking which migrations have run on each environment. Organize your migrations as SQL files with sequential version numbers:
+
+```
+migrations/
+  V001__create_users.sql
+  V002__add_email_to_users.sql
+  V003__create_orders.sql
+```
+
+Important practices:
+
+- *Idempotent migrations*: an idempotent operation produces the same result whether it runs once or many times. Use `CREATE TABLE IF NOT EXISTS`, `ADD COLUMN IF NOT EXISTS`, and conditional inserts so that re-running a migration on an already-migrated database does not produce errors.
+- Ensure migration scripts are backwards compatible. A deployed application should continue to function while the migration is running. Add columns as nullable before populating them, and retire old columns across multiple releases rather than dropping them immediately.
+- Include the schema change and any necessary data transformations in the same migration script so they apply atomically.
+
+#### Managing data dependencies and transformations
+
+Schema changes often require transforming the data they affect. Version these transformations alongside the schema change that requires them. This ensures the schema change and data transformation apply together, the migration is atomic, and you can track which environments have received the change.
+
+For complex transformations that affect large datasets, consider these approaches:
+
+- *Background jobs*: run the transformation asynchronously after the schema change deploys. The application handles both old and new data formats during the transition period.
+- *Dual-write*: write data to both the old and new structures simultaneously during the transition. Once all existing records are backfilled, retire the old structure.
+- A rollback plan: before running any migration in production, define the steps to reverse it and test them. Know what the database state should look like if the migration fails partway through.

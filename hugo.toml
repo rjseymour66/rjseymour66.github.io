@@ -79,9 +79,15 @@ theme = 'freeme'
   weight = 130
 
 [[menus.main]]
+  name = 'Networking'
+  pageRef = '/networking'
+  weight = 140
+
+
+[[menus.main]]
   name = 'SW Dev'
   pageRef = '/software-development'
-  weight = 140
+  weight = 150
 
 
 [module]

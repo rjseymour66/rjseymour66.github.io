@@ -164,3 +164,37 @@ You'll build an HTTP reverse proxy that load-balances across a configurable list
 ### Why it matters
 
 A proxy concentrates the hardest production Go problems in one place: concurrent state mutation, goroutine lifecycle, and observability. The circuit breaker is a foundational distributed systems pattern used in virtually every service-to-service call at scale. After this project, you can read and contribute to production codebases like Traefik, Caddy, or internal platform tooling.
+
+---
+
+## Project 6: Real-time event fan-out service
+
+**Difficulty:** 5 / 5
+
+### What you build
+
+You'll build a real-time event fan-out service with three components: a gRPC ingestion endpoint that accepts a stream of events from producers, a NATS message bus that decouples ingestion from delivery, and a WebSocket endpoint that broadcasts matching events to connected browser clients in real time.
+
+### Requirements
+
+- Define a protobuf service with a client-streaming RPC for ingest and a server-streaming RPC for subscription. Generate Go code with `protoc` and `protoc-gen-go-grpc`.
+- Implement a gRPC server interceptor for authentication that reads a bearer token from incoming metadata. Mirror the middleware pattern from Projects 2 and 4.
+- Publish each received event to NATS using the JetStream API. Configure a durable consumer with at-least-once delivery semantics. Handle redelivery and deduplication.
+- Consume from NATS in a worker pool (bounded goroutines, same pattern as Project 3) and fan out to active WebSocket connections using `gorilla/websocket` or `nhooyr.io/websocket`.
+- Track connected WebSocket clients in a registry guarded by `sync.RWMutex`. Support topic-based filtering so clients receive only events matching their subscription.
+- Propagate OpenTelemetry trace context from gRPC metadata through NATS message headers to WebSocket delivery. Export spans to a local OTLP collector.
+- Write a load test with `ghz` (gRPC) and `k6` (WebSocket) to verify the fan-out holds under 1,000 concurrent subscribers.
+
+### What you learn
+
+- Protobuf service definition and Go code generation
+- gRPC interceptors (unary and streaming)
+- gRPC client and server streaming patterns
+- NATS JetStream: publishing, durable consumers, and at-least-once delivery
+- WebSocket connection management and topic-based fan-out
+- OpenTelemetry trace propagation across transport boundaries
+- Load testing gRPC and WebSocket endpoints
+
+### Why it matters
+
+The previous five projects cover the patterns that appear in most Go services. This project covers the class they don't: event-driven, streaming systems. gRPC is the dominant inter-service protocol in cloud-native Go, and NATS is a common backbone for low-latency messaging. Propagating trace context across three transports (gRPC → NATS → WebSocket) is a skill that separates developers who understand observability from those who have only configured it. After this project, you can read and contribute to systems like Loki, Tempo, or any internal event pipeline built in Go.

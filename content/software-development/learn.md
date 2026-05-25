@@ -69,7 +69,15 @@ Deliberate practice is not the same as experience. Spending ten years doing the 
 
 ### Fundamentals first
 
-The instinct when learning a new language or framework is to reach for abstractions quickly: ORMs, frameworks, CLI generators. Resist it. Understand what the abstraction replaces before you use it. A developer who understands SQL writes better ORM queries. A developer who understands HTTP writes better REST clients. Fundamentals compose; abstractions leak.
+The instinct when learning a new language or framework is to reach for abstractions quickly: ORMs, frameworks, CLI generators. Resist it. Understand what the abstraction replaces before you use it. A developer who understands SQL writes better ORM queries. A developer who understands HTTP writes better REST clients. Fundamentals compose. Abstractions leak.
+
+The core skills that transfer across every language and domain:
+
+- **Data structures and algorithms:** slices and maps, `container/heap`, `sort.Slice`, binary search, Big O analysis
+- **Design patterns:** functional options, interface composition, middleware chains, worker pools, error wrapping
+- **Testing methodologies:** table-driven tests, subtests with `t.Run`, benchmarks with `testing.B`, `httptest`, race detector
+- **Version control:** branching strategies, semantic commits, conflict resolution, `go mod tidy`, module versioning
+- **Database design:** `database/sql` and connection pooling, prepared statements, transactions, schema migrations, query optimization
 
 ### Build things you do not need
 

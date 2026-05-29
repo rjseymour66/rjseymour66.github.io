@@ -276,15 +276,13 @@ the passphrase so you only enter it once per session.
 Key file permissions are set automatically: the public key is readable by all, and the
 private key is readable only by its owner.
 
-#### Generate a key pair and copy to a remote server
+#### Generate a key pair
 
-Generate a key pair with `ssh-keygen`, then copy the public key to each remote server
-you want to access:
+Generate a key pair with `ssh-keygen`:
 
 ```bash
-ssh-keygen                                          # generate an ed25519 key pair (default)
-ssh-keygen -t rsa -b 4096                           # generate an RSA key pair
-ssh-copy-id -i ~/.ssh/id_rsa.pub <user>@<ip-addr>   # copy the public key to a remote server
+ssh-keygen                          # generate an ed25519 key pair (default)
+ssh-keygen -t rsa -b 4096           # generate an RSA key pair
 ```
 
 #### Add a key to ssh-agent
@@ -302,6 +300,16 @@ Run `ssh-keygen -p` to update the passphrase on a key you have already generated
 
 ```bash
 ssh-keygen -p
+```
+
+### Copy to a remote server
+
+`ssh-copy-id` copies your public key to a remote server's `authorized_keys` file. It
+creates `~/.ssh/` and `authorized_keys` on the remote server if they do not exist.
+Additional keys are appended to the file, one per line:
+
+```bash
+ssh-copy-id -i ~/.ssh/id_rsa.pub <user>@<ip-addr>
 ```
 
 ### SSH config file
@@ -334,12 +342,60 @@ Host u24
     Port 22
 ```
 
-### ssh-copy-id
+### Troubleshooting
 
-`ssh-copy-id` copies your public key to a remote server's `authorized_keys` file. It
-creates `~/.ssh/` and `authorized_keys` on the remote server if they do not exist.
-Additional keys are appended to the file, one per line:
+Connection refused means the host is reachable but sshd isn't listening. No route to host or timeout means a network or firewall problem.
+
+#### Diagnose the connection
+
+Use `-v` for verbose output to see where the connection fails:
 
 ```bash
-ssh-copy-id -i ~/.ssh/id_rsa.pub <user>@<ip-addr>
+ssh -v user@host        # verbose
+ssh -vvv user@host      # maximum verbosity
+```
+
+Check that port 22 is open on the remote host:
+
+```bash
+nc -zv <host> 22
+```
+
+#### Check sshd on the remote host
+
+If you get a connection refused error, sshd isn't running or isn't listening on port 22. This happens after a fresh install, after a reboot if the service isn't enabled, or if sshd crashed.
+
+```bash
+systemctl status ssh            # Debian/Ubuntu use 'ssh', not 'sshd'
+systemctl start ssh
+ss -tlnp | grep 22              # confirm sshd is listening
+journalctl -u ssh -n 50        # recent logs
+```
+
+#### Check the firewall
+
+A firewall blocking port 22 produces a timeout or no route to host error. Check this when the host is reachable by ping but SSH hangs without a connection refused message.
+
+```bash
+ufw status                              # ufw (Ubuntu)
+firewall-cmd --list-services            # firewalld (RHEL/Fedora)
+iptables -L INPUT -n | grep 22         # iptables
+```
+
+#### Fix key permission errors
+
+SSH refuses keys with overly permissive file modes:
+
+```bash
+chmod 700 ~/.ssh
+chmod 600 ~/.ssh/authorized_keys
+chmod 600 ~/.ssh/id_rsa
+```
+
+#### Clear a stale host key
+
+SSH stores each host's key fingerprint in `~/.ssh/known_hosts` on first connect. If the remote host's key changes because the OS was reinstalled, the VM was recreated, or a new VM reused the same IP, SSH blocks the connection with a "host identification has changed" error. Remove the stale entry and reconnect:
+
+```bash
+ssh-keygen -R <host-ip>
 ```

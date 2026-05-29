@@ -15,6 +15,15 @@ KVM/QEMU lets you run virtual machines without a third-party product like Virtua
 KVM assigns VMs addresses on the `192.168.122.0/24` network from an internal DHCP server (`192.168.122.2`–`192.168.122.254`). You can SSH into VMs from your workstation, or configure bridging to connect VMs directly to your local network.
 
 
+## KVM components
+
+The `libvirtd` daemon manages VMs, virtual networks, storage pools, and virtual interfaces. Tools like `virsh` and `virt-manager` communicate with `libvirtd` through its API.
+
+The default virtual network uses a bridge interface called `virbr0` in NAT mode. Each VM gets a virtual NIC connected to `virbr0`. The host runs `dnsmasq` on this bridge to serve DHCP addresses (`192.168.122.2`–`192.168.122.254`) and DNS (`192.168.122.1`). Outbound VM traffic is NATted through the host's physical interface.
+
+libvirt organizes disk images in *storage pools*. The default pool is at `/var/lib/libvirt/images`. KVM uses the `qcow2` image format, which supports snapshots and thin provisioning.
+
+
 ## KVM/QEMU installation
 
 Before installing, verify that your CPU supports virtualization extensions. A result greater than zero confirms support:
@@ -62,7 +71,7 @@ To install and configure KVM/QEMU:
    apt install ssh-askpass virt-manager
    ```
 
-### Virtual Machine Manager setup
+## Virtual Machine Manager setup
 
 Complete this setup on your workstation after installing KVM/QEMU on the server. Virtual Machine Manager gives you a GUI to create, start, stop, and manage VMs on local or remote KVM hosts:
 
@@ -71,7 +80,7 @@ Complete this setup on your workstation after installing KVM/QEMU on the server.
 3. For a remote host, select SSH and enter the host details. For a local KVM server, select **Autoconnect**.
 
 
-### Create a storage pool
+## Create a storage pool
 
 A storage pool gives Virtual Machine Manager a managed location to find ISO images when creating VMs. Create one the first time you set up a KVM server so you have a consistent place to store installation media:
 
@@ -89,7 +98,7 @@ A storage pool gives Virtual Machine Manager a managed location to find ISO imag
    ```
 7. Move your ISO files into the target path so the VM server can use them to create VMs.
 
-### Create a VM
+## Create a VM
 
 Use Virtual Machine Manager to provision a new VM from an ISO image stored in your storage pool:
 
@@ -100,14 +109,14 @@ Use Virtual Machine Manager to provision a new VM from an ISO image stored in yo
 5. Allocate disk space. 20 GB is sufficient for most test machines.
 6. Enter a name for the VM and select **Finish**.
 
-### Bridging the network
+## Bridging the network
 
 By default, KVM assigns VMs addresses from its internal DHCP server. Bridging connects VMs directly to your local network so they receive addresses from your main DHCP server and are reachable like any other machine. This is useful when you want other devices on the network to communicate with your VMs.
 
 Bridging requires a wired network interface. It does not work on wireless cards. Back up your Netplan configuration before making changes.
 
 
-### Cloning
+## Cloning
 
 Cloning lets you replicate a configured VM without repeating the full installation and setup process. KVM does not have a built-in templating feature, but you can configure a base VM, name it with a `-template` suffix, and clone it whenever you need a new instance:
 
@@ -115,7 +124,7 @@ Cloning lets you replicate a configured VM without repeating the full installati
 2. Confirm that **Clone this disk** is selected.
 3. Select **Clone**.
 
-### Managing VMs from the command line
+## Managing VMs from the command line
 
 Use `virsh` to manage VMs when Virtual Machine Manager is not available, such as on a headless server or over SSH:
 
@@ -129,7 +138,7 @@ virsh resume <vm-name>        # resume a paused VM
 virsh destroy <vm-name>       # force-stop a VM immediately
 virsh undefine <vm-name>      # remove a VM definition (disk files remain in /var/lib/libvirt/images)
 ```
-### Static IP addresses
+## Set static IP address
 
 Assign a static IP to a VM by adding a DHCP host entry to the default network configuration. This ensures the VM always receives the same address from KVM's internal DHCP server. See the [official docs](https://wiki.libvirt.org/Networking.html#guest-configuration-nat) for reference.
 
@@ -154,3 +163,59 @@ virsh net-update default add ip-dhcp-host \
 virsh net-update default delete ip-dhcp-host \
     "<host mac='<mac-addr>' name='<hostname>' ip='<ip-addr>' />" --live --config
 ```
+
+## Add a network
+
+KVM's default network is sufficient for most setups, but you can define additional networks to isolate traffic, use different subnets, or test multi-network configurations. Each network gets its own bridge interface and optional DHCP range.
+
+To add a network:
+
+1. Create an XML file that defines the network. The following example creates a NAT network on `192.168.100.0/24`:
+   ```xml
+   <network>
+     <name>mynetwork</name>                                    # 1
+     <bridge name='virbr1'/>                                   # 2
+     <forward mode='nat'/>                                     # 3
+     <ip address='192.168.100.1' netmask='255.255.255.0'>      # 4
+       <dhcp>
+         <range start='192.168.100.2' end='192.168.100.254'/>  # 5
+       </dhcp>
+     </ip>
+   </network>
+   ```
+
+   1. The network name used in `virsh` commands. `mynetwork` is a placeholder. Use a descriptive name that reflects the network's purpose.
+   2. The virtual bridge interface created on the host. KVM's default network uses `virbr0`, so `virbr1` is the next available name and avoids conflicts.
+   3. Routes outbound VM traffic through the host using NAT. NAT lets VMs reach external networks without exposing them directly on your physical network.
+   4. The gateway address and subnet mask for the network. `192.168.100.0/24` is an RFC 1918 private range that doesn't conflict with the default KVM network (`192.168.122.0/24`) or common home and office networks (`192.168.1.0/24`). The `.1` address is the conventional gateway.
+   5. The DHCP address range assigned to VMs on this network. The range starts at `.2` to leave `.1` free for the gateway and ends at `.254`, the last usable address in a `/24` subnet.
+
+2. Define the network from the XML file:
+   ```bash
+   virsh net-define mynetwork.xml
+   ```
+3. Start the network:
+   ```bash
+   virsh net-start mynetwork
+   ```
+4. Enable autostart so the network starts with the host:
+   ```bash
+   virsh net-autostart mynetwork
+   ```
+5. Verify the network is active:
+   ```bash
+   virsh net-list --all
+   ```
+
+To connect a VM to the new network, edit the VM's configuration and change the `<source network='default'/>` line to reference your new network name:
+
+```bash
+virsh edit <vm-name>
+```
+```xml
+<interface type='network'>
+  <source network='mynetwork'/>
+</interface>
+```
+
+Restart the VM for the new network interface to take effect.

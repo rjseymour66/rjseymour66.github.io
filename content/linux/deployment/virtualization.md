@@ -15,6 +15,17 @@ KVM/QEMU lets you run virtual machines without a third-party product like Virtua
 KVM assigns VMs addresses on the `192.168.122.0/24` network from an internal DHCP server (`192.168.122.2`–`192.168.122.254`). You can SSH into VMs from your workstation, or configure bridging to connect VMs directly to your local network.
 
 
+## Important addresses
+
+KVM creates a private `192.168.122.0/24` network for VMs by default. The host bridge interface `virbr0` handles routing, DHCP, and DNS for all VMs on this network.
+
+| Address | Role |
+|:--------|:-----|
+| 192.168.122.0/24 | Default VM network |
+| 192.168.122.1 | Host gateway and DNS server (`virbr0`) |
+| 192.168.122.2–192.168.122.254 | DHCP assignment range |
+| 192.168.122.255 | Broadcast address |
+
 ## KVM components
 
 The `libvirtd` daemon manages VMs, virtual networks, storage pools, and virtual interfaces. Tools like `virsh` and `virt-manager` communicate with `libvirtd` through its API.

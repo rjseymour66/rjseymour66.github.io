@@ -232,6 +232,26 @@ network:
 
 Netplan is Ubuntu Server's default network configuration tool. It reads YAML files from `/etc/netplan/` and generates configuration for the underlying renderer — `networkd` for servers. Netplan processes files in lexical order, so `99-config.yaml` applies after the default `50-cloud-init.yaml`. Changes require editing a file and running `sudo netplan apply`.
 
+#### netplan apply
+
+`netplan apply` reads all YAML files in `/etc/netplan/`, generates the backend configuration, and applies changes to the running network stack immediately. No reboot is required.
+
+Netplan is a translator, not a network manager. It converts YAML into configuration for whichever backend is active:
+
+- `systemd-networkd` — servers and minimal installs
+- `NetworkManager` — desktops
+
+The generated files are ephemeral. Netplan writes them to `/run/systemd/network/` or `/etc/NetworkManager/system-connections/` and regenerates them from the YAML on every boot. The YAML in `/etc/netplan/` is the source of truth.
+
+Two related commands:
+
+```bash
+sudo netplan try      # apply with a 120s rollback timer — safe for remote sessions
+sudo netplan generate # generate backend config without applying it
+```
+
+`netplan try` is the safer option when connected over SSH. If you don't confirm the change within 120 seconds, netplan rolls back automatically.
+
 #### Assign static IP address
 
 A static IP address stays fixed across reboots, which makes it useful for servers, printers, and any device you need to reach by a predictable address. When assigning a static address, choose one that falls outside the DHCP server's assignment range to avoid conflicts with dynamically assigned addresses. Alternatively, configure a static DHCP lease on the router, which assigns the same address every time the device connects.

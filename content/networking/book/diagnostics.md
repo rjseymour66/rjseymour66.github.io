@@ -33,6 +33,126 @@ A MAC (Media Access Control) address is a 48-bit identifier burned into every NI
 
 MAC addresses operate at Layer 2 and identify devices within a broadcast domain. Every device with a network interface has one: hosts, routers (one per interface), switches (for management), wireless access points, and IoT devices.
 
+#### OUI values
+
+The first three bytes of a MAC address are the *OUI (Organizationally Unique Identifier)*. The IEEE assigns each OUI to a specific manufacturer. Look up any OUI in the Wireshark project's OUI database to identify the vendor behind an unknown MAC address.
+
+Organizations can purchase longer OUI prefixes. A 28-bit or 36-bit prefix trades a larger identifier block for fewer available device addresses. A 36-bit OUI leaves only 12 bits for device IDs, enough for roughly 4,000 addresses. Smaller organizations or those with limited device counts buy these to avoid purchasing a full 24-bit block they would never fill.
+
+OUIs are useful for network diagnostics. When an unknown device appears in an ARP table or a network scan, the OUI identifies the manufacturer, which narrows down what the device is before you investigate further.
+
+#### Find MAC address
+
+```bash
+ip link show                      # List all interfaces
+ip link show enp1s0 | grep link   # Show the MAC address for one interface
+```
+
+`ip link show` lists every network interface with its Layer 2 details. Each entry includes a `link/ether` line showing the MAC address and the broadcast address for that interface.
+
+`ip link show enp1s0 | grep link` filters output to just the `link/ether` line for a named interface, returning a single line with the MAC.
+
+#### Change MAC address temporarily
+
+Most drivers require the interface to be down before you change its MAC. The driver writes the new address into its working state but never touches the hardware. The burned-in OUI is read-only on the NIC. It encodes the manufacturer's identifier in the first three octets and is assigned by the IEEE to each vendor.
+
+```bash
+sudo ip link set dev enp1s0 down
+sudo ip link set dev enp1s0 address 00:11:22:33:44:55   # spoofed MAC
+sudo ip link set dev enp1s0 up
+```
+
+The change reverts on reboot or when the interface reloads.
+
+Use this when:
+
+- Your ISP hardcoded your old firewall's MAC and you replaced the firewall. Spoofing the old MAC brings the new device online without waiting for ISP-side changes.
+- You replaced a host or NIC and the upstream router has the old MAC in its ARP cache. If you can't access the router to flush it and can't wait for the entry to expire, spoofing the old MAC makes the router forward traffic to the new hardware immediately.
+- A DHCP server has a reservation tied to the old MAC and you can't update the entry. Spoofing the old MAC lets the replacement host claim the same reserved address.
+- Avoiding MAC-based DHCP lease tracking when moving a host between environments. Some DHCP servers assign leases by MAC, so a new MAC gets a new lease and a new IP.
+- Testing network policies or firewall rules that filter by MAC address without needing a second physical device.
+- Apple devices randomize their wireless MAC per network as a privacy measure, but the protection is limited. Passive observers can still correlate sessions through traffic patterns, timing, and probe behavior regardless of MAC changes.
+
+#### Change MAC address permanently
+
+To set a MAC address that persists across reboots, add the `macaddress` key to the interface's netplan YAML in `/etc/netplan/`.
+
+```yaml
+# This is the network config written by 'subiquity'
+network:
+  ethernets:
+    enp1s0:
+      dhcp4: false
+      match:
+          macaddress: 52:54:00:2d:d3:ce
+      macaddress: 00:11:22:33:44:55
+      ...
+```
+
+The `match:` key selects the physical interface by its burned-in MAC rather than its kernel-assigned name. Interface names like `enp1s0` can change after a hardware swap. `match.macaddress` uses the OUI — the hardware address permanently encoded in the NIC — as a stable identifier that survives renames.
+
+The `macaddress` key at the same level as `match:` sets the address the driver presents to the network. Netplan applies it each time the interface comes up.
+
+Apply the change:
+
+```bash
+sudo netplan apply
+```
+
+#### Add a static entry with ip neigh
+
+The `iproute2` equivalent of `arp -s`. Prefer this over `arp -s` on modern Linux. The `dev` argument is required, which eliminates the interface ambiguity that causes `arp -s` to fail.
+
+```bash
+sudo ip neigh add 192.168.122.200 lladdr 00:11:22:33:44:55 dev enp1s0
+```
+
+Adds a permanent neighbor entry on `enp1s0`.
+
+#### Add a static ARP entry
+
+Use this when a critical device must always resolve to a known MAC, or when you want to prevent ARP spoofing from overwriting a gateway entry.
+
+```bash
+sudo arp -s 192.168.122.200 00:11:22:22:33:33 -i enp1s0
+```
+
+Maps `192.168.122.200` to `00:11:22:22:33:33` on `enp1s0`.
+
+- `-s`: creates a static entry that never ages out
+- `-i`: binds the entry to a specific interface, required when multiple interfaces can reach the same subnet. Without it, the kernel cannot determine which interface to use and returns `SIOCSARP: Invalid argument`.
+
+Verify the entry:
+
+```bash
+arp -a | grep 192.168.122.200
+networking (192.168.122.200) at 00:11:22:22:33:33 [ether] PERM on enp1s0
+```
+
+`PERM` confirms the entry is permanent. The hostname `networking` resolved from reverse DNS for that IP.
+
+#### Configure proxy ARP
+
+*Proxy ARP* lets a host answer ARP requests on behalf of a device it can reach but the requesting host cannot. Instead of the real device replying, the proxy replies with its own MAC. The sender delivers frames to the proxy, which forwards them to the actual destination. The sender never knows a proxy is involved.
+
+Use this when:
+
+- Bridging two segments where a device on one side must be reachable from the other without a routing change
+- Inserting a transparent firewall into a path. Traffic destined for the real host gets redirected through this system first.
+- A host is moving subnets but you need to preserve reachability from the original segment temporarily
+
+```bash
+sudo arp -i enp1s0 -Ds 10.0.0.2 eth1 pub
+```
+
+Publishes a proxy ARP entry on `enp1s0`. When any host sends an ARP request for `10.0.0.2` on `enp1s0`, this system replies with the MAC address of `eth1`.
+
+- `-i enp1s0`: the interface on which to listen for and answer ARP requests
+- `-D`: uses the MAC address of the named interface (`eth1`) rather than a manually specified address
+- `-s 10.0.0.2`: the IP address to proxy for
+- `eth1`: the interface whose MAC to use in the reply
+- `pub`: marks the entry as published. This system answers ARP requests on behalf of `10.0.0.2` rather than caching the mapping for local use only.
+
 ### MAC address table
 
 Switches add entries to the CAM table dynamically as frames arrive, recording the source MAC against the ingress port. If a MAC appears on a different port later, the switch updates the entry. This handles devices that move or topology changes from STP reconvergence.
@@ -130,13 +250,13 @@ A switch's CAM table tracks which port a MAC address lives on. Layer 2 topology 
 
 A router's ARP table tracks which MAC address owns a given IP. IP-to-MAC mappings are stable by comparison: a host rarely changes its NIC. Cisco routers default to 14400 seconds (4 hours) per interface. If a mapping changes before expiry, a gratuitous ARP from the device updates the cache immediately.
 
-Linux uses a neighbor state machine rather than a hard timer. An entry moves through REACHABLE → STALE → DELAY → PROBE → FAILED before the kernel removes it. The `gc_stale_time` (default 60 seconds) controls how long an entry sits in STALE before the kernel probes it, not the total lifetime.
+Linux uses a neighbor state machine rather than a hard timer. An entry moves through REACHABLE → STALE → DELAY → PROBE → FAILED before the kernel removes it. The `gc_stale_time` (default 60 seconds) controls how long a STALE entry persists before the garbage collector removes it, not the total entry lifetime.
 
-| Table | Device | Default timeout | Reason for value |
-|-------|--------|-----------------|-----------------|
-| CAM table | Switch | 300s (5 min) | Layer 2 topology changes frequently |
-| ARP table | Cisco router | 14400s (4 hours) | IP-to-MAC mappings are stable |
-| Neighbor cache | Linux host | 60s stale timer | State machine probes before expiry |
+| Table          | Device       | Default timeout  | Reason for value                    |
+| -------------- | ------------ | ---------------- | ----------------------------------- |
+| CAM table      | Switch       | 300s (5 min)     | Layer 2 topology changes frequently |
+| ARP table      | Cisco router | 14400s (4 hours) | IP-to-MAC mappings are stable       |
+| Neighbor cache | Linux host   | 60s stale timer  | State machine probes before expiry  |
 
 The long ARP timeout on routers directly conserves CPU. Each ARP miss is expensive: the router must queue or drop the packet, broadcast an ARP request out the egress interface, wait for a reply, process the reply in software, write the entry, and resume forwarding. That entire sequence is process-switched and hits the CPU rather than going through CEF or the forwarding ASIC. A four-hour timeout means the router resolves each IP-to-MAC mapping once and reuses it thousands of times before expiry, keeping the CPU free for actual routing work.
 
@@ -162,16 +282,16 @@ Inter-|   Receive                                                |  Transmit
 enp1s0: 25052219   23363    0 11298    0     0          0         0  1109215    7750    0    0    0     0       0          0
 ```
 
-| Field | Side | Meaning |
-|-------|------|---------|
-| `bytes` | RX/TX | Total bytes transferred |
-| `packets` | RX/TX | Total packets transferred |
-| `errs` | RX/TX | Hardware or driver errors |
-| `drop` | RX/TX | Packets discarded before delivery |
-| `fifo` | RX/TX | Ring buffer overflows |
-| `frame` | RX | Framing errors (misaligned or malformed frames) |
-| `colls` | TX | Collisions (expected only on half-duplex links) |
-| `carrier` | TX | Carrier sense failures |
+| Field     | Side  | Meaning                                         |
+| --------- | ----- | ----------------------------------------------- |
+| `bytes`   | RX/TX | Total bytes transferred                         |
+| `packets` | RX/TX | Total packets transferred                       |
+| `errs`    | RX/TX | Hardware or driver errors                       |
+| `drop`    | RX/TX | Packets discarded before delivery               |
+| `fifo`    | RX/TX | Ring buffer overflows                           |
+| `frame`   | RX    | Framing errors (misaligned or malformed frames) |
+| `colls`   | TX    | Collisions (expected only on half-duplex links) |
+| `carrier` | TX    | Carrier sense failures                          |
 
 The `lo` loopback interface shows identical RX and TX counters because every packet sent to loopback is also received by loopback.
 
@@ -188,10 +308,60 @@ MemFree:         3026660 kB
 MemAvailable:    3575748 kB
 ```
 
-| Field | Value | Meaning |
-|-------|-------|---------|
-| `MemTotal` | 4009868 kB (~3.8 GB) | Total physical RAM |
-| `MemFree` | 3026660 kB (~2.9 GB) | RAM with no current use |
+| Field          | Value                | Meaning                                         |
+| -------------- | -------------------- | ----------------------------------------------- |
+| `MemTotal`     | 4009868 kB (~3.8 GB) | Total physical RAM                              |
+| `MemFree`      | 3026660 kB (~2.9 GB) | RAM with no current use                         |
 | `MemAvailable` | 3575748 kB (~3.4 GB) | RAM available to new processes without swapping |
 
 `MemFree` and `MemAvailable` differ because the kernel uses otherwise-idle RAM for page cache and buffers. That memory is reclaimable: if a process needs it, the kernel evicts the cache and hands it over. The ~537 MB gap between `MemFree` and `MemAvailable` in this output is reclaimable cache. `MemAvailable` is the more useful figure when assessing whether the host has headroom — `MemFree` alone understates what's usable.
+
+### ip neigh
+
+`ip neigh` is the `iproute2` command for managing the kernel neighbor table — the same table `arp -a` displays, but with full state visibility.
+
+Read operations:
+
+```bash
+# Show all entries
+ip neigh show
+
+# Show entries for one interface
+ip neigh show dev virbr0
+
+# Show only reachable entries
+ip neigh show nud reachable
+```
+
+Write operations:
+
+```bash
+# Add a static entry
+sudo ip neigh add 192.168.122.200 lladdr 00:11:22:33:44:55 dev virbr0
+
+# Replace an existing entry (add or update)
+sudo ip neigh replace 192.168.122.200 lladdr 00:11:22:33:44:55 dev virbr0
+
+# Delete one entry
+sudo ip neigh del 192.168.122.200 dev virbr0
+
+# Flush all dynamic entries on an interface
+sudo ip neigh flush dev virbr0
+
+# Flush everything (all interfaces, all states)
+sudo ip neigh flush all
+```
+
+The `State` column in `ip neigh show` output maps to the kernel neighbor state machine:
+
+| State       | Meaning                                                       |
+| ----------- | ------------------------------------------------------------- |
+| `REACHABLE` | Recently confirmed reachable; used directly                   |
+| `STALE`     | Timer expired; still usable but the kernel probes on next use |
+| `DELAY`     | Waiting before sending a unicast probe                        |
+| `PROBE`     | Actively sending unicast probes to confirm reachability       |
+| `FAILED`    | Probes got no reply; entry is dead                            |
+| `PERMANENT` | Statically configured; never ages out                         |
+| `NOARP`     | No ARP on this interface type (for example, point-to-point)   |
+
+The key difference from `arp`: `arp` does not display the neighbor state label. `ip neigh show` exposes the current state for every entry, which is useful when debugging unreachable hosts or incorrect MAC mappings.

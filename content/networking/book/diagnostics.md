@@ -8,7 +8,7 @@ draft = false
 ## Commands overview
 
 | Name              | Description                                                                                                     |
-| ----------------- | --------------------------------------------------------------------------------------------------------------- |
+| :---------------- | :-------------------------------------------------------------------------------------------------------------- |
 | `arp`             | Displays and manages the ARP cache, which maps IP addresses to MAC addresses on the local network               |
 | `netplan`         | Ubuntu's YAML-based network configuration tool; applies settings at boot or on demand                           |
 | `ip` / `ifconfig` | Configure and inspect network interfaces, addresses, and routes; `ip` is the modern replacement for `ifconfig`  |
@@ -19,13 +19,13 @@ draft = false
 ## Tools overview
 
 | Name    | Description                                                                                                 |
-| ------- | ----------------------------------------------------------------------------------------------------------- |
+| :------ | :---------------------------------------------------------------------------------------------------------- |
 | Nmap    | Network scanner for host discovery, open port enumeration, and service version detection                    |
 | Kismet  | Passive wireless network detector, packet sniffer, and intrusion detection system                           |
 | Wavemon | Terminal-based monitor that displays real-time signal strength and connection stats for wireless interfaces |
 | Linssid | Graphical Wi-Fi scanner that lists nearby networks with channel, signal strength, and security details      |
 
-## Layer 2: IP and MAC with ARP
+## IP and MAC with ARP (L2)
 
 ### MAC addresses
 
@@ -227,7 +227,7 @@ RE550 (192.168.1.188) at 9e:03:8e:bb:ab:44 [ether] on wlp59s0
 Each line follows the format `hostname (IP) at MAC [type] on interface`. A `?` in the hostname field means no reverse DNS record exists for that IP. The fields break down as follows:
 
 | Field     | Example             | Meaning                                 |
-| --------- | ------------------- | --------------------------------------- |
+| :-------- | :------------------ | :-------------------------------------- |
 | Hostname  | `CR1000A...` / `?`  | Resolved hostname, or `?` if none       |
 | IP        | `192.168.1.1`       | Layer 3 address                         |
 | MAC       | `58:96:71:28:e6:26` | Layer 2 address                         |
@@ -253,7 +253,7 @@ A router's ARP table tracks which MAC address owns a given IP. IP-to-MAC mapping
 Linux uses a neighbor state machine rather than a hard timer. An entry moves through REACHABLE → STALE → DELAY → PROBE → FAILED before the kernel removes it. The `gc_stale_time` (default 60 seconds) controls how long a STALE entry persists before the garbage collector removes it, not the total entry lifetime.
 
 | Table          | Device       | Default timeout  | Reason for value                    |
-| -------------- | ------------ | ---------------- | ----------------------------------- |
+| :------------- | :----------- | :--------------- | :---------------------------------- |
 | CAM table      | Switch       | 300s (5 min)     | Layer 2 topology changes frequently |
 | ARP table      | Cisco router | 14400s (4 hours) | IP-to-MAC mappings are stable       |
 | Neighbor cache | Linux host   | 60s stale timer  | State machine probes before expiry  |
@@ -283,7 +283,7 @@ enp1s0: 25052219   23363    0 11298    0     0          0         0  1109215    
 ```
 
 | Field     | Side  | Meaning                                         |
-| --------- | ----- | ----------------------------------------------- |
+| :-------- | :---- | :---------------------------------------------- |
 | `bytes`   | RX/TX | Total bytes transferred                         |
 | `packets` | RX/TX | Total packets transferred                       |
 | `errs`    | RX/TX | Hardware or driver errors                       |
@@ -309,7 +309,7 @@ MemAvailable:    3575748 kB
 ```
 
 | Field          | Value                | Meaning                                         |
-| -------------- | -------------------- | ----------------------------------------------- |
+| :------------- | :------------------- | :---------------------------------------------- |
 | `MemTotal`     | 4009868 kB (~3.8 GB) | Total physical RAM                              |
 | `MemFree`      | 3026660 kB (~2.9 GB) | RAM with no current use                         |
 | `MemAvailable` | 3575748 kB (~3.4 GB) | RAM available to new processes without swapping |
@@ -355,7 +355,7 @@ sudo ip neigh flush all
 The `State` column in `ip neigh show` output maps to the kernel neighbor state machine:
 
 | State       | Meaning                                                       |
-| ----------- | ------------------------------------------------------------- |
+| :---------- | :------------------------------------------------------------ |
 | `REACHABLE` | Recently confirmed reachable; used directly                   |
 | `STALE`     | Timer expired; still usable but the kernel probes on next use |
 | `DELAY`     | Waiting before sending a unicast probe                        |
@@ -365,3 +365,405 @@ The `State` column in `ip neigh show` output maps to the kernel neighbor state m
 | `NOARP`     | No ARP on this interface type (for example, point-to-point)   |
 
 The key difference from `arp`: `arp` does not display the neighbor state label. `ip neigh show` exposes the current state for every entry, which is useful when debugging unreachable hosts or incorrect MAC mappings.
+
+
+## ARP cache
+
+The *ARP cache* is the kernel's in-memory table of resolved IP-to-MAC mappings. When a host sends a packet to a destination on the same subnet, it checks the ARP cache first. A cache hit skips the ARP broadcast and sends the frame directly. A cache miss triggers an ARP request.
+
+On Linux, the kernel exposes the IPv4 ARP cache at `/proc/net/arp`:
+
+```bash
+cat /proc/net/arp
+```
+
+That file shows the IP address, hardware type, flags, MAC address, mask, and interface for each cached entry. It covers IPv4 only and omits neighbor state labels.
+
+`ip neigh show` reads the same kernel neighbor table but includes both IPv4 and IPv6 entries and displays the neighbor state (`REACHABLE`, `STALE`, `PERMANENT`, and so on).
+
+Entries age out automatically. Linux marks a reachable entry `STALE` after `gc_stale_time` seconds (default 60 seconds) and removes it if unused.
+
+## Ports (L4)
+
+TCP and UDP identify services by port number. A port is a 16-bit integer (0–65535) that the OS uses to direct incoming traffic to the correct process. TCP uses ports to establish reliable, connection-oriented sessions. UDP uses ports for connectionless delivery. In both cases, traffic flows from a source port on the client to a destination port on the server.
+
+### Port assignments
+
+IANA divides the port space into three ranges:
+
+| Range       | Name             | Description                                                                |
+| :---------- | :--------------- | :------------------------------------------------------------------------- |
+| 0–1023      | Well-known ports | Reserved for standard services: HTTP (80), HTTPS (443), SSH (22), DNS (53) |
+| 1024–49151  | Registered ports | Assigned to applications by IANA; not reserved by the OS                   |
+| 49152–65535 | Dynamic ports    | Ephemeral ports assigned by the OS for outgoing connections                |
+
+The full IANA registry is at [service-names-port-numbers](https://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.xhtml).
+
+### Common ports
+
+| Port | Transport | Service           | Notes                                                       |
+| :--- | :-------- | :---------------- | :---------------------------------------------------------- |
+| 20   | TCP       | FTP data          | Active mode data transfer                                   |
+| 21   | TCP       | FTP control       | Command channel                                             |
+| 22   | TCP       | SSH               | Secure shell; also used for SCP and SFTP                    |
+| 23   | TCP       | Telnet            | Unencrypted; avoid in production                            |
+| 25   | TCP       | SMTP              | Mail transfer between servers                               |
+| 49   | TCP       | TACACS+           | Cisco AAA; encrypts the entire payload                      |
+| 53   | TCP/UDP   | DNS               | UDP for queries; TCP for zone transfers and large responses |
+| 67   | UDP       | DHCP server       | Listens for client broadcasts                               |
+| 68   | UDP       | DHCP client       | Receives server offers                                      |
+| 69   | UDP       | TFTP              | Used for device config and image transfers                  |
+| 80   | TCP       | HTTP              | Unencrypted web traffic                                     |
+| 88   | TCP/UDP   | Kerberos          | Authentication in Active Directory environments             |
+| 123  | UDP       | NTP               | Time synchronization                                        |
+| 161  | UDP       | SNMP              | Manager polls agent                                         |
+| 162  | UDP       | SNMP trap         | Agent sends unsolicited notifications to manager            |
+| 179  | TCP       | BGP               | eBGP and iBGP session establishment                         |
+| 389  | TCP       | LDAP              | Directory queries                                           |
+| 443  | TCP       | HTTPS             | TLS-encrypted web traffic                                   |
+| 445  | TCP       | SMB               | Windows file sharing and Active Directory                   |
+| 514  | UDP       | Syslog            | Log forwarding to a syslog server                           |
+| 636  | TCP       | LDAPS             | TLS-encrypted LDAP                                          |
+| 830  | TCP       | NETCONF           | XML-based network configuration (RFC 6241)                  |
+| 1812 | UDP       | RADIUS auth       | Authentication and authorization                            |
+| 1813 | UDP       | RADIUS accounting | Session accounting                                          |
+| 3389 | TCP       | RDP               | Windows Remote Desktop                                      |
+| 5060 | UDP/TCP   | SIP               | VoIP signaling                                              |
+| 5061 | TCP       | SIP (TLS)         | Encrypted VoIP signaling                                    |
+
+### Ephemeral ports
+
+When a client opens a connection, the OS picks a temporary source port from the ephemeral range — any available port above 1024 and below 65535. The client holds that port for the life of the connection, then releases it. On Linux, the OS selects from a configurable range stored in `/proc/sys/net/ipv4/ip_local_port_range` (default: 32768–60999).
+
+### Tuples
+
+A *tuple* is an ordered set of values that together identify a network flow. A *5-tuple* uniquely identifies a connection:
+
+| Field            | Example       |
+| :--------------- | :------------ |
+| Source IP        | 192.168.1.10  |
+| Source port      | 54321         |
+| Destination IP   | 93.184.216.34 |
+| Destination port | 443           |
+| Protocol         | TCP           |
+
+No two active connections share the same 5-tuple. The OS uses it to demultiplex incoming packets to the correct socket. Each IP address in the 5-tuple belongs to an autonomous system. BGP uses the destination IP's ASN to route the packet across AS boundaries to reach the far endpoint.
+
+To the network stack, the 5-tuple is a hash key. When a packet arrives, the kernel extracts the five fields from the IP and TCP/UDP headers and hashes them to an integer index. That index locates a bucket in the connection table. Each bucket holds a linked list of `struct nf_conntrack_tuple` entries to handle collisions. The hash function uses a per-boot random seed (SipHash) to prevent hash-flooding attacks.
+
+The tuple serves three roles in the stack:
+
+- *Demultiplex*: delivers the incoming packet to the correct socket and process
+- *State tracking*: conntrack stores the tuple so stateful firewalls and NAT know which connection a packet belongs to
+- *NAT key*: when a packet is masqueraded, conntrack rewrites the source fields and stores the original tuple to reverse the translation on the reply
+
+`ss` shows active tuples. The local address:port is the source IP and port. The peer address:port is the destination IP and port. The `Netid` column is the protocol:
+
+```bash
+ss -tunapo
+Netid  State   Recv-Q  Send-Q  Local Address:Port   Peer Address:Port    Process
+tcp    ESTAB   0       0       192.168.1.10:54321   93.184.216.34:443    users:(("curl",pid=1234,fd=3))
+```
+
+`conntrack -L` shows the same connection from the netfilter tracking table:
+
+```bash
+tcp   6  299  ESTABLISHED src=192.168.1.10 dst=93.184.216.34 sport=54321 dport=443 ...
+```
+
+Check the connection table limits:
+
+```bash
+cat /proc/sys/net/netfilter/nf_conntrack_max       # max conntrack entries
+cat /proc/sys/net/netfilter/nf_conntrack_buckets    # hash table bucket count
+```
+
+### QoS, TOS, and DSCP
+
+*Quality of Service (QoS)* prioritizes traffic so latency-sensitive flows (voice, video) are forwarded ahead of bulk transfers (backups, file copies).
+
+QoS markings travel in the IP header alongside the 5-tuple fields:
+
+- *TOS (Type of Service)*: the original 8-bit IPv4 header field for traffic priority
+- *DSCP (Differentiated Services Code Point)*: the modern replacement defined in RFC 2474; reuses the top 6 bits of the TOS field to encode 64 possible forwarding behaviors called *per-hop behaviors (PHBs)*
+
+Routers and switches read the DSCP value and apply a queuing policy. The marking travels with the packet end to end. It is set by the sender or remarked at a network trust boundary.
+
+### Autonomous System Numbers
+
+An *Autonomous System (AS)* is a collection of IP prefixes under common administrative control — an ISP, a cloud provider, or a large enterprise. The *Autonomous System Number (ASN)* identifies each AS. IANA assigns ASNs through five Regional Internet Registries (RIRs): ARIN (North America), RIPE NCC (Europe and Middle East), APNIC (Asia-Pacific), LACNIC (Latin America), and AFRINIC (Africa).
+
+ASNs are 16-bit (1–65535) or 32-bit (1–4294967295, introduced in RFC 4893). IANA reserves private ranges for internal use: 64512–65535 for 16-bit and 4200000000–4294967294 for 32-bit.
+
+BGP uses ASNs to exchange routing information between autonomous systems. Each BGP router announces the IP prefixes it can reach, tagged with its ASN and the AS path to the destination.
+
+### ss
+
+`ss` is the modern replacement for `netstat`. It reads directly from kernel socket structures rather than `/proc`, making it faster and more detailed. Use it to inspect active connections, listening ports, socket queues, and TCP timer state.
+
+| Option | Description                                                 |
+| :----- | :---------------------------------------------------------- |
+| `-t`   | TCP sockets                                                 |
+| `-u`   | UDP sockets                                                 |
+| `-a`   | All sockets, including listening                            |
+| `-n`   | Numeric addresses and ports; suppresses name resolution     |
+| `-p`   | Show process name, PID, and file descriptor for each socket |
+| `-o`   | Show TCP timer information                                  |
+
+Common usages:
+
+```bash
+sudo ss -tuap                                                                                               # all TCP/UDP sockets with process info
+sudo ss -tuapn                                                                                              # numeric output, no name resolution
+sudo ss -to                                                                                                 # TCP sockets with timer information
+sudo ss -tuap | tr -s ' ' | cut -d ' ' -f 1,2,4,5,6 --output-delimiter=$'\t'                              # extract key columns
+sudo ss -tuap | tr -s ' ' | cut -d ' ' -f 1,2,4,5,6 --output-delimiter=$'\t' > ports.tsv                  # save to file
+sudo ss -tuap | tr -s ' ' | cut -d ' ' -f 1,2,4,5,6 --output-delimiter=$'\t' | grep "EST" | tee ports.out # filter established, save and print
+```
+
+Each row represents one socket:
+
+| Column               | Description                                                                    |
+| :------------------- | :----------------------------------------------------------------------------- |
+| `Netid`              | Socket type: `tcp`, `udp`, `tcp6`, `udp6`                                      |
+| `State`              | Connection state; `UNCONN` means UDP with no connected peer                    |
+| `Recv-Q`             | Bytes received but not yet read by the process                                 |
+| `Send-Q`             | Bytes sent but not yet acknowledged                                            |
+| `Local Address:Port` | Local endpoint; service names appear unless `-n` is added                      |
+| `Peer Address:Port`  | Remote endpoint; `0.0.0.0:*` on a listener or unconnected UDP socket           |
+| `Process`            | Program name, PID, and file descriptor in `users:(("name",pid=N,fd=N))` format |
+
+```bash
+Netid    State     Send-Q    Local Address:Port          Peer Address:Port
+udp      UNCONN    0         127.0.0.54:domain           0.0.0.0:*
+udp      UNCONN    0         127.0.0.53%lo:domain        0.0.0.0:*
+tcp      LISTEN    4096      0.0.0.0:ssh                 0.0.0.0:*
+tcp      LISTEN    4096      127.0.0.54:domain           0.0.0.0:*
+tcp      LISTEN    4096      127.0.0.53%lo:domain        0.0.0.0:*
+tcp      ESTAB     0         192.168.122.200:ssh         192.168.122.1:59516
+tcp      LISTEN    4096      [::]:ssh                    [::]:*
+```
+
+- UDP sockets show `UNCONN` instead of `LISTEN` because UDP is connectionless. A UDP socket binds to a port and receives datagrams without establishing a session.
+- `Send-Q` on a `LISTEN` socket shows the accept backlog size (4096), not bytes. It is the maximum number of pending connections the kernel will queue before refusing new ones.
+- `127.0.0.53%lo:domain` — the `%lo` suffix is a zone ID scoping the address to the `lo` interface. It distinguishes sockets bound to the same address on different interfaces.
+- `[::]:ssh` — IPv6 wildcard listener; `[::]` is the IPv6 equivalent of `0.0.0.0`.
+- Service names (`ssh`, `domain`) appear because `-n` is not set. Add `-n` to see numeric ports.
+
+#### TCP timers
+
+`ss -to` adds a `timer:` field to each TCP socket showing the active kernel timer:
+
+```bash
+State  Recv-Q  Send-Q  Local Address:Port       Peer Address:Port    Timer
+ESTAB  0       0       192.168.122.200:ssh       192.168.122.1:59516  timer:(keepalive,40min,0)
+```
+
+The three values in `timer:(type,remaining,retransmits)`:
+
+- `keepalive`: the OS sends a small probe on idle connections to detect whether the remote end is still alive
+- `40min`: time remaining before the next probe fires
+- `0`: retransmission count; a rising value means probes are going unanswered
+
+The keepalive timer is a critical diagnostic for long-lived TCP sessions routed through a stateful firewall. Stateful firewalls track every TCP session in a connection table held in memory. To reclaim memory, they apply an idle timeout: if no traffic passes on a session for a set period (typically 30–60 minutes), the firewall silently removes the entry. It sends no FIN and no RST. Both endpoints still believe the connection is `ESTAB`, but the next packet arrives at the firewall with no matching state entry and is dropped. The session hangs without either side knowing why.
+
+TCP keepalive prevents this by generating traffic on idle connections to reset the firewall's idle timer. Linux defaults to sending the first probe after two hours (`tcp_keepalive_time = 7200`). Most firewalls time out sessions well before that. If `ss -to` shows a keepalive timer of 40 minutes but the firewall's idle timeout is 30 minutes, the session will be killed before the probe fires.
+
+This is where large file backups fail. A backup job (`rsync`, `scp`, tar over SSH) holds a session open for hours. While data flows the connection is never idle. But if the transfer stalls — a disk I/O bottleneck, a slow tape device, or a network hiccup — traffic stops. The firewall times out the entry, and when the backup resumes the next packet finds no state. The session is killed mid-transfer with a broken pipe or connection reset.
+
+To reduce `tcp_keepalive_time` below the firewall's idle timeout:
+
+```bash
+sudo sysctl -w net.ipv4.tcp_keepalive_time=1800    # first probe after 30 minutes
+sudo sysctl -w net.ipv4.tcp_keepalive_intvl=30     # 30 seconds between subsequent probes
+sudo sysctl -w net.ipv4.tcp_keepalive_probes=5     # drop after 5 unanswered probes
+```
+
+To persist across reboots, add to `/etc/sysctl.conf`:
+
+```bash
+net.ipv4.tcp_keepalive_time = 1800
+net.ipv4.tcp_keepalive_intvl = 30
+net.ipv4.tcp_keepalive_probes = 5
+```
+
+Then apply:
+
+```bash
+sudo sysctl -p
+```
+
+### netstat
+
+`netstat` displays active connections, listening ports, and socket statistics. It is deprecated on modern Linux in favor of `ss`, but remains widely available in scripts and documentation. Use it when `ss` is unavailable or when working with older systems.
+
+| Option | Description |
+| :--- | :--- |
+| `-t` | TCP sockets |
+| `-u` | UDP sockets |
+| `-a` | All sockets, including listening ports |
+| `-n` | Numeric addresses and ports; suppresses name resolution |
+| `-l` | Listening sockets only |
+| `-p` | Show PID and program name; run with `sudo` to see processes owned by other users |
+
+Common usages:
+
+```bash
+netstat -tuan           # all TCP/UDP sockets with state, numeric output
+sudo netstat -tulpn     # listening sockets only with process name, numeric output
+```
+
+Each row represents one socket:
+
+| Column | Description |
+| :--- | :--- |
+| `Proto` | Protocol: `tcp`, `tcp6`, `udp`, or `udp6` |
+| `Recv-Q` | Bytes received but not yet read by the application |
+| `Send-Q` | Bytes sent but not yet acknowledged by the remote end |
+| `Local Address` | Local IP and port |
+| `Foreign Address` | Remote IP and port; `0.0.0.0:*` on a listener means no peer yet |
+| `State` | TCP connection state; blank for UDP |
+
+```bash
+Proto Recv-Q Send-Q Local Address           Foreign Address         State
+tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN
+tcp        0      0 127.0.0.53:53           0.0.0.0:*               LISTEN
+tcp        0      0 127.0.0.1:3306          0.0.0.0:*               LISTEN
+tcp        0      0 127.0.0.1:1313          0.0.0.0:*               LISTEN
+tcp        0      0 192.168.122.1:53        0.0.0.0:*               LISTEN
+tcp        0      0 192.168.1.162:33370     199.38.167.130:443      ESTABLISHED
+tcp        0      0 127.0.0.1:59310         127.0.0.1:1313          ESTABLISHED
+tcp        0      0 192.168.122.1:59516     192.168.122.200:22      ESTABLISHED
+tcp        0      0 127.0.0.1:48656         127.0.0.1:9099          TIME_WAIT
+tcp       25      0 192.168.1.162:50338     216.219.92.22:443       CLOSE_WAIT
+tcp6       0      0 :::22                   :::*                    LISTEN
+tcp6       0      0 :::16443                :::*                    LISTEN
+udp        0      0 192.168.1.162:68        192.168.1.1:67          ESTABLISHED
+udp        0      0 0.0.0.0:67              0.0.0.0:*
+udp        0      0 0.0.0.0:4789            0.0.0.0:*
+udp        0      0 224.0.0.251:5353        0.0.0.0:*
+```
+
+- `0.0.0.0:22` LISTEN — SSH daemon accepting connections on all IPv4 interfaces
+- `127.0.0.1:3306` LISTEN — MySQL bound to loopback only; not reachable from outside the host
+- `127.0.0.1:1313` LISTEN — Hugo dev server, loopback only
+- `192.168.1.162:33370 → 199.38.167.130:443` ESTABLISHED — outbound HTTPS to an external host
+- `127.0.0.1:59310 → 127.0.0.1:1313` ESTABLISHED — browser connected to the Hugo dev server on loopback
+- `192.168.122.1:59516 → 192.168.122.200:22` ESTABLISHED — SSH session from the hypervisor into a VM on the 192.168.122.0/24 bridge
+- `Recv-Q 25, CLOSE_WAIT` — the remote end closed the connection but 25 bytes remain unread; the local application has not called close yet
+- `udp 192.168.1.162:68 → 192.168.1.1:67` ESTABLISHED — active DHCP lease; client port 68 bound to the server on port 67
+- `udp 0.0.0.0:4789` — VXLAN overlay port listening; indicates a container overlay network is active
+- `udp 224.0.0.251:5353` — mDNS multicast listener
+
+Adding `-p` shows the owning process. A `-` in `PID/Program name` means the process is owned by another user and `sudo` was not used:
+
+```bash
+Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name
+tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN      1234/sshd
+tcp        0      0 127.0.0.1:3306          0.0.0.0:*               LISTEN      5678/mysqld
+tcp        0      0 127.0.0.1:1313          0.0.0.0:*               LISTEN      9012/hugo
+tcp        0      0 127.0.0.53:53           0.0.0.0:*               LISTEN      910/systemd-resolve
+udp        0      0 0.0.0.0:67              0.0.0.0:*                           1456/dnsmasq
+udp        0      0 0.0.0.0:4789            0.0.0.0:*                           -
+```
+
+#### TCP states
+
+| State | Description |
+| :--- | :--- |
+| `LISTEN` | Waiting for incoming connections on a local port |
+| `ESTABLISHED` | Connection is open and data flows in both directions |
+| `TIME_WAIT` | Connection closed locally; waiting to absorb delayed packets before the port is reused |
+
+Less common states appear during connection setup and teardown:
+
+| State | Description |
+| :--- | :--- |
+| `SYN_SENT` | Client sent a SYN and is waiting for a SYN-ACK from the server |
+| `SYN_RECV` | Server received a SYN and sent a SYN-ACK; waiting for the final ACK |
+| `FIN_WAIT_1` | Sent a FIN; waiting for an ACK or a simultaneous FIN from the remote end |
+| `FIN_WAIT_2` | Received the ACK of the FIN; waiting for the remote end's FIN |
+| `CLOSE_WAIT` | Received a FIN from the remote end; waiting for the local application to close the socket |
+| `LAST_ACK` | Sent a FIN after entering CLOSE_WAIT; waiting for the final ACK |
+| `CLOSING` | Both sides sent a FIN simultaneously; waiting for the remote ACK |
+| `CLOSE` | Connection fully closed; no longer tracked |
+
+### lsof
+
+`lsof` (list open files) lists every file a process has open, including network sockets. Use it when you need to answer a specific question: which process is holding a port open, which user owns a connection, or whether a port is shared across multiple processes. Where `ss` and `netstat` show the socket table, `lsof` shows the relationship between sockets and processes with more detail — including the user, file descriptor, and resolved hostnames.
+
+```bash
+sudo lsof -i :22    # show all processes with a socket on port 22
+```
+
+```bash
+COMMAND  PID USER   FD   TYPE DEVICE SIZE/OFF NODE NAME
+systemd    1 root  126u  IPv4   7298      0t0  TCP *:ssh (LISTEN)
+systemd    1 root  127u  IPv6   7302      0t0  TCP *:ssh (LISTEN)
+sshd    1035 root    3u  IPv4   7298      0t0  TCP *:ssh (LISTEN)
+sshd    1035 root    4u  IPv6   7302      0t0  TCP *:ssh (LISTEN)
+sshd    7754 root    4u  IPv4  42499      0t0  TCP networking:ssh->_gateway:59516 (ESTABLISHED)
+sshd    7852 ryan    4u  IPv4  42499      0t0  TCP networking:ssh->_gateway:59516 (ESTABLISHED)
+```
+
+A few things to note in this output:
+
+- Both `systemd` (PID 1) and `sshd` (PID 1035) share the same `DEVICE` number (7298/7302), meaning they hold the same socket file descriptor. `systemd` socket activation opened the port; `sshd` inherited it at startup.
+- `sshd` appears twice for the established session (PIDs 7754 and 7852): the root-owned parent process and the user-owned child process that handles the authenticated session after privilege drop.
+- `networking:ssh->_gateway:59516` shows resolved hostnames rather than IPs. Add `-n` to suppress resolution and show numeric addresses.
+
+## TCP handshake (L4)
+
+TCP establishes a connection with a three-way handshake before any data flows. The handshake synchronizes sequence numbers between the two endpoints and confirms both sides are reachable and ready.
+
+TCP tracks every byte in a stream with a *sequence number (SEQ)*. Each side picks a random *Initial Sequence Number (ISN)* at connection start to prevent sequence prediction attacks. The *acknowledgment number (ACK)* tells the other side which byte to send next: it is always the last received SEQ plus one.
+
+### Three-way handshake
+
+The client picks an ephemeral source port and sends the first packet to the server's fixed destination port with the SYN bit set and a random SEQ. The server replies with both SYN and ACK bits set, its own random SEQ, and an ACK equal to the client's ISN plus one. The client completes the handshake by sending an ACK.
+
+```bash
+Client :54321                         Server :443
+     |                                     |
+     |----  SYN  SEQ=1000  --------------> |  client initiates
+     |                                     |
+     |<---  SYN-ACK  SEQ=5000  ACK=1001   -|  server synchronizes
+     |                                     |
+     |----  ACK  SEQ=1001  ACK=5001  ----> |  client confirms
+     |                                     |
+     |<========= data exchange ===========>|
+```
+
+After the third packet, the connection is *ESTABLISHED* and data flows in both directions.
+
+### Connection teardown
+
+TCP closes each direction independently. Either side sends a *FIN* to signal it has no more data to send. The other side acknowledges the FIN, then sends its own FIN when it is also done. The initiating side acknowledges and enters *TIME_WAIT* for twice the maximum segment lifetime (typically 60 seconds) to absorb any delayed packets still in flight.
+
+```bash
+Client                                Server
+     |                                     |
+     |----  FIN  SEQ=1500  --------------> |  client done sending
+     |                                     |
+     |<---  ACK  ACK=1501  --------------- |  server acknowledges
+     |                                     |
+     |<---  FIN  SEQ=6000  --------------- |  server done sending
+     |                                     |
+     |----  ACK  ACK=6001  --------------> |  client acknowledges
+```
+
+The server may combine steps 2 and 3 into a single *FIN-ACK* packet when it has no remaining data to send.
+
+### RST
+
+A *RST (reset)* packet abruptly terminates a connection without the FIN sequence. The receiving side discards the connection immediately. No acknowledgment is required.
+
+Common causes:
+
+- A packet arrives for a port with no listening process
+- A firewall drops mid-connection packets and injects a RST
+- An application crashes and the OS clears its sockets
+- A half-open connection is detected: one side believes the connection is open and the other does not
+
+RST differs from FIN in that FIN is a graceful close that allows in-flight data to drain. RST discards everything immediately.
+

@@ -767,3 +767,319 @@ Common causes:
 
 RST differs from FIN in that FIN is a graceful close that allows in-flight data to drain. RST discards everything immediately.
 
+## Commands
+
+### telnet
+
+`telnet` opens a raw TCP connection to a host and port. Use it to test whether a port is open and accepting connections before you commit to debugging the application layer. Because `telnet` completes the three-way handshake, a successful connection confirms the port is reachable and that no firewall is blocking the path.
+
+`telnet` is not installed by default on most modern systems. Install it with `apt install telnet` or `dnf install telnet`.
+
+Common options:
+
+| Option | Description |
+| :--- | :--- |
+| `-n <file>` | Log the session to a file |
+| `-l <user>` | Specify a login name (used with telnet servers, not port testing) |
+
+Common usages:
+
+```bash
+telnet <host> <port>          # test TCP connectivity to a port
+telnet 192.168.1.1 80         # check if port 80 is open
+telnet mail.example.com 25    # test SMTP reachability
+telnet 10.0.0.1 443           # check if HTTPS port accepts connections
+```
+
+When `telnet` connects, it prints `Connected to <host>` and opens an interactive session. You can send raw protocol commands. For example, type `GET / HTTP/1.0` followed by two Enter presses to send a minimal HTTP request. Press `Ctrl+]` then type `quit` to close the session.
+
+Connection outcomes:
+
+| Output | Description |
+| :--- | :--- |
+| `Connected to <host>` | Three-way handshake completed. Port is open. |
+| `Connection refused` | Nothing is listening on that port. |
+| Hangs with no output | Port is filtered. A firewall is silently dropping packets. |
+
+`telnet` sends data in plaintext and is not appropriate for production use or accessing services with credentials. For encrypted connections, use `openssl s_client -connect <host>:<port>` instead.
+
+### netcat (nc)
+
+`nc` (netcat) is a general-purpose TCP and UDP tool. Use it instead of `telnet` when you need to test UDP ports, scan a range of ports, or listen on a port to verify that a remote host can reach you. `nc` writes connection results to stderr, so most scan workflows redirect stderr to stdout with `2>&1` before piping to `grep`.
+
+Common options:
+
+| Option | Description |
+| :--- | :--- |
+| `-z` | Zero-I/O mode. Connect and immediately close. Use for port scanning. |
+| `-v` | Verbose. Print connection success or refusal for each port. |
+| `-u` | Use UDP instead of TCP. |
+| `-l` | Listen mode. Wait for an incoming connection. |
+| `-w <sec>` | Timeout in seconds per connection attempt. |
+
+Common usages:
+
+```bash
+# Test a single TCP port
+nc -zv 192.168.122.200 22
+
+# Scan a port range (TCP)
+nc -zv 192.168.122.200 1-1024
+
+# Scan a port range and suppress refused ports — show only open ports
+nc -zv 192.168.122.200 1-1024 2>&1 | grep -v 'refused'
+
+# Full TCP port scan
+nc -zv 192.168.122.200 1-65535 2>&1 | grep -v 'refused'
+
+# Test a single UDP port
+nc -u -zv 192.168.122.200 53
+
+# Time a UDP range scan and show only successful ports
+date ; nc -u -zv 192.168.122.200 1-1024 2>&1 | grep succeed ; date
+
+# Listen on a port (server side)
+nc -l 8080
+```
+
+For the single-port test, `nc` prints a success or refusal line and exits:
+
+```bash
+$ nc -zv 192.168.122.200 22
+Connection to 192.168.122.200 22 port [tcp/ssh] succeeded!
+```
+
+Port range output includes a line per port. Without filtering, refused ports flood the output. Piping through `grep -v 'refused'` leaves only the open ports:
+
+```bash
+$ nc -zv 192.168.122.200 1-1024 2>&1 | grep -v 'refused'
+Connection to 192.168.122.200 22 port [tcp/ssh] succeeded!
+Connection to 192.168.122.200 80 port [tcp/http] succeeded!
+```
+
+UDP scanning is slower than TCP. With TCP, a closed port sends back an immediate RST. With UDP, a closed port may send an ICMP port-unreachable message, or return nothing at all if the firewall drops it silently. `nc` has to wait for a timeout on each non-responsive port. Wrapping the scan with `date` shows the total elapsed time so you can estimate how long a full UDP sweep will take.
+
+#### Listen mode
+
+Listen mode turns `nc` into a temporary server. Run it on the host you want to verify is reachable, then connect from the remote host:
+
+```bash
+# On the server
+nc -l 8080
+
+# On the client
+nc 192.168.122.200 8080
+```
+
+If the connection succeeds, anything you type on one side appears on the other. This confirms the network path and any firewall rules allow traffic on that port, independent of whether an application is running. Press `Ctrl+C` to close both ends.
+
+You can also combine listen mode with a loop to serve a file repeatedly. This is useful for testing that HTTP clients or load balancers can reach a host before a real web server is running:
+
+```bash
+bash -c 'while true; do cat index.html | nc -l -p 80 -q 1; done'
+```
+
+Each time a client connects, `nc` sends `index.html` and exits after one second of silence (`-q 1`). The `while` loop immediately restarts `nc` so the next client can connect. This is not a real web server: it sends raw file contents with no HTTP headers. It confirms that TCP connections to port 80 succeed and that the file transfers over the wire.
+
+#### Send a file
+
+Redirect a file into `nc` to send its contents to a remote host over TCP. This is useful for transferring files quickly without SSH or copying data to a host that is running a listener:
+
+```bash
+# Receiver (run first)
+nc -l 1234 > received-file.txt
+
+# Sender
+nc -w 3 192.168.122.200 1234 < sent-file.txt
+```
+
+`-w 3` closes the connection after 3 seconds of inactivity so the sender exits cleanly once the file is fully transmitted. Without `-w`, `nc` waits indefinitely for more input.
+
+### Nmap
+
+`nmap` is a network scanner that goes well beyond what `nc` or `telnet` offer. Use it when you need to discover live hosts on a subnet, scan multiple ports at once, detect service versions, or identify which vendor made a device. Install it before use:
+
+```bash
+apt install nmap    # Debian/Ubuntu
+dnf install nmap    # RHEL/Fedora
+```
+
+When `nmap` scans a local subnet, it resolves each MAC address to a vendor name using the same OUI database described in the MAC addresses section. This lets you quickly identify device types before probing ports.
+
+UDP scanning requires `sudo` because `nmap` must craft raw IP packets to send probes and receive ICMP port-unreachable replies. The kernel restricts raw socket access to root. TCP scans can work unprivileged because they use the standard `connect()` system call, but UDP has no equivalent.
+
+UDP also has no Layer 5 session concept. TCP's three-way handshake gives `nmap` a definitive answer: a SYN-ACK means open, a RST means closed. UDP is connectionless. A closed UDP port may return an ICMP unreachable message, or return nothing if a firewall is silently dropping it. When `nmap` receives no reply, it marks the port `open|filtered` because it cannot distinguish between a service quietly accepting packets and a firewall blocking them.
+
+Common options:
+
+| Option | Description |
+| :--- | :--- |
+| `-sn` | Host discovery only. Skip port scanning. |
+| `-sU` | UDP scan. |
+| `-sV` | Probe open ports to detect service and version. |
+| `-p <port>` | Scan a specific port or range. |
+| `--open` | Show only open ports in output. |
+| `--reason` | Show why each port is in its reported state. |
+
+Common usages:
+
+```bash
+# List host discovery options
+nmap | grep -i ping
+
+# Discover live hosts on a subnet without scanning ports
+nmap -sn 192.168.122.0/24
+
+# Find hosts with port 443 open
+nmap -p 443 --open 192.168.122.0/24
+
+# Show the reason for each port state
+nmap -p 443 --reason 192.168.122.0/24
+
+# UDP scan for DNS (port 53) across a subnet
+nmap -sU -p 53 --open 192.168.122.0/24
+
+# UDP scan with version detection and state reasons
+sudo nmap -sU -p 53 --open -sV --reason 192.168.122.0/24
+```
+
+The version-detection scan produces output like this:
+
+```bash
+Starting Nmap 7.80 ( https://nmap.org ) at 2026-06-06 10:08 EDT
+Nmap scan report for precision-5540 (192.168.122.1)
+Host is up, received localhost-response.
+
+PORT   STATE SERVICE REASON       VERSION
+53/udp open  domain  udp-response dnsmasq 2.90
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 256 IP addresses (3 hosts up) scanned in 8.25 seconds
+```
+
+- `localhost-response`: the scanner is scanning its own host. The reply came from the loopback interface rather than the wire.
+- `udp-response`: the port is open because the host sent back a UDP reply to the probe.
+- `dnsmasq 2.90`: `-sV` identified the service by probing the open port and matching the response against Nmap's version database.
+- 8.25 seconds for 256 addresses: UDP scans are slower than TCP because `nmap` must wait for ICMP unreachable replies or timeouts on non-responsive ports.
+
+#### Tuning
+
+By default, `nmap` adapts its timing to network conditions. You can override this for faster scans on trusted local networks, or slower scans when you need to avoid triggering rate limits or intrusion detection systems.
+
+**Timing templates** are the quickest way to tune the scan. Each template sets parallelism, timeouts, and delays as a preset:
+
+| Template | Description |
+| :--- | :--- |
+| `-T0` | Paranoid. One probe at a time, 5-minute delay between probes. For IDS evasion. |
+| `-T1` | Sneaky. Slow sequential scanning. |
+| `-T2` | Polite. Reduces bandwidth and load on the target. |
+| `-T3` | Normal. Default behavior. |
+| `-T4` | Aggressive. Assumes a fast, reliable network. Recommended for local scans. |
+| `-T5` | Insane. Maximum speed. May drop results on lossy networks. |
+
+For finer control, set individual timing parameters:
+
+| Option | Description |
+| :--- | :--- |
+| `--min-parallelism <n>` | Keep at least *n* probes in flight simultaneously. |
+| `--max-parallelism <n>` | Cap probes in flight at *n*. Useful for reducing load on fragile devices. |
+| `--host-timeout <time>` | Abandon a host after this much time. Prevents slow hosts from stalling a wide scan. |
+| `--initial-rtt-timeout <time>` | Starting estimate for how long to wait for a probe reply before calibration. |
+| `--min-rtt-timeout <time>` | Floor for the adaptive round-trip timeout. Prevents `nmap` from dropping the timeout too low. |
+| `--max-rtt-timeout <time>` | Cap for the adaptive round-trip timeout. |
+| `--scan-delay <time>` | Minimum wait between probes sent to a single host. |
+| `--max-scan-delay <time>` | Cap on the adaptive scan delay. |
+
+Time values accept `ms` (milliseconds), `s` (seconds), and `m` (minutes). Examples:
+
+```bash
+# Fast scan on a local trusted network
+nmap -T4 --min-parallelism 50 192.168.122.0/24
+
+# Slow scan to avoid IDS detection
+nmap -T1 --scan-delay 1s 192.168.122.0/24
+
+# Set hard timeouts for a wide internet scan
+nmap --host-timeout 30s --max-rtt-timeout 500ms --max-parallelism 20 192.168.122.0/24
+
+# Reduce RTT floor on a low-latency LAN to speed up probing
+nmap -T4 --min-rtt-timeout 50ms --max-rtt-timeout 200ms 192.168.122.0/24
+```
+
+Increasing parallelism speeds up wide subnet scans but can overwhelm slow switches or embedded devices. `--host-timeout` is most useful when scanning large ranges where a single unresponsive host would otherwise block the scan for minutes. `--scan-delay` is the primary knob for IDS evasion: most signature-based systems trigger on rapid port probes from a single source, and adding even a 100ms delay defeats many rate-based detectors.
+
+#### Nmap scripts
+
+Nmap includes a scripting engine (*NSE*) that runs Lua scripts from `/usr/share/nmap/scripts` against scan targets. Scripts extend `nmap` beyond port scanning into protocol-level queries, vulnerability checks, and service enumeration. Run a script with `--script=<name>`:
+
+```bash
+nmap --script=ssl-cert -p 443 192.168.122.0/24
+```
+
+##### Network discovery
+
+| Script | Description |
+| :--- | :--- |
+| `path-mtu` | Discovers the path MTU between the scanner and target by probing with decreasing packet sizes. Useful for diagnosing fragmentation problems. |
+| `broadcast-eigrp-discovery` | Sends EIGRP hello packets on the local segment and lists any routers that respond. Requires the scanner to be on the same broadcast domain as EIGRP speakers. |
+| `broadcast-igmp-discovery` | Discovers multicast group memberships by sending IGMP queries and collecting membership reports from hosts on the segment. |
+| `broadcast-ospf2-discover` | Sends OSPFv2 hello packets and lists routers that respond. Useful for mapping the OSPF topology without joining the process. |
+| `broadcast-rip-discover` | Broadcasts a RIPv2 request and collects route advertisements from any routers that respond. |
+| `broadcast-ripng-discover` | Same as `broadcast-rip-discover` but for RIPng (IPv6). |
+| `broadcast-wpad-discover` | Queries the network for a Web Proxy Auto-Discovery (WPAD) server. A response here can indicate a misconfigured or rogue proxy. |
+| `llmnr-resolve` | Resolves a hostname using LLMNR (Link-Local Multicast Name Resolution). Useful for identifying hosts that rely on LLMNR when DNS is unavailable. |
+
+##### DNS
+
+| Script | Description |
+| :--- | :--- |
+| `broadcast-dns-service-discovery` | Sends mDNS queries to discover services advertised on the local network. |
+| `dns-srv-enum` | Enumerates DNS SRV records for common services such as LDAP, Kerberos, and SIP. Useful for mapping Active Directory and VoIP infrastructure. |
+| `dns-recursion` | Checks whether a DNS server allows recursive queries from external hosts. An open recursive resolver can be abused for amplification attacks. |
+
+##### DHCP
+
+| Script | Description |
+| :--- | :--- |
+| `dhcp-discover` | Sends a DHCP discover packet to the target and displays the options the server returns, including offered IP, lease time, gateway, and DNS servers. |
+| `broadcast-dhcp-discover` | Same as `dhcp-discover` but broadcasts on the local segment to find any DHCP server present. |
+| `broadcast-dhcp6-discover` | Sends a DHCPv6 solicit message to discover IPv6 DHCP servers on the segment. |
+
+##### Databases and application services
+
+| Script | Description |
+| :--- | :--- |
+| `broadcast-ms-sql-discover` | Broadcasts a SQL Server Browser query and lists any Microsoft SQL Server instances that respond with their instance name and version. |
+| `broadcast-sybase-discover` | Discovers Sybase database servers on the local segment. |
+| `oracle-tns-version` | Connects to the Oracle TNS listener port (1521) and retrieves its version string. |
+| `broadcast-db2-discover` | Broadcasts a discovery request for IBM DB2 instances. |
+| `couchdb-databases` | Lists databases on a CouchDB instance. A server with no authentication exposes this without credentials. |
+| `mongodb-info` | Connects to MongoDB and retrieves server info including version, hostname, and replication status. |
+| `broadcast-jenkins-discover` | Broadcasts a Jenkins UDP discovery request and lists any Jenkins instances that respond with their URL and version. |
+| `snmp-info` | Queries a host via SNMP and returns the system description, uptime, contact, and location from the MIB-II system group. |
+
+##### VPN and remote access
+
+| Script | Description |
+| :--- | :--- |
+| `ike-version` | Sends an IKEv1 or IKEv2 probe to UDP port 500 and retrieves the supported transforms and vendor ID. Useful for fingerprinting VPN endpoints. |
+| `http-cisco-anyconnect` | Connects to a Cisco AnyConnect endpoint and retrieves the version string and platform information from the XML response. |
+
+##### SSL/TLS
+
+| Script | Description |
+| :--- | :--- |
+| `ssl-cert` | Retrieves and displays the SSL/TLS certificate for an open port. Shows subject, issuer, validity dates, and SANs. |
+| `ssl-date` | Reads the server's clock from the TLS handshake and compares it to the scanner's clock. A large skew can indicate Kerberos issues or clock drift. |
+| `ssl-dh-params` | Checks the Diffie-Hellman parameters used in the TLS handshake. Flags weak key sizes and known vulnerable parameter sets such as Logjam. |
+| `ssl-enum-ciphers` | Enumerates all cipher suites the server accepts and rates them. Flags weak ciphers, export-grade ciphers, and protocol versions such as SSLv3 and TLS 1.0. |
+
+##### Remote access protocols
+
+| Script | Description |
+| :--- | :--- |
+| `rdp-enum-encryption` | Connects to an RDP port and identifies which encryption protocols and security layers the server supports, including Classic RDP, TLS, and CredSSP. |
+| `ssh2-enum-algos` | Lists the key exchange, encryption, MAC, and compression algorithms advertised by an SSH server. Useful for identifying deprecated or weak algorithms. |
+| `sshv1` | Checks whether a host accepts SSHv1 connections. SSHv1 is cryptographically broken and should not be present on any modern host. |
+| `bitcoin-info` | Connects to a Bitcoin node and retrieves protocol version, block height, and peer connections. |
+

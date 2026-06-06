@@ -103,6 +103,47 @@ ifconfig enp0s3 down        # bring the enp0s3 interface down
 ifconfig enp0s3 up          # bring the enp0s3 interface up
 ```
 
+### iw
+
+`iw` is the modern wireless management tool. It uses the nl80211 netlink API that all current `mac80211` drivers support. Use `iw` for everything on modern Linux systems.
+
+```bash
+apt install iw
+```
+
+```bash
+iw dev                          # list all wireless interfaces, mode, channel, and SSID
+iw dev wlan0 info               # detailed info for one interface
+iw dev wlan0 scan               # scan for nearby networks
+iw dev wlan0 link               # show current association, signal, and bitrate
+iw dev wlan0 station dump       # show connected clients (AP mode)
+iw phy                          # list physical radios and supported bands
+iw phy phy0 info                # capabilities of a specific radio
+```
+
+`iw dev wlan0 scan` requires `sudo`. If it returns `command failed: Network is down`, bring the interface up first:
+
+```bash
+sudo ip link set wlan0 up
+```
+
+### iwconfig
+
+`iwconfig` manages wireless interfaces using the legacy *Wireless Extensions* API. It ships with the `net-tools` package alongside `ifconfig` and is deprecated for the same reason: modern drivers use the nl80211 netlink API, which `iwconfig` does not support. It often returns `no wireless extensions` on current hardware.
+
+Install it only if you need to support legacy scripts or older hardware:
+
+```bash
+apt install wireless-tools
+```
+
+```bash
+iwconfig                    # show all interfaces with wireless extensions
+iwconfig wlan0              # show one interface
+iwlist wlan0 scan           # scan for nearby networks
+iwlist wlan0 channel        # list supported channels
+```
+
 ## Managing an interface
 
 Ubuntu uses two tools to manage network interfaces. Knowing which tool owns an interface is required before making any configuration changes.

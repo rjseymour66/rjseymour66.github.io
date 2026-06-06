@@ -767,6 +767,155 @@ Common causes:
 
 RST differs from FIN in that FIN is a graceful close that allows in-flight data to drain. RST discards everything immediately.
 
+## Wireless
+
+### LinSSID
+
+LinSSID is a graphical WiFi scanner that displays nearby networks in a table and plots them on a channel utilization graph. Use it to identify which channels are congested before deploying an access point, or to verify that your AP is on the least-used channel in a dense environment.
+
+Install it with:
+
+```bash
+apt install linssid
+```
+
+LinSSID requires root to open raw sockets for scanning:
+
+```bash
+sudo linssid
+```
+
+The main window has two panes. The top pane lists every visible network with columns for SSID, BSSID, channel, signal (dBm), security protocol, and detected vendor. The bottom pane shows a live channel graph where each network appears as a curve centered on its channel with a width matching its channel bandwidth. Overlapping curves indicate co-channel or adjacent-channel interference.
+
+For 2.4 GHz networks, only channels 1, 6, and 11 are non-overlapping. If you see several networks on channel 6, move your AP to channel 1 or 11. For 5 GHz, the non-overlapping channel set is much larger, so congestion is less common but still visible in the graph.
+
+### wavemon
+
+{{< admonition "Driver compatibility" warning >}}
+`wavemon` requires the legacy Wireless Extensions API. On Ubuntu 20.04 and later, many drivers have dropped this API in favor of nl80211. If `wavemon` returns `no supported wireless interfaces found`, your driver does not support Wireless Extensions and `wavemon` will not work with that adapter.
+{{< /admonition >}}
+
+`wavemon` is an ncurses terminal monitor for wireless interfaces. It shows real-time signal strength, noise level, link quality, and connection details without requiring monitor mode. Use it when you are connected to a network and want to watch signal conditions live. It is useful for walking a space to map coverage or diagnosing an unstable connection.
+
+Install it with:
+
+```bash
+apt install wavemon
+```
+
+Launch it against your wireless interface:
+
+```bash
+wavemon -i wlan0
+```
+
+Running `wavemon` with no arguments uses the first wireless interface it finds.
+
+`wavemon` has several screens you navigate with function keys:
+
+| Key | Screen |
+| :--- | :--- |
+| `F1` | Info. Real-time signal, noise, SNR, bitrate, TX/RX statistics, and connection details. |
+| `F2` | Level histogram. Scrolling graph of signal and noise over time. |
+| `F3` | Scan list. All visible networks with SSID, BSSID, channel, and signal strength. |
+| `F9` | Preferences. Configure interface, thresholds, and display options. |
+| `F10` | Quit. |
+
+The info screen shows the most useful values for diagnosing a live connection:
+
+| Field | Description |
+| :--- | :--- |
+| Link quality | A ratio (for example, 63/70) derived from the driver's quality metric. Higher is better. |
+| Signal level (dBm) | Received signal strength. -50 dBm is excellent; below -80 dBm expect packet loss. |
+| Noise level (dBm) | Background RF noise. A large gap between signal and noise means a clean channel. |
+| Bit rate | Current negotiated PHY rate between client and AP. |
+| TX/RX | Cumulative transmitted and received bytes since association. |
+
+### Kismet
+
+{{< admonition "Older Ubuntu versions" note >}}
+The package in the Ubuntu repository on versions 18.04 and earlier is the outdated pre-2019 Kismet. It has a different interface and lacks most features of the current release. Use the Kismet project repository instead.
+{{< /admonition >}}
+
+Kismet is a passive wireless network detector, packet sniffer, and intrusion detection system. It supports 802.11 WiFi, Bluetooth, Zigbee, and other RF protocols depending on your hardware. Unlike active scanners, Kismet never transmits. It only listens, which makes it invisible to the networks it observes.
+
+Use Kismet when you need to discover all wireless networks in range (including those with hidden SSIDs), identify rogue access points, or capture raw frames for offline analysis in Wireshark.
+
+Install it from the distribution package or from the Kismet project repository for the latest version:
+
+```bash
+# Debian/Ubuntu
+apt install kismet
+
+# From the Kismet repository (newer releases)
+wget -O - https://www.kismetwireless.net/repos/kismet-release.gpg.key | sudo apt-key add -
+echo "deb https://www.kismetwireless.net/repos/apt/release/$(lsb_release -sc) $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/kismet.list
+sudo apt update && sudo apt install kismet
+```
+
+Add your user to the `kismet` group so you can run it without `sudo`:
+
+```bash
+sudo usermod -aG kismet $USER
+```
+
+Log out and back in for the group change to take effect.
+
+#### Monitor mode
+
+Kismet requires a wireless interface in *monitor mode* to capture raw 802.11 frames. A normal interface in *managed mode* only receives frames addressed to it. Monitor mode captures everything the radio hears.
+
+```bash
+# Put the interface into monitor mode
+sudo ip link set wlan0 down
+sudo iw dev wlan0 set type monitor
+sudo ip link set wlan0 up
+
+# Verify
+iw dev wlan0 info
+```
+
+Kismet can also manage the interface mode itself when you pass `-c` at startup.
+
+#### Usage
+
+Start Kismet and point it at your wireless interface:
+
+```bash
+kismet -c wlan0
+```
+
+Kismet starts a web server at `http://localhost:2501`. Open it in a browser to access the full UI. On first run, it prompts you to set an admin password.
+
+To run headless without the interactive terminal output:
+
+```bash
+kismet --no-ncurses -c wlan0
+```
+
+To capture from multiple interfaces simultaneously:
+
+```bash
+kismet -c wlan0 -c wlan1
+```
+
+Kismet writes logs automatically to the current directory. The `.kismet` file is its native database format. To capture in pcap format for Wireshark:
+
+```bash
+kismet -c wlan0 --log-types pcapng
+```
+
+Common things Kismet surfaces in the UI:
+
+| Field | Description |
+| :--- | :--- |
+| SSID | Network name. Blank entries are networks broadcasting a null or hidden SSID. |
+| BSSID | MAC address of the access point. |
+| Channel | The 802.11 channel the AP is operating on. |
+| Signal (dBm) | Received signal strength. Closer to 0 is stronger; below -80 dBm is weak. |
+| Encryption | Security protocol in use: WPA2, WPA3, WEP, or open. |
+| Clients | Number of devices currently associated with the AP. |
+
 ## Commands
 
 ### telnet

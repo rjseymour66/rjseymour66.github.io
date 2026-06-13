@@ -285,6 +285,12 @@ ssh-keygen                          # generate an ed25519 key pair (default)
 ssh-keygen -t rsa -b 4096           # generate an RSA key pair
 ```
 
+`ssh-keygen` defaults to *Ed25519*, an elliptic curve algorithm with a fixed 256-bit key. Ed25519 is faster to generate, faster to verify, and produces shorter key material than RSA. Use it for any modern system running OpenSSH 6.5 or later (released 2014).
+
+Use the `-t rsa -b 4096` options to generate an *RSA* key at 4096 bits. RSA is supported by virtually every SSH implementation, including legacy systems and some enterprise environments that mandate RSA by policy. Use it when connecting to older infrastructure or when a compliance requirement specifies RSA explicitly. For everything else, Ed25519 is the better choice.
+
+
+
 #### Add a key to ssh-agent
 
 `ssh-agent` caches your passphrase so you only enter it once per session:

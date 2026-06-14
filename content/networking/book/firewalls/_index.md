@@ -5,36 +5,15 @@ weight = 40
 draft = false
 +++
 
-Linux implements firewalling inside the kernel through *Netfilter*, a framework of hooks embedded in the network stack. Every packet that enters, exits, or passes through the machine triggers these hooks, giving the kernel the opportunity to inspect, accept, drop, or modify it.
+Linux implements firewalling inside the kernel through *Netfilter*, a framework of hooks embedded in the network stack. Every packet that enters, exits, or passes through the machine triggers these hooks, giving the kernel the opportunity to inspect, accept, drop, or modify it. Netfilter is the engine: it does the actual work of evaluating rules against packets.
 
-Two user-space tools configure Netfilter rules: *iptables* and its successor *nftables*. Higher-level frontends such as `ufw` on Ubuntu and `firewalld` on RHEL and Fedora sit on top of these and provide simpler interfaces for common configurations. Underneath, they all write rules into the same Netfilter framework.
+Two user-space tools write rules into Netfilter: *iptables* and its successor *nftables*. Both configure the same underlying framework, but they use different kernel interfaces. iptables uses the `x_tables` kernel module and requires a separate binary for each protocol family: `iptables` for IPv4, `ip6tables` for IPv6, `arptables` for ARP, and `ebtables` for Ethernet bridging. nftables uses the `nf_tables` module and a single `nft` binary that handles all protocol families with one consistent syntax.
 
-## Chains and tables
+On Debian 10, RHEL 8, and Ubuntu 20.04 and later, the `iptables` command is a compatibility shim called `iptables-nft`. It accepts familiar iptables syntax and translates it into nftables rules. The distinction matters for troubleshooting: rules written with `iptables` and rules written with `nft` appear in the same kernel table but may look different depending on which tool you use to view them.
 
-### Chains
+Higher-level frontends such as `ufw` on Ubuntu and `firewalld` on RHEL and Fedora sit on top of these tools and provide simpler interfaces for common configurations. Underneath, they all write rules into Netfilter.
 
-Netfilter organizes rules into *tables* and *chains*. A chain is a list of rules evaluated in order for packets at a specific point in the processing path:
-
-| Chain         | When it applies                                             |
-| :------------ | :---------------------------------------------------------- |
-| `INPUT`       | Packets destined for the local machine                      |
-| `OUTPUT`      | Packets originating from the local machine                  |
-| `FORWARD`     | Packets passing through the machine between interfaces      |
-| `PREROUTING`  | Packets immediately on arrival, before routing decisions    |
-| `POSTROUTING` | Packets immediately before leaving, after routing decisions |
-
-### Tables
-
-Netfilter organizes chains into *tables* based on what operation the rule performs:
-
-| Table    | Purpose                                                                                                                                            | Chains                          |
-| :------- | :------------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------ |
-| `filter` | Default table. All accept/drop decisions go here. Running `iptables -L` with no `-t` flag shows this table.                                        | INPUT, FORWARD, OUTPUT          |
-| `nat`    | Address translation. Use PREROUTING for DNAT (port forwarding) and POSTROUTING for SNAT/MASQUERADE (sharing a single public IP across many hosts). | PREROUTING, OUTPUT, POSTROUTING |
-| `mangle` | Modify packet headers: set DSCP for QoS, adjust TTL, clamp TCP MSS on VPN tunnels. Most host firewalls never use this table.                       | All five chains                 |
-| `raw`    | Exempt specific packets from connection tracking before conntrack runs.                                                                            | PREROUTING, OUTPUT              |
-
-### Connection tracking
+## Connection tracking
 
 Netfilter becomes a *stateful* firewall through the *connection tracking* module (`conntrack`). Rather than evaluating each packet in isolation, conntrack assigns every packet a state label:
 

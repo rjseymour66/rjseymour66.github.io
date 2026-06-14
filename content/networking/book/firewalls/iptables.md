@@ -17,6 +17,32 @@ When no rule matches, the chain's *default policy* applies. On a host with hundr
 
 Rule updates are not atomic: adding or removing rules happens one at a time, which creates brief windows where the ruleset is in an inconsistent state.
 
+## Chains and tables
+
+### Chains
+
+Netfilter organizes rules into *tables* and *chains*. A chain is a list of rules evaluated in order for packets at a specific point in the processing path:
+
+| Chain         | When it applies                                             |
+| :------------ | :---------------------------------------------------------- |
+| `INPUT`       | Packets destined for the local machine                      |
+| `OUTPUT`      | Packets originating from the local machine                  |
+| `FORWARD`     | Packets passing through the machine between interfaces      |
+| `PREROUTING`  | Packets immediately on arrival, before routing decisions    |
+| `POSTROUTING` | Packets immediately before leaving, after routing decisions |
+
+### Tables
+
+Netfilter organizes chains into *tables* based on what operation the rule performs:
+
+| Table    | Purpose                                                                                                                                            | Chains                          |
+| :------- | :------------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------ |
+| `filter` | Default table. All accept/drop decisions go here. Running `iptables -L` with no `-t` flag shows this table.                                        | INPUT, FORWARD, OUTPUT          |
+| `nat`    | Address translation. Use PREROUTING for DNAT (port forwarding) and POSTROUTING for SNAT/MASQUERADE (sharing a single public IP across many hosts). | PREROUTING, OUTPUT, POSTROUTING |
+| `mangle` | Modify packet headers: set DSCP for QoS, adjust TTL, clamp TCP MSS on VPN tunnels. Most host firewalls never use this table.                       | All five chains                 |
+| `raw`    | Exempt specific packets from connection tracking before conntrack runs.                                                                            | PREROUTING, OUTPUT              |
+
+
 ## Commands
 
 All `iptables` commands operate on the `filter` table by default. If you omit `-t`, you are reading or writing the filter table. Pass `-t nat` or `-t mangle` to target those tables explicitly. Every example in this section uses the filter table unless `-t` is shown.
@@ -253,47 +279,40 @@ Rules are lost on reboot unless persisted to disk. Where they are saved depends 
 | Debian/Ubuntu (`iptables-persistent`) | `/etc/iptables/rules.v4`, `/etc/iptables/rules.v6`    |
 | RHEL/CentOS/Fedora                    | `/etc/sysconfig/iptables`, `/etc/sysconfig/ip6tables` |
 
-On Debian/Ubuntu, save the current ruleset with:
+#### Install
+
+On Debian/Ubuntu, the `/etc/iptables/` directory and boot-time restore behavior are provided by the `iptables-persistent` package. Install it first:
 
 ```bash
-iptables-save                                   # dump all rules in saveable format
-sudo iptables-save > /etc/iptables/rules.v4     # redirect saveable output to a file
+apt install iptables-persistent
 ```
 
-The `netfilter-persistent` service loads these files at boot. On RHEL-family systems, the `iptables` service handles this automatically when you run `service iptables save`.
+The installer prompts you to save your current rules. After installation, the `netfilter-persistent` service loads `/etc/iptables/rules.v4` at boot automatically.
 
-### Deleting a rule
+#### Save rules
 
-Delete a rule by its position number using `-D`. Rule numbers shift up after a deletion, so verify the current numbering with `--line-numbers` before and after:
+`iptables-save` prints the current ruleset to stdout. It does not write a file on its own. The shell redirection (`>`) runs as your user even with `sudo`, so use `tee` to write the file as root:
 
 ```bash
-iptables -L -n --line-numbers
-Chain INPUT (policy ACCEPT)
-num  target     prot opt source               destination
-1    ACCEPT     6    --  192.168.122.0/24     0.0.0.0/0            tcp dpt:22
-2    DROP       6    --  0.0.0.0/0            0.0.0.0/0            tcp dpt:22
-3    DROP       6    --  1.2.3.0/24           0.0.0.0/0            tcp dpt:443
-4    ACCEPT     6    --  0.0.0.0/0            0.0.0.0/0            tcp dpt:443
-...
-
-# Delete rule 3 (the DROP for 1.2.3.0/24 on port 443)
-iptables -D INPUT 3
-
-iptables -L -n --line-numbers
-Chain INPUT (policy ACCEPT)
-num  target     prot opt source               destination
-1    ACCEPT     6    --  192.168.122.0/24     0.0.0.0/0            tcp dpt:22
-2    DROP       6    --  0.0.0.0/0            0.0.0.0/0            tcp dpt:22
-3    ACCEPT     6    --  0.0.0.0/0            0.0.0.0/0            tcp dpt:443
-
-Chain FORWARD (policy ACCEPT)
-num  target     prot opt source               destination
-
-Chain OUTPUT (policy ACCEPT)
-num  target     prot opt source               destination
+iptables-save                                           # dump all rules to stdout
+sudo iptables-save | sudo tee /etc/iptables/rules.v4    # write to the persistence file as root
 ```
 
-The DROP rule for `1.2.3.0/24` is gone. The HTTPS ACCEPT rule that was at position 4 has moved up to position 3. Any rule number you stored before the deletion is now wrong by one.
+On RHEL-family systems, the `iptables` service handles persistence automatically when you run `service iptables save`.
+
+#### Restore rules
+
+To load a saved ruleset manually, use `iptables-restore`:
+
+```bash
+sudo iptables-restore < /etc/iptables/rules.v4
+```
+
+To trigger the full boot-time restore without rebooting:
+
+```bash
+sudo netfilter-persistent reload
+```
 
 ### Logging
 
@@ -333,6 +352,61 @@ Viewing logs on RHEL/Fedora:
 journalctl -k | grep 'SSH FROM VM NETWORK'
 grep 'iptables' /var/log/messages
 ```
+
+### Deleting a rule
+
+Delete a rule by its position number using `-D`. Rule numbers shift up after a deletion, so verify the current numbering with `--line-numbers` before and after:
+
+```bash
+iptables -L -n --line-numbers
+Chain INPUT (policy ACCEPT)
+num  target     prot opt source               destination
+1    ACCEPT     6    --  192.168.122.0/24     0.0.0.0/0            tcp dpt:22
+2    DROP       6    --  0.0.0.0/0            0.0.0.0/0            tcp dpt:22
+3    DROP       6    --  1.2.3.0/24           0.0.0.0/0            tcp dpt:443
+4    ACCEPT     6    --  0.0.0.0/0            0.0.0.0/0            tcp dpt:443
+...
+
+# Delete rule 3 (the DROP for 1.2.3.0/24 on port 443)
+iptables -D INPUT 3
+
+iptables -L -n --line-numbers
+Chain INPUT (policy ACCEPT)
+num  target     prot opt source               destination
+1    ACCEPT     6    --  192.168.122.0/24     0.0.0.0/0            tcp dpt:22
+2    DROP       6    --  0.0.0.0/0            0.0.0.0/0            tcp dpt:22
+3    ACCEPT     6    --  0.0.0.0/0            0.0.0.0/0            tcp dpt:443
+
+Chain FORWARD (policy ACCEPT)
+num  target     prot opt source               destination
+
+Chain OUTPUT (policy ACCEPT)
+num  target     prot opt source               destination
+```
+
+The DROP rule for `1.2.3.0/24` is gone. The HTTPS ACCEPT rule that was at position 4 has moved up to position 3. Any rule number you stored before the deletion is now wrong by one.
+
+### Flush and reset
+
+`-F` flushes all rules in the current table but leaves the default policy in place. If the policy is `DROP`, flushing removes every permit rule and blocks all traffic immediately. Reset policies to `ACCEPT` first:
+
+```bash
+iptables -P INPUT ACCEPT
+iptables -P FORWARD ACCEPT
+iptables -P OUTPUT ACCEPT
+```
+
+Then flush all tables, delete user-defined chains, and zero the counters:
+
+```bash
+iptables -F              # flush all filter table rules
+iptables -t nat -F       # flush nat table
+iptables -t mangle -F    # flush mangle table
+iptables -X              # delete all user-defined chains
+iptables -Z              # zero packet and byte counters
+```
+
+After this sequence, the filter table has three empty chains (INPUT, FORWARD, OUTPUT) all with `ACCEPT` policy and zero counters. The host passes all traffic without restriction.
 
 ## NAT table
 

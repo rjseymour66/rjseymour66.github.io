@@ -28,6 +28,8 @@ The *CIS Critical Security Controls* are a prioritized set of 18 defensive actio
 
 The groups are cumulative: IG2 includes everything in IG1, and IG3 includes everything in IG2.
 
+CIS also publishes *CIS Benchmarks*: prescriptive configuration guides for specific operating systems, cloud platforms, network devices, and server software. Each benchmark maps its recommendations to the CIS Controls and provides step-by-step hardening instructions for that product. Benchmarks are available for Linux distributions, Windows, macOS, AWS, Azure, Kubernetes, Cisco devices, and more than 100 other products. Download them free at [cisecurity.org/cis-benchmarks](https://www.cisecurity.org/cis-benchmarks).
+
 | #   | Control                                                | What it covers                                                                             |
 | --- | ------------------------------------------------------ | ------------------------------------------------------------------------------------------ |
 | 1   | Inventory and control of enterprise assets             | Track all hardware connected to the network. You can't protect what you don't know exists. |
@@ -48,6 +50,16 @@ The groups are cumulative: IG2 includes everything in IG1, and IG3 includes ever
 | 16  | Application software security                          | Manage security across the lifecycle of developed and acquired software.                   |
 | 17  | Incident response management                           | Maintain documented plans, roles, and procedures for responding to incidents.              |
 | 18  | Penetration testing                                    | Test defenses by exploiting weaknesses before attackers do.                                |
+
+### Benchmarks
+
+A CIS Benchmark is a hardening guide for a specific product — Ubuntu, RHEL, Windows Server, Kubernetes, or a network device. Each guide lists every configuration setting you should check, the recommended value, and the rationale. Benchmarks are organized by IG level so you can work through IG1 items first and add IG2 and IG3 settings as your program matures.
+
+To use a benchmark:
+
+1. Download the PDF for your OS or platform from [cisecurity.org/cis-benchmarks](https://www.cisecurity.org/cis-benchmarks).
+2. Work through each recommendation, noting current state and required changes.
+3. Automate assessment with CIS-CAT Pro (commercial) or open-source tools such as `oscap` from the OpenSCAP project.
 
 ### Hardware inventory
 
@@ -217,3 +229,71 @@ LIMIT 5;
 ```
 
 Joins three tables to return the SHA256 hash of each running executable, the process name, and the username it runs as. The hash lets you verify binaries against known-good values. Processes running as unexpected users or with unrecognized hashes are worth investigating.
+
+## Mandatory access control
+
+Linux file permissions are *discretionary access control* (DAC): the owner of a file decides who can read, write, or execute it. DAC works well for normal use but fails as a security boundary — a misconfigured application or compromised process running as root can access anything. *Mandatory access control* (MAC) enforces policy at the kernel level, independent of file ownership. Even root cannot bypass MAC policy.
+
+Linux implements MAC through the *Linux Security Modules* (LSM) framework. Two systems dominate: SELinux and AppArmor. Both confine processes to only the resources their policy explicitly permits, but they take fundamentally different approaches.
+
+| | SELinux | AppArmor |
+| :--- | :--- | :--- |
+| Model | Label-based | Path-based |
+| Default on | RHEL, CentOS, Fedora | Ubuntu, Debian |
+| Policy complexity | High | Low |
+| Granularity | Very fine | Moderate |
+| Configuration style | Central policy database | Per-application profile files |
+
+### SELinux
+
+*SELinux* (Security-Enhanced Linux) was developed by the NSA and merged into the kernel in 2003. It assigns a *security context* — a label in the form `user:role:type:level` — to every process, file, socket, and port on the system. Policy rules define which types are allowed to interact. A web server process labeled `httpd_t` can read files labeled `httpd_sys_content_t` but cannot read files labeled `shadow_t` or `sshd_t`, regardless of Unix permissions.
+
+This label-based model makes SELinux extremely granular. It also makes it harder to configure — a mislabeled file silently breaks an application, and diagnosing why requires reading audit logs and understanding type enforcement rules.
+
+SELinux runs in one of three modes:
+
+- *Enforcing*: policy violations are blocked and logged.
+- *Permissive*: violations are logged but not blocked. Use this when developing or debugging policy.
+- *Disabled*: SELinux is off. Requires a reboot to re-enable.
+
+```bash
+getenforce                         # print current mode: Enforcing, Permissive, or Disabled
+sestatus                           # detailed status including policy name and loaded modules
+setenforce 0                       # switch to Permissive without rebooting (temporary)
+setenforce 1                       # switch back to Enforcing (temporary)
+
+ls -Z /var/www/html                # show SELinux context on files
+ps -eZ | grep httpd                # show context of running processes
+restorecon -Rv /var/www/html       # restore default file contexts after a move or mislabel
+chcon -t httpd_sys_content_t file  # manually set a file context (not persistent across relabel)
+
+ausearch -m avc -ts recent         # search audit log for recent SELinux denials
+audit2allow -a                     # suggest policy rules to allow recent denials
+sealert -a /var/log/audit/audit.log  # human-readable analysis of SELinux denials (requires setroubleshoot)
+```
+
+### AppArmor
+
+*AppArmor* was developed by Novell and is the default MAC system on Ubuntu and Debian. Rather than labeling every object on the filesystem, AppArmor confines individual programs using *profiles*: text files that list the filesystem paths, capabilities, and network access a program is allowed. A profile for Nginx permits it to read `/etc/nginx/**` and `/var/www/html/**` but nothing outside those paths.
+
+The path-based model is simpler to understand and write than SELinux type enforcement. The tradeoff is granularity — a hard link or bind mount can bypass path-based policy in ways that label-based systems prevent.
+
+Each profile runs in one of two modes:
+
+- *Enforce*: violations are blocked and logged.
+- *Complain*: violations are logged but not blocked. Use this when building or testing a new profile.
+
+```bash
+aa-status                          # list all profiles and their current mode
+aa-enforce /etc/apparmor.d/usr.sbin.nginx   # set a profile to enforce mode
+aa-complain /etc/apparmor.d/usr.sbin.nginx  # set a profile to complain mode
+aa-disable /etc/apparmor.d/usr.sbin.nginx   # disable a profile
+
+apparmor_parser -r /etc/apparmor.d/usr.sbin.nginx  # reload a profile after editing
+systemctl reload apparmor                           # reload all profiles
+
+aa-genprof /usr/sbin/myapp         # interactively generate a new profile for an application
+aa-logprof                         # scan logs and suggest profile updates for recent violations
+
+journalctl -xe | grep apparmor     # view AppArmor denial messages in the system journal
+```

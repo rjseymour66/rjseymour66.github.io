@@ -348,6 +348,114 @@ Host u24
     Port 22
 ```
 
+### Configuring
+
+Default sshd settings do not meet the hardening recommendations in the [CIS Benchmarks](/networking/book/security/#benchmarks). Before making changes, use `sshd -T` to print the full effective configuration — every setting sshd is currently using, including defaults that don't appear in `sshd_config`:
+
+```bash
+sudo sshd -T                          # print the full effective sshd configuration
+sudo sshd -T | grep passwordauth      # find a specific setting
+sudo sshd -T | grep permitrootlogin   # check root login status
+```
+
+`sshd -T` reflects what the daemon is actually running with, not just what is uncommented in the config file. This makes it the reliable source for verifying that a change in `/etc/ssh/sshd_config` took effect after a reload.
+
+The settings most commonly flagged by CIS Benchmarks are:
+
+- *Root login*: disable direct root access over SSH.
+- *Logging level*: set `LogLevel VERBOSE` to capture key fingerprints and authentication events.
+- *Key exchange and MAC algorithms*: restrict to modern algorithms and remove weak or deprecated ones.
+- *Idle timeout*: set `ClientAliveInterval` and `ClientAliveCountMax` to disconnect inactive sessions automatically.
+- *MaxSessions*: limit the number of concurrent sessions per connection to reduce exposure from compromised credentials.
+
+Edit `/etc/ssh/sshd_config` to apply hardening changes, then reload the service:
+
+```bash
+sudo vim /etc/ssh/sshd_config
+sudo systemctl reload ssh
+```
+
+#### Root login
+
+Permitting root login over SSH violates the *principle of least privilege*: root has unrestricted access to every file, process, and service on the system. A successful brute-force attack or stolen credential against root gives an attacker immediate full control with no further escalation required. Disabling root login forces all access through named user accounts, which creates an audit trail and limits blast radius if a credential is compromised.
+
+The default value on many distributions is `prohibit-password`, which blocks password authentication for root but still allows key-based root login. Set it to `no` to block root login entirely.
+
+1. Check the current setting.
+   ```bash
+   sshd -T | grep permitroot
+   permitrootlogin without-password
+   ```
+2. Edit `sshd_config` and set `PermitRootLogin no`.
+   ```bash
+   vim /etc/ssh/sshd_config
+
+
+   # Authentication:
+
+   #LoginGraceTime 2m
+   #PermitRootLogin prohibit-password
+   PermitRootLogin no
+   #StrictModes yes
+   #MaxAuthTries 6
+   #MaxSessions 10
+   ```
+3. Verify the change took effect.
+   ```bash
+   sshd -T | grep permitroot
+   ```
+   ```
+   permitrootlogin no
+   ```
+
+#### Ciphers
+
+SSH supports multiple encryption algorithms for the session cipher. Older algorithms — including `3des-cbc`, `arcfour`, and CBC-mode AES — have known weaknesses and should not be accepted. Restricting sshd to CTR-mode and GCM-mode AES removes the vulnerable options without breaking compatibility with modern clients.
+
+1. Check the currently advertised ciphers.
+   ```bash
+   sshd -T | grep ciphers
+
+   ciphers chacha20-poly1305@openssh.com,aes128-ctr,aes192-ctr,aes256-ctr,aes128-gcm@openssh.com,aes256-gcm@openssh.com
+   ```
+2. From a remote host, use nmap to enumerate all algorithms the server advertises.
+   ```bash
+   nmap -p22 -Pn --open 192.168.122.201 --script ssh2-enum-algos.nse
+
+   PORT   STATE SERVICE
+   22/tcp open  ssh
+   | ssh2-enum-algos:
+   |   kex_algorithms: (12)
+   ...
+   |   encryption_algorithms: (6)
+   |       chacha20-poly1305@openssh.com
+   |       aes128-ctr
+   |       aes192-ctr
+   |       aes256-ctr
+   |       aes128-gcm@openssh.com
+   |       aes256-gcm@openssh.com
+   ...
+   |_      zlib@openssh.com
+   MAC Address: 52:54:00:56:D1:6B (QEMU virtual NIC)
+   ```
+3. Edit `sshd_config` and set the `Ciphers` directive.
+   ```bash
+   vim /etc/ssh/sshd_config
+   
+   # Ciphers and keying
+   Ciphers aes256-ctr,aes192-ctr,aes128-ctr
+   ```
+4. Reload the service.
+   ```bash
+   systemctl reload ssh
+   ```
+5. Verify the change took effect.
+   ```bash
+   sshd -T | grep ciphers
+   
+   ciphers aes256-ctr,aes192-ctr,aes128-ctr
+   ```
+
 ### Troubleshooting
 
 Connection refused means the host is reachable but sshd isn't listening. No route to host or timeout means a network or firewall problem.

@@ -19,12 +19,12 @@ KVM assigns VMs addresses on the `192.168.122.0/24` network from an internal DHC
 
 KVM creates a private `192.168.122.0/24` network for VMs by default. The host bridge interface `virbr0` handles routing, DHCP, and DNS for all VMs on this network.
 
-| Address | Role |
-|:--------|:-----|
-| 192.168.122.0/24 | Default VM network |
-| 192.168.122.1 | Host gateway and DNS server (`virbr0`) |
-| 192.168.122.2–192.168.122.254 | DHCP assignment range |
-| 192.168.122.255 | Broadcast address |
+| Address                       | Role                                   |
+| :---------------------------- | :------------------------------------- |
+| 192.168.122.0/24              | Default VM network                     |
+| 192.168.122.1                 | Host gateway and DNS server (`virbr0`) |
+| 192.168.122.2–192.168.122.254 | DHCP assignment range                  |
+| 192.168.122.255               | Broadcast address                      |
 
 ## KVM components
 
@@ -174,6 +174,21 @@ virsh net-update default add ip-dhcp-host \
 virsh net-update default delete ip-dhcp-host \
     "<host mac='<mac-addr>' name='<hostname>' ip='<ip-addr>' />" --live --config
 ```
+
+## Restart a network
+
+After you set a new static IP, you might need to refresh the network and delete the DHCP lease on the guest:
+
+1. These commands reset dnsmasq and clear any DHCP leases:
+   ```bash
+   virsh net-destroy default
+   virsh net-start default
+   ```
+
+2. These commands release the current lease and then refresh the lease. Run these from within the guest:
+   ```bash
+   sudo dhclient -r && sudo dhclient
+   ```
 
 ## Add a network
 

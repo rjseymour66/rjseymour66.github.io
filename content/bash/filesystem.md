@@ -1,6 +1,6 @@
 ---
 title: "Navigating the filesystem"
-weight: 50
+weight: 60
 description: >
   Finding files, searching content, navigating directory trees, and collecting system information.
 ---

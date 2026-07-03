@@ -1,10 +1,7 @@
-+++
-title = 'Regex'
-date = '2025-09-07T18:57:18-04:00'
-weight = 60
-draft = false
-+++
-
+---
+title: "Regex"
+weight: 50
+---
 
 Regular expressions (regex) let you search, validate, and transform text using a compact pattern syntax. You write a pattern, and the regex engine matches it against a string to find specific characters, words, or structures.
 
@@ -102,6 +99,19 @@ Special characters extend what a pattern can match:
 
 For example, `.+` matches one or more of any character, and `[a-z]+` matches any sequence of consecutive lowercase characters.
 
+Combine negation with `*` to match a variable-length value bounded by a known delimiter. The following `grep` command extracts a DHCP host entry from `virsh` XML output:
+
+```bash
+grep -o "<host mac='[^']*' name='myhost' ip='[^']*'/>"
+```
+
+The XML it targets looks like:
+
+```xml
+<host mac='52:54:00:ab:cd:ef' name='myhost' ip='192.168.122.10'/>
+```
+
+`[^']*` matches zero or more characters that are not a single quote. It advances through the attribute value and stops the moment it reaches the closing `'`, which is exactly where the value ends. This works for both `mac` and `ip` because both values are wrapped in single quotes and neither contains one. Using `.*` instead would match too greedily and consume across attribute boundaries.
 
 ## Groups
 

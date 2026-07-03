@@ -1,6 +1,6 @@
 ---
 title: "Commands reference"
-weight: 70
+weight: 80
 description: >
   All commands covered in this section, organized by category with options and usage examples.
 ---

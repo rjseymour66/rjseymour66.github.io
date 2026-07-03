@@ -28,8 +28,6 @@ The *CIS Critical Security Controls* are a prioritized set of 18 defensive actio
 
 The groups are cumulative: IG2 includes everything in IG1, and IG3 includes everything in IG2.
 
-CIS also publishes *CIS Benchmarks*: prescriptive configuration guides for specific operating systems, cloud platforms, network devices, and server software. Each benchmark maps its recommendations to the CIS Controls and provides step-by-step hardening instructions for that product. Benchmarks are available for Linux distributions, Windows, macOS, AWS, Azure, Kubernetes, Cisco devices, and more than 100 other products. Download them free at [cisecurity.org/cis-benchmarks](https://www.cisecurity.org/cis-benchmarks).
-
 | #   | Control                                                | What it covers                                                                             |
 | --- | ------------------------------------------------------ | ------------------------------------------------------------------------------------------ |
 | 1   | Inventory and control of enterprise assets             | Track all hardware connected to the network. You can't protect what you don't know exists. |
@@ -53,7 +51,9 @@ CIS also publishes *CIS Benchmarks*: prescriptive configuration guides for speci
 
 ### Benchmarks
 
-A CIS Benchmark is a hardening guide for a specific product — Ubuntu, RHEL, Windows Server, Kubernetes, or a network device. Each guide lists every configuration setting you should check, the recommended value, and the rationale. Benchmarks are organized by IG level so you can work through IG1 items first and add IG2 and IG3 settings as your program matures.
+CIS also publishes *CIS Benchmarks*: prescriptive configuration guides for specific operating systems, cloud platforms, network devices, and server software. Each benchmark maps its recommendations to the CIS Controls and provides step-by-step hardening instructions for that product. Benchmarks are available for Linux distributions, Windows, macOS, AWS, Azure, Kubernetes, Cisco devices, and more than 100 other products.
+
+Each guide lists every configuration setting you should check, the recommended value, and the rationale. Benchmarks are organized by IG level so you can work through IG1 items first and add IG2 and IG3 settings as your program matures.
 
 To use a benchmark:
 
@@ -230,37 +230,77 @@ LIMIT 5;
 
 Joins three tables to return the SHA256 hash of each running executable, the process name, and the username it runs as. The hash lets you verify binaries against known-good values. Processes running as unexpected users or with unrecognized hashes are worth investigating.
 
-## Mandatory access control
+## Linux Security Modules (LSMs)
 
 Linux file permissions are *discretionary access control* (DAC): the owner of a file decides who can read, write, or execute it. DAC works well for normal use but fails as a security boundary — a misconfigured application or compromised process running as root can access anything. *Mandatory access control* (MAC) enforces policy at the kernel level, independent of file ownership. Even root cannot bypass MAC policy.
 
 Linux implements MAC through the *Linux Security Modules* (LSM) framework. Two systems dominate: SELinux and AppArmor. Both confine processes to only the resources their policy explicitly permits, but they take fundamentally different approaches.
 
-| | SELinux | AppArmor |
-| :--- | :--- | :--- |
-| Model | Label-based | Path-based |
-| Default on | RHEL, CentOS, Fedora | Ubuntu, Debian |
-| Policy complexity | High | Low |
-| Granularity | Very fine | Moderate |
+|                     | SELinux                 | AppArmor                      |
+| :------------------ | :---------------------- | :---------------------------- |
+| Model               | Label-based             | Path-based                    |
+| Default on          | RHEL, CentOS, Fedora    | Ubuntu, Debian                |
+| Policy complexity   | High                    | Low                           |
+| Granularity         | Very fine               | Moderate                      |
 | Configuration style | Central policy database | Per-application profile files |
 
 ### SELinux
 
 *SELinux* (Security-Enhanced Linux) was developed by the NSA and merged into the kernel in 2003. It assigns a *security context* — a label in the form `user:role:type:level` — to every process, file, socket, and port on the system. Policy rules define which types are allowed to interact. A web server process labeled `httpd_t` can read files labeled `httpd_sys_content_t` but cannot read files labeled `shadow_t` or `sshd_t`, regardless of Unix permissions.
 
-This label-based model makes SELinux extremely granular. It also makes it harder to configure — a mislabeled file silently breaks an application, and diagnosing why requires reading audit logs and understanding type enforcement rules.
+This label-based model makes SELinux extremely granular. It also makes it harder to configure. A mislabeled file silently breaks an application, and diagnosing why requires reading audit logs and understanding type enforcement rules.
 
 SELinux runs in one of three modes:
 
 - *Enforcing*: policy violations are blocked and logged.
-- *Permissive*: violations are logged but not blocked. Use this when developing or debugging policy.
+- *Permissive*: violations are logged but not blocked. Use this to test an application before enforcing policy. Run the application through its normal workflows, then check `/var/log/audit/audit.log` to see which operations SELinux would have denied. This lets you identify and resolve policy gaps before switching to enforcing mode.
 - *Disabled*: SELinux is off. Requires a reboot to re-enable.
+
+#### Install and enable
+
+SELinux is installed by default on RHEL, CentOS, and Fedora. On Debian and Ubuntu it requires manual installation.
+
+```bash
+# Debian/Ubuntu
+apt install selinux-basics selinux-policy-default auditd
+```
+
+Configure the bootloader and schedule a filesystem relabel:
+
+```bash
+selinux-activate
+
+# RHEL/CentOS (if removed or missing)
+dnf install selinux-policy selinux-policy-targeted
+```
+
+Enable, disable, and check status by editing `/etc/selinux/config`. Changes require a reboot:
+
+```bash
+vim /etc/selinux/config
+# SELINUX=enforcing    ← enable and enforce policy
+# SELINUX=permissive   ← enable but log only, do not block
+# SELINUX=disabled     ← turn off entirely (reboot required to re-enable)
+```
+
+#### Usage
+
+To switch modes without rebooting, or to manage policy modules:
+
+```bash
+reboot                             # required after any change to /etc/selinux/config
+setenforce 0                       # temporarily switch to permissive without rebooting
+setenforce 1                       # temporarily switch to enforcing without rebooting
+semodule -l                        # list all loaded policy modules
+semodule -e <module>               # enable a disabled module
+semodule -d <module>               # disable a module without removing it
+```
+
+To check status, inspect contexts, and troubleshoot denials:
 
 ```bash
 getenforce                         # print current mode: Enforcing, Permissive, or Disabled
 sestatus                           # detailed status including policy name and loaded modules
-setenforce 0                       # switch to Permissive without rebooting (temporary)
-setenforce 1                       # switch back to Enforcing (temporary)
 
 ls -Z /var/www/html                # show SELinux context on files
 ps -eZ | grep httpd                # show context of running processes
@@ -272,28 +312,85 @@ audit2allow -a                     # suggest policy rules to allow recent denial
 sealert -a /var/log/audit/audit.log  # human-readable analysis of SELinux denials (requires setroubleshoot)
 ```
 
+#### Recommended settings
+
+Set `/etc/selinux/config` to:
+
+```bash
+SELINUX=enforcing
+SELINUXTYPE=targeted
+```
+
+- Use `targeted` policy. It confines high-risk services (Apache, SSH, DNS) without restricting every process on the system.
+- Keep `auditd` running. SELinux writes all denials to `/var/log/audit/audit.log`. Without auditd, you lose the AVC records you need to diagnose problems.
+- Use `semanage fcontext` for permanent file context changes, not `chcon`. Changes made with `chcon` are overwritten the next time SELinux relabels the filesystem.
+- Run `restorecon -Rv` after moving files into a service directory to restore the correct context.
+- Don't disable SELinux to fix a broken application. Switch to permissive mode, reproduce the problem, then use `audit2allow` and `sealert` to understand the denial before re-enabling enforcing.
+
 ### AppArmor
 
 *AppArmor* was developed by Novell and is the default MAC system on Ubuntu and Debian. Rather than labeling every object on the filesystem, AppArmor confines individual programs using *profiles*: text files that list the filesystem paths, capabilities, and network access a program is allowed. A profile for Nginx permits it to read `/etc/nginx/**` and `/var/www/html/**` but nothing outside those paths.
 
-The path-based model is simpler to understand and write than SELinux type enforcement. The tradeoff is granularity — a hard link or bind mount can bypass path-based policy in ways that label-based systems prevent.
+The path-based model is simpler to understand and write than SELinux type enforcement. The tradeoff is granularity: a hard link or bind mount can bypass path-based policy in ways that label-based systems prevent.
 
 Each profile runs in one of two modes:
 
 - *Enforce*: violations are blocked and logged.
-- *Complain*: violations are logged but not blocked. Use this when building or testing a new profile.
+- *Complain*: violations are logged but not blocked. Use complain mode as a learning mode: run the application through its normal workflows and AppArmor records every access it makes. Review the logs with `aa-logprof` to generate a profile that reflects actual behavior before switching to enforce mode.
+
+#### Dependencies
+
+AppArmor is installed by default on Ubuntu and Debian. Install the utilities package to get the profile management tools:
 
 ```bash
-aa-status                          # list all profiles and their current mode
-aa-enforce /etc/apparmor.d/usr.sbin.nginx   # set a profile to enforce mode
-aa-complain /etc/apparmor.d/usr.sbin.nginx  # set a profile to complain mode
-aa-disable /etc/apparmor.d/usr.sbin.nginx   # disable a profile
-
-apparmor_parser -r /etc/apparmor.d/usr.sbin.nginx  # reload a profile after editing
-systemctl reload apparmor                           # reload all profiles
-
-aa-genprof /usr/sbin/myapp         # interactively generate a new profile for an application
-aa-logprof                         # scan logs and suggest profile updates for recent violations
-
-journalctl -xe | grep apparmor     # view AppArmor denial messages in the system journal
+apt install apparmor apparmor-utils
 ```
+
+#### Usage
+
+To manage the service:
+
+```bash
+systemctl enable apparmor            # enable at boot
+systemctl start apparmor             # start immediately
+systemctl stop apparmor              # stop immediately
+systemctl disable apparmor           # disable at boot
+```
+
+To load, reload, and remove profiles:
+
+```bash
+apparmor_parser -a /etc/apparmor.d/profile   # load a new profile into the kernel
+apparmor_parser -r /etc/apparmor.d/profile   # reload a profile after editing
+apparmor_parser -R /etc/apparmor.d/profile   # remove a profile from the kernel
+systemctl reload apparmor                    # reload all profiles
+```
+
+To manage profile modes and troubleshoot violations:
+
+```bash
+aa-status                                      # list all profiles and their current mode
+aa-enforce /etc/apparmor.d/usr.sbin.nginx      # set a profile to enforce mode
+aa-complain /etc/apparmor.d/usr.sbin.nginx     # set a profile to complain mode
+aa-complain /etc/apparmor.d/*                  # set all profiles to complain mode at once
+aa-disable /etc/apparmor.d/usr.sbin.nginx      # disable a profile
+
+aa-genprof /usr/sbin/myapp                     # interactively generate a new profile
+```
+
+`aa-logprof` reads `/var/log/syslog` or the audit log and presents each unconfined access interactively. For each event, you choose to allow, deny, or ignore it. When you exit, `aa-logprof` writes your decisions into the profile file. Run it after exercising the application in complain mode to build a profile from real behavior rather than writing rules by hand.
+
+```bash
+aa-logprof                                     # interactively update profiles from logged violations
+
+journalctl -xe | grep apparmor                 # view AppArmor denial messages in the system journal
+```
+
+#### Recommended settings
+
+- Keep `apparmor` enabled and started at boot.
+- Install `apparmor-utils`. The `aa-*` management commands depend on it.
+- Verify that all distro-shipped profiles run in enforce mode with `aa-status`. Any profile in complain mode is not blocking violations.
+- For custom applications, start in complain mode, run the application through its normal workflows, then use `aa-logprof` to build the profile from real behavior before switching to enforce.
+- Store custom profiles in `/etc/apparmor.d/`. AppArmor loads every file in that directory automatically.
+- After editing a profile, reload with `systemctl reload apparmor`. Restarting the service is not necessary and disrupts active confinement.

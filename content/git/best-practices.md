@@ -11,6 +11,62 @@ application as part of a team, tracking system administration files, and
 configuring a new workstation from scratch. Each workflow builds on the
 commands covered in the other pages in this section.
 
+## Terms
+
+Branch
+: A separate line of development within a repository. Each branch is an independent sequence of commits. You create a branch to work on a feature or fix without affecting the main codebase, then merge it back when the work is complete.
+
+Checkout
+: Switching your working directory to a different branch or commit. When you check out a branch, your files update to match that branch's state.
+
+Clone
+: Copying a remote repository to your local machine. A clone includes the full history, all branches, and a connection back to the remote it came from.
+
+Commit
+: A saved snapshot of your changes. Each commit records what changed, who changed it, and when. Commits are permanent — the history of a repository is the sequence of its commits.
+
+Conflict
+: A situation where two branches changed the same part of the same file in incompatible ways. Git cannot merge them automatically and asks you to resolve the conflict manually before completing the merge.
+
+Fetch
+: Downloading changes from a remote repository without applying them to your local branch. Fetch updates your local record of what the remote looks like, but leaves your working files unchanged.
+
+HEAD
+: A pointer to your current position in the repository. It usually points to the most recent commit on the branch you have checked out. That most recent commit is called the *tip* of the branch — the branch grows forward as you add commits, and the tip is always the newest one. When you make a new commit, HEAD moves forward to point at it.
+
+Index
+: See *staging area*.
+
+Merge
+: Combining the history of one branch into another. A merge takes the commits from a source branch and integrates them into the target branch, creating a new merge commit if the two branches diverged.
+
+origin
+: The default name Git assigns to the remote a repository was cloned from. It is a name, not a special concept — you can rename it or have multiple remotes with different names.
+
+Pull
+: Fetching changes from a remote and immediately merging them into your current branch. `git pull` is shorthand for `git fetch` followed by `git merge`.
+
+Push
+: Sending your local commits to a remote repository so others can see and build on them.
+
+Rebase
+: Moving a sequence of commits so they appear to start from a different point in history. Rebasing rewrites commits to produce a linear history without merge commits.
+
+Remote
+: A copy of the repository hosted on another machine, typically a service like GitHub or GitLab. Remotes let teams share work by pushing and pulling commits between local and remote copies.
+
+Repository
+: The directory where Git stores your project's files and their complete history. A repository contains every commit ever made, every branch, and every tag. Usually shortened to *repo*.
+
+Staging area
+: A holding area between your working directory and the repository. You add changes to the staging area with `git add`, then commit everything staged at once with `git commit`. This lets you group related changes into a single commit even if you edited many files.
+
+Tag
+: A named reference to a specific commit, used to mark release points such as `v1.0`. Unlike branches, tags do not move when new commits are added.
+
+Working directory
+: The files on your local machine as they currently exist on disk. Changes here are not part of any commit until you stage and commit them.
+
 ## Environment setup
 
 Run these steps once on any new machine before working with git.
@@ -67,7 +123,7 @@ git config --global core.excludesfile ~/.gitignore_global
 
 Common entries to add:
 
-```
+```bash
 # macOS
 .DS_Store
 
@@ -104,7 +160,7 @@ This workflow, known as *GitHub Flow*, is the standard approach for teams
 working on a continuously deployed application. Every change moves through
 a feature branch and a pull request before reaching `main`.
 
-```
+```bash
 main:    A---B-----------M---N      (protected, always deployable)
                   \     /
 feature:           C---D            (your work in isolation)
@@ -150,7 +206,7 @@ git commit -m 'add JWT validation middleware'
 
 A useful commit message structure:
 
-```
+```bash
 <type>: <short summary under 72 characters>
 
 <optional body explaining why, not what>

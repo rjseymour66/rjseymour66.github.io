@@ -20,14 +20,14 @@ Every repository starts with one branch. By convention it is named `main`
 (or `master` in older repositories). `HEAD` is a special pointer that tracks
 which branch you are currently on:
 
-```
+```bash
 A---B---C   (main, HEAD)
 ```
 
 When you create a branch, git adds a new pointer at the same commit. `HEAD`
 stays on the original branch:
 
-```
+```bash
 A---B---C   (main, HEAD)
             ^
             (feature)
@@ -36,7 +36,7 @@ A---B---C   (main, HEAD)
 When you switch to the new branch and commit, the feature pointer advances.
 `main` stays where it was:
 
-```
+```bash
 A---B---C   (main)
          \
           D---E   (feature, HEAD)
@@ -124,7 +124,7 @@ A fast-forward merge happens when the target branch has not diverged from the
 source. `main` simply moves its pointer forward to the tip of the feature
 branch. No new commit is created:
 
-```
+```bash
 Before:                        After git merge feature:
 
 A---B---C  (main)              A---B---C---D---E  (main, HEAD)
@@ -147,7 +147,7 @@ ancestor. Git identifies three commits: the common ancestor, the tip of the
 target branch, and the tip of the source branch. It combines them into a new
 *merge commit* that has two parents:
 
-```
+```bash
 Before:                        After git merge feature:
 
 A---B---C---F  (main)          A---B---C---F---G  (main, HEAD)
@@ -177,7 +177,7 @@ Automatic merge failed; fix conflicts and then commit the result.
 
 Git marks the conflicting region in the file:
 
-```
+```bash
 <<<<<<< HEAD
 func authenticate(user string) bool {
     return checkPassword(user)

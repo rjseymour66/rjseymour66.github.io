@@ -20,7 +20,7 @@ exact record of how work developed in parallel.
 Suppose `main` and `feature` have diverged. Both have commits the other does
 not:
 
-```
+```bash
 Before rebase:
 
 main:    A---B---C
@@ -33,7 +33,7 @@ ancestor (`B`), takes each commit on `feature` that is not on `main`, and
 applies them one at a time on top of the tip of `main`. Each replayed commit
 gets a new SHA-1 hash because its parent has changed:
 
-```
+```bash
 After git rebase main (run from feature branch):
 
 main:    A---B---C
@@ -48,7 +48,7 @@ abandoned.
 After the rebase, the merge from `main` into `feature` is a simple
 fast-forward — no merge commit required:
 
-```
+```bash
 After git checkout main && git merge feature:
 
 main:    A---B---C---D'--E'  (HEAD)
@@ -129,7 +129,7 @@ shared release branches, or any branch you pushed to a remote and told a
 colleague about. Rebasing is safe on branches that exist only on your local
 machine or on a remote branch that only you use.
 
-```
+```bash
                        !! DO NOT rebase C and D after pushing !!
 
 Remote main:  A---B---C---D
@@ -164,7 +164,7 @@ git rebase -i HEAD~4
 
 Git opens an editor with a list of commits, oldest first:
 
-```
+```bash
 pick 4e3af98 add login handler
 pick 2b1c673 add token validation
 pick a7f92c1 fix typo in comment
@@ -187,7 +187,7 @@ Change the verb on each line to control what happens to that commit:
 A common use is collapsing several "WIP" or "fix typo" commits into one clean
 commit before merging:
 
-```
+```bash
 Before:                            After squash:
 
 pick 4e3af98 add login handler     pick 4e3af98 add login handler
@@ -204,7 +204,7 @@ message you write in the editor that opens after saving the rebase plan.
 Change `pick` to `reword` for any commit whose message you want to fix. Git
 pauses at that commit and opens the editor:
 
-```
+```bash
 reword 4e3af98 add login handler
 pick   2b1c673 add token validation
 ```

@@ -72,7 +72,7 @@ Every change you track in git follows the same three steps:
 
 The diagram below shows how files move between states:
 
-```
+```bash
 Untracked       Unmodified              Modified             Staged
     |                |                      |                   |
     | Add the file -------------------------------------------> |

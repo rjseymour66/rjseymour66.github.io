@@ -13,52 +13,37 @@ The public DNS infrastructure consists of three tiers:
 - *Upstream resolvers*: Recursive DNS servers operated by ISPs, cloud providers, and public services such as Google (8.8.8.8) and Cloudflare (1.1.1.1). These servers cache DNS responses and answer queries on behalf of clients and internal DNS servers.
 - *Registrars*: Companies authorized to register domain names under a TLD (such as GoDaddy or Namecheap). When you register a domain, the registrar records your domain name and its authoritative name servers in the TLD registry, making the domain resolvable on the internet.
 
-## Terms
+## Components
 
-Authoritative name server
-: The DNS server that holds the definitive zone file for a domain and returns authoritative answers directly from that file, not from cache.
+DNS is built from a small set of record types stored in zone files. Every configuration task and troubleshooting step involves reading or writing these records. Understanding what each one does is the foundation for everything else in this page.
 
-DNS amplification attack
-: An attack in which an adversary spoofs a victim's IP address and sends small DNS queries to many open resolvers or authoritative servers. Each server sends its response to the victim, generating traffic that is larger than the original query. The ratio of response size to query size is the amplification factor.
+| Record | Full name | Purpose |
+|---|---|---|
+| A | Address | Maps a hostname to an IPv4 address. The most common record type. |
+| AAAA | IPv6 address | Maps a hostname to an IPv6 address. |
+| CNAME | Canonical name | Creates an alias that points to another hostname instead of an IP address. |
+| MX | Mail exchange | Identifies the mail server for a domain. Includes a priority number — lower wins. |
+| NS | Name server | Lists the authoritative name servers for a zone. Required in every zone. |
+| SOA | Start of Authority | The first record in every zone file. Defines the primary name server, admin contact, and timing values for zone transfers and caching. |
+| PTR | Pointer | Maps an IP address back to a hostname. Used for reverse DNS lookups. |
+| TXT | Text | Stores arbitrary text. Used for domain ownership verification, SPF email policy, and DKIM signing keys. |
+| SRV | Service | Identifies the host and port for a specific service, such as SIP or LDAP. |
 
-Open resolver
-: A DNS server that answers recursive queries from any source on the internet. Open resolvers can be abused as reflectors in amplification attacks.
+Zone files are plain text files stored on the authoritative name server. On Debian-based systems running BIND, they live in `/var/cache/bind/`. On RHEL-based systems, the default location is `/var/named/`. The `directory` directive in `named.conf.options` sets this path and tells BIND where to look when a zone block specifies a relative filename.
 
-RRL
-: Response Rate Limiting. A DNS server feature that caps how many identical responses the server sends to a single source IP within a given time window, mitigating amplification attacks and reconnaissance.
+DNS uses UDP on port 53 for standard queries. It switches to TCP on port 53 for responses that exceed 512 bytes and for zone transfers between primary and secondary servers.
 
-Cache
-: A temporary store of DNS responses held by a resolver or client. Cached entries are reused until their TTL expires.
+A CNAME differs from an A record in what it points to. An A record is the end of the chain — it maps a name directly to an IP address. A CNAME points to another name, which must eventually resolve to an A record through one or more additional lookups.
 
-FQDN
-: Fully qualified domain name. The complete host address including all labels through the root: `www.example.com.`
+For example:
 
-Forwarder
-: An upstream DNS server to which an internal DNS server sends queries it cannot answer locally.
+```bash
+www      IN  A      192.168.1.20
+ftp      IN  CNAME  www.coherentsecurity.com.
+webmail  IN  CNAME  www.coherentsecurity.com.
+```
 
-PTR record
-: A pointer record that maps an IP address to an FQDN, used for reverse DNS lookups.
-
-Registrar
-: A company authorized to register domain names under a TLD. The registrar submits name server records to the TLD registry when you register a domain.
-
-Recursive resolver
-: A DNS server that performs the full lookup chain on behalf of a client, querying multiple servers until it returns an authoritative answer.
-
-Root name server
-: One of 13 logical DNS servers (A through M) at the top of the DNS hierarchy. Root name servers return the authoritative name servers for each TLD.
-
-TLD
-: Top-level domain. The rightmost label in a domain name: `.com`, `.org`, `.net`, `.gov`.
-
-TTL
-: Time to live. The number of seconds a DNS record may be held in cache before it must be refreshed from the authoritative source.
-
-Zone
-: A portion of the DNS namespace that a single authoritative name server is responsible for. A zone contains all the DNS records for one domain. For example, `coherentsecurity.com` is a zone that includes records for `www.coherentsecurity.com`, `mail.coherentsecurity.com`, and any other hostnames under that domain.
-
-Zone file
-: A text file on an authoritative name server containing the DNS records for a domain: A, AAAA, CNAME, MX, PTR, NS, SOA, and others.
+Both `ftp.coherentsecurity.com` and `webmail.coherentsecurity.com` resolve to `192.168.1.20`, but they get there differently. `www` resolves in one step. `ftp` and `webmail` each resolve in two: first to `www.coherentsecurity.com`, then to `192.168.1.20`. Any number of CNAMEs can point to the same target. The practical benefit is that when the server's IP changes, you update only the A record for `www`. Every CNAME that points to it follows automatically because each points to the name, not the address.
 
 ## Features
 
@@ -190,44 +175,7 @@ Most DNS deployments run one of two servers: BIND for full-featured authoritativ
 
 *BIND* (Berkeley Internet Name Domain), also called *named* after its daemon process, is the most widely deployed DNS server software on the internet. It runs on Linux and Unix systems and supports the full DNS feature set: authoritative zone hosting, recursive resolution, DNSSEC validation, zone transfers, views, and access control lists.
 
-### Manage BIND
-
-Use `systemctl` to control the `bind9` service:
-
-```bash
-sudo systemctl enable bind9                  # start automatically at boot
-sudo systemctl start bind9                   # start the service now
-sudo systemctl stop bind9                    # stop the service
-sudo systemctl restart bind9                 # stop and restart — re-reads all config and zone files
-sudo systemctl reload bind9                  # reload config without stopping — preferred for zone changes
-sudo systemctl status bind9                  # show whether the service is running and recent log lines
-```
-
-Prefer `reload` over `restart` for zone file changes. `reload` applies the new config without dropping in-progress queries. `restart` stops the process entirely and briefly interrupts DNS service.
-
-Validate configuration and zone files before reloading:
-
-```bash
-named-checkconf                                                                 # validate all config files
-named-checkzone coherentsecurity.com /var/cache/bind/coherentsecurity.com.zone  # validate a zone file
-```
-
-Both commands exit silently with no output if the files are valid. Fix any errors they report before reloading — BIND will reject a bad config and continue running on the previous valid one.
-
-#### View logs
-
-View logs with `journalctl`:
-
-```bash
-journalctl -u bind9                        # all bind9 log entries
-journalctl -u bind9 -f                     # follow log output in real time
-journalctl -u bind9 -n 50                  # show the last 50 lines
-journalctl -u bind9 --since "1 hour ago"   # entries from the last hour
-```
-
-### Internal settings
-
-#### Install BIND
+### Install BIND
 
 The `bind9` package includes the BIND name server daemon (`named`) and its supporting utilities. Install it with:
 
@@ -237,7 +185,7 @@ sudo apt install -y bind9
 
 After installation, BIND starts automatically and listens on port 53.
 
-#### Configuration
+### Configure BIND
 
 BIND's main configuration file is `/etc/bind/named.conf`. On Debian-based systems, this file contains only `include` directives that pull in three separate files:
 
@@ -257,7 +205,42 @@ Splitting the configuration this way keeps each file focused on a single concern
 
 Edit `named.conf.options` to configure forwarders and recursion. Edit `named.conf.local` to add or modify zone definitions. Leave `named.conf.default-zones` unchanged unless you have a specific reason to override the defaults.
 
-#### Syntax
+### Manage BIND
+
+Use `systemctl` to control the `bind9` service:
+
+```bash
+sudo systemctl enable bind9                  # start automatically at boot
+sudo systemctl start bind9                   # start the service now
+sudo systemctl stop bind9                    # stop the service
+sudo systemctl restart bind9                 # stop and restart — re-reads all config and zone files
+sudo systemctl reload bind9                  # reload config without stopping — preferred for zone changes
+sudo systemctl status bind9                  # show whether the service is running and recent log lines
+```
+
+Prefer `reload` over `restart` for zone file changes. `reload` applies the new config without dropping in-progress queries. `restart` stops the process entirely and briefly interrupts DNS service.
+
+Validate configuration and zone files before reloading:
+
+```bash
+named-checkconf                                                                  # validate all config files
+named-checkzone coherentsecurity.com /var/cache/bind/coherentsecurity.com.zone  # validate a zone file
+```
+
+Both commands exit silently with no output if the files are valid. Fix any errors they report before reloading — BIND will reject a bad config and continue running on the previous valid one.
+
+#### View logs
+
+View logs with `journalctl`:
+
+```bash
+journalctl -u bind9                        # all bind9 log entries
+journalctl -u bind9 -f                     # follow log output in real time
+journalctl -u bind9 -n 50                  # show the last 50 lines
+journalctl -u bind9 --since "1 hour ago"   # entries from the last hour
+```
+
+### Syntax
 
 BIND configuration files use a structured syntax similar to C:
 
@@ -274,6 +257,10 @@ options {
     recursion yes;                      // keyword value
 };
 ```
+
+### Internal settings
+
+An internal DNS server serves a known, trusted set of clients — employees, servers, and devices on your own network. Because you control who can reach it, you configure it differently than an internet-facing server. Recursion is enabled so clients can resolve external names through the server's forwarders. Queries are restricted to your internal address ranges to prevent outside hosts from using your server as an open resolver, which can be exploited in amplification attacks. Dynamic registration is allowed so workstations can register themselves as they join the network. The settings below reflect these priorities: full recursive resolution and convenient access for trusted clients, locked down to your internal network only.
 
 #### named.conf.options
 
@@ -471,6 +458,68 @@ If the internal queries return the correct IPs, BIND is loading and serving the 
 
 ### Internet-facing settings
 
+Historically, hosting your own domain required standing up a DNS server yourself or using one provided by your ISP, then managing zone files manually through the command line. Most organizations now host their DNS directly with their domain registrar instead. Major registrars such as Cloudflare, GoDaddy, and Namecheap operate their own global DNS infrastructure and give you a web UI to manage your zone records — adding, editing, and deleting entries without touching a config file.
+
+This shifts the responsibility for infrastructure security and availability to the registrar. Your responsibility is protecting access to your registrar account. Enable multi-factor authentication (MFA) on the account to defend against *credential stuffing* — an attack where an adversary takes username and password combinations leaked from other data breaches and tries them against your registrar login. A successful login gives them full control over your DNS, letting them redirect your domain to infrastructure they control. MFA stops a stolen password from being enough.
+
+If you do run your own internet-facing authoritative server, the settings below harden it for public exposure.
+
+```bash
+options {
+    directory "/var/cache/bind";
+    listen-on port 53 { any; };
+    listen-on-v6 { any; };
+    allow-query { any; };
+    recursion no;
+    dnssec-validation auto;
+    rate-limit {
+        responses-per-second 10;
+        log-only yes;
+    };
+};
+```
+
+The key differences from an internal server: `allow-query` is open to any source, `recursion` is disabled, and there is no `forwarders` block. The `rate-limit` block is nested inside `options` because RRL is a server-wide behavior, not a per-zone setting.
+
+#### Rate limiting DNS requests
+
+Add a `rate-limit` block inside the `options` block in `/etc/bind/named.conf.options` to enable *Response Rate Limiting (RRL)*:
+
+```bash
+options {
+    ...
+    rate-limit {
+        responses-per-second 10;
+        log-only yes;
+    };
+};
+```
+
+| Directive | Purpose |
+|---|---|
+| `responses-per-second 10` | Caps the number of identical responses sent to a single source IP at 10 per second. Requests beyond that limit are dropped or truncated. |
+| `log-only yes` | Test mode. BIND logs what it would rate-limit but does not drop any responses. Remove this line or set it to `no` to enforce the limit in production. |
+
+#### Recursion and forwarding
+
+An internet-facing authoritative server answers queries only for zones it owns. It should never recurse or forward — those features are for internal servers that resolve external names on behalf of clients. Leaving recursion enabled makes the server an open resolver that can be exploited in amplification attacks.
+
+Remove the `forwarders` block from `named.conf.options` entirely and set recursion to off:
+
+```bash
+recursion no;
+```
+
+#### Allow query from any IP
+
+An internal DNS server restricts `allow-query` to internal networks because it only serves internal clients. An internet-facing server must answer queries from anywhere on the internet.
+
+Set `allow-query` to accept all source addresses:
+
+```bash
+allow-query { any; };
+```
+
 ## dnsmasq
 
 *dnsmasq* is a lightweight DNS forwarder and DHCP server designed for small networks and embedded systems. Its small footprint makes it a common choice for network appliances such as home routers, wireless access points, and perimeter firewalls. If a home network has a DNS server on its perimeter firewall or WAP, that server is likely running dnsmasq.
@@ -478,3 +527,50 @@ If the internal queries return the correct IPs, BIND is loading and serving the 
 dnsmasq integrates DNS and DHCP directly: it reads the DHCP lease database and answers DNS queries from it, so workstations registered through DHCP are immediately resolvable by hostname without manual DNS entries. Network appliances that run dnsmasq typically provide a web GUI for reporting and configuration.
 
 dnsmasq also supports blocklists. *Pi-hole* is an application built on dnsmasq that exposes this blocklist feature through a web interface, blocking ads and trackers at the DNS level for every device on the network.
+
+## Glossary
+
+Authoritative name server
+: The DNS server that holds the definitive zone file for a domain and returns authoritative answers directly from that file, not from cache.
+
+Cache
+: A temporary store of DNS responses held by a resolver or client. Cached entries are reused until their TTL expires.
+
+DNS amplification attack
+: An attack in which an adversary spoofs a victim's IP address and sends small DNS queries to many open resolvers or authoritative servers. Each server sends its response to the victim, generating traffic that is larger than the original query. The ratio of response size to query size is the amplification factor.
+
+FQDN
+: Fully qualified domain name. The complete host address including all labels through the root: `www.example.com.`
+
+Forwarder
+: An upstream DNS server to which an internal DNS server sends queries it cannot answer locally.
+
+Open resolver
+: A DNS server that answers recursive queries from any source on the internet. Open resolvers can be abused as reflectors in amplification attacks.
+
+PTR record
+: A pointer record that maps an IP address to an FQDN, used for reverse DNS lookups.
+
+Recursive resolver
+: A DNS server that performs the full lookup chain on behalf of a client, querying multiple servers until it returns an authoritative answer.
+
+Registrar
+: A company authorized to register domain names under a TLD. The registrar submits name server records to the TLD registry when you register a domain.
+
+Root name server
+: One of 13 logical DNS servers (A through M) at the top of the DNS hierarchy. Root name servers return the authoritative name servers for each TLD.
+
+RRL
+: Response Rate Limiting. A DNS server feature that caps how many identical responses the server sends to a single source IP within a given time window, mitigating amplification attacks and reconnaissance.
+
+TLD
+: Top-level domain. The rightmost label in a domain name: `.com`, `.org`, `.net`, `.gov`.
+
+TTL
+: Time to live. The number of seconds a DNS record may be held in cache before it must be refreshed from the authoritative source.
+
+Zone
+: A portion of the DNS namespace that a single authoritative name server is responsible for. A zone contains all the DNS records for one domain. For example, `coherentsecurity.com` is a zone that includes records for `www.coherentsecurity.com`, `mail.coherentsecurity.com`, and any other hostnames under that domain.
+
+Zone file
+: A text file on an authoritative name server containing the DNS records for a domain: A, AAAA, CNAME, MX, PTR, NS, SOA, and others.

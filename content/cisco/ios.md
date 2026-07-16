@@ -5,46 +5,121 @@ weight = 20
 draft = false
 +++
 
-Cisco IOS organizes configuration into a hierarchy of modes. *Privileged EXEC* mode (indicated by `#`) is the entry point for viewing device state and entering configuration. Running `configure terminal` drops you into *global configuration* mode, where device-wide settings like hostname and routing protocols live. From global config, you enter sub-modes to configure specific resources. *Interface configuration* mode controls physical and logical ports, where you set properties like speed, IP addresses, and shutdown state. *Line configuration* mode controls the access lines used to connect to the device, including the console port, VTY (SSH/Telnet), and AUX port. Use `exit` to move up one level and `end` to return directly to privileged EXEC.
+Cisco IOS organizes configuration into a hierarchy of modes, described below. Use `exit` to move up one level and `end` (or `Ctrl+Z`) to return directly to Privileged EXEC from any configuration mode.
 
-1. *Privileged EXEC* (`#`): view and manage device state, enter configuration
-2. *Global configuration* (`(config)#`): device-wide settings: hostname, routing, AAA, VLANs
-3. *Interface configuration* (`(config-if)#`): per-port settings: IP, speed, shutdown state
-4. *Line configuration* (`(config-line)#`): console, VTY, and AUX access settings
-5. *Router configuration* (`(config-router)#`): routing protocol settings: OSPF, EIGRP, BGP
+## Modes
 
-## Configuration commands
+Cisco IOS has the following modes:
 
-| Command | Mode | Description |
+| Mode | Prompt | Description |
 |:---|:---|:---|
-| `line console 0` | Global config | Enters line config mode for the physical console port |
-| `login` | Line config | Requires password authentication on the line |
-| `password` *password* | Line config | Sets the plain-text password for the line |
-| `interface` *type port-number* | Global config | Enters interface config mode for the specified port |
-| `speed` *value* | Interface config | Hard-sets interface speed; disables autonegotiation |
-| `hostname` *name* | Global config | Sets the device hostname |
-| `exit` | Any | Moves up one level in the config hierarchy |
-| `end` | Any | Returns directly to privileged EXEC from any config mode |
-| `Ctrl+Z` | Any | Returns directly to privileged EXEC from any config mode |
+| User EXEC mode | `>` | The first mode you reach after connecting to the device. It gives limited, read-only access to device status. |
+| Privileged EXEC mode, also called enable mode | `#` | Reached by running `enable` from User EXEC mode. It gives full read access to device state and is required before you can enter configuration mode. |
+| Global configuration mode | `(config)#` | Reached by running `configure terminal` from Privileged EXEC mode. Device-wide settings, like the hostname and routing protocols, live here. |
+| Interface configuration mode | `(config-if)#` | A sub-mode of global config that controls a specific physical or logical port, for example its speed, IP address, or shutdown state. |
+| Line configuration mode | `(config-line)#` | A sub-mode of global config that controls an access line used to connect to the device: the console port, VTY lines (SSH/Telnet), or the AUX port. |
+| Router configuration mode | `(config-router)#` | A sub-mode of global config that controls a specific routing protocol process, such as OSPF. |
 
-## EXEC commands
+### Enter mode
 
-EXEC mode is the command-line layer above configuration. *User EXEC* mode (indicated by `>`) provides limited read-only access and is the first mode you reach after connecting. Running `enable` elevates you to *Privileged EXEC* mode (indicated by `#`), where you can view device state, manage configuration files, reload the device, and control the session. Unlike configuration commands, EXEC commands do not modify the running configuration.
+Each mode has its own command to enter it, run from the mode one level above.
 
-| Command | Mode | Description |
-|:---|:---|:---|
-| `no debug all` | Privileged EXEC | Disables all active debug sessions |
-| `undebug all` | Privileged EXEC | Alias for `no debug all` |
-| `reload` | Privileged EXEC | Reboots the device |
-| `copy running-config startup-config` | Privileged EXEC | Saves running config to NVRAM |
-| `copy startup-config running-config` | Privileged EXEC | Loads startup config into running config |
-| `show running-config` | Privileged EXEC | Displays the current running configuration |
-| `write erase` | Privileged EXEC | Erases the startup configuration from NVRAM |
-| `erase startup-config` | Privileged EXEC | Alias for `write erase` |
-| `erase nvram:` | Privileged EXEC | Erases all NVRAM contents |
-| `quit` | Any EXEC | Closes the current session |
-| `show startup-config` | Privileged EXEC | Displays the saved startup configuration |
-| `enable` | User EXEC | Enters Privileged EXEC mode |
-| `disable` | Privileged EXEC | Returns to User EXEC mode |
-| `configure terminal` | Privileged EXEC | Enters global configuration mode |
-| `show mac address-table` | Privileged EXEC | Displays the MAC address table (switches only) |
+| Mode | Command |
+|:---|:---|
+| User EXEC | *(connect)* |
+| Privileged EXEC | `enable` |
+| Global configuration | `configure terminal` |
+| Interface configuration | `interface` *type* *port-number* |
+| Line configuration | `line console 0`<br>`line vty` *first* *last*<br>`line aux 0` |
+| Router configuration | `router ospf` *process-id* |
+
+### User EXEC
+
+Use this mode for quick, non-privileged checks, like confirming the device is reachable, without risking any configuration changes.
+
+| Command | Description |
+|:---|:---|
+| `enable` | Enters Privileged EXEC mode |
+| `quit` | Closes the current session |
+
+### Privileged EXEC
+
+Use this mode when you need full visibility into device state, such as the running configuration or hardware details, or when you need to run operational commands like `reload` and `copy` before entering configuration mode.
+
+| Command | Description |
+|:---|:---|
+| `disable` | Returns to User EXEC mode |
+| `configure terminal` | Enters global configuration mode |
+| `no debug all` | Disables all active debug sessions |
+| `undebug all` | Alias for `no debug all` |
+| `reload` | Reboots the device |
+| `copy running-config startup-config` | Saves running config to NVRAM |
+| `copy startup-config running-config` | Loads startup config into running config |
+| `show running-config` | Displays the current running configuration |
+| `show startup-config` | Displays the saved startup configuration |
+| `write erase` | Erases the startup configuration from NVRAM |
+| `erase startup-config` | Alias for `write erase` |
+| `erase nvram:` | Erases all NVRAM contents |
+| `show mac address-table` | Displays the MAC address table (switches only) |
+| `quit` | Closes the current session |
+
+### Global configuration
+
+Use this mode to change settings that apply to the whole device, such as the hostname, or as your entry point into a more specific sub-mode like an interface, line, or routing process.
+
+| Command | Description |
+|:---|:---|
+| `line console 0` | Enters line config mode for the console; subsequent commands apply only to the console line |
+| `line vty` *first* *last* | Enters line config mode for remote access lines |
+| `interface` *type port-number* | Enters interface config mode for the specified port |
+| `router ospf` *process-id* | Enters router config mode for an OSPF process |
+| `hostname` *name* | Sets the device hostname |
+| `exit` | Moves up one level in the config hierarchy |
+| `end` | Returns directly to Privileged EXEC |
+| `Ctrl+Z` | Returns directly to Privileged EXEC |
+
+### Interface configuration
+
+Use this mode to change settings scoped to one physical or logical port, such as its IP address, speed, or shutdown state.
+
+| Command | Description |
+|:---|:---|
+| `speed` *value* | Hard-sets interface speed; disables autonegotiation |
+| `exit` | Moves up one level in the config hierarchy |
+| `end` | Returns directly to Privileged EXEC |
+| `Ctrl+Z` | Returns directly to Privileged EXEC |
+
+### Line configuration
+
+Use this mode to control how administrators connect to the device itself, such as setting console or VTY passwords, not how the device forwards traffic.
+
+| Command | Description |
+|:---|:---|
+| `login` | Tells IOS to perform simple password checking on the line |
+| `password` *password* | Sets the plain-text password for the line |
+| `exit` | Moves up one level in the config hierarchy |
+| `end` | Returns directly to Privileged EXEC |
+| `Ctrl+Z` | Returns directly to Privileged EXEC |
+
+### Router configuration
+
+Use this mode to enable or tune a specific routing protocol instance, such as advertising networks into OSPF.
+
+| Command | Description |
+|:---|:---|
+| `exit` | Moves up one level in the config hierarchy |
+| `end` | Returns directly to Privileged EXEC |
+| `Ctrl+Z` | Returns directly to Privileged EXEC |
+
+## Help commands
+
+IOS provides context-sensitive help so you don't have to memorize every command and keyword.
+
+| Syntax | Description |
+|:---|:---|
+| `?` | Lists every command available in the current mode |
+| *command* ` ?` | Lists the keywords or arguments that *command* accepts |
+| *com*`?` | Lists every command that starts with *com* (no space before `?`) |
+| *command* *parm*`?` | Lists the keywords for *command* that start with *parm* (no space before `?`) |
+| *command* *parm*`Tab` | Completes *parm* if it uniquely matches one keyword |
+| *command* *parm1* ` ?` | Lists the keywords available after *parm1* |

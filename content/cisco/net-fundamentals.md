@@ -57,10 +57,14 @@ Two computers connected by a cable communicate by sending each other long series
 
 The most common connection type in Ethernet LANs uses copper unshielded twisted pair (UTP) cables.
 
+{{< admonition "Maximum length" tip >}}
+The 100-meter maximum cable length is a major limitation that can make copper connections unfeasible in some cases.
+{{< /admonition >}}
+
 - **Unshielded:** The wires don't have a metallic shield around them. A shield can reduce electromagnetic interference (EMI), but UTP cables don't have one.
 - **Twisted pair:** The eight wires in the cable are twisted together into four pairs of two wires each. Twisting the wires reduces EMI between the wires in each pair.
 - **Connector:** The 8 position 8 contact (8P8C) connector has eight pins, one for each of the eight wires inside the cable. It's also called an RJ45 connector (RJ stands for Registered Jack).
-- **Maximum length:** The 100-meter maximum cable length is a major limitation that can make copper connections unfeasible in some cases.
+
 
 #### IEEE 802.3 standards (copper)
 

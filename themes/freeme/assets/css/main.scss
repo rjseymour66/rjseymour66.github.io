@@ -104,6 +104,17 @@ a {
   tbody code {
     white-space: nowrap;
   }
+
+  // Tables with merged cells (rowspan): disable striping, draw all cell borders
+  table.merged tbody tr {
+    background: none;
+  }
+
+  table.merged th,
+  table.merged td {
+    border: 1px solid $clr-tbody-border;
+    vertical-align: top;
+  }
 }
 
 code {

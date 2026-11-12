@@ -133,3 +133,124 @@ There are two main types of fiber-optic cabling: multimode fiber (MMF) and singl
 - **Fiber-optic:** More common for connections between network infrastructure, for example, connecting switches and routers located on separate floors or in separate buildings.
 - **EMI vulnerability:** UTP cables are vulnerable to EMI and can emit (leak) their signal outside of the cable.
 - **Client devices:** Most client devices, such as PCs, don't have SFP ports for fiber-optic connections, so a UTP connection is the only choice.
+
+
+## TCP/IP networking models
+
+A networking model is a framework that defines the functions data needs to travel from source to destination. Models divide these functions into layers, and each layer performs a specific role in network communication.
+
+This section covers two models:
+
+- **Open Systems Interconnection (OSI) model**
+- **TCP/IP model:** Named after two of its key protocols, Transmission Control Protocol (TCP) and Internet Protocol (IP). Modern networks worldwide use the TCP/IP model.
+
+### OSI reference model
+
+The OSI model is a seven-layer conceptual framework that describes the functions involved in network communication.
+
+To remember the layers from Layer 1 to Layer 7, use a mnemonic such as "Please Do Not Teach Students Pointless Acronyms." The first letter of each word matches the first letter of a layer name.
+
+| Layer | Name         |
+| :---- | :----------- |
+| 7     | Application  |
+| 6     | Presentation |
+| 5     | Session      |
+| 4     | Transport    |
+| 3     | Network      |
+| 2     | Data Link    |
+| 1     | Physical     |
+
+
+### TCP/IP model
+
+The TCP/IP model grew out of research that the US Department of Defense (DoD) Defense Advanced Research Projects Agency (DARPA) funded. Originally called the ARPANET reference model, it evolved into the Internet Protocol Suite that Request for Comments (RFC) 1122 defines. The Internet Engineering Task Force (IETF) publishes RFCs to define standard internet protocols.
+
+Each layer has a distinct role:
+
+- **Layer 7 (Application):** Provides the interface between applications and the network.
+- **Layer 4 (Transport):** Delivers messages from application to application.
+- **Layer 3 (Network):** Delivers messages end to end.
+- **Layer 2 (Data Link):** Delivers messages hop to hop.
+- **Layer 1 (Physical):** Defines the physical medium that carries the communication.
+
+The following table maps the OSI layers to the four-layer and five-layer TCP/IP models:
+
+<table class="merged">
+  <thead>
+    <tr>
+      <th>OSI model</th>
+      <th>Four-layer TCP/IP model</th>
+      <th>Five-layer TCP/IP model</th>
+      <th>Example protocols</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Application</td>
+      <td rowspan="3">Application</td>
+      <td rowspan="3">Application</td>
+      <td rowspan="3">HTTP<br>HTTPS<br>FTP<br>SSH</td>
+    </tr>
+    <tr>
+      <td>Presentation</td>
+    </tr>
+    <tr>
+      <td>Session</td>
+    </tr>
+    <tr>
+      <td>Transport</td>
+      <td>Transport</td>
+      <td>Transport</td>
+      <td>TCP<br>UDP</td>
+    </tr>
+    <tr>
+      <td>Network</td>
+      <td>Internet</td>
+      <td>Network</td>
+      <td>IPv4<br>IPv6</td>
+    </tr>
+    <tr>
+      <td>Data Link</td>
+      <td rowspan="2">Link</td>
+      <td>Data Link</td>
+      <td rowspan="2">Ethernet<br>802.11 (Wi-Fi)</td>
+    </tr>
+    <tr>
+      <td>Physical</td>
+      <td>Physical</td>
+    </tr>
+  </tbody>
+</table>
+
+#### Physical layer
+
+The Physical layer defines the physical requirements for transmitting data, a series of bits, from one node to another. Those bits can travel as electrical signals on a copper cable, light signals on a fiber-optic cable, or radio waves on a wireless connection.
+
+#### Data link layer
+
+The Data Link layer prepares data for transmission over the physical medium so the next node in the path can receive it. It forwards the message from one hop to the next until the message reaches the destination host. To deliver messages hop to hop, the Data Link layer uses media access control (MAC) addresses.
+
+A **hostname** is a name that identifies a device on the network.
+
+#### Network layer
+
+Hop-to-hop delivery alone doesn't get a message to its destination. The source host also needs a way to address the message to the final destination host. The Network layer provides this end-to-end delivery.
+
+Layers 2 and 3 work together to deliver a message, and this relationship is a fundamental networking concept:
+
+- Layer 2 uses MAC addresses to deliver messages hop to hop.
+- Layer 3 uses IP addresses to deliver messages end to end.
+- Together, Layers 2 and 3 move a message through the network to its final destination.
+- The destination IP address stays the same for the entire journey. The destination MAC address changes at each hop.
+
+#### Transport layer
+
+The Transport layer addresses data to a specific application process on the destination host. Layer 4 uses its own addressing scheme: **port numbers**. When you address a message to a port, the message reaches the matching application process on the destination host.
+
+The two most common Layer 4 protocols are Transmission Control Protocol (TCP), the "TCP" in TCP/IP, and User Datagram Protocol (UDP). Both protocols address messages to specific application services on the destination host, but they differ in several ways.
+
+#### Application layer
+
+The Application layer is most commonly called Layer 7. Applications use Layer 7 protocols to prepare messages for transmission over the network.
+
+Layer 7 protocols such as HTTPS aren't user applications. They provide services that let user applications communicate with applications on other computers over the network.

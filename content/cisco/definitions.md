@@ -112,3 +112,715 @@ draft = false
 - **Transport layer**: The transport layer is the network-model layer that delivers data to a specific application process on a destination host.
 - **UDP**: User Datagram Protocol is a transport-layer protocol that sends datagrams without guaranteeing delivery of every message.
 - **Vendor-neutral model**: A vendor-neutral model is a networking model or protocol framework designed to operate across products from different vendors.
+
+## Cisco IOS CLI
+
+- **Autocomplete**: The CLI completes a partially typed command or keyword when you press Tab, as long as the characters you typed match only one option.
+- **Backspace key**: Deletes the character to the left of the cursor.
+- **Carriage return**: The Enter keystroke that submits a command line. In contextual help output, `<cr>` means you can press Enter to run the command as typed.
+- **CCNA**: Cisco Certified Network Associate, Cisco's associate-level certification. It covers network fundamentals, switching, routing, IP services, security, and automation.
+- **Ciphertext**: Encrypted data that you can't read without decrypting it.
+- **Cisco IOS command-line interface**: The text-based interface you use to configure, monitor, and troubleshoot Cisco IOS devices.
+- **Cisco Packet Tracer**: Cisco's free network simulator. It models routers, switches, and hosts with a subset of IOS commands, so you can practice without physical equipment.
+- **Command**: An instruction you enter at the CLI prompt to display information or change the configuration.
+- **Command prompt**: The text the CLI displays before the cursor. It shows the hostname and current mode, for example `R1>` or `R1(config)#`.
+- **Command-line interface**: A text-based interface in which you type commands instead of using a graphical interface.
+- **Configuration mode**: Any CLI mode in which your commands change the configuration, such as global configuration mode or interface configuration mode.
+- **`configure terminal`**: The privileged EXEC command that enters global configuration mode. The prompt changes to `hostname(config)#`.
+- **Console cable**: A cable that connects a computer's serial or USB port to a device's console port for out-of-band CLI access.
+- **Console port**: A dedicated management port for direct, out-of-band CLI access. It works even when the device has no network configuration.
+- **Contextual help**: CLI help that lists the commands or keywords that are valid at the current point in a command. Type `?` to display it.
+- **`copy running-config startup-config`**: Saves the running configuration to NVRAM as the startup configuration, so your changes survive a reload. `write memory` does the same thing.
+- **Ctrl+A**: Moves the cursor to the beginning of the command line.
+- **Ctrl+C**: In configuration mode, returns you to privileged EXEC mode.
+- **Ctrl+E**: Moves the cursor to the end of the command line.
+- **Ctrl+U**: Deletes all characters from the cursor to the beginning of the command line.
+- **Ctrl+Z**: Exits configuration mode and returns you to privileged EXEC mode. If you press it at the end of a command, IOS runs the command first.
+- **Cursor**: The marker that shows where the next character you type appears.
+- **Data bits**: The number of bits in each character sent over a serial connection. Cisco console connections use 8 data bits.
+- **`do`**: Runs an EXEC command from any configuration mode without leaving that mode, for example `do show ip interface brief`.
+- **Down arrow key**: Moves forward through the command history toward more recent commands. Ctrl+N does the same thing.
+- **`enable`**: The user EXEC command that enters privileged EXEC mode. The prompt changes from `>` to `#`.
+- **`enable password`**: Sets the password for privileged EXEC mode and stores it in plaintext unless `service password-encryption` is on. If you also configure `enable secret`, the secret takes precedence.
+- **`enable secret`**: Sets the password for privileged EXEC mode and stores it as a hash. Depending on the IOS version, the default hash is type 5 (MD5) or type 9 (scrypt).
+- **`end`**: Exits any configuration mode and returns you to privileged EXEC mode.
+- **`erase nvram:`**: Erases the entire NVRAM file system, including the startup configuration.
+- **EXEC mode**: A CLI mode in which commands act immediately instead of changing the configuration. IOS has two EXEC modes: user EXEC and privileged EXEC.
+- **`exit`**: Moves back one level in the CLI mode hierarchy. In user or privileged EXEC mode, it ends the CLI session.
+- **Factory-default configuration**: The configuration a device ships with. If you erase the startup configuration and reload, the device boots with this default.
+- **Flow control**: A serial setting that lets the receiver tell the sender to pause. Cisco console connections use no flow control.
+- **Global configuration mode**: The CLI mode for device-wide settings, such as the hostname. You enter it with `configure terminal`, and the prompt is `hostname(config)#`.
+- **Hash function**: A one-way function that turns input of any length into a fixed-length value. You can't recover the input from the hash, so hashes suit password storage.
+- **`hostname`**: The global configuration command that sets the device name shown in the prompt.
+- **`include`**: An output modifier you use after a pipe to display only lines that contain the text you specify, for example `show running-config | include hostname`.
+- **Keyboard shortcut**: A key combination, such as Ctrl+A or Ctrl+Z, that performs a CLI action without a typed command.
+- **Keyword**: A fixed word in a command's syntax, as opposed to a value you supply. In `show ip route`, `ip` and `route` are keywords.
+- **Left arrow key**: Moves the cursor one character to the left. Ctrl+B does the same thing.
+- **Legacy feature**: An older feature that a product still supports for backward compatibility after newer alternatives replace it. For example, `enable password` is legacy compared to `enable secret`.
+- **MD5**: Message Digest 5, a hash algorithm that produces a 128-bit value. IOS type 5 passwords use salted MD5. MD5 is no longer considered secure.
+- **Memory**: Storage that a device uses for its software and configuration. Cisco devices keep the running configuration in RAM and the startup configuration in NVRAM.
+- **NVRAM**: Nonvolatile RAM, which keeps its contents when the device loses power. Cisco devices store the startup configuration in NVRAM.
+- **Parity**: An error-checking bit added to each character on a serial connection. Cisco console connections use no parity.
+- **Pipeline**: The pipe character (`|`) after a `show` command, followed by a modifier such as `include`, `exclude`, `begin`, or `section` that filters the output.
+- **Plaintext**: Readable, unencrypted data. A password stored in plaintext appears as-is in the configuration.
+- **Privileged EXEC mode**: The CLI mode with full access to `show`, `debug`, `copy`, and other management commands. You enter configuration mode from here, and the prompt ends with `#`.
+- **PuTTY**: A free terminal emulator that supports serial, SSH, and Telnet connections. You can use it to open a console session to a Cisco device.
+- **Question mark**: The `?` character, which displays contextual help at the current position in a command.
+- **`reload`**: The privileged EXEC command that restarts the device. Unsaved changes to the running configuration are lost.
+- **Right arrow key**: Moves the cursor one character to the right. Ctrl+F does the same thing.
+- **Rollover cable**: A console cable whose pins are reversed end to end, so pin 1 connects to pin 8, pin 2 to pin 7, and so on. It typically has an RJ45 connector on one end and a DB-9 serial connector on the other.
+- **Running-config**: The configuration the device is currently using. It lives in RAM, so you lose changes on reload unless you save them.
+- **scrypt**: A password-based key derivation function designed to be slow and memory-intensive to compute. IOS type 9 passwords use scrypt.
+- **`service password-encryption`**: The global configuration command that encrypts plaintext passwords in the configuration with type 7 encryption.
+- **`show clock`**: Displays the device's current time and date.
+- **`show` command**: An EXEC command that displays configuration, status, or statistics without changing anything.
+- **`show startup-config`**: Displays the startup configuration stored in NVRAM.
+- **Startup-config**: The saved configuration in NVRAM. The device loads it into RAM as the running configuration when it boots.
+- **Stop bits**: Bits that mark the end of each character on a serial connection. Cisco console connections use 1 stop bit.
+- **System configuration dialog**: The interactive setup wizard IOS offers at boot when no startup configuration exists. Answer `no` to skip it and configure the device manually.
+- **Tab key**: Completes a partially typed command or keyword when the characters you typed match only one option.
+- **Type 5**: The IOS password type that stores a salted MD5 hash.
+- **Type 7 encryption**: The weak, reversible encryption that `service password-encryption` applies. Free tools decrypt it instantly, so it only stops casual viewing.
+- **Type 9**: The IOS password type that stores an scrypt hash. It's stronger than type 5.
+- **Up arrow key**: Recalls earlier commands from the command history. Ctrl+P does the same thing.
+- **USB Mini-B**: A small USB connector type. Many Cisco devices have a USB Mini-B console port in addition to the RJ45 console port.
+- **User EXEC mode**: The first CLI mode you reach, with limited, mostly read-only commands. The prompt ends with `>`.
+- **`write erase`**: Deletes the startup configuration from NVRAM. `erase startup-config` does the same thing.
+
+## Ethernet LAN switching
+
+- **ARP**: Address Resolution Protocol, which finds the MAC address that belongs to a known IPv4 address on the local network.
+- **ARP reply**: The ARP message that answers an ARP request with the requested MAC address. The replying host sends it as a unicast.
+- **ARP request**: The ARP message a host broadcasts to ask which device owns an IPv4 address. Its destination MAC address is FFFF.FFFF.FFFF.
+- **ARP table**: A cache of IPv4-to-MAC address mappings learned through ARP. View it with `arp -a` on Windows or `show ip arp` on Cisco IOS.
+- **Broadcast frame**: A frame addressed to FFFF.FFFF.FFFF. A switch floods it out every port in the VLAN except the port it arrived on.
+- **Broadcast network**: A network in which a broadcast from one device reaches every other device, also called a broadcast domain. Routers separate broadcast domains.
+- **Checksum**: A value calculated from a block of data. The receiver recalculates it to detect transmission errors.
+- **Cisco Modeling Labs**: Cisco's network simulation platform. It runs virtual images of real Cisco operating systems, so devices behave like physical equipment.
+- **`clear mac address-table dynamic`**: Removes the dynamically learned entries from a switch's MAC address table.
+- **Decimal numeral system**: The base-10 number system, which uses the digits 0 through 9.
+- **Destination field**: The 6-byte Ethernet header field that holds the MAC address of the frame's intended receiver.
+- **Dynamic MAC address**: A MAC address table entry that a switch learns from the source address of a received frame. It ages out if the switch stops seeing that address.
+- **EtherType**: A Type/Length field value of 1536 (0x0600) or greater, which identifies the protocol in the frame's payload. Common values are 0x0800 for IPv4, 0x86DD for IPv6, and 0x0806 for ARP.
+- **Frame check sequence**: The 4-byte Ethernet trailer field that holds a cyclic redundancy check (CRC) value. The receiver recalculates the CRC and discards the frame if the values differ.
+- **Frame flooding**: Sending a copy of a frame out every port in the VLAN except the one it arrived on. Switches flood broadcast, unknown unicast, and most multicast frames.
+- **Hexadecimal number**: A base-16 number that uses the digits 0–9 and the letters A–F. Each hex digit represents 4 bits.
+- **ICMP**: Internet Control Message Protocol, a network-layer protocol for error and diagnostic messages, such as echo requests and destination unreachable messages.
+- **ICMP echo reply**: The ICMP message (type 0) a host sends to answer an echo request.
+- **ICMP echo request**: The ICMP message (type 8) that `ping` sends to test reachability.
+- **Known unicast frame**: A unicast frame whose destination MAC address is in the switch's MAC address table. The switch forwards it out only the matching port.
+- **MAC address table**: The table a switch uses to map MAC addresses to ports and VLANs. The switch builds it by learning the source addresses of received frames.
+- **MAC aging**: Removing a dynamic MAC address table entry after it goes unused for the aging time. The Cisco default is 300 seconds.
+- **Organizationally unique identifier**: The first 24 bits of a MAC address. The IEEE assigns OUIs to manufacturers.
+- **Ping**: A utility that sends ICMP echo requests and reports whether echo replies return and how long they take.
+- **Preamble**: The 7 bytes of alternating 1s and 0s at the start of an Ethernet frame. They let the receiver synchronize its clock with the incoming bits.
+- **Receiver clock**: The timing a receiving interface uses to sample incoming bits. The preamble lets it lock onto the sender's timing.
+- **Round-trip time**: The time a message takes to reach a destination plus the time the response takes to return. `ping` reports it in milliseconds.
+- **`show mac address-table`**: Displays a switch's MAC address table, including the VLAN, MAC address, entry type, and port of each entry.
+- **Slot**: A position for a module or line card in a network device. Interface names include the slot number, for example the `0` in `GigabitEthernet0/1`.
+- **Source field**: The 6-byte Ethernet header field that holds the MAC address of the frame's sender.
+- **Start frame delimiter**: The 1-byte field after the preamble, 10101011, that marks the start of the frame header.
+- **Type/Length field**: The 2-byte Ethernet header field after the source address. A value of 1500 or less gives the payload length, and a value of 1536 or greater is an EtherType.
+- **Unicast frame**: A frame addressed to a single destination MAC address.
+- **Unknown unicast frame**: A unicast frame whose destination MAC address isn't in the switch's MAC address table. The switch floods it.
+
+## IPv4 addressing
+
+- **8-bit number**: A binary number with 8 places, which can represent the values 0 through 255. Each octet of an IPv4 address is an 8-bit number.
+- **Binary-to-decimal conversion**: Converting a binary number to decimal by adding the place values (1, 2, 4, 8, and so on) of the bits set to 1.
+- **Broadcast address**: The last address in a subnet, with all host bits set to 1. A packet sent to it reaches every host in the subnet.
+- **Bytes**: Units of 8 bits. An IPv4 address is 4 bytes long.
+- **Class B**: The IPv4 address class with a first octet of 128–191 and a default mask of /16.
+- **Class C**: The IPv4 address class with a first octet of 192–223 and a default mask of /24.
+- **Class E**: The IPv4 address class with a first octet of 240–255. It's reserved for experimental use.
+- **Classful networking**: The original IPv4 scheme, in which the value of the first octet sets the address class and network mask.
+- **Classless networking**: Addressing in which the prefix length, not the address class, sets the network portion. Modern networks are classless.
+- **Decimal-to-binary conversion**: Converting a decimal number to binary, typically by subtracting place values (128, 64, 32, and so on) from left to right.
+- **Destination address field**: The 32-bit IPv4 header field that holds the packet's destination IP address.
+- **Differentiated services code point**: The 6-bit IPv4 header field that marks a packet's quality of service (QoS) class.
+- **Digit**: A single symbol in a number. Binary uses 0 and 1, decimal uses 0–9, and hexadecimal uses 0–9 and A–F.
+- **Don't fragment bit**: The IPv4 header flag that tells routers not to fragment the packet. If the packet is larger than a link's MTU, the router drops it and sends an ICMP error to the source.
+- **Dotted decimal notation**: The IPv4 address format that writes each octet in decimal, separated by periods, for example 192.168.1.1.
+- **Explicit congestion notification**: The 2-bit IPv4 header field that routers set to signal congestion without dropping the packet.
+- **First usable address**: The address right after a subnet's network address. It's the lowest address you can assign to a host.
+- **Fragment**: One of the smaller packets a router creates when it splits a packet that is larger than the outgoing link's MTU.
+- **Header checksum field**: The 16-bit IPv4 header field that detects errors in the header. Each router recalculates it because the TTL changes at every hop.
+- **Host portion**: The bits of an IP address after the prefix length. They identify a host within its network.
+- **`interface`**: The global configuration command that enters interface configuration mode, for example `interface GigabitEthernet0/0`.
+- **Interface configuration mode**: The CLI mode for configuring one interface. The prompt is `hostname(config-if)#`.
+- **Internet header length field**: The 4-bit IPv4 header field that gives the header length in 32-bit words. The minimum is 5 (20 bytes), and the maximum is 15 (60 bytes).
+- **`ip address` command**: The interface configuration command that assigns an IPv4 address and subnet mask.
+- **IPv4 address class**: One of five categories, A through E, in classful addressing. The first octet's value determines the class.
+- **IPv4 network**: A range of IPv4 addresses that share the same network portion. You identify it by its network address and prefix length.
+- **Last usable address**: The address right before a subnet's broadcast address. It's the highest address you can assign to a host.
+- **Least-significant bit**: The rightmost bit of a binary number, with a place value of 1.
+- **Loopback address**: An address a host uses to send traffic to itself. IPv4 reserves 127.0.0.0/8, and 127.0.0.1 is the usual example.
+- **Maximum host count**: The number of assignable addresses in a subnet, 2^h − 2, where h is the number of host bits.
+- **Maximum transmission unit**: The largest packet, in bytes, that a link carries without fragmentation. The Ethernet default is 1500 bytes.
+- **More fragments bit**: The IPv4 header flag set on every fragment except the last one.
+- **Most significant bit**: The leftmost bit of a binary number, with the highest place value. In an octet, it's worth 128.
+- **Multicast**: Sending one packet to a group of interested receivers. IPv4 multicast uses the class D range, 224.0.0.0 through 239.255.255.255.
+- **Netmask**: A 32-bit value, written in dotted decimal, whose 1 bits mark the network portion of an address. For example, 255.255.255.0 equals /24.
+- **Network address**: The first address in a subnet, with all host bits set to 0. It identifies the subnet, and you can't assign it to a host.
+- **Network portion**: The bits of an IP address that the prefix length covers. They identify the network.
+- **`no shutdown`**: The interface configuration command that enables an administratively disabled interface.
+- **Octet**: A group of 8 bits. An IPv4 address has four octets.
+- **Options field**: The optional, variable-length IPv4 header field for extra settings. It's rarely used.
+- **Packet fragmentation**: Splitting a packet into fragments that fit a link's MTU. The destination host reassembles them.
+- **Prefix length**: The number of leading bits that form an address's network portion, written after a slash, for example /24.
+- **Protocol field**: The 8-bit IPv4 header field that identifies the payload's protocol, for example 1 for ICMP, 6 for TCP, 17 for UDP, and 89 for OSPF.
+- **Quality of service**: Tools that classify, mark, queue, and prioritize traffic so that sensitive traffic, such as voice, gets the bandwidth, delay, and loss it needs.
+- **Reserved address**: An address you can't assign to a host, such as a subnet's network address or broadcast address.
+- **`show ip interface`**: Displays detailed IPv4 settings for each interface, such as its address, mask, and applied ACLs.
+- **`show ip interface brief`**: Displays one line per interface with its IPv4 address and its Layer 1 and Layer 2 status.
+- **Source address field**: The 32-bit IPv4 header field that holds the sender's IP address.
+- **Subnetting**: Dividing a network into smaller networks by borrowing host bits for the network portion.
+- **Time to live**: The 8-bit IPv4 header field that each router decrements by 1. A router discards the packet when the TTL reaches 0, which stops packets from looping forever.
+- **Total length field**: The 16-bit IPv4 header field that gives the packet's length in bytes, including the header. The maximum is 65,535.
+- **Usable address range**: The addresses from the first usable address through the last usable address in a subnet.
+- **Version field**: The 4-bit field at the start of an IP header that identifies the IP version. For IPv4, the value is 4.
+
+## Router and switch interfaces
+
+- **10/100 interface**: An Ethernet interface that supports 10 Mbps and 100 Mbps.
+- **10/100/1000 interface**: An Ethernet interface that supports 10 Mbps, 100 Mbps, and 1 Gbps.
+- **Auto**: The default `speed` and `duplex` setting on most Cisco Ethernet interfaces. It makes the interface use autonegotiation.
+- **Autonegotiation**: The IEEE 802.3 process in which two Ethernet interfaces advertise their capabilities and agree on the best common speed and duplex.
+- **Collision**: Interference that occurs when two devices on a shared half-duplex segment transmit at the same time.
+- **Collision domain**: The part of a network in which simultaneous transmissions collide. Each switch port is its own collision domain, while all ports on a hub share one.
+- **CRC error counter**: The `show interfaces` counter of received frames that failed the FCS check. A rising count points to bad cabling, interference, or a duplex mismatch.
+- **CSMA/CD**: Carrier sense multiple access with collision detection, the method half-duplex Ethernet devices use to share a medium. A device listens before sending, detects collisions, and retries after a random backoff.
+- **Down/down state**: An interface status in which both Layer 1 and the line protocol are down. Common causes are a missing or faulty cable and a shut-down interface on the other end.
+- **Duplex**: Whether an interface sends and receives at the same time (full duplex) or only one at a time (half duplex).
+- **Duplex mismatch**: A link with full duplex on one end and half duplex on the other. It causes late collisions on the half-duplex side and CRC errors and runts on the full-duplex side.
+- **Full duplex**: Sending and receiving at the same time. Full-duplex links have no collisions, so the interface disables CSMA/CD.
+- **Giant**: A received frame larger than the maximum Ethernet frame size, which is 1518 bytes for an untagged frame.
+- **Half duplex**: Sending or receiving, but not both at once. Half-duplex devices use CSMA/CD.
+- **Hub**: A Layer 1 device that repeats every incoming signal out all other ports. All connected devices share one collision domain and must use half duplex.
+- **Input error counter**: The `show interfaces` counter that totals errors on received frames, including runts, giants, and CRC errors.
+- **Interface description**: A text label you add to an interface with the `description` command to record what it connects to.
+- **Interface range**: The `interface range` command, which applies configuration to several interfaces at once, for example `interface range g0/1 - 4`.
+- **Jamming signal**: A 32-bit signal that a half-duplex device sends after it detects a collision, so every device on the segment knows about the collision.
+- **Late collision**: A collision detected after the first 64 bytes of a frame have been sent. On a correctly cabled link, late collisions usually mean a duplex mismatch.
+- **Late collision counter**: The `show interfaces` counter of late collisions.
+- **Managed switch**: A switch you can configure and monitor, for example to set VLANs, STP options, and port security.
+- **Manual infrastructure configuration**: Setting values such as speed, duplex, or addresses by hand instead of letting devices negotiate or autoconfigure them.
+- **Minimum frame size**: The smallest valid Ethernet frame, 64 bytes from the destination MAC address through the FCS.
+- **Misconfiguration**: An incorrect setting that causes a problem, such as different duplex settings on the two ends of a link.
+- **Output error counter**: The `show interfaces` counter that totals errors on frames the interface tried to send.
+- **Padding**: Bytes added to a short payload so it reaches the 46-byte minimum and the frame meets the 64-byte minimum size.
+- **Runt**: A received frame smaller than the 64-byte minimum.
+- **`show interfaces`**: Displays detailed status, settings, and counters for each interface, including errors and collisions.
+- **`show interfaces description`**: Displays each interface's status, protocol state, and description.
+- **`show interfaces status`**: On a switch, displays each port's status, VLAN, duplex, speed, and type.
+- **`show running-config interface`**: Displays the running configuration of one interface.
+- **`show running-config | section interface`**: Displays only the interface sections of the running configuration.
+- **`shutdown`**: The interface configuration command that administratively disables an interface.
+- **Simplex**: One-way communication, in which one device only sends and the other only receives.
+- **Speed mismatch**: A link whose two ends are set to different speeds. The link doesn't come up.
+- **Unmanaged switch**: A switch with no configuration interface. It works out of the box with fixed default settings.
+
+## Routing fundamentals
+
+- **Connected route**: A route to the network of an interface that has an IP address and is up. It appears with code `C` in the routing table.
+- **Default gateway**: The router a host sends packets to when the destination is on another network.
+- **Default route**: A route that matches every destination, 0.0.0.0/0 in IPv4. A router uses it when no more specific route matches.
+- **Directly connected static route**: A static route that specifies only an exit interface. On Ethernet, the router ARPs for every destination, so the next router must answer with proxy ARP.
+- **Exit interface**: The interface a router uses to send a packet toward its destination.
+- **Fully specified static route**: A static route that specifies both an exit interface and a next-hop address.
+- **Host route**: A route to a single address, /32 in IPv4. Local routes are host routes.
+- **`ip route`**: The global configuration command that creates an IPv4 static route: `ip route network mask {next-hop | exit-interface}`.
+- **`ipconfig`**: The Windows command that displays a host's IP address, mask, and default gateway.
+- **Local route**: A /32 route to an interface's own IP address. It appears with code `L` in the routing table.
+- **Matching route**: A route whose network includes the packet's destination address.
+- **Most specific matching route**: The matching route with the longest prefix length. Routers always forward using this route, a rule called longest prefix match.
+- **Next hop**: The IP address of the next router on the path to a destination.
+- **Proxy ARP**: A router feature that answers ARP requests for addresses on other networks with the router's own MAC address. Cisco routers enable it by default.
+- **Recursive lookup**: A second routing table lookup that finds how to reach a route's next-hop address.
+- **Recursive route**: A route that needs a recursive lookup because it specifies only a next hop.
+- **Recursive static route**: A static route that specifies only a next-hop address. The router does a recursive lookup to find the exit interface.
+- **Routing**: Forwarding packets between networks based on their destination IP addresses.
+- **Routing table**: The list of routes a router uses to decide where to forward each packet.
+- **`show ip route`**: Displays the IPv4 routing table.
+- **Static route**: A route you configure manually. It doesn't adapt to network changes.
+
+## The life of a packet
+
+- **Routing table lookup**: Comparing a packet's destination address with the routing table to find the most specific matching route.
+
+## Subnetting IPv4 networks
+
+- **Address block**: A contiguous range of IP addresses, such as the range assigned to an organization.
+- **Borrowed bit**: A host bit that subnetting turns into a network bit. Each borrowed bit doubles the number of subnets and halves the addresses in each one.
+- **Classless inter-domain routing**: CIDR, the system that replaced classful addressing. It allows any prefix length and uses slash notation, such as /26.
+- **Fixed-length subnet masking**: FLSM, subnetting in which every subnet uses the same prefix length.
+- **Host address**: Any address in a subnet that you can assign to a host, meaning every address except the network and broadcast addresses.
+- **Magic number method**: A subnetting shortcut. Subtract the mask's value in the octet where the subnet boundary falls from 256. The result is the block size, and subnets start at multiples of it.
+- **Octet division**: Splitting an octet between the network and host portions, which happens when the prefix length isn't a multiple of 8.
+- **Point-to-point communication**: Communication over a link that connects exactly two devices. IPv4 point-to-point links typically use a /30 or /31 subnet.
+- **Subnetwork**: A subnet, meaning a smaller network created by dividing a larger one.
+- **Variable-length subnet masking**: VLSM, subnetting in which subnets use different prefix lengths to match each one's host count.
+- **Wide area network**: A WAN, which connects sites across large geographic distances.
+- **Wildcard mask**: The inverse of a subnet mask. A 0 bit means the address bit must match, and a 1 bit means it can be anything. ACLs and the OSPF `network` command use wildcard masks.
+
+## VLANs
+
+- **Access link**: A link that carries untagged frames for a single VLAN, typically to an end host.
+- **Access mode**: The switchport mode in which a port belongs to one VLAN and never trunks.
+- **Access port**: A switch port in access mode.
+- **Allowed VLAN list**: The VLANs a trunk is permitted to carry. By default, the list includes all VLANs.
+- **Default VLAN**: VLAN 1, which every switch port belongs to by default. You can't delete or rename it.
+- **Drop eligible indicator**: The 1-bit 802.1Q tag field that marks frames a switch can drop first during congestion.
+- **Dynamic routing**: Using routing protocols that let routers exchange routes and adapt to topology changes automatically.
+- **Dynamic Trunking Protocol**: DTP, a Cisco protocol that switches use to negotiate whether a link becomes a trunk.
+- **`encapsulation dot1q`**: The subinterface command that assigns a VLAN to the subinterface: `encapsulation dot1q vlan-id [native]`.
+- **IEEE 802.1Q**: The standard trunking protocol. It inserts a 4-byte tag into the Ethernet header of every frame except native VLAN frames.
+- **Inter-VLAN routing**: Routing traffic between VLANs with a router or a Layer 3 switch.
+- **`interface vlan`**: The global configuration command that creates or configures a switch virtual interface, for example `interface vlan 10`.
+- **`ip routing`**: The global configuration command that enables IPv4 routing on a Layer 3 switch.
+- **ISL**: Inter-Switch Link, Cisco's obsolete proprietary trunking protocol. It wraps each frame in a 26-byte header and a 4-byte trailer. Most current switches support only 802.1Q.
+- **Layer 3 switch**: A switch that can also route packets, using SVIs and routed ports.
+- **`name`**: The VLAN configuration command that assigns a name to a VLAN.
+- **Native VLAN**: The VLAN whose frames cross an 802.1Q trunk untagged. By default, it's VLAN 1.
+- **Native VLAN mismatch**: A trunk whose two ends use different native VLANs. Untagged frames leak from one VLAN into the other, and CDP logs an error.
+- **`no switchport`**: The interface configuration command that turns a Layer 3 switch port into a routed port.
+- **Priority code point**: The 3-bit 802.1Q tag field that carries the frame's class of service (CoS) value for QoS.
+- **Public network**: A network open to the public, such as the internet.
+- **Routed port**: A Layer 3 switch port configured with `no switchport`. It behaves like a router interface, and you can assign it an IP address.
+- **Router on a stick**: Inter-VLAN routing through one router interface connected to a switch trunk. The router uses one subinterface for each VLAN.
+- **`show interfaces trunk`**: Displays each trunk's mode, encapsulation, native VLAN, and allowed and active VLANs.
+- **`show vlan brief`**: Displays each VLAN's ID, name, status, and access ports.
+- **Subinterface**: A logical interface on a physical router interface, such as `g0/0.10`.
+- **Subinterface configuration mode**: The CLI mode for configuring a subinterface. The prompt is `hostname(config-subif)#`.
+- **Switch virtual interface**: An SVI, a virtual Layer 3 interface for a VLAN on a switch. It provides the VLAN's default gateway or the switch's management address.
+- **`switchport access vlan`**: The interface configuration command that assigns an access port to a VLAN.
+- **`switchport mode access`**: The interface configuration command that sets a port to access mode so it never becomes a trunk.
+- **`switchport trunk allowed vlan`**: Sets the VLANs a trunk can carry. Use `add`, `remove`, `except`, or `none` to change the list without retyping it.
+- **`switchport trunk encapsulation`**: Sets the trunking protocol, `dot1q`, `isl`, or `negotiate`, on switches that support more than one.
+- **`switchport trunk native vlan`**: Sets a trunk's native VLAN.
+- **Tag control information**: The 2-byte part of the 802.1Q tag that holds the PCP, DEI, and VLAN ID fields.
+- **Tag protocol identifier**: The 2-byte part of the 802.1Q tag, set to 0x8100, that identifies a tagged frame.
+- **Trunk link**: A link that carries traffic for multiple VLANs and tags each frame with its VLAN.
+- **Up/down interface state**: An interface status in which Layer 1 is up but the line protocol (Layer 2) is down.
+- **Up/up interface state**: An interface status in which Layer 1 and Layer 2 are both up and the interface is working.
+- **Virtual switch**: A way to think about a VLAN. Each VLAN acts as a separate switch inside one physical switch, with its own broadcast domain.
+- **VLAN**: A virtual LAN, a group of switch ports that forms its own broadcast domain, separate from other VLANs on the same switch.
+- **`vlan` command**: The global configuration command that creates a VLAN and enters VLAN configuration mode, for example `vlan 10`.
+- **VLAN configuration mode**: The CLI mode for configuring a VLAN. The prompt is `hostname(config-vlan)#`.
+- **VLAN database**: The file in which a switch stores its VLAN configuration, `vlan.dat` in flash memory, separate from the running configuration.
+- **VLAN hopping**: An attack in which a host sends traffic into a VLAN it isn't assigned to, by switch spoofing or double tagging.
+- **VLAN ID**: The 12-bit number that identifies a VLAN. Usable values are 1–4094.
+- **VLAN tag**: The 4-byte 802.1Q field that a switch inserts into a frame on a trunk to identify its VLAN.
+
+## Dynamic Trunking Protocol and VLAN Trunking Protocol
+
+- **Administrative mode**: The switchport mode configured on an interface. `show interfaces switchport` displays it.
+- **DTP message**: A DTP frame a switch sends to negotiate trunking with its neighbor.
+- **Dynamic auto**: A DTP mode in which a port becomes a trunk only if its neighbor actively asks to trunk. Two dynamic auto ports form an access link.
+- **Dynamic desirable**: A DTP mode in which a port actively tries to form a trunk. It trunks with a neighbor in trunk, dynamic desirable, or dynamic auto mode.
+- **Encapsulation mismatch**: A trunk whose two ends use different trunking protocols, such as ISL and 802.1Q. The trunk doesn't pass traffic correctly.
+- **Extended-range VLAN**: VLANs 1006–4094. VTP versions 1 and 2 don't advertise them.
+- **Normal-range VLAN**: VLANs 1–1005.
+- **Operational mode**: The mode an interface is actually using after DTP negotiation, such as trunk or static access.
+- **Primary server**: In VTP version 3, the one server in a domain that can change VLAN configuration and advertise it.
+- **Secondary server**: In VTP version 3, a server that stores and relays VLAN configuration but can't change it unless it becomes the primary server.
+- **`show vtp status`**: Displays the VTP version, domain name, mode, and configuration revision number.
+- **`switchport mode`**: The interface configuration command that sets a port's administrative mode: `access`, `trunk`, `dynamic auto`, or `dynamic desirable`.
+- **`switchport nonegotiate`**: Disables DTP on a port. It works only when the port is set to access or trunk mode.
+- **`switchport trunk encapsulation negotiate`**: Makes a port use DTP to negotiate the trunking protocol with its neighbor. ISL wins if both ends support it.
+- **VTP**: VLAN Trunking Protocol, a Cisco protocol that copies VLAN configuration from servers to the other switches in a VTP domain over trunk links.
+- **VTP client mode**: A VTP mode in which a switch learns VLANs from VTP advertisements and forwards them, but can't create, change, or delete VLANs.
+- **VTP domain**: A group of switches that share VTP information. A switch synchronizes only with switches in its own domain.
+- **`vtp domain` command**: Sets the switch's VTP domain name.
+- **VTP message**: A VTP advertisement that carries VLAN information and the configuration revision number.
+- **VTP mode**: The role a switch plays in VTP: server, client, transparent, or off.
+- **`vtp mode` command**: Sets the switch's VTP mode.
+- **VTP null domain**: The default, empty domain name. A switch in the null domain adopts the domain name from the first VTP advertisement it receives.
+- **VTP off mode**: A VTP mode in which a switch doesn't participate in VTP and doesn't forward VTP advertisements.
+- **VTP overwrite risk**: The danger that a switch with a higher revision number joins a domain and replaces every switch's VLAN configuration with its own.
+- **`vtp primary`**: The privileged EXEC command that makes a VTP version 3 server the primary server.
+- **VTP revision number**: A counter that increases with each VLAN change on a VTP server. Switches accept advertisements whose revision number is higher than their own.
+- **VTP server mode**: The default VTP mode. A server can create, change, and delete VLANs, and it advertises them to the domain.
+- **VTP transparent mode**: A VTP mode in which a switch keeps its own local VLAN configuration and forwards VTP advertisements without applying them.
+- **`vtp version`**: Sets the VTP version: 1, 2, or 3.
+- **Vulnerability**: A weakness an attacker can exploit. For example, an attacker can negotiate a trunk with a dynamic port and reach every VLAN.
+
+## Spanning Tree Protocol
+
+- **Blocking state**: An 802.1D port state in which a port receives BPDUs but doesn't forward frames or learn MAC addresses. Non-designated ports stay blocking to prevent loops.
+- **BPDU Guard**: A feature that error-disables a port when it receives a BPDU. Use it on PortFast ports to stop unauthorized switches from joining.
+- **Bridge identifier**: The 8-byte value that identifies a switch in STP: a 2-byte bridge priority, including the extended system ID, followed by the switch's MAC address. The lowest bridge ID wins.
+- **Bridge priority**: The configurable part of the bridge ID. The default is 32768, and you set it in multiples of 4096.
+- **Bridge protocol data unit**: A BPDU, the STP message switches exchange to elect the root bridge and choose port roles.
+- **Broadcast storm**: A loop in which broadcast frames circulate endlessly and multiply until they consume all bandwidth and switch CPU. Ethernet frames have no TTL to stop them.
+- **BUM traffic**: Broadcast, unknown unicast, and multicast traffic, which switches flood.
+- **Designated port**: The one port on each segment that forwards traffic onto that segment. All ports on the root bridge are designated ports.
+- **Designated port selection**: Choosing the designated port for each segment by lowest root cost, then lowest bridge ID, then lowest port ID.
+- **Error-disabled state**: A state in which IOS shuts down a port after a violation, such as a BPDU arriving on a BPDU Guard port. Recover the port with `shutdown` and `no shutdown`, or with errdisable recovery.
+- **Extended system ID**: The 12-bit part of the bridge priority field that holds the VLAN ID. It's why the priority for VLAN 1 displays as 32769.
+- **Forward delay timer**: The time a port spends in each of the listening and learning states, 15 seconds by default.
+- **Forwarding state**: A port state in which the port sends and receives frames and learns MAC addresses.
+- **Graph**: In graph theory, a set of nodes connected by edges. A network topology is a graph of switches and links.
+- **Graph theory**: The branch of mathematics that studies graphs. STP builds a spanning tree from the network's graph.
+- **Hello timer**: The interval at which the root bridge sends BPDUs, 2 seconds by default.
+- **Learning state**: A transitional port state in which the port learns MAC addresses but doesn't forward frames yet.
+- **Listening state**: A transitional 802.1D port state in which the port sends and receives BPDUs but doesn't learn MAC addresses or forward frames.
+- **Logical topology**: The paths traffic actually takes through a network, as opposed to the physical cabling. STP creates a loop-free logical topology on top of a looped physical one.
+- **Loop-free topology**: A topology with exactly one active path between any two devices.
+- **MAC address flapping**: A switch learning the same MAC address on different ports in quick succession. It's a common symptom of a Layer 2 loop.
+- **Max age timer**: How long a switch keeps a port's stored BPDU without receiving a new one before it reacts, 20 seconds by default.
+- **Network topology**: The arrangement of devices and links in a network.
+- **Non-designated port**: A port that is neither a root port nor a designated port. In 802.1D, it stays in the blocking state.
+- **Port ID**: A 2-byte value made of the port priority, 128 by default, and the port number. STP uses it as the final tiebreaker.
+- **PortFast**: A feature that moves an access port straight to forwarding, skipping listening and learning. Use it only on ports connected to end hosts.
+- **PVST+**: Per-VLAN Spanning Tree Plus, Cisco's STP implementation that runs a separate spanning-tree instance for each VLAN.
+- **Redundancy**: Extra links or devices that keep a network working when one fails.
+- **Ring topology**: A topology in which devices connect in a closed loop.
+- **Root bridge**: The switch with the lowest bridge ID. It's the reference point for the spanning tree.
+- **Root bridge election**: Choosing the switch with the lowest bridge ID as the root bridge. Each switch starts by claiming to be the root.
+- **Root cost**: The total STP cost of the path from a switch to the root bridge.
+- **Root port**: The port on a non-root switch with the lowest root cost. It forwards toward the root bridge.
+- **Secondary root bridge**: The switch configured to become the root bridge if the current root fails.
+- **Spanning tree**: In graph theory, a subgraph that connects every node of a graph without any loops.
+- **Spanning Tree Protocol**: STP, IEEE 802.1D, which prevents Layer 2 loops by blocking redundant ports.
+- **Spanning-tree instance**: One independent spanning tree. PVST+ runs one instance for each VLAN.
+- **`spanning-tree portfast bpduguard default`**: Enables BPDU Guard on every PortFast port.
+- **`spanning-tree vlan vlan-id root`**: Lowers the switch's bridge priority so it becomes the root bridge (`primary`) or the backup root (`secondary`) for the VLAN.
+- **STP port role**: The function a port has in STP: root, designated, or non-designated.
+- **STP port state**: A port's forwarding behavior: blocking, listening, learning, forwarding, or disabled.
+- **Subgraph**: A graph made from a subset of another graph's nodes and edges.
+- **Superior BPDU**: A BPDU that advertises a better root bridge, a lower root cost, or a lower sender bridge ID than the BPDU a port has stored.
+- **Transitional state**: A temporary STP port state, listening or learning, that a port passes through before it forwards.
+- **Tree**: In graph theory, a connected graph with no loops.
+
+## Rapid Spanning Tree Protocol
+
+- **Backup port**: An RSTP port role that backs up the designated port on the same shared segment. It occurs only when a switch has two ports on one segment, such as through a hub.
+- **BPDU filter**: A feature that stops a port from sending BPDUs. When you enable it on an interface, the port also ignores received BPDUs, which disables STP on that port.
+- **Designated bridge**: The switch that owns the designated port for a segment.
+- **Edge link**: An RSTP link type for a port connected to an end host. The port moves straight to forwarding, as with PortFast.
+- **IEEE 802.1w**: The standard that defines Rapid Spanning Tree Protocol (RSTP).
+- **Link type**: The RSTP classification of a link as point-to-point, shared, or edge. It determines whether a port can move to forwarding quickly.
+- **Long cost**: The 32-bit STP path cost method from IEEE 802.1t, for example 20,000 for 1 Gbps and 2,000 for 10 Gbps.
+- **Loop guard**: A feature that puts a root or alternate port in the loop-inconsistent state when it stops receiving BPDUs, instead of letting it move to forwarding.
+- **Loop-inconsistent state**: A blocking state that Loop Guard applies. The port recovers automatically when BPDUs return.
+- **Multiple spanning tree protocol**: MSTP, IEEE 802.1s, which maps many VLANs to a smaller number of spanning-tree instances.
+- **Port cost**: The STP cost of a single port, based on its speed. Root cost is the sum of the port costs along the path to the root.
+- **Root guard**: A feature that puts a port in the root-inconsistent state when it receives a superior BPDU, so a switch on that port can't become the root bridge.
+- **Root-inconsistent state**: A blocking state that Root Guard applies. The port recovers automatically when the superior BPDUs stop.
+- **RSTP synchronization mechanism**: The proposal and agreement handshake that RSTP uses on point-to-point links to move ports to forwarding in seconds instead of waiting for timers.
+- **Shared link**: An RSTP link type for half-duplex ports, which may connect to a hub. These ports use the slower 802.1D-style transition.
+- **Short cost**: The original 16-bit STP path cost method, for example 19 for 100 Mbps, 4 for 1 Gbps, and 2 for 10 Gbps.
+- **`show spanning-tree pathcost method`**: Displays whether the switch uses the short or long path cost method.
+- **`spanning-tree bpdufilter enable`**: Enables BPDU Filter on an interface.
+- **`spanning-tree guard root`**: Enables Root Guard on an interface.
+- **`spanning-tree link-type`**: Sets an interface's RSTP link type to `point-to-point` or `shared`.
+- **`spanning-tree mode`**: Selects the STP version, for example `spanning-tree mode rapid-pvst`.
+- **`spanning-tree pathcost method`**: Sets the path cost method to `short` or `long`.
+- **`spanning-tree portfast bpdufilter default`**: Enables BPDU Filter on all PortFast ports. A port that receives a BPDU loses its PortFast and BPDU Filter status.
+- **Topology change process**: How STP reacts to a topology change. Switches flush or age out MAC addresses so they relearn the correct ports. In RSTP, only a non-edge port moving to forwarding triggers it.
+
+## EtherChannel
+
+- **Access VLAN**: The VLAN an access port belongs to, set with `switchport access vlan`. All EtherChannel member ports must use the same access VLAN.
+- **Active mode**: The LACP mode in which a port actively sends LACP messages to form an EtherChannel.
+- **Auto mode**: The PAgP mode in which a port answers PAgP messages but doesn't start negotiation. Two auto ports don't form an EtherChannel.
+- **`channel-group`**: The interface configuration command that adds a port to an EtherChannel and sets its mode, for example `channel-group 1 mode active`.
+- **Desirable mode**: The PAgP mode in which a port actively sends PAgP messages to form an EtherChannel.
+- **Dynamic EtherChannel**: An EtherChannel that switches form by negotiating with PAgP or LACP.
+- **EtherChannel**: Up to 8 active physical links bundled into one logical link. STP treats the bundle as one link, so all members forward traffic.
+- **EtherChannel load balancing**: How a switch chooses the member link for each frame. It hashes header values, such as the source and destination IP addresses, so every frame in a flow uses the same link.
+- **LACP**: Link Aggregation Control Protocol, the IEEE standard (802.3ad, now 802.1AX) for negotiating EtherChannels.
+- **Load balancing**: Distributing traffic across multiple links, paths, or devices.
+- **Mode on**: The static EtherChannel mode. The port joins the channel without a negotiation protocol.
+- **Network bandwidth**: The maximum data rate a link or path can carry.
+- **Network congestion**: A condition in which traffic exceeds a link's capacity, causing queuing delay and dropped packets.
+- **PAgP**: Port Aggregation Protocol, Cisco's proprietary EtherChannel negotiation protocol.
+- **Passive mode**: The LACP mode in which a port answers LACP messages but doesn't start negotiation. Two passive ports don't form an EtherChannel.
+- **Port-channel interface**: The logical interface that represents an EtherChannel. Settings you configure on it apply to all member ports.
+- **`port-channel load-balance`**: The global configuration command that sets the EtherChannel load-balancing method.
+- **`show etherchannel load-balance`**: Displays the EtherChannel load-balancing method.
+- **`show etherchannel summary`**: Displays each EtherChannel, its protocol, and the state of its member ports.
+- **`show lacp neighbor`**: Displays the LACP neighbor of each port.
+- **`show pagp neighbor`**: Displays the PAgP neighbor of each port.
+- **`src-dst-ip`**: The load-balancing method that hashes the source and destination IP addresses.
+- **Static EtherChannel**: An EtherChannel configured with `mode on`, without a negotiation protocol.
+
+## Dynamic routing
+
+- **Administrative distance**: A value that ranks how trustworthy a route source is. When different sources offer routes to the same prefix, the lowest AD wins. Defaults include 0 for connected, 1 for static, 90 for EIGRP, 110 for OSPF, and 120 for RIP.
+- **Advertisement**: A routing protocol message that shares routes or link information with neighbors.
+- **Autonomous system**: A network under one administrative control, such as a single company or ISP.
+- **BGP**: Border Gateway Protocol, the path-vector EGP that routes between autonomous systems on the internet.
+- **Connectivity map**: A complete view of the network topology, which each link-state router builds from its link-state database.
+- **Distance-vector routing protocol**: A routing protocol in which routers learn each route from neighbors as a distance (metric) and direction (next hop), without seeing the full topology. RIP is an example.
+- **Enhanced Interior Gateway Routing Protocol**: EIGRP, a Cisco-developed advanced distance-vector IGP. By default, its metric uses bandwidth and delay.
+- **Equal-cost multipath routing**: ECMP, installing several routes with the same metric to one destination and load-balancing traffic across them.
+- **Exterior gateway protocol**: A routing protocol that exchanges routes between autonomous systems. BGP is the only one in current use.
+- **Floating static route**: A static route with a higher AD than the primary route, so the router uses it only as a backup when the primary route disappears.
+- **Hop count**: The number of routers between a source and a destination. RIP uses it as its metric, with a maximum of 15.
+- **Interior gateway protocol**: A routing protocol used within an autonomous system, such as OSPF, EIGRP, or RIP.
+- **Link-state database**: The LSDB, the collection of LSAs a link-state router stores. All routers in an area have identical LSDBs.
+- **Link-state routing protocol**: A routing protocol in which every router learns the full topology and calculates its own best paths. OSPF and IS-IS are examples.
+- **`network` command**: The OSPF router configuration command that enables OSPF on interfaces whose addresses match a network and wildcard mask, and places them in an area: `network ip-address wildcard-mask area area-id`.
+- **Open Shortest Path First**: OSPF, an open-standard link-state IGP that uses cost as its metric.
+- **OSPF process**: A running instance of OSPF on a router, identified by a locally significant process ID.
+- **Path-vector routing**: Routing in which each route carries the list of autonomous systems it passed through. BGP uses path-vector routing.
+- **Resilience**: A network's ability to keep working when links or devices fail.
+- **Router configuration mode**: The CLI mode for configuring a routing protocol. The prompt is `hostname(config-router)#`.
+- **`router ospf`**: The global configuration command that starts an OSPF process and enters router configuration mode: `router ospf process-id`.
+- **Routing Information Protocol**: RIP, a distance-vector IGP that uses hop count as its metric.
+- **Routing table population**: How a router fills its routing table with connected and local routes, static routes, and the best route from each routing protocol, chosen by AD and metric.
+- **Scalability**: How well a network or protocol handles growth.
+
+## Open Shortest Path First
+
+- **2-Way neighbor state**: The OSPF state in which two routers have each seen their own router ID in the other's hello. DROthers on a broadcast network stay in this state with each other.
+- **`auto-cost reference-bandwidth`**: Sets the OSPF reference bandwidth in Mbps. Use the same value on every router.
+- **Backbone area**: OSPF area 0. Every other area must connect to it.
+- **Backbone router**: An OSPF router with at least one interface in area 0.
+- **`bandwidth`**: The interface command that sets the bandwidth, in kbps, that routing protocols use to calculate metrics. It doesn't change the interface's actual speed.
+- **`clear ip ospf process`**: Resets OSPF processes, for example to apply a new router ID. It drops all OSPF adjacencies.
+- **Database description message**: OSPF message type 2 (DBD), which summarizes the LSAs in a router's LSDB while two routers form an adjacency.
+- **`default-information originate`**: Makes an OSPF router advertise a default route to the rest of the OSPF domain. The router needs a default route in its own routing table unless you add the `always` keyword.
+- **Dijkstra's algorithm**: The shortest path first (SPF) algorithm OSPF runs on the LSDB to calculate the lowest-cost path to each destination.
+- **DR/BDR election**: The process on an OSPF broadcast network that chooses a DR and BDR by highest interface priority, then highest router ID. The election isn't preemptive.
+- **Dynamic neighbor discovery**: Finding neighbors automatically by sending multicast hello messages, as OSPF does on broadcast and point-to-point networks.
+- **ExStart state**: The OSPF state in which two routers decide which one leads the database exchange.
+- **External route**: An OSPF route to a destination outside the OSPF domain, injected by an ASBR. It appears with code `O E1` or `O E2`.
+- **Full state**: The OSPF state in which two routers have synchronized LSDBs and are fully adjacent.
+- **Init state**: The OSPF state in which a router has received a hello from a neighbor but doesn't yet see its own router ID in it.
+- **Inter-area route**: An OSPF route to a network in another area. It appears with code `O IA`.
+- **`interface loopback`**: The global configuration command that creates a loopback interface, for example `interface loopback 0`.
+- **Internal router**: An OSPF router whose interfaces are all in the same area.
+- **Intra-area route**: An OSPF route to a network in the router's own area. It appears with code `O`.
+- **`ip ospf cost`**: The interface command that sets the interface's OSPF cost manually, overriding the calculated value.
+- **`ip ospf process-id area area-id`**: The interface command that enables OSPF on the interface and places it in an area.
+- **Link cost**: The OSPF metric for one interface. By default, it's the reference bandwidth divided by the interface bandwidth, with a minimum of 1.
+- **Link-state acknowledgment message**: OSPF message type 5 (LSAck), which confirms that a router received LSAs.
+- **Link-state advertisement**: An LSA, the unit of topology information in OSPF. Routers flood LSAs and store them in the LSDB.
+- **Link-state request message**: OSPF message type 3 (LSR), which asks a neighbor for LSAs that the router is missing.
+- **Link-state update message**: OSPF message type 4 (LSU), which carries LSAs.
+- **Loopback interface**: A virtual interface that stays up unless you shut it down. Loopback addresses make stable router IDs and management addresses.
+- **`maximum-paths`**: The router configuration command that sets how many equal-cost routes the protocol can install. The OSPF default is 4.
+- **Multi-area OSPF**: An OSPF design with multiple areas connected to area 0. It limits LSA flooding and SPF calculations to each area.
+- **`no passive-interface`**: Makes an interface active again after `passive-interface default`.
+- **Non-backbone area**: Any OSPF area other than area 0.
+- **OSPF area**: A group of routers and links that share the same LSDB.
+- **OSPF area border router**: An ABR, which has interfaces in area 0 and at least one other area.
+- **OSPF authentication**: Requiring neighbors to share a key before they form an adjacency, which keeps unauthorized routers out.
+- **OSPF autonomous system border router**: An ASBR, which injects routes from outside the OSPF domain.
+- **OSPF backup designated router**: The BDR, which takes over if the DR fails.
+- **OSPF broadcast network type**: The default OSPF network type on Ethernet. Routers elect a DR and BDR, and the hello and dead timers are 10 and 40 seconds.
+- **OSPF dead timer**: How long a router waits without receiving a hello before it declares a neighbor down. The default is 40 seconds on broadcast and point-to-point networks.
+- **OSPF designated router**: The DR, the router on a broadcast network that forms full adjacencies with every other router and generates the type 2 LSA. It reduces the number of adjacencies.
+- **OSPF DROther**: A router on a broadcast network that is neither the DR nor the BDR.
+- **OSPF hello message**: OSPF message type 1, which discovers neighbors and keeps adjacencies alive. Routers send hellos to 224.0.0.5.
+- **OSPF hello timer**: The interval between OSPF hello messages. The default is 10 seconds on broadcast and point-to-point networks.
+- **OSPF interface priority**: A value from 0 to 255, 1 by default, used in the DR/BDR election. A router with priority 0 never becomes DR or BDR.
+- **OSPF message type**: One of five OSPF packet types: hello, DBD, LSR, LSU, and LSAck.
+- **OSPF neighbor entry**: A row in the OSPF neighbor table, showing the neighbor's router ID, priority, state, dead time, address, and interface.
+- **OSPF neighbor relationship**: The relationship two OSPF routers form by exchanging hellos. They must match area, subnet, hello and dead timers, and authentication, and they need unique router IDs.
+- **OSPF neighbor state**: The stage of a neighbor relationship: Down, Init, 2-Way, ExStart, Exchange, Loading, or Full.
+- **OSPF network type**: An interface setting that controls OSPF behavior, such as whether routers elect a DR and what the default timers are.
+- **OSPF point-to-point network type**: The OSPF network type for a link with exactly two routers. There's no DR/BDR election. It's the default on serial interfaces that use HDLC or PPP.
+- **OSPF process ID**: The number in `router ospf process-id`. It's locally significant, so neighbors don't need matching process IDs.
+- **OSPF reference bandwidth**: The value OSPF divides by interface bandwidth to calculate cost. The default is 100 Mbps, so every interface of 100 Mbps or faster gets a cost of 1.
+- **Passive OSPF interface**: An interface on which OSPF advertises the connected network but doesn't send hellos or form adjacencies.
+- **`passive-interface default`**: Makes every interface passive. You then activate the interfaces that need neighbors with `no passive-interface`.
+- **Route calculation**: Determining the best path to each destination. OSPF runs SPF on the LSDB.
+- **Router ID**: A 32-bit value, written like an IPv4 address, that uniquely identifies an OSPF router. The router uses a manually configured ID first, then its highest loopback address, then its highest active interface address.
+- **`router-id`**: The router configuration command that sets the OSPF router ID manually.
+- **Routing information**: The routes and topology data that routers exchange.
+- **`show ip ospf database`**: Displays the LSDB.
+- **`show ip ospf interface brief`**: Displays each OSPF interface's area, cost, state, and neighbor count.
+- **`show ip ospf neighbor`**: Displays the OSPF neighbor table.
+- **`show ip protocols`**: Displays routing protocol settings, such as the router ID, configured networks, passive interfaces, and administrative distance.
+- **`show ip route ospf`**: Displays only the OSPF routes in the routing table.
+- **Single-area OSPF**: An OSPF design with every router in area 0.
+- **Type 1 LSA**: The router LSA. Every router generates one for each of its areas, listing its links and their costs.
+- **Type 2 LSA**: The network LSA. The DR generates it for a broadcast network, listing the attached routers.
+- **Type 5 LSA**: The AS external LSA. An ASBR generates it to advertise routes from outside the OSPF domain.
+
+## First hop redundancy protocols
+
+- **Active router**: The HSRP router that forwards traffic sent to the virtual IP and MAC addresses.
+- **Active virtual forwarder**: An AVF, a GLBP router that forwards traffic for a virtual MAC address the AVG assigns to it. A group has up to 4 AVFs.
+- **Active virtual gateway**: The AVG, the GLBP router that answers ARP requests for the virtual IP address. It hands out different virtual MAC addresses to spread hosts across the AVFs.
+- **Backup router**: A VRRP router that takes over if the master router fails.
+- **Cold standby**: Redundancy in which the backup isn't running or synchronized, so it needs time or manual work before it can take over.
+- **Failover**: Switching automatically to a backup device or path when the primary one fails.
+- **FHRP group**: The routers that share one virtual IP address.
+- **FHRP neighbor relationship**: The relationship routers in an FHRP group form by exchanging hello messages.
+- **First hop redundancy protocol**: An FHRP, which lets several routers share a virtual IP address so hosts keep a working default gateway if one router fails. HSRP, VRRP, and GLBP are FHRPs.
+- **Gateway Load Balancing Protocol**: GLBP, a Cisco FHRP that load-balances hosts across the routers in a group.
+- **Gratuitous ARP**: An ARP reply sent without a request. A router that becomes active sends one so switches update their MAC address tables for the virtual MAC address.
+- **Hot standby**: Redundancy in which the backup is running and synchronized, ready to take over immediately.
+- **Hot Standby Router Protocol**: HSRP, Cisco's proprietary FHRP. One active router forwards traffic while one standby router waits to take over.
+- **HSRP group**: The routers that share an HSRP virtual IP address, identified by a group number.
+- **HSRP hello message**: The message HSRP routers exchange to monitor each other, every 3 seconds by default.
+- **HSRP priority**: A value from 0 to 255, 100 by default. The router with the highest priority becomes active, and the highest IP address breaks ties.
+- **HSRP version 1**: The default HSRP version. It uses multicast address 224.0.0.2, group numbers 0–255, and virtual MAC addresses 0000.0c07.acXX.
+- **HSRP version 2**: The HSRP version that uses multicast address 224.0.0.102, group numbers 0–4095, and virtual MAC addresses 0000.0c9f.fXXX. It supports IPv6.
+- **Master router**: The VRRP router that forwards traffic for the virtual IP address.
+- **Preemption**: Letting a higher-priority router take the active or master role from a lower-priority router that holds it. HSRP disables preemption by default, and VRRP enables it.
+- **Redundant default gateway**: Several routers that act as one default gateway, so hosts keep connectivity if one router fails.
+- **Round-robin load balancing**: Distributing work by cycling through resources in order. By default, the GLBP AVG uses it to hand out virtual MAC addresses.
+- **`show standby brief`**: Displays each HSRP group's state, priority, preemption setting, active and standby routers, and virtual IP address.
+- **`standby group ip virtual-ip`**: Enables HSRP on an interface and sets the group's virtual IP address.
+- **`standby group preempt`**: Enables HSRP preemption for a group.
+- **`standby group priority priority`**: Sets the router's HSRP priority for a group.
+- **Standby router**: The HSRP router that takes over if the active router fails.
+- **`standby version 2`**: Enables HSRP version 2 on an interface.
+- **Virtual IP address**: The IP address an FHRP group shares. Hosts use it as their default gateway.
+- **Virtual MAC address**: The MAC address that goes with the virtual IP address. The router that's currently active answers for it.
+- **Virtual Router Redundancy Protocol**: VRRP, the open-standard FHRP. One master router forwards traffic while backup routers wait.
+- **VRRP group number**: The number that identifies a VRRP group, 1–255.
+
+## IPv6 addressing
+
+- **16-bit value**: A value 16 bits long. Each IPv6 hextet is a 16-bit value written as up to four hex digits.
+- **128-bit number**: A binary number with 128 places. IPv6 addresses are 128-bit numbers, which allows about 3.4 × 10^38 addresses.
+- **Abbreviated IPv6 address**: An IPv6 address shortened by removing leading zeros and replacing one run of all-zero hextets with `::`.
+- **All-nodes multicast address**: FF02::1, the link-local multicast address that every IPv6 host listens to.
+- **Anycast**: Assigning the same address to several devices. The network delivers each packet to the nearest one.
+- **Double colon**: `::`, which replaces one run of consecutive all-zero hextets. You can use it only once in an address.
+- **EUI-64 keyword**: The `eui-64` option of `ipv6 address`, which builds the interface ID from the MAC address. IOS splits the MAC address, inserts FFFE in the middle, and flips the seventh bit.
+- **Flow label**: The 20-bit IPv6 header field that marks packets belonging to the same flow.
+- **Global ID**: The 40-bit random value that follows the FD prefix in a unique local address.
+- **Global routing prefix**: The part of a global unicast address that a provider or registry assigns to a site, often a /48.
+- **Global unicast address**: A public, globally routable IPv6 address, currently assigned from 2000::/3.
+- **Hop limit**: The 8-bit IPv6 header field that replaces the IPv4 TTL. Each router decrements it and drops the packet when it reaches 0.
+- **Interface identifier**: The host portion of an IPv6 address, usually the last 64 bits.
+- **IPv4 address exhaustion**: The depletion of unallocated IPv4 addresses. IANA allocated its last /8 blocks to the regional registries in 2011.
+- **IPv4 link-local address**: An address in 169.254.0.0/16 that a host assigns itself when it can't get an address from DHCP.
+- **`ipv6 address`**: Assigns an IPv6 address and prefix length to an interface, for example `ipv6 address 2001:db8::1/64`.
+- **IPv6 address representation**: The rules for writing IPv6 addresses: eight hextets of hex digits separated by colons, which you can shorten.
+- **`ipv6 enable`**: Enables IPv6 on an interface and generates a link-local address without assigning a global address.
+- **IPv6 header**: The fixed 40-byte header of an IPv6 packet. It drops the IPv4 checksum and fragmentation fields, which simplifies router processing.
+- **IPv6 hextet**: One of the eight 16-bit sections of an IPv6 address, written as up to four hex digits.
+- **IPv6 network address**: The prefix of an IPv6 subnet, with all interface ID bits set to 0, for example 2001:db8:1:1::/64.
+- **IPv6 prefix**: The network portion of an IPv6 address, written with slash notation.
+- **`ipv6 route`**: Creates an IPv6 static route: `ipv6 route prefix/length {next-hop | exit-interface}`.
+- **`ipv6 unicast-routing`**: Enables IPv6 routing on a router. Without it, the router doesn't forward IPv6 packets or send router advertisements.
+- **Leading zero**: A zero at the start of a hextet. You can omit leading zeros, so 0db8 becomes db8.
+- **Link-local address**: An IPv6 address from FE80::/10 that's valid only on its local link. Every IPv6 interface has one, and routers use them as next-hop addresses.
+- **Link-local multicast scope**: The multicast scope limited to the local link. These addresses start with FF02.
+- **Multicast group**: The set of receivers that listen to one multicast address.
+- **Multicast scope**: How far a multicast packet can travel. In an IPv6 multicast address, the 4 bits after FF set the scope, for example 2 for link-local.
+- **Multiple IPv4 addresses**: An IPv4 interface can have more than one address only if you add the extras with the `secondary` keyword. An IPv6 interface accepts multiple addresses without it.
+- **Next header**: The 8-bit IPv6 header field that identifies what follows the header, such as TCP (6), UDP (17), ICMPv6 (58), or an extension header.
+- **Nibble**: 4 bits, which one hex digit represents.
+- **`no`**: The prefix that removes a configuration command or reverses its effect.
+- **Payload length**: The 16-bit IPv6 header field that gives the length of the data after the 40-byte header.
+- **Public IP address**: An address that's routable on the internet.
+- **RFC 5952**: The IETF recommendation for writing IPv6 addresses as text: lowercase letters, no leading zeros, and `::` for the longest run of two or more all-zero hextets.
+- **`secondary`**: The `ip address` keyword that adds another IPv4 address to an interface.
+- **`show ipv6 interface`**: Displays IPv6 details for each interface, including its link-local, global, and multicast group addresses.
+- **`show ipv6 interface brief`**: Displays each interface's IPv6 addresses and status.
+- **`show ipv6 route`**: Displays the IPv6 routing table.
+- **Slash notation**: Writing the prefix length after a slash, for example /64.
+- **Solicited-node multicast address**: An IPv6 multicast address made of FF02::1:FF plus the last 24 bits of a unicast address. NDP uses it for address resolution and duplicate address detection.
+- **Subnet identifier**: The bits between the global routing prefix and the interface ID, which identify a subnet within a site. It's often 16 bits.
+- **Traffic class field**: The 8-bit IPv6 header field for QoS marking, equivalent to the IPv4 DSCP and ECN fields.
+- **U/L bit**: The universal/local bit, the seventh bit of a MAC address. EUI-64 flips it.
+- **Unique local address**: A private IPv6 address from FC00::/7, in practice FD00::/8. It isn't routable on the internet.
+- **Unspecified address**: `::`, all zeros. A host uses it as a source address before it has an address of its own.
+
+## IPv6 routing
+
+- **Address resolution**: Finding the MAC address for a known IP address. IPv4 uses ARP, and IPv6 uses NDP neighbor solicitation and advertisement messages.
+- **Duplicate address**: An address that another device on the same link already uses.
+- **Duplicate address detection**: DAD, an NDP process in which a host sends a neighbor solicitation for its own address before using it. If any device answers, the address is a duplicate.
+- **ICMPv6**: The IPv6 version of ICMP. It carries error messages, ping messages, and NDP.
+- **`ipv6 address autoconfig`**: Makes an interface get its IPv6 address through SLAAC.
+- **IPv6 neighbor table**: The IPv6 equivalent of the ARP table, mapping IPv6 addresses to MAC addresses.
+- **Link-local next hop**: A link-local address used as the next hop in an IPv6 route. You must also specify the exit interface, because the same link-local address can exist on many links.
+- **Neighbor advertisement**: NA, ICMPv6 type 136, which answers a neighbor solicitation with the MAC address.
+- **Neighbor Discovery Protocol**: NDP, the IPv6 protocol that handles address resolution, router discovery, SLAAC, and duplicate address detection with ICMPv6 messages. It replaces ARP.
+- **Neighbor solicitation message**: NS, ICMPv6 type 135, which asks for the MAC address of an IPv6 address. Hosts send it to the target's solicited-node multicast address.
+- **Proxy NDP**: The IPv6 counterpart of proxy ARP, in which a router answers neighbor solicitations for addresses that belong to other devices.
+- **Redirect message**: ICMPv6 type 137, which a router sends to tell a host about a better first-hop router for a destination.
+- **Router advertisement**: RA, ICMPv6 type 134, which routers send periodically and in response to router solicitations. It announces the router and the link's prefix.
+- **Router discovery**: How IPv6 hosts find routers on their link, using router solicitation and router advertisement messages.
+- **Router solicitation**: RS, ICMPv6 type 133, which a host sends to FF02::2 to ask routers for an immediate router advertisement.
+- **Serial interface**: A router interface for serial WAN links, such as links that use HDLC or PPP.
+- **`show ipv6 neighbors`**: Displays the IPv6 neighbor table.
+- **Stateless address autoconfiguration**: SLAAC, in which a host builds its own global address from the prefix in a router advertisement and an interface ID it generates.
+- **Target address field**: The field in a neighbor solicitation or advertisement that holds the IPv6 address being resolved or announced.
+- **Transit link**: A link between routers that carries traffic between other networks and has no end hosts.
+
+## Transmission Control Protocol and User Datagram Protocol
+
+- **ACK flag**: The TCP flag that shows the acknowledgment number field is valid. Every segment after the first SYN sets it.
+- **Acknowledgment**: A message that confirms data arrived. TCP acknowledges data by sending the next sequence number it expects.
+- **Acknowledgment number**: The 32-bit TCP header field that holds the next sequence number the sender expects to receive.
+- **Computational overhead**: The extra processing a protocol requires. TCP's connection state, acknowledgments, and retransmissions cost more than UDP.
+- **Connection establishment**: Setting up a TCP connection with the three-way handshake before any data is sent.
+- **Connection-oriented communication**: Communication in which endpoints set up a connection before sending data and tear it down afterward. TCP is connection-oriented, and UDP is connectionless.
+- **Data integrity**: Assurance that data arrives unchanged. Checksums detect corruption.
+- **Data sequencing**: Numbering data so the receiver can put segments in order and detect gaps. TCP uses sequence numbers.
+- **Datagram**: A self-contained message sent without a connection or a delivery guarantee. UDP sends datagrams.
+- **Ephemeral port**: A temporary source port the operating system picks for the client side of a connection.
+- **Ephemeral port range**: The range of ports used as ephemeral ports. IANA recommends 49152–65535, but operating systems vary.
+- **Error detection**: Finding transmission errors, typically with a checksum or CRC.
+- **File transfer**: Copying files between hosts, for example with FTP over TCP or TFTP over UDP.
+- **FIN flag**: The TCP flag that signals the sender has no more data. Hosts use it to close a connection.
+- **Five-tuple**: The source IP address, destination IP address, source port, destination port, and protocol. Together they identify one flow.
+- **Four-way handshake**: The usual TCP connection termination: FIN, ACK, FIN, ACK.
+- **Network socket**: The combination of an IP address, a transport protocol, and a port number that identifies one end of a communication.
+- **Packet loss**: Packets that never reach their destination, often because of congestion or errors.
+- **QUIC**: A transport protocol that runs over UDP and provides reliable delivery, TLS 1.3 encryption, and multiplexed streams. HTTP/3 uses it.
+- **Registered port**: Ports 1024–49151, which IANA assigns to specific applications on request.
+- **Reliable communication**: Delivery that ensures data arrives complete, in order, and without errors, through acknowledgments and retransmissions. TCP provides it, and UDP doesn't.
+- **Request-response message exchange**: A pattern in which a client sends one request and the server sends one reply, as in a DNS lookup. UDP suits it because the client can simply resend a lost request.
+- **Retransmission**: Resending data that wasn't acknowledged.
+- **Retransmission timeout**: How long TCP waits for an acknowledgment before it retransmits. TCP adjusts it based on the measured round-trip time.
+- **Sequence number field**: The 32-bit TCP header field that holds the number of the segment's first data byte.
+- **Session**: An ongoing exchange of data between two applications.
+- **Session multiplexing**: Running multiple sessions on one host at the same time, kept separate by port numbers.
+- **Sliding window**: TCP flow control in which the sender can have up to the receiver's window size of unacknowledged data in flight. The window moves forward as acknowledgments arrive.
+- **SYN flag**: The TCP flag that starts a connection and synchronizes sequence numbers.
+- **TCP checksum field**: The 16-bit TCP header field that detects errors in the header and data.
+- **TCP connection termination**: Closing a TCP connection, normally with a FIN and ACK exchange in each direction.
+- **TCP flags field**: The TCP header bits that control the connection, including SYN, ACK, FIN, RST, PSH, and URG.
+- **TCP header**: The header on every TCP segment, 20 bytes minimum. It holds the ports, sequence and acknowledgment numbers, flags, window size, and checksum.
+- **Three-way handshake**: The TCP connection setup: SYN, SYN-ACK, ACK.
+- **Trivial File Transfer Protocol**: TFTP, a simple file transfer protocol on UDP port 69 with no authentication. Network devices use it to copy software images and configurations.
+- **UDP header**: The 8-byte header on every UDP datagram. It holds the source port, destination port, length, and checksum.
+- **Web browsing**: Retrieving web pages with HTTP or HTTPS, traditionally over TCP ports 80 and 443.
+- **Well-known port**: Ports 0–1023, assigned to common services such as SSH (22), HTTP (80), and HTTPS (443).
+- **Window size field**: The 16-bit TCP header field in which the receiver advertises how many bytes it can accept.
+
+## Standard access control lists
+
+- **Access control entry**: An ACE, one permit or deny statement in an ACL.
+- **Access control list**: An ACL, an ordered list of permit and deny statements that a router uses to filter packets. The router checks entries from the top and acts on the first match.
+- **ACL sequence number**: The number that sets an ACE's position in an ACL. By default, IOS numbers entries 10, 20, 30, and so on, so you can insert entries between them.
+- **`any`**: The ACL keyword that matches every address, equal to 0.0.0.0 255.255.255.255.
+- **Deny-by-default**: The implicit deny at the end of every ACL. A packet that matches no entry is dropped.
+- **Extended access control list**: An ACL that matches on protocol, source and destination addresses, and ports. Numbered extended ACLs use 100–199 and 2000–2699.
+- **`ip access-group`**: Applies an ACL to an interface in one direction: `ip access-group acl {in | out}`. An interface accepts one ACL per direction and protocol.
+- **`ip access-list standard`**: Creates or edits a named standard ACL and enters named ACL configuration mode.
+- **Named ACL configuration mode**: The CLI mode for adding entries to a named ACL. The prompt is `hostname(config-std-nacl)#` or `hostname(config-ext-nacl)#`.
+- **Numbered access control list**: An ACL identified by a number. Standard ACLs use 1–99 and 1300–1999.
+- **Shadowed rule**: An ACE that never matches because an earlier entry matches all of its packets first.
+- **`show access-lists`**: Displays every ACL with its entries, sequence numbers, and match counts.
+- **Standard named ACL**: A standard ACL, which matches only the source address, identified by a name instead of a number.
+
+## Extended access control lists
+
+- **ACL port operator**: A keyword that compares a packet's port number in an extended ACE: `eq`, `neq`, `gt`, `lt`, or `range`.
+- **`eq`**: The port operator that matches a port equal to the value you give.
+- **Extended named ACL**: An extended ACL identified by a name, configured with `ip access-list extended name`.
+- **Extended numbered ACL**: An extended ACL identified by a number from 100–199 or 2000–2699.
+- **Greater-than operator**: `gt`, the port operator that matches ports higher than the value you give.
+- **`host` keyword**: The ACL keyword that matches a single address, equal to a wildcard mask of 0.0.0.0, for example `host 10.1.1.1`.
+- **HTTP**: Hypertext Transfer Protocol, the protocol for web content. It uses TCP port 80 by default.
+- **Interval**: A continuous range of values. The `range` operator matches a port interval, for example `range 20 21`.
+- **`ip`**: In an extended ACE, the protocol keyword that matches every IPv4 packet.
+- **`ip access-list resequence`**: Renumbers an ACL's entries with a new starting number and increment: `ip access-list resequence name start increment`.
+- **Less-than operator**: `lt`, the port operator that matches ports lower than the value you give.
+- **`neq`**: The port operator that matches every port except the value you give.
+- **NTP**: Network Time Protocol, which synchronizes device clocks over UDP port 123.
+- **Service keyword**: A name, such as `www` or `telnet`, that you can use in place of a port number in an extended ACE.

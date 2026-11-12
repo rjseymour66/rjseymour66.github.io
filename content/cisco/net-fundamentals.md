@@ -254,3 +254,60 @@ The two most common Layer 4 protocols are Transmission Control Protocol (TCP), t
 The Application layer is most commonly called Layer 7. Applications use Layer 7 protocols to prepare messages for transmission over the network.
 
 Layer 7 protocols such as HTTPS aren't user applications. They provide services that let user applications communicate with applications on other computers over the network.
+
+
+### Data encapsulation
+
+**Encapsulation** is the five-step process a host uses to send data. Each layer adds its own information to the data before passing it down.
+
+1. **Layer 7:** The Application layer protocol prepares the data.
+2. **Layer 4:** Adds a header addressed to a port number on the destination host.
+3. **Layer 3:** Adds a header addressed to the IP address of the destination host.
+4. **Layer 2:** Adds a header addressed to the MAC address of the next-hop device. It also adds a trailer, which is used to check for errors.
+5. **Layer 1:** The host transmits the bits over the physical medium, such as electrical signals over a UTP cable.
+
+| Layer | Adds             | Addressed to                        |
+| :---- | :--------------- | :---------------------------------- |
+| 7     | (Prepares data)  | N/A                                 |
+| 4     | Header           | Port number on the destination host |
+| 3     | Header           | IP address of the destination host  |
+| 2     | Header + trailer | MAC address of the next hop         |
+| 1     | (Transmits bits) | N/A                                 |
+
+- **Header:** Supplemental data added to the front of a message before it's transmitted over a network. A protocol's header contains the data that protocol uses.
+- **Trailer:** Supplemental data added to a message before it's transmitted over a network. The Ethernet trailer contains a small block of data used to check the message for errors.
+
+### Data de-encapsulation
+
+**De-encapsulation** reverses the encapsulation process on the destination host:
+
+1. The destination host receives the message.
+2. The host inspects the Layer 2 header and trailer, removes them, and passes the message to Layer 3.
+3. The host inspects the Layer 3 header, removes it, and passes the message to Layer 4.
+4. The host inspects the Layer 4 header, removes it, and sends the data to the appropriate application.
+5. The application receives and processes the data.
+
+### Protocol data units
+
+Each layer has a name for its protocol data unit (PDU):
+
+| PDU         | Layer | Also called | Contents                            |
+| :---------- | :---- | :---------- | :---------------------------------- |
+| **Segment** | 4     | L4PDU       | Data + Layer 4 header               |
+| **Packet**  | 3     | L3PDU       | Segment + Layer 3 header            |
+| **Frame**   | 2     | L2PDU       | Packet + Layer 2 header and trailer |
+
+### Adjacent- and same-layer interactions
+
+- **Adjacent-layer interaction:** Each layer of the TCP/IP model provides a service for the layer above it.
+- **Same-layer interaction:** The same layer on different computers communicates.
+
+The following table shows same-layer interaction at each layer:
+
+| Layer | What the sender sends               | Where it's received and inspected                              |
+| :---- | :---------------------------------- | :------------------------------------------------------------- |
+| 7     | Application data                    | An application on another computer                             |
+| 4     | Segment (data + Layer 4 header)     | Layer 4 of the destination host, which inspects the header     |
+| 3     | Packet (segment + Layer 3 header)   | Layer 3 of the destination host, which inspects the header     |
+| 2     | Frame (packet + header and trailer) | Layer 2 of the next hop, which inspects the header and trailer |
+| 1     | Signals out of a physical port      | A physical port on another device                              |

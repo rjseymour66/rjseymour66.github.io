@@ -1,7 +1,7 @@
 +++
 title = 'Network fundamentals'
 date = '2026-11-11T09:51:12-05:00'
-weight = 10
+weight = 20
 draft = false
 +++
 
@@ -311,3 +311,78 @@ The following table shows same-layer interaction at each layer:
 | 3     | Packet (segment + Layer 3 header)   | Layer 3 of the destination host, which inspects the header     |
 | 2     | Frame (packet + header and trailer) | Layer 2 of the next hop, which inspects the header and trailer |
 | 1     | Signals out of a physical port      | A physical port on another device                              |
+
+
+## Ethernet LAN switching
+
+Switches are **Layer 2 devices**, which means they operate at Layer 2. Switches and routers both make forwarding decisions, but they use different headers:
+
+| Device | Forwards based on | Header   |
+| :----- | :---------------- | :------- |
+| Switch | Layer 2 header    | Ethernet |
+| Router | Layer 3 header    | IP       |
+
+### LANs
+
+Another term for a LAN is a **Layer 2 domain**. A Layer 2 domain is a portion of a network where:
+
+- Switches forward frames.
+- Hosts connected to the switches can communicate with each other without a router.
+
+### Ethernet header and trailer
+
+Switches make forwarding decisions with information in the Ethernet header. To understand switching, you need to understand the contents of the header and trailer.
+
+The Preamble and Start Frame Delimiter (SFD) aren't part of the Ethernet frame.
+
+#### Preamble and SFD
+
+- The Preamble and SFD let the receiving device synchronize its receiver clock and prepare to receive the incoming frame.
+- Clock synchronization affects how the receiving device interprets the incoming electrical signals. The receiving device must determine the precise length of 1 bit.
+- The device sends the Preamble and SFD with every frame, but they aren't part of the frame. They're purely a Layer 1 (Physical layer) function, and they don't contain information that influences what the receiving device does with the frame.
+
+#### Destination and Source
+
+- The **Destination** field is the destination MAC address of the frame.
+- The **Source** field is the source MAC address of the frame.
+- Layer 2 provides hop-to-hop delivery of messages, and MAC addresses enable that delivery.
+- Within a LAN, a switch reads the destination MAC address of a frame and forwards the frame to the appropriate destination.
+
+#### MAC addresses
+
+- A MAC address is a 6-byte (48-bit) address that the manufacturer assigns to each port of a network device.
+- Another name for a MAC address is a **burned-in address (BIA)**, because the address is "burned into" the physical port.
+- MAC addresses are globally unique.
+- The first 3 bytes (the first half) are an **organizationally unique identifier (OUI)**. The IEEE assigns the OUI to the manufacturer.
+- The last 3 bytes are unique to the port itself.
+- MAC addresses are written as 12 hexadecimal characters.
+
+{{< admonition "Number prefixes" note >}}
+MAC addresses use hexadecimal. The prefix `0d` indicates a decimal number, and `0x` indicates a hexadecimal number.
+{{< /admonition >}}
+
+#### Type/Length
+
+The Type/Length field is 2 bytes. It indicates one of two things:
+
+- **Type:** The type of the encapsulated packet, such as an IPv4 packet or an IPv6 packet. When the field indicates type, it's called the **EtherType** field.
+- **Length:** The length of the encapsulated packet, in bytes.
+
+In almost all cases, the field indicates type. A special signal after the frame marks the end of the frame, so the field doesn't need to indicate length.
+
+#### Frame Check Sequence
+
+The Frame Check Sequence is the only field in the Ethernet trailer. Its 4 bytes in length. It works like this:
+
+1. The sender calculates a checksum for the frame.
+2. The frame's destination host receives the frame and calculates its own checksum with the same algorithm.
+3. The receiver compares its checksum to the sender's checksum.
+4. If the checksums are different, the receiver discards the frame.
+
+The checksum algorithm is a **cyclic redundancy check (CRC)**:
+
+| Term       | Meaning                                                                                                 |
+| :--------- | :------------------------------------------------------------------------------------------------------ |
+| Cyclic     | The kind of algorithm used to calculate the checksum                                                    |
+| Redundancy | The field is redundant. It expands the size of the message but doesn't add any information.             |
+| Check      | The field checks whether the frame traveled from source to destination without the data being corrupted |

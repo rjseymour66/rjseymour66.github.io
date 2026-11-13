@@ -539,6 +539,27 @@ The IPv4 header length is variable because the Options field is optional and var
 
 The 20-byte length runs from the first bit of the Version field to the last bit of the Destination Address field.
 
+The following diagram shows the layout of the IPv4 header fields:
+
+<div class="bitfield-wrap">
+<table class="merged bitfield">
+  <thead>
+    <tr><th></th><th>Byte</th><th colspan="8">0</th><th colspan="8">1</th><th colspan="8">2</th><th colspan="8">3</th></tr>
+    <tr><th>Byte</th><th>Bit</th><th>0</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th><th>11</th><th>12</th><th>13</th><th>14</th><th>15</th><th>16</th><th>17</th><th>18</th><th>19</th><th>20</th><th>21</th><th>22</th><th>23</th><th>24</th><th>25</th><th>26</th><th>27</th><th>28</th><th>29</th><th>30</th><th>31</th></tr>
+  </thead>
+  <tbody>
+    <tr><th>0</th><th>0</th><td colspan="4">Version</td><td colspan="4">IHL</td><td colspan="6">DSCP</td><td colspan="2">ECN</td><td colspan="16">Total Length</td></tr>
+    <tr><th>4</th><th>32</th><td colspan="16">Identification</td><td colspan="3">Flags</td><td colspan="13">Fragment Offset</td></tr>
+    <tr><th>8</th><th>64</th><td colspan="8">Time To Live</td><td colspan="8">Protocol</td><td colspan="16">Header Checksum</td></tr>
+    <tr><th>12</th><th>96</th><td colspan="32">Source Address</td></tr>
+    <tr><th>16</th><th>128</th><td colspan="32">Destination Address</td></tr>
+    <tr><th>20</th><th>160</th><td colspan="32" rowspan="3">Options</td></tr>
+    <tr><th>&vellip;</th><th>&vellip;</th></tr>
+    <tr><th>56</th><th>448</th></tr>
+  </tbody>
+</table>
+</div>
+
 #### Version field
 
 The Version field indicates which version of IP the packet uses:

@@ -115,6 +115,28 @@ a {
     border: 1px solid $clr-tbody-border;
     vertical-align: top;
   }
+
+  // Bit-field diagrams (packet headers): compact, centered cells
+  .bitfield-wrap {
+    overflow-x: auto;
+  }
+
+  table.bitfield {
+    font-size: 0.75rem;
+    table-layout: fixed;
+  }
+
+  table.bitfield th,
+  table.bitfield td {
+    padding: 0.25rem 0.125rem;
+    text-align: center;
+    vertical-align: middle;
+  }
+
+  table.bitfield tbody th {
+    background: $clr-thead-bg;
+    color: $clr-thead-font;
+  }
 }
 
 code {

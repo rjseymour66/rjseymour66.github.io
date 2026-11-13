@@ -386,3 +386,257 @@ The checksum algorithm is a **cyclic redundancy check (CRC)**:
 | Cyclic     | The kind of algorithm used to calculate the checksum                                                    |
 | Redundancy | The field is redundant. It expands the size of the message but doesn't add any information.             |
 | Check      | The field checks whether the frame traveled from source to destination without the data being corrupted |
+
+
+
+### Frame switching
+
+#### MAC address learning
+
+- To decide how to forward a frame, a switch looks up the frame's destination MAC address in its **MAC address table**. The MAC address table lists the MAC addresses in the LAN and the port each one is connected to.
+- Another name for the MAC address table is the **CAM table**. The name comes from the kind of memory that stores the table: content addressable memory (CAM).
+- When a switch receives a frame on a port, it examines the Source field. It then creates an entry in its MAC address table that associates the source MAC address with that port. This process is called **MAC address learning**.
+
+| Type                    | How the switch gets it                          |
+| :---------------------- | :---------------------------------------------- |
+| **Dynamic MAC address** | Learned automatically (dynamically)             |
+| **Static MAC address**  | Configured manually (statically). This is rare. |
+
+- **MAC aging:** A switch removes a dynamic MAC address from its MAC address table after 5 minutes of inactivity. Inactivity means the switch doesn't receive a frame from that MAC address for 5 minutes.
+
+#### Frame flooding and forwarding
+
+- A **unicast frame** is a frame addressed to a single destination host.
+- A **known unicast frame** is a unicast frame whose destination MAC address already has an entry in the switch's MAC address table.
+- An **unknown unicast frame** is a unicast frame whose destination MAC address has no entry in the switch's MAC address table.
+- To **flood** a frame is to send it out of all ports except the port the frame was received on.
+
+The switch action depends on the kind of unicast frame:
+
+| Frame                 | Action      | What the switch does                                                         |
+| :-------------------- | :---------- | :--------------------------------------------------------------------------- |
+| Known unicast frame   | **Forward** | Sends the frame out of the port in the destination MAC address's table entry |
+| Unknown unicast frame | **Flood**   | Sends the frame out of all ports except the one it was received on           |
+
+For example:
+
+- **Known unicast:** PC1 sends a frame to PC2's MAC address. SW1 checks its MAC address table and sees that it should forward the frame out of its G0/2 port.
+- **Unknown unicast:** The switch uses the frame's Source field to learn PC1's MAC address. It then floods the frame.
+
+A switch is **transparent** to its connected hosts:
+
+- PC1 and PC3 address their messages directly to each other, not to SW1 or SW2. This is why a message passing through a switch isn't considered a hop.
+- Switches don't modify frames.
+
+#### MAC address table in Cisco IOS
+
+To view the MAC address table, run `show mac address-table`:
+
+```bash
+SW1# show mac address-table
+          Mac Address Table
+-------------------------------------------
+  
+Vlan    Mac Address       Type        Ports
+----    -----------       --------    -----
+   1    5254.0017.7cd2    DYNAMIC     Gi0/0
+   1    d8bb.c1cc.ff01    DYNAMIC     Gi0/1
+   1    d8bb.c1cc.ff02    DYNAMIC     Gi0/2
+   1    d8bb.c1cc.ff03    DYNAMIC     Gi0/0
+   1    d8bb.c1cc.ff04    DYNAMIC     Gi0/0
+```
+
+To clear all dynamic MAC addresses, run `clear mac address-table dynamic`:
+
+```bash
+SW1# clear mac address-table dynamic
+SW1# show mac address-table                     
+          Mac Address Table
+-------------------------------------------
+  
+Vlan    Mac Address       Type        Ports
+----    -----------       --------    -----
+```
+
+You can also remove a specific address, or all addresses learned on a specific port:
+
+| Command                                                      | Description                                              |
+| :----------------------------------------------------------- | :------------------------------------------------------- |
+| `clear mac address-table dynamic`                            | Clears all dynamic MAC addresses                         |
+| `clear mac address-table dynamic address` *mac-address*      | Clears a specific dynamic MAC address                    |
+| `clear mac address-table dynamic interface` *interface-name* | Clears all dynamic MAC addresses learned on an interface |
+
+### Address Resolution Protocol (ARP)
+
+ARP lets a host learn the MAC address of another host in the LAN. ARP uses two messages:
+
+| Message     | Purpose                                         |
+| :---------- | :---------------------------------------------- |
+| ARP request | Asks another host what its MAC address is       |
+| ARP reply   | Informs another host of this host's MAC address |
+
+- The ARP request is sent in a **broadcast** frame, not a unicast frame.
+- The ARP reply is unicast.
+- The sender specifies which host's MAC address it wants by including that host's IP address in the ARP request.
+- ARP maps a known Layer 3 address (IP address) to an unknown Layer 2 address (MAC address). ARP can be thought of as the bridge between Layers 2 and 3 of the TCP/IP model.
+- A host stores learned MAC addresses in its **ARP table**, a list of IP addresses and their associated MAC addresses.
+- A **broadcast domain** is a group of devices that receive a broadcast frame sent by any member of the group.
+
+#### ARP request and reply
+
+1. PC1 sends an ARP request addressed to the broadcast MAC address (`ffff.ffff.ffff`).
+2. SW1 floods the frame. PC2 sees the ARP request isn't for its own IP address, so it drops the message.
+3. SW2 floods the frame. PC4 sees the ARP request isn't for its own IP address, so it drops the message. PC3 sees the ARP request is for its own IP address.
+4. PC3 sends an ARP reply to PC1.
+5. SW2 forwards the ARP reply out of its G0/0 port.
+6. SW1 forwards the ARP reply out of its G0/1 port. PC1 now knows PC3's MAC address, so it can send the original message to PC3.
+
+After the ARP request-reply exchange, SW1 and SW2 have already learned the MAC addresses of PC1 and PC3. When PC1 sends its original message to PC3, the switches don't flood it. They forward it out of the appropriate port, because it's a known unicast message.
+
+#### Message types
+
+| Type      | Delivery                                 |
+| :-------- | :--------------------------------------- |
+| Unicast   | One-to-one                               |
+| Broadcast | One-to-all                               |
+| Multicast | One-to-multiple, but not necessarily all |
+
+### Ping
+
+**Ping** is a software utility that tests the reachability of hosts over a network.
+
+- Ping is a component of the Internet Control Message Protocol (ICMP).
+- Ping uses two messages: an **ICMP echo request** and an **ICMP echo reply**. Unlike ARP, both messages are unicast.
+- Ping can also measure the round-trip time (RTT) between two hosts. RTT is the time it takes a message to travel from one host to another and back.
+- **Destination IP address:** How a host knows the IP address of the host it wants to send a message to depends on the situation. Two possibilities:
+  - The **Domain Name System (DNS)** converts hostnames, such as `manning.com`, into IP addresses.
+  - The user of the device manually specifies the IP address, such as when using ping to test connectivity.
+
+```bash
+PC1# ping 10.0.0.12
+Type escape sequence to abort.
+Sending 5, 100-byte ICMP Echos to 10.0.0.12, timeout is 2 seconds:
+!!!!!
+Success rate is 100 percent (5/5), round-trip min/avg/max = 3/3/4 ms
+```
+
+The five exclamation marks (`!!!!!`) in the output indicate successful pings. Each one is an ICMP echo request that received an ICMP echo reply.
+
+
+## IPv4 addressing
+
+- Routers use information in the Layer 3 header to make forwarding decisions.
+- IPv4 is the foundation of modern networks such as the internet. RFC 791, titled "Internet Protocol," officially defines IPv4.
+
+### IPv4 header
+
+The IPv4 header length is variable because the Options field is optional and variable in size:
+
+| Options field         | Header length |
+| :-------------------- | :------------ |
+| Not present           | 20 bytes      |
+| Maximum size (40 bytes) | 60 bytes    |
+
+The 20-byte length runs from the first bit of the Version field to the last bit of the Destination Address field.
+
+#### Version field
+
+The Version field indicates which version of IP the packet uses:
+
+| Value             | Version |
+| :---------------- | :------ |
+| `0b0100` (`0d4`)  | IPv4    |
+| `0b0110` (`0d6`)  | IPv6    |
+
+#### IHL field
+
+- The **Internet Header Length (IHL)** field is the second field in the header. It's 4 bits and indicates the length of the IPv4 header.
+- The field is necessary because the header length varies. The Options field may or may not be present, and its own length varies.
+- Any value greater than 5 indicates that the Options field is present.
+- The maximum value is 15, which indicates a 60-byte header, the maximum IPv4 header length.
+
+#### DSCP and ECN fields
+
+| Field                                     | Length |
+| :---------------------------------------- | :----- |
+| Differentiated Services Code Point (DSCP) | 6 bits |
+| Explicit Congestion Notification (ECN)    | 2 bits |
+
+These fields are used for **Quality of Service (QoS)**, a network feature that prioritizes specific types of network traffic over other types.
+
+#### Total Length field
+
+The Total Length field indicates the total length of the packet: the IPv4 header and its payload.
+
+| Field        | Measures                    | Unit                 |
+| :----------- | :-------------------------- | :------------------- |
+| IHL          | IPv4 header only            | 4-byte increments    |
+| Total Length | IPv4 header and payload     | Bytes                |
+
+#### Identification, Flags, and Fragment Offset fields
+
+The Identification, Flags, and Fragment Offset fields total 32 bits. Together, they support **fragmentation**: breaking a packet into multiple smaller packets called **fragments**.
+
+- IPv4 uses the **maximum transmission unit (MTU)** to indicate the maximum size a packet should be. Any packet larger than the MTU is fragmented.
+- The final destination host of the packet reassembles the fragments to restore the original packet.
+- The typical MTU is 1,500 bytes. Fragmentation can happen when:
+  - A router in the packet's path to the destination has a lower MTU. The router fragments the packet.
+  - A host sends packets larger than the standard 1,500-byte size. Packet sizes up to 9,000 bytes are sometimes used.
+
+##### Identification field
+
+Identifies which original packet a fragment belongs to.
+
+##### Flags field
+
+Controls and identifies fragments:
+
+| Bit | Name                 | Meaning                                                                                                                                                 |
+| :-- | :------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 0   | Reserved             | Its use isn't defined, so it's always set to 0.                                                                                                         |
+| 1   | Don't Fragment (DF)  | If set to 1, the packet shouldn't be fragmented. If the packet is larger than the MTU, it's discarded.                                                  |
+| 2   | More Fragments (MF)  | If set to 1, more fragments remain and this one isn't the last. The final fragment has a value of 0. An unfragmented packet always has a value of 0.   |
+
+##### Fragment Offset field
+
+- Indicates the position of the fragment within the original packet.
+- If there are multiple paths to a destination, different fragments might take different paths and arrive out of order. This is rare.
+
+#### TTL field
+
+- The **Time To Live (TTL)** field is 8 bits.
+- When a host sends a packet, it sets an initial value in this field. A common value is 64.
+- Each router that forwards the packet decreases the value by 1.
+- If the value reaches 0, the router drops the packet.
+- TTL prevents packets from looping around the network infinitely. A **loop** is when a message travels around the network without being able to find its destination.
+
+#### Protocol field
+
+Indicates what kind of message is encapsulated in the packet:
+
+| Value | Protocol                          |
+| :---- | :-------------------------------- |
+| 1     | ICMP                              |
+| 6     | Transmission Control Protocol (TCP) |
+| 17    | User Datagram Protocol (UDP)      |
+| 89    | Open Shortest Path First (OSPF)   |
+
+#### Header Checksum field
+
+Checks for errors in the IPv4 header:
+
+| Field                     | Checks           |
+| :------------------------ | :--------------- |
+| IPv4 Header Checksum      | IPv4 header only |
+| Ethernet FCS              | Entire frame     |
+
+#### Source Address and Destination Address fields
+
+| Field               | Contains                                    |
+| :------------------ | :------------------------------------------ |
+| Source Address      | IP address of the host sending the packet   |
+| Destination Address | IP address of the intended recipient        |
+
+#### Options field
+
+The Options field is rarely used.

@@ -532,10 +532,10 @@ The five exclamation marks (`!!!!!`) in the output indicate successful pings. Ea
 
 The IPv4 header length is variable because the Options field is optional and variable in size:
 
-| Options field         | Header length |
-| :-------------------- | :------------ |
-| Not present           | 20 bytes      |
-| Maximum size (40 bytes) | 60 bytes    |
+| Options field           | Header length |
+| :---------------------- | :------------ |
+| Not present             | 20 bytes      |
+| Maximum size (40 bytes) | 60 bytes      |
 
 The 20-byte length runs from the first bit of the Version field to the last bit of the Destination Address field.
 
@@ -564,10 +564,10 @@ The following diagram shows the layout of the IPv4 header fields:
 
 The Version field indicates which version of IP the packet uses:
 
-| Value             | Version |
-| :---------------- | :------ |
-| `0b0100` (`0d4`)  | IPv4    |
-| `0b0110` (`0d6`)  | IPv6    |
+| Value            | Version |
+| :--------------- | :------ |
+| `0b0100` (`0d4`) | IPv4    |
+| `0b0110` (`0d6`) | IPv6    |
 
 #### IHL field
 
@@ -589,10 +589,10 @@ These fields are used for **Quality of Service (QoS)**, a network feature that p
 
 The Total Length field indicates the total length of the packet: the IPv4 header and its payload.
 
-| Field        | Measures                    | Unit                 |
-| :----------- | :-------------------------- | :------------------- |
-| IHL          | IPv4 header only            | 4-byte increments    |
-| Total Length | IPv4 header and payload     | Bytes                |
+| Field        | Measures                | Unit              |
+| :----------- | :---------------------- | :---------------- |
+| IHL          | IPv4 header only        | 4-byte increments |
+| Total Length | IPv4 header and payload | Bytes             |
 
 #### Identification, Flags, and Fragment Offset fields
 
@@ -612,11 +612,11 @@ Identifies which original packet a fragment belongs to.
 
 Controls and identifies fragments:
 
-| Bit | Name                 | Meaning                                                                                                                                                 |
-| :-- | :------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| 0   | Reserved             | Its use isn't defined, so it's always set to 0.                                                                                                         |
-| 1   | Don't Fragment (DF)  | If set to 1, the packet shouldn't be fragmented. If the packet is larger than the MTU, it's discarded.                                                  |
-| 2   | More Fragments (MF)  | If set to 1, more fragments remain and this one isn't the last. The final fragment has a value of 0. An unfragmented packet always has a value of 0.   |
+| Bit  | Name                | Meaning                                                                                                                                              |
+| :--- | :------------------ | :--------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 0    | Reserved            | Its use isn't defined, so it's always set to 0.                                                                                                      |
+| 1    | Don't Fragment (DF) | If set to 1, the packet shouldn't be fragmented. If the packet is larger than the MTU, it's discarded.                                               |
+| 2    | More Fragments (MF) | If set to 1, more fragments remain and this one isn't the last. The final fragment has a value of 0. An unfragmented packet always has a value of 0. |
 
 ##### Fragment Offset field
 
@@ -635,29 +635,581 @@ Controls and identifies fragments:
 
 Indicates what kind of message is encapsulated in the packet:
 
-| Value | Protocol                          |
-| :---- | :-------------------------------- |
-| 1     | ICMP                              |
+| Value | Protocol                            |
+| :---- | :---------------------------------- |
+| 1     | ICMP                                |
 | 6     | Transmission Control Protocol (TCP) |
-| 17    | User Datagram Protocol (UDP)      |
-| 89    | Open Shortest Path First (OSPF)   |
+| 17    | User Datagram Protocol (UDP)        |
+| 89    | Open Shortest Path First (OSPF)     |
 
 #### Header Checksum field
 
 Checks for errors in the IPv4 header:
 
-| Field                     | Checks           |
-| :------------------------ | :--------------- |
-| IPv4 Header Checksum      | IPv4 header only |
-| Ethernet FCS              | Entire frame     |
+| Field                | Checks           |
+| :------------------- | :--------------- |
+| IPv4 Header Checksum | IPv4 header only |
+| Ethernet FCS         | Entire frame     |
 
 #### Source Address and Destination Address fields
 
-| Field               | Contains                                    |
-| :------------------ | :------------------------------------------ |
-| Source Address      | IP address of the host sending the packet   |
-| Destination Address | IP address of the intended recipient        |
+| Field               | Contains                                  |
+| :------------------ | :---------------------------------------- |
+| Source Address      | IP address of the host sending the packet |
+| Destination Address | IP address of the intended recipient      |
 
 #### Options field
 
 The Options field is rarely used.
+
+
+### IPv4 address format
+
+- Routers are **Layer 3 devices**. They make forwarding decisions based on the destination IP address in the Layer 3 header.
+- Switches don't have IP addresses because they aren't Layer 3 aware.
+- For routers, the term **interface** is typically used instead of port.
+
+**Dotted decimal notation** writes an IPv4 address in two steps:
+
+1. Split the 32-bit address into four groups of 8 bits called **octets**, separated by periods.
+2. Convert each octet to decimal.
+
+An IPv4 address has a network portion and a host portion. The prefix length indicates the size of the network portion in bits. The remaining bits are the host portion.
+
+#### Prefix length
+
+The **prefix length** indicates the size of the network portion in the format /X, where X is the number of bits in the network portion.
+
+#### Netmasks
+
+A **netmask** is often called a **subnet mask**. Each netmask bit maps to the bit in the same position of the IP address:
+
+| Netmask bit | IP address bit belongs to |
+| :---------- | :------------------------ |
+| 1           | Network portion           |
+| 0           | Host portion              |
+
+#### Configure IPv4 addresses on a router
+
+End hosts like PCs usually receive their IP addresses automatically using **Dynamic Host Configuration Protocol (DHCP)**. On a router, you configure them manually:
+
+1. From user EXEC mode, move to privileged EXEC mode and then global configuration mode.
+2. Access interface configuration mode for G0/0, configure an IP address and netmask, and enable the interface.
+3. Access interface configuration mode for G0/1, configure an IP address and netmask, and enable the interface.
+
+```bash
+R1> enable
+R1# configure terminal
+R1(config)# interface g0/0
+R1(config-if)# ip address 192.168.1.1 255.255.255.0 
+R1(config-if)# no shutdown
+R1(config-if)# interface g0/1
+R1(config-if)# ip address 192.168.2.1 255.255.255.0
+R1(config-if)# no shutdown
+```
+
+##### Verify the default state
+
+Before you configure a device, confirm its current state:
+
+```bash
+R1# show ip interface brief
+Interface           IP-Address   OK? Method Status                 Protocol
+GigabitEthernet0/0  unassigned   YES unset  administratively down  down
+GigabitEthernet0/1  unassigned   YES unset  administratively down  down
+GigabitEthernet0/2  unassigned   YES unset  administratively down  down
+GigabitEthernet0/3  unassigned   YES unset  administratively down  down
+```
+
+The default state is **administratively down**. Cisco router interfaces are disabled by default, and you must enable them manually.
+
+##### Configure the interface
+
+| Command                           | Mode                    | Description                            |
+| :-------------------------------- | :---------------------- | :------------------------------------- |
+| `interface` *interface-name*      | Global configuration    | Enters interface configuration mode.   |
+| `ip address` *ip-address netmask* | Interface configuration | Configures the interface's IP address. |
+| `no shutdown`                     | Interface configuration | Enables the interface.                 |
+
+1. Enter interface configuration mode:
+
+   ```bash
+   R1# configure terminal
+   Enter configuration commands, one per line.  End with CNTL/Z.
+   R1(config)# interface gigabitethernet0/0
+   R1(config-if)#
+   ```
+
+2. Configure the IP address:
+
+   ```bash
+   R1(config-if)# ip address 192.168.1.1 255.255.255.0
+   ```
+
+   G0/0 still isn't ready to forward traffic because the interface is still disabled.
+
+3. Enable the interface:
+
+   ```bash
+   R1(config-if)# no shutdown
+   %LINK-3-UPDOWN: Interface GigabitEthernet0/0,
+    changed state to up
+   %LINEPROTO-5-UPDOWN: Line protocol on Interface
+    GigabitEthernet0/0, changed state to up
+   ```
+
+Router interfaces are disabled by default because they have the `shutdown` command applied. Putting `no` in front of a command removes it from the configuration, so `no shutdown` removes `shutdown` and enables the interface.
+
+##### Verify the configuration
+
+```bash
+R1# show ip interface brief
+Interface           IP-Address   OK? Method Status                 Protocol
+GigabitEthernet0/0  192.168.1.1  YES manual up                     up
+GigabitEthernet0/1  192.168.2.1  YES manual up                     up
+GigabitEthernet0/2  unassigned   YES unset  administratively down  down    
+GigabitEthernet0/3  unassigned   YES unset  administratively down  down
+```
+
+To double-check the netmask, use `show ip interface` [*interface-name*]:
+
+| Command                  | Output                          |
+| :----------------------- | :------------------------------ |
+| `show ip interface`      | Information for all interfaces. |
+| `show ip interface g0/0` | Information for G0/0 only.      |
+
+Save the configuration with `write`, `write memory`, or `copy running-config startup-config`.
+
+##### End-to-end and hop-to-hop delivery
+
+- Layer 3 provides end-to-end delivery.
+- Layer 2 provides hop-to-hop delivery.
+
+Before PC1 can encapsulate the packet in a frame, it must use ARP to learn R1 G0/0's MAC address.
+
+### Attributes of an IPv4 network
+
+#### Network address
+
+The **network address** is the first address of any network. It identifies the network and can't be assigned to a host.
+
+#### Broadcast address
+
+The **broadcast address** is the last address of any network. Like the network address, it can't be assigned to a host.
+
+- You can use it to address a message to all hosts in the local network.
+- An IPv4 address is a broadcast address if all bits of its host portion are set to 1.
+
+| Broadcast address                                | Who uses it                                                                                              |
+| :----------------------------------------------- | :------------------------------------------------------------------------------------------------------- |
+| 255.255.255.255                                  | Hosts usually use this specially reserved address to send a message to all devices on the local network. |
+| Network broadcast (for example, 192.168.100.255) | Hosts in other networks can use it to send a message to all hosts in that network (192.168.100.0/24).    |
+
+#### Maximum number of hosts
+
+| Value                   | Formula           | /24 example             |
+| :---------------------- | :---------------- | :---------------------- |
+| Total IP addresses      | 2<sup>y</sup>     | 2<sup>8</sup> = 256     |
+| Maximum number of hosts | 2<sup>y</sup> − 2 | 2<sup>8</sup> − 2 = 254 |
+
+- *y* is the number of host bits. A /24 prefix length has eight host bits.
+- Subtract 2 because the network and broadcast addresses can't be assigned to hosts.
+
+The following are the maximum number of hosts in networks with /8, /16, and /24 prefix lengths:
+
+| Prefix length | Host bits | Total IP addresses | Maximum hosts |
+| :------------ | :-------- | :----------------- | :------------ |
+| /8            | 24        | 16,777,216         | 16,777,214    |
+| /16           | 16        | 65,536             | 65,534        |
+| /24           | 8         | 256                | 254           |
+
+#### First and last usable address
+
+| Address              | Definition                                                                                        | How to find it                                                                                      |
+| :------------------- | :------------------------------------------------------------------------------------------------ | :-------------------------------------------------------------------------------------------------- |
+| First usable address | The first IP address you can assign to a host. It's the first address after the network address.  | Change the host portion octets to 0 (the network address), then add 1 to the last octet.            |
+| Last usable address  | The last IP address you can assign to a host. It's the last address before the broadcast address. | Change the host portion octets to 255 (the broadcast address), then subtract 1 from the last octet. |
+
+The first usable address is often assigned to the network's router.
+
+### IPv4 address classes
+
+| Class | First octet bit pattern | First octet decimal range | Prefix length       |
+| :---- | :---------------------- | :------------------------ | :------------------ |
+| A     | 0xxxxxxx                | 0–127                     | /8 (255.0.0.0)      |
+| B     | 10xxxxxx                | 128–191                   | /16 (255.255.0.0)   |
+| C     | 110xxxxx                | 192–223                   | /24 (255.255.255.0) |
+| D     | 1110xxxx                | 224–239                   | None                |
+| E     | 1111xxxx                | 240–255                   | None                |
+
+- Networks that follow the class A, B, and C rules are called **classful networks**.
+- A smaller network portion means fewer networks with more hosts in each network.
+- A larger network portion means more networks with fewer hosts in each network.
+- The class system is now obsolete. **Classless networking** replaced it. In classless networking, prefix lengths aren't restricted by class.
+
+#### Reserved class A ranges
+
+| Range       | Purpose                                                      |
+| :---------- | :----------------------------------------------------------- |
+| 0.0.0.0/8   | Reserved. Any IP address with the first octet 0 is reserved. |
+| 127.0.0.0/8 | Reserved for **loopback addresses**.                         |
+
+A message sent to any loopback address (for example, `ping 127.0.0.1`) loops back to the local host, the device you're working on, without crossing the network. Use it to test the networking software on the local device.
+
+
+## Router and switch interfaces
+
+### Configuring interfaces
+
+This section covers how to configure three aspects of an interface: description, speed, and duplex.
+
+In the example topology, R1 G0/1 connects to SW1 G0/1. PC1 connects to SW1 F0/1, and PC2 connects to SW1 F0/2.
+
+1. On R1, configure G0/1, the interface connected to SW1. Set the IP address and netmask, the description `## to SW1 ##`, a speed of 1000, and full duplex. Then enable the interface with `no shutdown`:
+
+   ```bash
+   R1(config)# interface g0/1
+   R1(config-if)# ip address 192.168.1.1 255.255.255.0
+   R1(config-if)# description ## to SW1 ##
+   R1(config-if)# speed 1000
+   R1(config-if)# duplex full
+   R1(config-if)# no shutdown
+   ```
+
+2. On SW1, configure G0/1, the interface connected to R1. Set the description `## to R1 ##`, a speed of 1000, and full duplex:
+
+   ```bash
+   SW1(config)# interface g0/1
+   SW1(config-if)# description ## to R1 ##
+   SW1(config-if)# speed 1000
+   SW1(config-if)# duplex full
+   ```
+
+3. On SW1, use `interface range` to configure F0/1 and F0/2, the interfaces connected to PC1 and PC2. Set the description `## end users ##`, and set speed and duplex to `auto`:
+
+   ```bash
+   SW1(config-if)# interface range f0/1-2
+   SW1(config-if)# description ## end users ##
+   SW1(config-if)# speed auto
+   SW1(config-if)# duplex auto
+   ```
+
+4. On SW1, use `interface range` to configure the unused interfaces F0/3 through F0/8 and G0/2. Set the description `## not in use ##`, and disable the interfaces with `shutdown`:
+
+   ```bash
+   SW1(config-if)# interface range f0/3-8, g0/2
+   SW1(config-if)# description ## not in use ##
+   SW1(config-if)# shutdown
+   ```
+
+
+R1's G0/1 interface has an IP address, but SW1's interfaces don't:
+
+- Switch interfaces don't need IP addresses to forward frames within a LAN.
+- Switches aren't Layer 3 aware. They use only Layer 2 information (MAC addresses) to decide how to forward frames.
+
+Switch interfaces are enabled by default so that switches can operate in a plug-and-play manner. A switch designed for plug-and-play use is called an **unmanaged switch**.
+
+### Interface descriptions
+
+An **interface description** commonly indicates what device is connected to the interface. Descriptions that you configure consistently and update as needed make it much easier to identify each interface's purpose when you view the configuration later.
+
+| Command                                     | Description                                                                                                       |
+| :------------------------------------------ | :---------------------------------------------------------------------------------------------------------------- |
+| `description` *description*                 | Configures the interface description. *description* is a text string, such as "connected to R1's G0/1 interface." |
+| `interface range` *type slot*/*port*-*port* | Configures a range of interfaces.                                                                                 |
+
+| `interface range` parameter | Meaning                                             |
+| :-------------------------- | :-------------------------------------------------- |
+| *type*                      | Ethernet, FastEthernet, GigabitEthernet, and so on. |
+| *slot*                      | The first number in the interface name.             |
+| *port*                      | The second number in the interface name.            |
+
+To include interfaces of different types in the same `interface range` command, separate the interface names with a comma.
+
+```bash
+SW1# configure terminal
+SW1(config)# interface range f0/1-2
+SW1(config-if)# description ## end users ##
+```
+
+The two hash symbols (`##`) at the beginning and end of the description aren't required. They make descriptions stand out in the CLI.
+
+#### View interface descriptions
+
+Use `show interfaces description` on a router or switch:
+
+```bash
+SW1# show interfaces description
+Interface   Status         Protocol   Description
+Fa0/1       up             up         ## end users ##
+Fa0/2       up             up         ## end users ##
+Fa0/3       down           down       ## not in use ##
+. . .    
+Gi0/1       up             up         ## to R1 ##
+Gi0/2       down           down       ## not in use ##
+```
+
+You can also use `show interfaces status`:
+
+```bash
+SW1# show interfaces status
+Port      Name               Status       Vlan       Duplex  Speed Type
+Fa0/1     ## end users ##    connected    1          a-full  a-100 10/100BaseTX
+Fa0/2     ## end users ##    connected    1          a-full  a-100 10/100BaseTX
+Fa0/3     ## not in use ##   notconnect   1            auto   auto 10/100BaseTX
+. . .
+Gi0/1     ## to R1 ##        connected    1          a-full a-1000 10/100/1000BaseTX
+Gi0/2     ## not in use ##   notconnect   1            auto   auto 10/100/1000BaseTX
+```
+
+### Interface speed
+
+| Interface type  | Supported speeds                                    | Also called           |
+| :-------------- | :-------------------------------------------------- | :-------------------- |
+| FastEthernet    | 10 and 100 Mbps                                     | 10/100 interface      |
+| GigabitEthernet | 10, 100, and 1,000 Mbps (1 Gbps) on most interfaces | 10/100/1000 interface |
+
+With **autonegotiation**, the connected devices communicate with each other to determine the speed to operate at.
+
+To configure an interface's speed manually, use `speed` {*speed* | `auto`}. Specify *speed* in megabits per second. You must either specify a speed value or use `auto` to enable autonegotiation.
+
+```bash
+SW1(config)# interface g0/1
+SW1(config-if)# speed ?
+  10    Force 10 Mbps operation
+  100   Force 100 Mbps operation
+  1000  Force 1000 Mbps operation
+  auto  Enable AUTO speed configuration    
+SW1(config-if)# speed 1000
+SW1(config-if)# do show running-config interface g0/1
+. . .
+interface GigabitEthernet0/1    
+ description ## to R1 ##    
+ speed 1000    
+End
+```
+
+Use `show running-config interface` *interface-name* to view the active configuration for a specific interface.
+
+In the following output, `speed auto` doesn't appear because it's the default setting. Many default settings are hidden to avoid clutter in a device's configuration files.
+
+```bash
+SW1(config)# interface range f0/1-2
+SW1(config-if)# speed auto
+SW1(config-if)# do show running-config interface f0/1
+. . .
+interface FastEthernet0/1
+ description ## end users ##
+End
+```
+
+### Interface duplex
+
+| Mode            | Behavior                                                           | Example                                         |
+| :-------------- | :----------------------------------------------------------------- | :---------------------------------------------- |
+| **Half duplex** | The interface can send and receive data, but not at the same time. | IEEE 802.11 wireless LAN (Wi-Fi)                |
+| **Full duplex** | The interface can send and receive data at the same time.          | Wired Ethernet LAN using a switch (or switches) |
+
+The opposite of duplex is **simplex**, which is one-way communication.
+
+#### Ethernet hubs
+
+- Hubs aren't Layer 2 aware. When a hub receives bits on one port, it repeats those bits out of all other ports.
+- Hubs are considered **Layer 1 devices**. They receive and repeat electrical signals but don't examine those signals to make forwarding decisions.
+
+#### Collision domains
+
+A **collision** occurs when two messages are sent simultaneously over a shared medium and collide, resulting in an incoherent signal. A **collision domain** is a network segment in which simultaneous transmissions result in collisions.
+
+Collisions shouldn't occur in a switched LAN:
+
+- Switches store frames in memory and forward (or flood) them one after the other, avoiding collisions.
+- Connections to a switch are **Ethernet point-to-point connections**: connections between only two devices, the switch and its connected device.
+- Devices connected to a switch don't share the medium, so they don't have to wait their turn to transmit.
+
+#### Carrier-sense multiple access with collision detection
+
+Devices on a shared medium (a LAN using a hub) communicate using **carrier-sense multiple access with collision detection (CSMA/CD)**.
+
+| Term                | Meaning                                                                                                                        |
+| :------------------ | :----------------------------------------------------------------------------------------------------------------------------- |
+| Carrier-sense       | Devices try to sense whether the medium is in use (by "listening" for electrical signals) before transmitting.                 |
+| Multiple access     | Multiple devices access a shared medium.                                                                                       |
+| Collision detection | If a collision occurs, devices connected to the medium detect it (and send a signal to notify other devices of the collision). |
+
+Interfaces operating in half-duplex mode must use CSMA/CD:
+
+1. Before sending a frame, devices wait until they detect that other devices aren't sending.
+2. When a collision occurs, devices that detect it send a **jamming signal** to inform the other devices.
+3. Each device waits a random period of time before sending frames again.
+4. The process repeats.
+
+#### Configure interface duplex
+
+To configure an interface's duplex, use `duplex` {`auto` | `full` | `half`}. In modern wired networks, you can expect all devices to operate in full duplex.
+
+1. Confirm the current status:
+
+   ```bash
+   SW1# show interfaces status
+   Port      Name             Status      Vlan  Duplex  Speed Type
+   Fa0/1     ## end users ##  connected   1     a-full  a-100 10/100BaseTX
+   Fa0/2     ## end users ##  connected   1     a-full  a-100 10/100BaseTX
+   Fa0/3     ## not in use ## notconnect  1     auto    auto 10/100BaseTX
+   . . .
+   Gi0/1     ## to R1 ##      connected   1     a-full   1000 10/100/1000BaseTX
+   Gi0/2     ## not in use ## notconnect  1     auto    auto 10/100/1000BaseTX
+   ```
+
+2. Configure the duplex and verify:
+
+   ```bash
+   SW1# configure terminal
+   SW1(config)# interface g0/1
+   SW1(config-if)# duplex full
+   SW1(config-if)# interface range f0/1-2
+   SW1(config-if)# duplex auto
+   SW1(config-if)# do show interfaces status
+   Port      Name             Status     Vlan  Duplex  Speed Type
+   Fa0/1     ## end users ##  connected  1     a-full  a-100 10/100BaseTX
+   Fa0/2     ## end users ##  connected  1     a-full  a-100 10/100BaseTX
+   Fa0/3     ## not in use ## notconnect 1     auto   auto 10/100BaseTX
+   . . .
+   Gi0/1     ## to R1 ##      connected  1     full   1000 10/100/1000BaseTX
+   Gi0/2     ## not in use ## notconnect 1     auto   auto 10/100/1000BaseTX
+   ```
+
+### Autonegotiation
+
+In the **autonegotiation** process, each device advertises its capabilities to its neighbor. The two devices agree on the best operational mode that both support.
+
+| Connection                                                            | Recommendation                                                |
+| :-------------------------------------------------------------------- | :------------------------------------------------------------ |
+| Between network infrastructure devices (such as routers and switches) | Some engineers prefer to configure speed and duplex manually. |
+| To end devices such as PCs                                            | Leave autonegotiation enabled.                                |
+
+Greater speeds are prioritized over lesser speeds, and full duplex is prioritized over half duplex. For a 10/100/1000 interface:
+
+| Priority | Operational mode        |
+| :------- | :---------------------- |
+| 1        | 1,000 Mbps, full duplex |
+| 2        | 1,000 Mbps, half duplex |
+| 3        | 100 Mbps, full duplex   |
+| 4        | 100 Mbps, half duplex   |
+| 5        | 10 Mbps, full duplex    |
+| 6        | 10 Mbps, half duplex    |
+
+When autonegotiation runs between a router and a switch, each device advertises its capabilities and chooses the best mode both devices share (for example, 100 Mbps, full duplex).
+
+#### Autonegotiation on one end only
+
+If speed and duplex are configured manually on one end of the connection and autonegotiation is enabled on the other end, the device with autonegotiation enabled behaves as follows:
+
+| Setting | Behavior                                                                                                                                            |
+| :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Speed   | Tries to sense the speed of the other device. If that fails, it uses the slowest supported speed (for example, 10 Mbps on a 10/100/1000 interface). |
+| Duplex  | Uses half duplex if the speed is 10 or 100 Mbps. Uses full duplex if the speed is 1,000 Mbps or greater.                                            |
+
+In the following example, R1 G0/1 connects to SW1 F0/1. R1 uses autonegotiation, and SW1 is configured manually:
+
+```bash
+R1(config)# interface g0/1
+R1(config-if)# speed auto
+R1(config-if)# duplex auto
+```
+
+```bash
+SW1(config)# interface f0/1
+SW1(config-if)# speed 100
+SW1(config-if)# duplex full
+```
+
+| Device   | Speed        | Duplex   |
+| :------- | :----------- | :------- |
+| R1 G0/1  | 100 (sensed) | **Half** |
+| SW1 F0/1 | 100          | **Full** |
+
+R1 senses SW1's speed of 100 Mbps. Because the speed is 100 Mbps, R1 uses half duplex, but SW1 uses full duplex. The result is a duplex mismatch.
+
+For how speed and duplex mismatches affect the interfaces, see [Speed mismatches](#speed-mismatches) and [Duplex mismatches](#duplex-mismatches).
+
+### Interface errors
+
+When a device encounters errors while sending or receiving messages on an interface, it increments the relevant counters. The following `show interfaces f0/1` output shows these counters:
+
+```bash
+SW1# show interfaces f0/1
+. . .
+     164850273 packets input, 138587749740 bytes, 0 no buffer
+     Received 606 broadcasts (0 multicasts)
+     0 runts, 0 giants, 0 throttles
+     0 input errors, 0 CRC, 0 frame, 0 overrun, 0 ignored
+     0 watchdog, 0 multicast, 0 pause input
+     0 input packets with dribble condition detected
+     165209751 packets output, 180164587250 bytes, 0 underruns
+     0 output errors, 0 collisions, 0 interface resets
+     0 unknown protocol drops
+     0 babbles, 0 late collision, 0 deferred
+     0 lost carrier, 0 no carrier, 0 pause output
+     0 output buffer failures, 0 output buffers swapped out
+```
+
+#### Received frame counters
+
+| Counter      | Counts                                                                                     | Cause                                                                                   |
+| :----------- | :----------------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------------- |
+| Runts        | Frames received that are smaller than the minimum frame size of 64 bytes.                   | Can be caused by collisions.                                                            |
+| Giants       | Frames received with a payload greater than the interface's maximum transmission unit (MTU), typically 1,500 bytes. | Usually a sign of misconfiguration: devices in the network aren't using consistent MTU values. |
+| Input errors | All errors for received frames.                                                            |                                                                                         |
+| CRC          | Frames that failed the Frame Check Sequence (FCS) check in the Ethernet trailer. CRC stands for Cyclic Redundancy Check. | Could be the result of electromagnetic interference (EMI) causing data corruption.      |
+
+- A **runt** is a frame received that's smaller than the **minimum frame size**, which is 64 bytes.
+- When a device wants to send a frame smaller than 64 bytes, it's supposed to add **padding** (bytes of all 0s) to the end of the message to make it 64 bytes.
+
+#### Transmitted frame counters
+
+| Counter        | Counts                                                                   | What it means                                                                                                                     |
+| :------------- | :----------------------------------------------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------- |
+| Output errors  | All errors for transmitted frames.                                       |                                                                                                                                   |
+| Collisions     | All collisions that happen while the device transmits a frame.           | Expected if the device connects to a hub. In a switched LAN, this counter should remain at 0.                                     |
+| Late collision | Collisions that happen after the 64th byte of the frame is transmitted.  | Often indicates that one device isn't using CSMA/CD to check the medium before transmitting (probably due to a duplex mismatch). |
+
+The late collision counter is significant because of CSMA/CD timing: collisions should occur only within the first 64 bytes of a frame's transmission.
+
+#### Speed mismatches
+
+A speed mismatch puts both interfaces in a **down/down** state. Down/down refers to the Status and Protocol columns in the `show ip interface brief` output:
+
+```bash
+R1# show ip interface brief
+Interface           IP-Address   OK? Method Status   Protocol
+GigabitEthernet0/1  192.168.1.1  YES NVRAM  down     down
+. . .     
+```
+
+```bash
+SW1# show ip interface brief
+Interface           IP-Address   OK? Method Status    Protocol
+FastEthernet0/1     Unassigned   YES NVRAM  down      down
+. . .
+```
+
+{{< admonition "Remember" tip >}}
+The result of a speed mismatch is that both interfaces are in a down/down state.
+{{< /admonition >}}
+
+#### Duplex mismatches
+
+Even with a duplex mismatch, both interfaces are operational. They're in an **up/up** state and can forward network traffic.
+
+A duplex mismatch can occur when:
+
+- Each end of the connection is configured with a different duplex setting (`duplex full` and `duplex half`).
+- One end uses autonegotiation and the other doesn't.
+
+With a duplex mismatch:
+
+- The half-duplex device must wait for the other device to stop transmitting before it can transmit any data.
+- If the full-duplex device transmits a frame while the half-duplex device is also transmitting, the half-duplex device interprets it as a collision.
+- When the half-duplex device thinks it detected a collision, it sends a jamming signal (as part of the CSMA/CD process). The jamming signal destroys any frames that either device is currently sending.

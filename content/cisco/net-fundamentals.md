@@ -432,7 +432,7 @@ A switch is **transparent** to its connected hosts:
 
 To view the MAC address table, run `show mac address-table`:
 
-```bash
+```text
 SW1# show mac address-table
           Mac Address Table
 -------------------------------------------
@@ -448,7 +448,7 @@ Vlan    Mac Address       Type        Ports
 
 To clear all dynamic MAC addresses, run `clear mac address-table dynamic`:
 
-```bash
+```text
 SW1# clear mac address-table dynamic
 SW1# show mac address-table                     
           Mac Address Table
@@ -512,7 +512,7 @@ After the ARP request-reply exchange, SW1 and SW2 have already learned the MAC a
   - The **Domain Name System (DNS)** converts hostnames, such as `manning.com`, into IP addresses.
   - The user of the device manually specifies the IP address, such as when using ping to test connectivity.
 
-```bash
+```text
 PC1# ping 10.0.0.12
 Type escape sequence to abort.
 Sending 5, 100-byte ICMP Echos to 10.0.0.12, timeout is 2 seconds:
@@ -697,7 +697,7 @@ End hosts like PCs usually receive their IP addresses automatically using **Dyna
 2. Access interface configuration mode for G0/0, configure an IP address and netmask, and enable the interface.
 3. Access interface configuration mode for G0/1, configure an IP address and netmask, and enable the interface.
 
-```bash
+```text
 R1> enable
 R1# configure terminal
 R1(config)# interface g0/0
@@ -712,7 +712,7 @@ R1(config-if)# no shutdown
 
 Before you configure a device, confirm its current state:
 
-```bash
+```text
 R1# show ip interface brief
 Interface           IP-Address   OK? Method Status                 Protocol
 GigabitEthernet0/0  unassigned   YES unset  administratively down  down
@@ -733,7 +733,7 @@ The default state is **administratively down**. Cisco router interfaces are disa
 
 1. Enter interface configuration mode:
 
-   ```bash
+   ```text
    R1# configure terminal
    Enter configuration commands, one per line.  End with CNTL/Z.
    R1(config)# interface gigabitethernet0/0
@@ -742,7 +742,7 @@ The default state is **administratively down**. Cisco router interfaces are disa
 
 2. Configure the IP address:
 
-   ```bash
+   ```text
    R1(config-if)# ip address 192.168.1.1 255.255.255.0
    ```
 
@@ -750,7 +750,7 @@ The default state is **administratively down**. Cisco router interfaces are disa
 
 3. Enable the interface:
 
-   ```bash
+   ```text
    R1(config-if)# no shutdown
    %LINK-3-UPDOWN: Interface GigabitEthernet0/0,
     changed state to up
@@ -762,7 +762,7 @@ Router interfaces are disabled by default because they have the `shutdown` comma
 
 ##### Verify the configuration
 
-```bash
+```text
 R1# show ip interface brief
 Interface           IP-Address   OK? Method Status                 Protocol
 GigabitEthernet0/0  192.168.1.1  YES manual up                     up
@@ -867,7 +867,7 @@ In the example topology, R1 G0/1 connects to SW1 G0/1. PC1 connects to SW1 F0/1,
 
 1. On R1, configure G0/1, the interface connected to SW1. Set the IP address and netmask, the description `## to SW1 ##`, a speed of 1000, and full duplex. Then enable the interface with `no shutdown`:
 
-   ```bash
+   ```text
    R1(config)# interface g0/1
    R1(config-if)# ip address 192.168.1.1 255.255.255.0
    R1(config-if)# description ## to SW1 ##
@@ -878,7 +878,7 @@ In the example topology, R1 G0/1 connects to SW1 G0/1. PC1 connects to SW1 F0/1,
 
 2. On SW1, configure G0/1, the interface connected to R1. Set the description `## to R1 ##`, a speed of 1000, and full duplex:
 
-   ```bash
+   ```text
    SW1(config)# interface g0/1
    SW1(config-if)# description ## to R1 ##
    SW1(config-if)# speed 1000
@@ -887,7 +887,7 @@ In the example topology, R1 G0/1 connects to SW1 G0/1. PC1 connects to SW1 F0/1,
 
 3. On SW1, use `interface range` to configure F0/1 and F0/2, the interfaces connected to PC1 and PC2. Set the description `## end users ##`, and set speed and duplex to `auto`:
 
-   ```bash
+   ```text
    SW1(config-if)# interface range f0/1-2
    SW1(config-if)# description ## end users ##
    SW1(config-if)# speed auto
@@ -896,7 +896,7 @@ In the example topology, R1 G0/1 connects to SW1 G0/1. PC1 connects to SW1 F0/1,
 
 4. On SW1, use `interface range` to configure the unused interfaces F0/3 through F0/8 and G0/2. Set the description `## not in use ##`, and disable the interfaces with `shutdown`:
 
-   ```bash
+   ```text
    SW1(config-if)# interface range f0/3-8, g0/2
    SW1(config-if)# description ## not in use ##
    SW1(config-if)# shutdown
@@ -927,7 +927,7 @@ An **interface description** commonly indicates what device is connected to the 
 
 To include interfaces of different types in the same `interface range` command, separate the interface names with a comma.
 
-```bash
+```text
 SW1# configure terminal
 SW1(config)# interface range f0/1-2
 SW1(config-if)# description ## end users ##
@@ -939,7 +939,7 @@ The two hash symbols (`##`) at the beginning and end of the description aren't r
 
 Use `show interfaces description` on a router or switch:
 
-```bash
+```text
 SW1# show interfaces description
 Interface   Status         Protocol   Description
 Fa0/1       up             up         ## end users ##
@@ -952,7 +952,7 @@ Gi0/2       down           down       ## not in use ##
 
 You can also use `show interfaces status`:
 
-```bash
+```text
 SW1# show interfaces status
 Port      Name               Status       Vlan       Duplex  Speed Type
 Fa0/1     ## end users ##    connected    1          a-full  a-100 10/100BaseTX
@@ -974,7 +974,7 @@ With **autonegotiation**, the connected devices communicate with each other to d
 
 To configure an interface's speed manually, use `speed` {*speed* | `auto`}. Specify *speed* in megabits per second. You must either specify a speed value or use `auto` to enable autonegotiation.
 
-```bash
+```text
 SW1(config)# interface g0/1
 SW1(config-if)# speed ?
   10    Force 10 Mbps operation
@@ -994,7 +994,7 @@ Use `show running-config interface` *interface-name* to view the active configur
 
 In the following output, `speed auto` doesn't appear because it's the default setting. Many default settings are hidden to avoid clutter in a device's configuration files.
 
-```bash
+```text
 SW1(config)# interface range f0/1-2
 SW1(config-if)# speed auto
 SW1(config-if)# do show running-config interface f0/1
@@ -1051,7 +1051,7 @@ To configure an interface's duplex, use `duplex` {`auto` | `full` | `half`}. In 
 
 1. Confirm the current status:
 
-   ```bash
+   ```text
    SW1# show interfaces status
    Port      Name             Status      Vlan  Duplex  Speed Type
    Fa0/1     ## end users ##  connected   1     a-full  a-100 10/100BaseTX
@@ -1064,7 +1064,7 @@ To configure an interface's duplex, use `duplex` {`auto` | `full` | `half`}. In 
 
 2. Configure the duplex and verify:
 
-   ```bash
+   ```text
    SW1# configure terminal
    SW1(config)# interface g0/1
    SW1(config-if)# duplex full
@@ -1113,13 +1113,13 @@ If speed and duplex are configured manually on one end of the connection and aut
 
 In the following example, R1 G0/1 connects to SW1 F0/1. R1 uses autonegotiation, and SW1 is configured manually:
 
-```bash
+```text
 R1(config)# interface g0/1
 R1(config-if)# speed auto
 R1(config-if)# duplex auto
 ```
 
-```bash
+```text
 SW1(config)# interface f0/1
 SW1(config-if)# speed 100
 SW1(config-if)# duplex full
@@ -1138,7 +1138,7 @@ For how speed and duplex mismatches affect the interfaces, see [Speed mismatches
 
 When a device encounters errors while sending or receiving messages on an interface, it increments the relevant counters. The following `show interfaces f0/1` output shows these counters:
 
-```bash
+```text
 SW1# show interfaces f0/1
 . . .
      164850273 packets input, 138587749740 bytes, 0 no buffer
@@ -1157,23 +1157,23 @@ SW1# show interfaces f0/1
 
 #### Received frame counters
 
-| Counter      | Counts                                                                                     | Cause                                                                                   |
-| :----------- | :----------------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------------- |
-| Runts        | Frames received that are smaller than the minimum frame size of 64 bytes.                   | Can be caused by collisions.                                                            |
-| Giants       | Frames received with a payload greater than the interface's maximum transmission unit (MTU), typically 1,500 bytes. | Usually a sign of misconfiguration: devices in the network aren't using consistent MTU values. |
-| Input errors | All errors for received frames.                                                            |                                                                                         |
-| CRC          | Frames that failed the Frame Check Sequence (FCS) check in the Ethernet trailer. CRC stands for Cyclic Redundancy Check. | Could be the result of electromagnetic interference (EMI) causing data corruption.      |
+| Counter      | Counts                                                                                                                   | Cause                                                                                          |
+| :----------- | :----------------------------------------------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------- |
+| Runts        | Frames received that are smaller than the minimum frame size of 64 bytes.                                                | Can be caused by collisions.                                                                   |
+| Giants       | Frames received with a payload greater than the interface's maximum transmission unit (MTU), typically 1,500 bytes.      | Usually a sign of misconfiguration: devices in the network aren't using consistent MTU values. |
+| Input errors | All errors for received frames.                                                                                          |                                                                                                |
+| CRC          | Frames that failed the Frame Check Sequence (FCS) check in the Ethernet trailer. CRC stands for Cyclic Redundancy Check. | Could be the result of electromagnetic interference (EMI) causing data corruption.             |
 
 - A **runt** is a frame received that's smaller than the **minimum frame size**, which is 64 bytes.
 - When a device wants to send a frame smaller than 64 bytes, it's supposed to add **padding** (bytes of all 0s) to the end of the message to make it 64 bytes.
 
 #### Transmitted frame counters
 
-| Counter        | Counts                                                                   | What it means                                                                                                                     |
-| :------------- | :----------------------------------------------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------- |
-| Output errors  | All errors for transmitted frames.                                       |                                                                                                                                   |
-| Collisions     | All collisions that happen while the device transmits a frame.           | Expected if the device connects to a hub. In a switched LAN, this counter should remain at 0.                                     |
-| Late collision | Collisions that happen after the 64th byte of the frame is transmitted.  | Often indicates that one device isn't using CSMA/CD to check the medium before transmitting (probably due to a duplex mismatch). |
+| Counter        | Counts                                                                  | What it means                                                                                                                    |
+| :------------- | :---------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------- |
+| Output errors  | All errors for transmitted frames.                                      |                                                                                                                                  |
+| Collisions     | All collisions that happen while the device transmits a frame.          | Expected if the device connects to a hub. In a switched LAN, this counter should remain at 0.                                    |
+| Late collision | Collisions that happen after the 64th byte of the frame is transmitted. | Often indicates that one device isn't using CSMA/CD to check the medium before transmitting (probably due to a duplex mismatch). |
 
 The late collision counter is significant because of CSMA/CD timing: collisions should occur only within the first 64 bytes of a frame's transmission.
 
@@ -1181,14 +1181,14 @@ The late collision counter is significant because of CSMA/CD timing: collisions 
 
 A speed mismatch puts both interfaces in a **down/down** state. Down/down refers to the Status and Protocol columns in the `show ip interface brief` output:
 
-```bash
+```text
 R1# show ip interface brief
 Interface           IP-Address   OK? Method Status   Protocol
 GigabitEthernet0/1  192.168.1.1  YES NVRAM  down     down
 . . .     
 ```
 
-```bash
+```text
 SW1# show ip interface brief
 Interface           IP-Address   OK? Method Status    Protocol
 FastEthernet0/1     Unassigned   YES NVRAM  down      down

@@ -1,7 +1,7 @@
 +++
 title = 'Switches'
 date = '2026-07-07T22:58:21-04:00'
-weight = 30
+weight = 300
 draft = false
 +++
 
@@ -658,12 +658,12 @@ That negotiation runs over **DTP** (Dynamic Trunking Protocol), a Cisco-propriet
 
 Cisco recommends disabling DTP negotiation on most ports. A port left in `dynamic auto` or `dynamic desirable` will negotiate a trunk with anything that sends it the right DTP frames, including a rogue switch or a host running switch-spoofing software, handing an attacker access to every VLAN the trunk carries. Add `switchport nonegotiate` to a statically configured `access` or `trunk` port to stop it from sending or responding to DTP altogether.
 
-| Command option      | Description                                                                                                 |
-| :------------------- | :------------------------------------------------------------------------------------------------------------ |
-| `access`              | Always operates as an access port. Never trunks, regardless of what the far end negotiates.                 |
-| `trunk`               | Always operates as a trunk, unconditionally. Still sends DTP frames by default, encouraging the far end to also trunk. |
-| `dynamic desirable`   | Actively sends DTP frames to negotiate a trunk. Becomes a trunk if the far end is set to `trunk`, `dynamic desirable`, or `dynamic auto`. |
-| `dynamic auto`        | Passively waits for the far end to initiate negotiation. Becomes a trunk only if the far end is set to `trunk` or `dynamic desirable`. |
+| Command option      | Description                                                                                                                               |
+| :------------------ | :---------------------------------------------------------------------------------------------------------------------------------------- |
+| `access`            | Always operates as an access port. Never trunks, regardless of what the far end negotiates.                                               |
+| `trunk`             | Always operates as a trunk, unconditionally. Still sends DTP frames by default, encouraging the far end to also trunk.                    |
+| `dynamic desirable` | Actively sends DTP frames to negotiate a trunk. Becomes a trunk if the far end is set to `trunk`, `dynamic desirable`, or `dynamic auto`. |
+| `dynamic auto`      | Passively waits for the far end to initiate negotiation. Becomes a trunk only if the far end is set to `trunk` or `dynamic desirable`.    |
 
 Two interfaces both left on `dynamic auto` never trunk. Neither side initiates DTP negotiation, so the link stays an access port even though both ends are technically willing to trunk if asked. This is the platform default on many Catalyst switches, and it's exactly what the following output shows.
 
@@ -1059,14 +1059,14 @@ When a device can't reach something it should, confirm its VLAN configuration be
 
 #### Confirm correct VLAN access
 
-| Command                                                | Description                                                                                            |
-| :------------------------------------------------------ | :--------------------------------------------------------------------------------------------------- |
-| `show interfaces` *type* *num* `switchport`              | Confirms a single interface's administrative and operational mode, along with its access and voice VLAN assignments |
-| `show interfaces status`                                 | Lists every interface's link status, VLAN, duplex, and speed in one table, so you can spot a port on the wrong VLAN at a glance |
-| `show mac address-table`                                 | Confirms which VLAN a device's MAC address was actually learned on, verifying it's really communicating on the VLAN you expect |
-| `show vlan`                                              | Displays the full VLAN database with the same detail as `show vlan brief`, plus additional per-VLAN fields |
-| `show vlan brief`                                        | Displays every VLAN's ID, name, status, and assigned ports in one summary table                        |
-| `show vlan id` *num*                                     | Narrows the VLAN database to a single VLAN                                                             |
+| Command                                     | Description                                                                                                                     |
+| :------------------------------------------ | :------------------------------------------------------------------------------------------------------------------------------ |
+| `show interfaces` *type* *num* `switchport` | Confirms a single interface's administrative and operational mode, along with its access and voice VLAN assignments             |
+| `show interfaces status`                    | Lists every interface's link status, VLAN, duplex, and speed in one table, so you can spot a port on the wrong VLAN at a glance |
+| `show mac address-table`                    | Confirms which VLAN a device's MAC address was actually learned on, verifying it's really communicating on the VLAN you expect  |
+| `show vlan`                                 | Displays the full VLAN database with the same detail as `show vlan brief`, plus additional per-VLAN fields                      |
+| `show vlan brief`                           | Displays every VLAN's ID, name, status, and assigned ports in one summary table                                                 |
+| `show vlan id` *num*                        | Narrows the VLAN database to a single VLAN                                                                                      |
 
 #### VLANs active and defined
 
@@ -1085,10 +1085,10 @@ VLAN Name                             Status    Ports
 
 The Status column is what you're after:
 
-| Status    | Meaning                                                                                                          |
-| :-------- | :----------------------------------------------------------------------------------------------------------------- |
-| active    | The VLAN exists and is forwarding traffic normally.                                                             |
-| suspend   | The VLAN exists but is suspended, so it stops forwarding traffic until you re-enable it.                        |
+| Status    | Meaning                                                                                                                  |
+| :-------- | :----------------------------------------------------------------------------------------------------------------------- |
+| active    | The VLAN exists and is forwarding traffic normally.                                                                      |
+| suspend   | The VLAN exists but is suspended, so it stops forwarding traffic until you re-enable it.                                 |
 | act/unsup | The VLAN is active, but this switch's hardware doesn't support it (for example, a VLAN type the platform can't process). |
 
 To check a single VLAN instead of the whole table, use `show vlan id` *num*.

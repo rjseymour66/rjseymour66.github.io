@@ -195,13 +195,13 @@ The 802.1Q tag contains these fields:
 </table>
 </div>
 
-| Field                                | Size    | Purpose                                                                                                                                         |
-| :----------------------------------- | :------ | :---------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Tag Protocol Identifier (TPID)**   | 16 bits | Always `0x8100`. It sits where the EtherType field normally is. When the switch sees `0x8100` here, it knows the frame is tagged with 802.1Q. |
-| **Tag Control Information (TCI)**    | 16 bits | Second half of the tag. Contains the PCP, DEI, and VID subfields.                                                                               |
-| **Priority Code Point (PCP)**        | 3 bits  | Marks frames as higher or lower priority. Used for Quality of Service (QoS).                                                                   |
-| **Drop Eligible Indicator (DEI)**    | 1 bit   | Indicates frames that can be dropped if the network is congested. Also used for QoS.                                                           |
-| **VLAN Identifier (VID)**            | 12 bits | Indicates which VLAN the frame is in. This is the most important field.                                                                         |
+| Field                              | Size    | Purpose                                                                                                                                       |
+| :--------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Tag Protocol Identifier (TPID)** | 16 bits | Always `0x8100`. It sits where the EtherType field normally is. When the switch sees `0x8100` here, it knows the frame is tagged with 802.1Q. |
+| **Tag Control Information (TCI)**  | 16 bits | Second half of the tag. Contains the PCP, DEI, and VID subfields.                                                                             |
+| **Priority Code Point (PCP)**      | 3 bits  | Marks frames as higher or lower priority. Used for Quality of Service (QoS).                                                                  |
+| **Drop Eligible Indicator (DEI)**  | 1 bit   | Indicates frames that can be dropped if the network is congested. Also used for QoS.                                                          |
+| **VLAN Identifier (VID)**          | 12 bits | Indicates which VLAN the frame is in. This is the most important field.                                                                       |
 
 The VID is 12 bits, so there are 4,096 VLANs in total (2<sup>12</sup> = 4,096).
 
@@ -209,11 +209,11 @@ The VID is 12 bits, so there are 4,096 VLANs in total (2<sup>12</sup> = 4,096).
 
 Before IEEE 802.1Q, Cisco developed **Inter-Switch Link (ISL)** to tag frames over trunk links.
 
-|                  | 802.1Q          | ISL                                                 |
-| :--------------- | :-------------- | :-------------------------------------------------- |
-| Developed by     | IEEE            | Cisco (proprietary)                                 |
-| Switch support   | Not limited     | Cisco switches only                                 |
-| Status           | Current         | Deprecated, not supported on new Cisco switches     |
+|                | 802.1Q      | ISL                                             |
+| :------------- | :---------- | :---------------------------------------------- |
+| Developed by   | IEEE        | Cisco (proprietary)                             |
+| Switch support | Not limited | Cisco switches only                             |
+| Status         | Current     | Deprecated, not supported on new Cisco switches |
 
 #### Configuring trunk ports
 
@@ -269,12 +269,12 @@ Gi0/0       1,10,20,30
 
 The first section (the top two lines) lists each trunk port and basic information:
 
-| Column        | Value      | Meaning                                                                       |
-| :------------ | :--------- | :---------------------------------------------------------------------------- |
-| Mode          | `on`       | G0/0 is manually configured as a trunk with `switchport mode trunk`           |
-| Encapsulation | `802.1q`   | Set by `switchport trunk encapsulation dot1q`                                 |
-| Status        | `trunking` | Expected, because G0/0 is manually configured in trunk mode                   |
-| Native vlan   | `1`        | See [The native VLAN](#the-native-vlan)                                       |
+| Column        | Value      | Meaning                                                             |
+| :------------ | :--------- | :------------------------------------------------------------------ |
+| Mode          | `on`       | G0/0 is manually configured as a trunk with `switchport mode trunk` |
+| Encapsulation | `802.1q`   | Set by `switchport trunk encapsulation dot1q`                       |
+| Status        | `trunking` | Expected, because G0/0 is manually configured in trunk mode         |
+| Native vlan   | `1`        | See [The native VLAN](#the-native-vlan)                             |
 
 The second section lists the VLANs allowed on each trunk port (`Vlans allowed on trunk`). The `1-4094` value shows that all VLANs are allowed on a trunk port by default. The port can forward and receive traffic in all VLANs.
 
@@ -295,14 +295,14 @@ SW1(config-if)# switchport trunk allowed vlan
   remove  remove VLANs from the current list
 ```
 
-| Keyword          | Effect                                                                             |
-| :--------------- | :--------------------------------------------------------------------------------- |
-| `WORD`           | Replaces the list with the VLANs you specify, such as `10,20,30`                   |
-| `add`            | Adds VLANs to the current list                                                     |
-| `remove`         | Removes VLANs from the current list                                                |
-| `all`            | Allows all VLANs (the default)                                                     |
-| `none`           | Allows no VLANs. The port can't forward or receive any traffic.                    |
-| `except`         | Allows all VLANs except the VLANs you specify                                      |
+| Keyword  | Effect                                                           |
+| :------- | :--------------------------------------------------------------- |
+| `WORD`   | Replaces the list with the VLANs you specify, such as `10,20,30` |
+| `add`    | Adds VLANs to the current list                                   |
+| `remove` | Removes VLANs from the current list                              |
+| `all`    | Allows all VLANs (the default)                                   |
+| `none`   | Allows no VLANs. The port can't forward or receive any traffic.  |
+| `except` | Allows all VLANs except the VLANs you specify                    |
 
 ###### WORD
 
@@ -377,12 +377,12 @@ Gi0/0       on               802.1q         trunking      1
 
 People often confuse the default VLAN and the native VLAN:
 
-|                  | Default VLAN                                    | Native VLAN                                                                                   |
-| :--------------- | :---------------------------------------------- | :-------------------------------------------------------------------------------------------- |
-| Applies to       | Access ports                                    | Trunk ports                                                                                   |
-| What it is       | The VLAN access ports are assigned to by default | The VLAN that untagged frames received on the trunk are assigned to. Frames in this VLAN are forwarded untagged. |
-| Default value    | VLAN 1                                          | VLAN 1                                                                                        |
-| Can you change it | No                                             | Yes, per port                                                                                 |
+|                   | Default VLAN                                     | Native VLAN                                                                                                      |
+| :---------------- | :----------------------------------------------- | :--------------------------------------------------------------------------------------------------------------- |
+| Applies to        | Access ports                                     | Trunk ports                                                                                                      |
+| What it is        | The VLAN access ports are assigned to by default | The VLAN that untagged frames received on the trunk are assigned to. Frames in this VLAN are forwarded untagged. |
+| Default value     | VLAN 1                                           | VLAN 1                                                                                                           |
+| Can you change it | No                                               | Yes, per port                                                                                                    |
 
 ###### Configuring the native VLAN
 
@@ -514,10 +514,10 @@ GigabitEthernet0/0.30      172.16.1.129    YES manual up                    up
 
 You can configure the native VLAN on the router's side of the connection in two ways:
 
-| Method                    | Configuration                                                                                       |
-| :------------------------ | :-------------------------------------------------------------------------------------------------- |
-| `native` keyword          | Use `encapsulation dot1q vlan-id native` on the appropriate subinterface                            |
-| Physical interface        | Configure the native VLAN's IP address on the physical interface, not a subinterface                |
+| Method             | Configuration                                                                        |
+| :----------------- | :----------------------------------------------------------------------------------- |
+| `native` keyword   | Use `encapsulation dot1q vlan-id native` on the appropriate subinterface             |
+| Physical interface | Configure the native VLAN's IP address on the physical interface, not a subinterface |
 
 ###### Using the native keyword
 
@@ -631,11 +631,11 @@ Vlan20                 172.16.1.65     YES manual up                    down
 Vlan30                 172.16.1.129    YES manual up                    down
 ```
 
-| SVI    | Commands                                                                                      | Requirement broken                                                        |
-| :----- | :-------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------ |
-| Vlan10 | `no vlan 10`                                                                                  | 1: The VLAN no longer exists on the switch                                |
-| Vlan20 | `vlan 20`, then `shutdown`                                                                    | 3: The VLAN is disabled                                                   |
-| Vlan30 | `shutdown` on G1/3, then `switchport trunk allowed vlan remove 30` on G0/0                    | 2: No up/up access port in VLAN 30 and no up/up trunk port that allows it |
+| SVI    | Commands                                                                   | Requirement broken                                                        |
+| :----- | :------------------------------------------------------------------------- | :------------------------------------------------------------------------ |
+| Vlan10 | `no vlan 10`                                                               | 1: The VLAN no longer exists on the switch                                |
+| Vlan20 | `vlan 20`, then `shutdown`                                                 | 3: The VLAN is disabled                                                   |
+| Vlan30 | `shutdown` on G1/3, then `switchport trunk allowed vlan remove 30` on G0/0 | 2: No up/up access port in VLAN 30 and no up/up trunk port that allows it |
 
 ##### Using routed ports for external connectivity
 
@@ -671,3 +671,521 @@ This example configures a static default route on SW1, with R1's IP address as t
 ```text
 SW1(config)# ip route 0.0.0.0 0.0.0.0 172.16.1.194
 ```
+
+## Dynamic Trunking Protocol and VLAN Trunking Protocol
+
+**Dynamic Trunking Protocol (DTP)** is a Cisco-proprietary protocol that lets Cisco switches automatically determine the operational mode of their ports. Neighboring switches send each other DTP messages that advertise their port's administrative mode.
+
+### Administrative and operational modes
+
+| Mode           | Definition                                                         |
+| :------------- | :----------------------------------------------------------------- |
+| Administrative | The port's configured mode, set with the `switchport mode` command |
+| Operational    | The mode the port operates in: access or trunk                     |
+
+If you manually configure a port as an access port or trunk port, its administrative and operational modes are identical:
+
+| Administrative mode      | Operational mode   |
+| :----------------------- | :----------------- |
+| `switchport mode access` | Always access port |
+| `switchport mode trunk`  | Always trunk port  |
+
+### Why you should disable DTP
+
+DTP was developed to streamline switch deployment by requiring less manual configuration of port modes. DTP turned out to be a security vulnerability, so best practice today is generally to disable DTP on switch ports.
+
+### DTP negotiation
+
+The `switchport mode` command has two more options: `dynamic auto` and `dynamic desirable`. These administrative modes don't specify which mode the port operates in. They tell the switch to use DTP to determine the port's operational mode. By default, a port in either mode operates as an access port. If the connected switches both agree, they form a trunk link.
+
+**DTP negotiation** is the process of exchanging DTP messages and agreeing on an operational mode.
+
+#### Viewing administrative and operational modes
+
+To view a port's administrative and operational modes, run `show interfaces interface-name switchport`.
+
+#### dynamic auto
+
+`dynamic auto` is the default administrative mode for all Cisco switch ports. A port in this mode uses DTP to negotiate its operational mode, but it doesn't actively try to form a trunk link with its neighbor. By default, two connected Cisco switches don't form a trunk. The connection stays in access mode:
+
+```text
+SW1# show interfaces g0/0 switchport
+Name: Gig0/0
+Switchport: Enabled
+Administrative Mode: dynamic auto
+Operational Mode: static access
+. . .
+```
+
+#### dynamic desirable
+
+A port in `dynamic desirable` mode actively attempts to form a trunk. After you change the administrative mode of SW1 G0/0 to `dynamic desirable`, its operational mode is trunk:
+
+```text
+SW1# show interfaces g0/0 switchport
+Name: Gig0/0
+Switchport: Enabled
+Administrative Mode: dynamic desirable
+Operational Mode: trunk
+. . .
+```
+
+### Switch port administrative modes
+
+| Mode                | Description                                                                                                                                                                                           | Port sends DTP messages? |
+| :------------------ | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :----------------------- |
+| `access`            | Manually configures an access port. Operational mode is always access.                                                                                                                                | No                       |
+| `trunk`             | Manually configures a trunk port. Operational mode is always trunk.                                                                                                                                   | Yes                      |
+| `dynamic auto`      | Uses DTP to negotiate its operational mode but doesn't actively try to form a trunk with its neighbor.<br><br>Forms a trunk if connected to a port in `trunk` or `dynamic desirable` mode.            | Yes                      |
+| `dynamic desirable` | Uses DTP to negotiate its operational mode and actively tries to form a trunk with its neighbor.<br><br>Forms a trunk if connected to a port in `trunk`, `dynamic auto`, or `dynamic desirable` mode. | Yes                      |
+
+#### Operational mode for each combination
+
+Know the resulting operational mode of each combination of administrative modes:
+
+| Administrative modes  | `access` | `trunk` | `dynamic desirable` | `dynamic auto` |
+| :-------------------- | :------- | :------ | :------------------ | :------------- |
+| **Access**            | access   | invalid | access              | access         |
+| **Trunk**             | invalid  | trunk   | trunk               | trunk          |
+| **Dynamic desirable** | access   | trunk   | trunk               | trunk          |
+| **Dynamic auto**      | access   | trunk   | trunk               | access         |
+
+
+Access + trunk isn't a valid combination. One of two things happens:
+
+- The switches detect the mismatch and block the link.
+- Traffic on the link is limited to the trunk port's native VLAN and the access port's VLAN, because both are untagged.
+
+#### Trunk encapsulation negotiation
+
+If a switch supports both 802.1Q and ISL, its default setting is `switchport trunk encapsulation negotiate`:
+
+| Switch A    | Switch B         | Result                                                |
+| :---------- | :--------------- | :---------------------------------------------------- |
+| `negotiate` | `negotiate`      | ISL                                                   |
+| `negotiate` | `dot1q` or `isl` | The `negotiate` side agrees to the same encapsulation |
+| `dot1q`     | `isl`            | Encapsulation mismatch: a misconfiguration            |
+
+If you encounter a switch that supports both 802.1Q and ISL, manually configure 802.1Q with `switchport trunk encapsulation dot1q`.
+
+### Disabling DTP
+
+DTP was developed to streamline switch deployment by letting switches automatically determine the operational mode of their ports.
+
+Disable DTP for two reasons:
+
+- Its security implications
+- To reduce unnecessary traffic (DTP messages) in the LAN
+
+You can disable DTP in two ways:
+
+| Method                                        | Command                  |
+| :-------------------------------------------- | :----------------------- |
+| Manually configure the port as an access port | `switchport mode access` |
+| Explicitly disable DTP                        | `switchport nonegotiate` |
+
+To verify the first method:
+
+1. Run `show interfaces g0/0 switchport`. The output shows `Negotiation of Trunking: On`, which means the port is sending DTP messages.
+2. Configure G0/0 as an access port.
+3. Check again. Trunk negotiation is now `Off`.
+
+```text
+SW1# show interfaces g0/0 switchport
+Name: Gi0/0
+Switchport: Enabled
+Administrative Mode: dynamic auto
+Operational Mode: static access
+. . .
+Negotiation of Trunking: On
+. . .
+SW1# configure terminal
+SW1(config)# interface g0/0
+SW1(config-if)# switchport mode access
+SW1(config-if)# do show interfaces g0/0 switchport
+Name: Gi0/0
+Switchport: Enabled
+Administrative Mode: static access
+Operational Mode: static access
+. . .
+Negotiation of Trunking: Off
+. . .
+```
+
+Use the second method, `switchport nonegotiate`, to ensure that the port never sends DTP messages, regardless of its current mode (access or trunk). In this example, G0/0 is a trunk with negotiation `On` until you run `switchport nonegotiate`:
+
+```text
+SW1(config)# interface g0/0
+SW1(config-if)# switchport mode trunk
+SW1(config-if)# do show interfaces g0/0 switchport
+Name: Gi0/0
+Switchport: Enabled
+Administrative Mode: trunk
+Operational Mode: trunk
+. . .
+Negotiation of Trunking: On
+. . .
+SW1(config-if)# switchport nonegotiate
+SW1(config-if)# do show interfaces g0/0 switchport
+Name: Gi0/0
+Switchport: Enabled
+Administrative Mode: trunk
+Operational Mode: trunk
+. . .
+Negotiation of Trunking: Off
+. . .
+```
+
+{{< admonition "Best practice" tip >}}
+Even if you manually configure a port in access mode, also run <code>switchport nonegotiate</code> to ensure the port never sends DTP messages.
+{{< /admonition >}}
+
+### VLAN Trunking Protocol
+
+**VLAN Trunking Protocol (VTP)** is another Cisco-proprietary protocol that plays a role in VLAN configuration on Cisco switches. VTP lets switches automatically synchronize their **VLAN database**, the file that stores information about the VLANs that exist on the switch.
+
+With VTP, switches in a LAN send each other messages about the VLANs in their VLAN database. Each switch synchronizes its database to the latest version.
+
+| Fact               | Detail                                                                                                                |
+| :----------------- | :-------------------------------------------------------------------------------------------------------------------- |
+| VLAN database file | `vlan.dat` in flash memory                                                                                            |
+| View flash memory  | `dir flash:` or `show flash:`                                                                                         |
+| Benefit            | Saves time and reduces human error by propagating VLAN changes without manually configuring every switch              |
+| Vendor support     | Cisco-proprietary like DTP. Runs only on Cisco switches, so it can't synchronize VLANs with another vendor's switches |
+
+#### VTP synchronization
+
+This causes SW1 to increment the **VTP revision number**, a number that tracks the latest version of the VLAN database. The revision number starts at 0. The switch updates it each time the VLAN database changes, such as when a VLAN is created, deleted, or renamed.
+
+The **VTP domain** is the group of switches in a LAN that share the same VTP domain name. By default, switches have no VTP domain name, and VTP isn't active:
+
+- You can configure VLANs on the switch, but it doesn't send VTP messages to other switches in the LAN.
+- A switch without a VTP domain name is in **domain NULL**.
+
+`show vtp status` shows an empty VTP domain name and a configuration revision of 0:
+
+```text
+SW1# show vtp status
+VTP Version capable             : 1 to 3
+VTP version running             : 1
+VTP Domain Name                 :
+VTP Pruning Mode                : Disabled
+VTP Traps Generation            : Disabled
+Device ID                       : 5254.0008.8000
+Configuration last modified by 0.0.0.0 at 4-25-23 03:25:46
+Local updater ID is 0.0.0.0 (no valid interface found)
+ 
+Feature VLAN:
+--------------
+VTP Operating Mode                : Server
+Maximum VLANs supported locally   : 1005
+Number of existing VLANs          : 5
+Configuration Revision            : 0
+MD5 digest                        : 0x57 0xCD 0x40 0x65 0x63 0x59 0x47 0xBD 
+                                    0x56 0x9D 0x4A 0x3E 0xA5 0x69 0x35 0xBC
+```
+
+To configure a VTP domain name, run `vtp domain domain-name`. The switch then sends VTP messages to other switches, and all switches without a VTP domain name adopt the new name.
+
+In this example, SW1 joins domain Manning and creates VLANs 2, 3, and 4. SW2 and SW3 adopt the domain name and synchronize to the same VLAN count and revision number:
+
+```text
+SW1(config)# vtp domain Manning
+Changing VTP domain name from NULL to Manning
+SW1(config)# vlan 2
+SW1(config-vlan)# vlan 3
+SW1(config-vlan)# vlan 4
+SW1(config-vlan)# end
+SW1# show vtp status
+. . .
+VTP Domain Name                 : Manning
+. . .
+Number of existing VLANs          : 8
+Configuration Revision            : 3
+SW2# show vtp status
+. . .
+VTP Domain Name                 : Manning
+. . .
+Number of existing VLANs          : 8
+Configuration Revision            : 3
+SW3# show vtp status
+. . .
+VTP Domain Name                 : Manning
+. . .
+Number of existing VLANs          : 8
+Configuration Revision            : 3
+```
+
+#### VTP modes
+
+Configure the VTP mode with `vtp mode mode`. Switches in server and client mode actively participate in VTP and synchronize their VLAN databases to match each other. Switches in transparent and off mode don't.
+
+| Mode        | Create, modify, and delete VLANs | Advertise changes | Synchronize database | Description                                                                                                                                                                                                     |
+| :---------- | :------------------------------- | :---------------- | :------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Server      | Yes                              | Yes               | Yes                  | The default mode. Advertises changes to its VLAN database and synchronizes its VLAN database when it receives an advertisement with a higher revision number.                                                   |
+| Client      | No                               | Yes               | Yes                  | Otherwise behaves the same as a server.                                                                                                                                                                         |
+| Transparent | Yes                              | No                | No                   | Doesn't advertise changes to its own VLAN database or synchronize its VLAN database with others. Doesn't directly participate in the VTP domain, but forwards VTP messages between switches in the same domain. |
+| Off         | Yes                              | No                | No                   | Doesn't advertise changes to its own VLAN database or synchronize its VLAN database with others. Doesn't participate in VTP at all.                                                                             |
+
+Cisco recommends server mode for all switches in the domain if they have sufficient memory resources. Any modern switch has sufficient resources to store VLAN information, so you can safely leave all switches in VTP server mode.
+
+If the LAN doesn't use VTP, run `vtp mode off` to disable VTP on all switches.
+
+#### VTP versions
+
+VTP has three versions, and version 1 is the default:
+
+```text
+SW1# show vtp status
+VTP Version capable             : 1 to 3
+VTP version running             : 1
+. . .
+```
+
+| Fact               | Detail                                                                         |
+| :----------------- | :----------------------------------------------------------------------------- |
+| Configure version  | `vtp version version`                                                          |
+| Preferred version  | Version 3 improves on versions 1 and 2. Always prefer it if you use VTP.       |
+| `vtp primary` mode | Privileged EXEC mode, although most VTP commands are global configuration mode |
+
+In this example, you enable VTP version 3 on SW1 and try to create VLAN 6:
+
+1. Run `vtp version 3`.
+2. Run `vlan 6`. The command fails because SW1 isn't the primary server for the VLAN database.
+3. Run `vtp primary` to make SW1 the primary server.
+4. Run `vlan 6` again. SW1 creates VLAN 6.
+
+```text
+SW1(config)# vtp version 3
+SW1(config)# vlan 6
+VTP VLAN configuration not allowed when device is not 
+the primary server for vlan database.
+SW1(config)# do vtp primary
+This system is becoming primary server for feature vlan
+No conflicting VTP3 devices found.
+Do you want to continue? [confirm]
+SW1(config)# vlan 6
+SW1(config-vlan)# exit
+```
+
+A VTP domain has only one primary server. If you run `vtp primary` on another switch in the domain, that switch becomes the primary server and the first one reverts to being a secondary server.
+
+##### Extended range VLANs
+
+| Range          | VLANs     | Availability                                                                                                                                                            |
+| :------------- | :-------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Normal range   | 1–1005    | Available in old versions of Cisco IOS                                                                                                                                  |
+| Extended range | 1006–4094 | Reserved in old IOS versions for internal use by applications on the switch. You couldn't create them or assign ports to them. A later IOS version made them available. |
+
+Today, all Cisco switches support both normal-range and extended-range VLANs. VTP version 3 added the ability to create and propagate extended-range VLANs.
+
+#### Is VTP dangerous?
+
+The danger of VTP is that a newly connected switch can overwrite the VLAN database of all switches in the domain.
+
+{{< admonition "Remember" warning >}}
+One recommended procedure is to reset a switch's VTP revision number to 0 before you connect it to the network. Use one of the three methods in the following table.
+{{< /admonition >}}
+
+| Method                                                            | Versions      |
+| :---------------------------------------------------------------- | :------------ |
+| Change the VTP domain name to a different one, then back again    | Not specified |
+| Change the VTP mode to transparent, then back to server or client | 1 and 2 only  |
+| Change the VTP mode to off, then back to server or client         | 1 and 2 only  |
+
+The primary server mechanism in version 3 eliminates this risk. Switches synchronize only to the primary server. Even if you connect a new switch with a higher revision number, switches in the LAN don't synchronize to it. With version 3, you don't need to fear VTP, and it can be a great tool for automating some network configuration workflows.
+
+
+## Spanning Tree Protocol
+
+**Spanning Tree Protocol (STP)** runs on all Cisco switches by default. It solves a significant problem in LANs: Layer 2 loops, where frames loop around the network indefinitely.
+
+### The need for STP
+
+| Loop type                | Prevention                                                                                                                                                                                         |
+| :----------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Layer 3 loop (routing loop) | Each router decrements the Time-to-Live (TTL) field when it forwards a packet. When the TTL reaches 0, the router drops the packet. This prevents packets from looping indefinitely after a misconfiguration. |
+| Layer 2 loop             | The Ethernet header has no TTL field. If a loop occurs between switches, no mechanism prevents frames from looping around the LAN indefinitely.                                                    |
+
+Layer 2 loops are inevitable in a LAN with multiple paths between any two nodes, because switches flood **BUM traffic** (broadcast, unknown unicast, and multicast) frames.
+
+Multiple paths between hosts are an example of redundancy, which is desirable in a network. **Redundancy** means having additional network devices and connections beyond the minimum necessary for communication.
+
+Layer 2 loops cause two main problems:
+
+| Problem               | Description                                                                                                                                                                       |
+| :-------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Broadcast storm**   | Enough looping frames accumulate to consume so many network resources (device CPU or link bandwidth) that the network is unusable.                                               |
+| **MAC address flapping** | A switch learns the same MAC address repeatedly on separate ports. |
+
+In the MAC address flapping example, SW1 constantly updates the MAC address table entry for PC1's MAC address between multiple ports. SW1 doesn't know which port PC1 is actually connected to, so PC1 can't receive frames.
+
+### How STP works
+
+STP prevents Layer 2 loops by blocking redundant connections. It leaves only a single active path between any two nodes in a LAN.
+
+In the example topology, SW3's G0/1 port is now in the blocking state:
+
+| Port state     | Behavior                                                                                    |
+| :------------- | :------------------------------------------------------------------------------------------ |
+| **Blocking**   | Doesn't forward frames and doesn't process received frames, except for STP-related messages |
+| **Forwarding** | Forwards and receives frames as normal. All other ports are in this state.                  |
+
+The SW2 G0/1 to SW3 G0/1 link is unused. Network traffic doesn't pass over disabled links, but they're available to take over if one of the active links fails.
+
+A **spanning tree** is a concept from graph theory:
+
+| Term     | Meaning                                                                          |
+| :------- | :------------------------------------------------------------------------------- |
+| Graph    | A structure that models relationships between objects (also called nodes)        |
+| Tree     | A subgraph in which any two nodes are connected by exactly one path              |
+| Spanning | The tree includes all nodes. It spans across all nodes.                           |
+
+### STP algorithm
+
+The **STP algorithm** is the process STP uses to create a loop-free topology. It has three main steps:
+
+1. Root bridge election
+2. Root port selection
+3. Designated port selection
+
+{{< admonition "Bridge vs. switch" note >}}
+In the context of STP, bridge and switch are synonymous.
+{{< /admonition >}}
+
+#### Root bridge election
+
+The **root bridge** is the central point of reference for the STP topology. In later steps, all other switches ensure that they have exactly one active path to the root bridge.
+
+Switches elect the root bridge by sharing STP **Bridge Protocol Data Unit (BPDU)** messages with each other. Switches send BPDUs every 2 seconds. BPDUs contain various STP-related information. Two pieces matter for the root bridge election:
+
+- The switch's own **bridge identifier (BID)**, a number that uniquely identifies the switch in the LAN
+- The BID of the switch it believes is the root bridge
+
+##### The BID
+
+The switch that sends the **superior BPDU** becomes the root bridge of the LAN. The superior BPDU has superior parameters according to the STP algorithm. That means the BPDU with the numerically lowest My BID field.
+
+The BID is a 64-bit number:
+
+<div class="bitfield-wrap">
+<table class="merged bitfield">
+  <thead>
+    <tr><th colspan="5">Bridge priority (16 bits)</th><th rowspan="2">MAC address (48 bits)</th></tr>
+    <tr><th colspan="4">Configurable priority value</th><th>Extended System ID</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>32768</td><td>16384</td><td>8192</td><td>4096</td><td>VLAN ID</td><td>Identifies the switch as a whole</td></tr>
+  </tbody>
+</table>
+</div>
+
+| Part                         | Description                                                                                                         |
+| :--------------------------- | :------------------------------------------------------------------------------------------------------------------ |
+| Configurable priority value  | First part of the bridge priority. By default, the most significant bit is set to 1, which is equivalent to 0d32768. |
+| **Extended System ID**       | Second part of the bridge priority. Equal to the VLAN ID.                                                           |
+| MAC address                  | 48 bits                                                                                                             |
+
+Cisco switches run a proprietary version of STP called **Per-VLAN Spanning Tree Plus (PVST+)**. In PVST+, switches run a separate STP instance for each VLAN, so they create a separate spanning tree for each VLAN. The benefit is that different links can be disabled in different VLANs, which balances traffic over all links.
+
+##### Why include the VLAN ID in the bridge priority?
+
+The STP standard (IEEE 802.1D) specifies that each switch must have a unique BID. Combining the bridge priority with the switch's MAC address achieves this. Even if all switches in the LAN have the same bridge priority, MAC addresses are unique, so each switch gets a unique BID.
+
+For example, a switch runs two STP instances (VLAN 1 and VLAN 2). It has the default priority value of 32768 and MAC address 5254.000f.adab:
+
+| VLAN | Bridge priority   | BID                  |
+| :--- | :---------------- | :------------------- |
+| 1    | 32768 + 1 = 32769 | 32769:5254.000f.adab |
+| 2    | 32768 + 2 = 32770 | 32770:5254.000f.adab |
+
+The bridge priority is written in decimal and the MAC address in hexadecimal (as usual). A colon often separates the two.
+
+##### Comparing BIDs
+
+The MAC address in the second part of the BID isn't the MAC of any of the switch's ports. It's a separate MAC address that identifies the switch as a whole.
+
+For example, which of these BIDs is numerically lower and therefore superior?
+
+| Switch | BID                  |
+| :----- | :------------------- |
+| SW1    | 32769:5254.000f.adab |
+| SW2    | 32769:5254.0013.cf9a |
+| SW3    | 32769:5254.0016.5d5e |
+| SW4    | 32769:5254.001d.d23a |
+
+Although you divide the BID into parts, it's just a 64-bit number. The bits written on the left (the bridge priority) are the most significant, so compare them first:
+
+1. Compare the bridge priorities. All four switches have the same bridge priority of 32769, so compare the MAC addresses to break the tie.
+2. Compare the most significant MAC digits first. The first six digits of all four MAC addresses (the OUI) are the same: 5254.00.
+3. Compare the next digit. It's 1 for SW2, SW3, and SW4, but 0 for SW1. SW1 has the lowest BID of the four, so it's the root bridge.
+
+Confirm this with `show spanning-tree` on SW1:
+
+```text
+SW1# show spanning-tree 
+VLAN0001
+  Spanning tree enabled protocol ieee
+  Root ID    Priority    32769
+             Address     5254.000f.adab
+             This bridge is the root    
+. . .
+  Bridge ID  Priority    32769  (priority 32768 sys-id-ext 1)
+             Address     5254.000f.adab
+. . .
+```
+
+##### Comparing the bridge priority
+
+A switch connected to the router that end hosts use to access external networks is a good choice for root bridge. Frames should have an efficient path to the router without passing through too many switches.
+
+In this example, you configure SW3 as the root bridge and lower SW4's priority so it functions as a **secondary root bridge**. The secondary root bridge takes over as root if the root bridge malfunctions, because it has the lowest BID of the remaining switches.
+
+To configure a switch's bridge priority, run `spanning-tree vlan vlan-id priority priority-value`. A value that isn't a multiple of 4096 fails:
+
+```text
+SW3(config)# spanning-tree vlan 1 priority 20000
+% Bridge Priority must be in increments of 4096.
+% Allowed values are:
+  0     4096  8192  12288 16384 20480 24576 28672
+  32768 36864 40960 45056 49152 53248 57344 61440
+```
+
+You can configure the priority only in increments of 4096. The bridge priority field is 16 bits, but only the four most significant bits make up the configurable priority value: the bits with values of 0d32768, 0d16384, 0d8192, and 0d4096. 4096 is the value of the least significant bit you can change.
+
+SW3 gets priority 24576 and SW4 gets 28672. SW4's output shows SW3 (24577) as root:
+
+```text
+SW3(config)# spanning-tree vlan 1 priority 24576
+
+SW4(config)# spanning-tree vlan 1 priority 28672
+SW4(config)# do show spanning-tree 
+VLAN0001
+  Spanning tree enabled protocol ieee
+  Root ID    Priority    24577
+             Address     5254.0016.5d5e
+. . .
+  Bridge ID  Priority    28673  (priority 28672 sys-id-ext 1)
+             Address     5254.001d.d23a
+. . .
+```
+
+You can also configure the bridge priority with `spanning-tree vlan vlan-id root {primary | secondary}`:
+
+| Keyword     | Effect                                                                                                                                                                                                                                       |
+| :---------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `secondary` | Sets the priority to 28672, one increment of 4096 under the default of 32768.                                                                                                                                                               |
+| `primary`   | Sets the priority to 24576, two increments of 4096 under the default.<br><br>If 24576 isn't enough to make the switch the root bridge (that is, the current root bridge's priority is 24576), sets the priority to the highest multiple of 4096 that makes the switch the root bridge. |
+
+These commands work if all other switches in the LAN have the default priority of 32768. The switch with `primary` becomes the root bridge, and the switch with `secondary` is next in line if the root bridge fails.
+
+These commands aren't recommended, for two reasons:
+
+- `secondary` doesn't guarantee that the switch is next in line to become the root bridge if the current root bridge fails. Another non-root switch could have a priority value lower than 28672.
+- `primary` fails in some situations. It can't set the switch's priority to 0.
+
+{{< admonition "Best practice" tip >}}
+To ensure a switch is the root bridge, run <code>spanning-tree vlan vlan-id priority 0</code>. The only way to take over the root is to run the same command on another switch with a lower MAC address, and therefore a lower BID.
+{{< /admonition >}}
+
+#### Root port selection

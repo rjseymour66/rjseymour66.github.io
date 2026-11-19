@@ -1407,11 +1407,11 @@ The **max age timer** determines how long a switch waits to change the STP topol
 
 STP can take up to 50 seconds to move a blocking port into the forwarding state:
 
-| Stage           | Time       |
-| :-------------- | :--------- |
-| Max age timer   | 20 seconds |
-| Listening state | 15 seconds |
-| Learning state  | 15 seconds |
+| Stage           | Time           |
+| :-------------- | :------------- |
+| Max age timer   | 20 seconds     |
+| Listening state | 15 seconds     |
+| Learning state  | 15 seconds     |
 | **Total**       | **50 seconds** |
 
 If the hardware failure makes SW1's G0/1 port totally nonoperational (down/down state), SW1 reacts immediately. It doesn't wait for the max age timer.
@@ -1426,10 +1426,10 @@ Switch ports connected to devices that don't use STP, such as PCs, are always de
 
 **PortFast** is an optional STP feature that moves a switch port immediately to the forwarding state, bypassing the listening and learning states.
 
-| Scope                             | Command                             | Mode                    |
-| :-------------------------------- | :---------------------------------- | :---------------------- |
-| A specific port                   | `spanning-tree portfast`            | Interface configuration |
-| All access ports (not trunk ports) | `spanning-tree portfast default`    | Global configuration    |
+| Scope                              | Command                          | Mode                    |
+| :--------------------------------- | :------------------------------- | :---------------------- |
+| A specific port                    | `spanning-tree portfast`         | Interface configuration |
+| All access ports (not trunk ports) | `spanning-tree portfast default` | Global configuration    |
 
 When you enable PortFast on a port, IOS warns you about bridging loops and notes that PortFast takes effect only in non-trunking mode:
 
@@ -1454,10 +1454,10 @@ PortFast puts switch ports in the forwarding state immediately, bypassing the li
 
 PortFast-enabled ports should connect only to end hosts, which don't send BPDUs. If a user carelessly connects another switch to a port meant for end hosts, BPDU Guard disables the port. This prevents the new switch from affecting the STP topology, for example by becoming the new root bridge.
 
-| Scope                       | Command                                  | Mode                    |
-| :-------------------------- | :--------------------------------------- | :---------------------- |
-| A specific port             | `spanning-tree bpduguard enable`         | Interface configuration |
-| All PortFast-enabled ports  | `spanning-tree portfast bpduguard default` | Global configuration  |
+| Scope                      | Command                                    | Mode                    |
+| :------------------------- | :----------------------------------------- | :---------------------- |
+| A specific port            | `spanning-tree bpduguard enable`           | Interface configuration |
+| All PortFast-enabled ports | `spanning-tree portfast bpduguard default` | Global configuration    |
 
 ```text
 SW4(config)# interface g0/0
@@ -1483,3 +1483,66 @@ To reenable an error-disabled port:
 {{< admonition "Remember" tip >}}
 Enable PortFast only on ports meant for end hosts, and enable BPDU Guard on all PortFast-enabled ports. You can use only PortFast or only BPDU Guard, but best practice is to use both features together.
 {{< /admonition >}}
+
+## Rapid Spanning Tree Protocol
+
+The original STP, defined in IEEE 802.1D, has some downsides. The main one is speed: it can take up to 50 seconds to converge and reach a new, stable state after a change in the LAN. When STP was first released, 50 seconds was acceptable, but expectations have changed.
+
+### Spanning Tree Protocol versions
+
+PVST+ creates a separate spanning tree for each VLAN.
+
+RSTP was first standardized in IEEE 802.1w. Cisco then developed **Rapid Per-VLAN Spanning Tree Plus (Rapid PVST+)**, which runs on Cisco switches. 802.1w and Rapid PVST+ differ the same way 802.1D and PVST+ do:
+
+| Standard version         | Cisco version | Spanning trees                                                                    |
+| :----------------------- | :------------ | :-------------------------------------------------------------------------------- |
+| 802.1D (STP)             | PVST+         | Standard: a single spanning tree. Cisco: a separate spanning tree for each VLAN.   |
+| 802.1w (RSTP)            | Rapid PVST+   | Standard: a single spanning tree in the LAN. Cisco: a separate spanning tree for each VLAN, so traffic in different VLANs can use different links. |
+
+To check which version a switch runs, use `show spanning-tree`:
+
+```text
+SW1# show spanning-tree 
+VLAN0001
+  Spanning tree enabled protocol ieee
+. . .
+```
+
+To configure the STP version, run `spanning-tree mode {pvst | rapid-pvst}` in global configuration mode:
+
+```text
+SW1(config)# spanning-tree mode rapid-pvst
+SW1(config)# do show spanning-tree
+VLAN0001
+  Spanning tree enabled protocol rstp
+. . .
+```
+
+The keyword that enables each mode differs from how the mode appears in `show spanning-tree`:
+
+| Version     | Configure with                   | `show spanning-tree` output          |
+| :---------- | :------------------------------- | :----------------------------------- |
+| PVST+       | `spanning-tree mode pvst`        | `Spanning tree enabled protocol ieee` |
+| Rapid PVST+ | `spanning-tree mode rapid-pvst`  | `Spanning tree enabled protocol rstp` |
+
+{{< admonition "Keep in mind" warning >}}
+Cisco switches don't run the IEEE-standard versions of STP and RSTP. They run PVST+ and Rapid PVST+.
+{{< /admonition >}}
+
+In practice, a LAN with 100 VLANs likely doesn't need 100 unique spanning trees. You'll probably assign one switch as the root bridge for 50 of the VLANs and another switch as the root bridge for the remaining 50 VLANs. The result is only two unique spanning trees.
+
+In that case, **Multiple Spanning Tree Protocol (MSTP)** might be preferred. With MSTP, you can group multiple VLANs into a single instance. For example, in a LAN with 100 VLANs, you might create two MSTP instances with 50 VLANs in each:
+
+- You avoid congestion by balancing traffic over separate links.
+- You don't use up resources running 100 STP instances.
+- MSTP uses RSTP's mechanics for quick convergence, with no 50-second waits like in 802.1D.
+
+STP versions:
+
+| Version     | Standard or Cisco-proprietary | Description                                                                       |
+| :---------- | :---------------------------- | :-------------------------------------------------------------------------------- |
+| STP         | Standard (802.1D)             | The original standard. Creates only a single spanning tree.                       |
+| PVST+       | Cisco-proprietary             | Cisco's upgrade to 802.1D. Creates a separate spanning tree for each VLAN.        |
+| RSTP        | Standard (802.1w)             | Much faster convergence than 802.1D. Creates only a single spanning tree.         |
+| Rapid PVST+ | Cisco-proprietary             | Cisco's upgrade to 802.1w. Creates a separate spanning tree for each VLAN.        |
+| MSTP        | Standard (802.1s)             | Uses RSTP mechanics for fast convergence. Groups multiple VLANs into each spanning tree instance. |

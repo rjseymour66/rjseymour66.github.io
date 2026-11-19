@@ -1002,10 +1002,10 @@ The primary server mechanism in version 3 eliminates this risk. Switches synchro
 
 ### The need for STP
 
-| Loop type                | Prevention                                                                                                                                                                                         |
-| :----------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Loop type                   | Prevention                                                                                                                                                                                                    |
+| :-------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Layer 3 loop (routing loop) | Each router decrements the Time-to-Live (TTL) field when it forwards a packet. When the TTL reaches 0, the router drops the packet. This prevents packets from looping indefinitely after a misconfiguration. |
-| Layer 2 loop             | The Ethernet header has no TTL field. If a loop occurs between switches, no mechanism prevents frames from looping around the LAN indefinitely.                                                    |
+| Layer 2 loop                | The Ethernet header has no TTL field. If a loop occurs between switches, no mechanism prevents frames from looping around the LAN indefinitely.                                                               |
 
 Layer 2 loops are inevitable in a LAN with multiple paths between any two nodes, because switches flood **BUM traffic** (broadcast, unknown unicast, and multicast) frames.
 
@@ -1013,10 +1013,10 @@ Multiple paths between hosts are an example of redundancy, which is desirable in
 
 Layer 2 loops cause two main problems:
 
-| Problem               | Description                                                                                                                                                                       |
-| :-------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Broadcast storm**   | Enough looping frames accumulate to consume so many network resources (device CPU or link bandwidth) that the network is unusable.                                               |
-| **MAC address flapping** | A switch learns the same MAC address repeatedly on separate ports. |
+| Problem                  | Description                                                                                                                        |
+| :----------------------- | :--------------------------------------------------------------------------------------------------------------------------------- |
+| **Broadcast storm**      | Enough looping frames accumulate to consume so many network resources (device CPU or link bandwidth) that the network is unusable. |
+| **MAC address flapping** | A switch learns the same MAC address repeatedly on separate ports.                                                                 |
 
 In the MAC address flapping example, SW1 constantly updates the MAC address table entry for PC1's MAC address between multiple ports. SW1 doesn't know which port PC1 is actually connected to, so PC1 can't receive frames.
 
@@ -1035,11 +1035,11 @@ The SW2 G0/1 to SW3 G0/1 link is unused. Network traffic doesn't pass over disab
 
 A **spanning tree** is a concept from graph theory:
 
-| Term     | Meaning                                                                          |
-| :------- | :------------------------------------------------------------------------------- |
-| Graph    | A structure that models relationships between objects (also called nodes)        |
-| Tree     | A subgraph in which any two nodes are connected by exactly one path              |
-| Spanning | The tree includes all nodes. It spans across all nodes.                           |
+| Term     | Meaning                                                                   |
+| :------- | :------------------------------------------------------------------------ |
+| Graph    | A structure that models relationships between objects (also called nodes) |
+| Tree     | A subgraph in which any two nodes are connected by exactly one path       |
+| Spanning | The tree includes all nodes. It spans across all nodes.                   |
 
 ### STP algorithm
 
@@ -1080,11 +1080,11 @@ The BID is a 64-bit number:
 </table>
 </div>
 
-| Part                         | Description                                                                                                         |
-| :--------------------------- | :------------------------------------------------------------------------------------------------------------------ |
-| Configurable priority value  | First part of the bridge priority. By default, the most significant bit is set to 1, which is equivalent to 0d32768. |
-| **Extended System ID**       | Second part of the bridge priority. Equal to the VLAN ID.                                                           |
-| MAC address                  | 48 bits                                                                                                             |
+| Part                        | Description                                                                                                          |
+| :-------------------------- | :------------------------------------------------------------------------------------------------------------------- |
+| Configurable priority value | First part of the bridge priority. By default, the most significant bit is set to 1, which is equivalent to 0d32768. |
+| **Extended System ID**      | Second part of the bridge priority. Equal to the VLAN ID.                                                            |
+| MAC address                 | 48 bits                                                                                                              |
 
 Cisco switches run a proprietary version of STP called **Per-VLAN Spanning Tree Plus (PVST+)**. In PVST+, switches run a separate STP instance for each VLAN, so they create a separate spanning tree for each VLAN. The benefit is that different links can be disabled in different VLANs, which balances traffic over all links.
 
@@ -1172,9 +1172,9 @@ VLAN0001
 
 You can also configure the bridge priority with `spanning-tree vlan vlan-id root {primary | secondary}`:
 
-| Keyword     | Effect                                                                                                                                                                                                                                       |
-| :---------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `secondary` | Sets the priority to 28672, one increment of 4096 under the default of 32768.                                                                                                                                                               |
+| Keyword     | Effect                                                                                                                                                                                                                                                                                 |
+| :---------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `secondary` | Sets the priority to 28672, one increment of 4096 under the default of 32768.                                                                                                                                                                                                          |
 | `primary`   | Sets the priority to 24576, two increments of 4096 under the default.<br><br>If 24576 isn't enough to make the switch the root bridge (that is, the current root bridge's priority is 24576), sets the priority to the highest multiple of 4096 that makes the switch the root bridge. |
 
 These commands work if all other switches in the LAN have the default priority of 32768. The switch with `primary` becomes the root bridge, and the switch with `secondary` is next in line if the root bridge fails.
@@ -1189,3 +1189,297 @@ To ensure a switch is the root bridge, run <code>spanning-tree vlan vlan-id prio
 {{< /admonition >}}
 
 #### Root port selection
+
+After the root bridge election, each non-root switch selects one of its ports as its **root port**: the port with the best path to the root bridge. The switch calculates this from information in the BPDUs it receives from its neighbors.
+
+The switch selects the root port by comparing these parameters, in order of priority:
+
+1. Lowest **root cost**, which measures the port's proximity to the root bridge
+2. Lowest neighbor BID
+3. Lowest neighbor port ID
+
+A port's root cost indicates how efficient the path to the root bridge is through that port. A lower value is better.
+
+STP port cost values:
+
+| Speed    | Cost |
+| :------- | :--- |
+| 10 Mbps  | 100  |
+| 100 Mbps | 19   |
+| 1 Gbps   | 4    |
+| 10 Gbps  | 2    |
+
+A port's root cost is the total cost of the ports leading toward the root bridge, not just the cost of the individual port. The switch uses each parameter only when the previous one ties:
+
+| Parameter               | Root port                                                                                                                          |
+| :---------------------- | :--------------------------------------------------------------------------------------------------------------------------------- |
+| Lowest root cost        | The port with the lowest root cost                                                                                                 |
+| Lowest neighbor BID     | If multiple ports have the same root cost, the port connected to the neighbor with the lowest BID                                  |
+| Lowest neighbor port ID | If ports have the same root cost and connect to the same neighbor, the port connected to the neighbor port with the lowest port ID |
+
+##### Lowest root cost
+
+After the root bridge election, the root bridge is the only switch that generates new BPDUs. Other switches receive those BPDUs, update some information in them, and forward them to their neighbors.
+
+When a non-root switch forwards a BPDU, it adds the cost of the port it received the BPDU on.
+
+##### Lowest neighbor bridge ID
+
+The receiving switch can use the neighbor's BID as a tiebreaker when it decides its root port. The port connected to the neighbor with the lowest BID becomes the switch's root port.
+
+##### Lowest neighbor port ID
+
+The neighbor port ID is the final tiebreaker for root port selection.
+
+{{< admonition "Neighbor's port ID, not local" warning >}}
+The tiebreaker uses the neighbor's port IDs, not the local switch's port ID. To decide SW1's root port, compare the port IDs of SW3's ports that connect to SW1.
+{{< /admonition >}}
+
+The **port ID** uniquely identifies each port on the switch. Like the BID, it has two parts:
+
+| Part                        | Value                                                  |
+| :-------------------------- | :----------------------------------------------------- |
+| Configurable priority value | 128 by default                                         |
+| Sequential number           | 1 for the first port, 2 for the second port, and so on |
+
+The `Prio.Nbr` column of `show spanning-tree` shows each port ID:
+
+```text
+SW3# show spanning-tree
+. . .
+Interface           Role Sts Cost      Prio.Nbr Type
+------------------- ---- --- --------- -------- --------------------------------
+Gi0/0               Desg FWD 4         128.1    P2p
+Gi0/1               Desg FWD 4         128.2    P2p
+Gi0/2               Desg FWD 4         128.3    P2p
+```
+
+To influence root port selection, configure a port's priority value (the first part of the port ID) with `spanning-tree vlan vlan-id port-priority priority-value` in interface configuration mode.
+
+To decide which port has a lower port ID, you can just compare the port names. G0/0 has a lower port ID than G0/1, because 0 is lower than 1.
+
+#### Designated port selection
+
+The final step of the STP algorithm is to select designated ports:
+
+| Port role           | State      | Direction                        |
+| :------------------ | :--------- | :------------------------------- |
+| **Root port**       | Forwarding | Points toward the root bridge    |
+| **Designated port** | Forwarding | Points away from the root bridge |
+
+Every port on the root bridge is a designated port, because they all point away from the root bridge.
+
+Each segment in the LAN must have exactly one designated port. The exact meaning of **segment** varies, but here a segment is a link between switches. The switches select designated ports with these parameters, in order of priority:
+
+1. The port on the switch with the lowest root cost becomes designated.
+2. The port on the switch with the lowest BID becomes designated.
+
+{{< admonition "What is a segment?" note >}}
+A Layer 1 segment is an electrical connection between devices and is equivalent to a collision domain. This is the meaning of segment in these notes. Two connected switches are another example of a Layer 1 segment.
+
+A Layer 3 segment is equivalent to a subnet. Layer 2 and Layer 3 segments usually have a one-to-one relationship (one subnet per VLAN), but a single VLAN can include multiple subnets.
+{{< /admonition >}}
+
+The root bridge election and root port selection already identify some designated ports:
+
+- All ports on the root bridge are designated.
+- All ports connected to a root port are designated.
+
+Each remaining segment must have one designated port. The other ports are non-designated. **Non-designated ports** are in the blocking state. This is how STP prevents loops.
+
+In the example, SW1 G0/0 connects to SW3 G0/1, a designated port. A segment can have only one designated port, so SW1 G0/0 is a non-designated port.
+
+##### Port on the switch with lowest root cost
+
+Root cost is the first parameter that decides which side of each remaining link becomes designated. The port on the switch with the lowest root cost becomes designated, and the other port becomes non-designated.
+
+{{< admonition "Watch the wording" warning >}}
+The rule is "the port on the switch with the lowest root cost becomes designated," not "the port with the lowest root cost becomes designated." You compare each switch's root cost through its root port, not the cost of each port whose role is being decided.
+{{< /admonition >}}
+
+##### Port on the switch with lowest bridge ID
+
+If root costs tie, the switches compare their BIDs. The port on the switch with the lowest BID becomes designated, and the port on the other switch becomes non-designated.
+
+#### Summary
+
+The STP algorithm:
+
+1. Root bridge election (one per LAN)
+   1. Lowest BID
+2. Root port selection (one per switch, excluding the root bridge)
+   1. Lowest root cost
+   2. Lowest neighbor BID
+   3. Lowest neighbor port ID
+3. Designated port selection (one per segment)
+   1. Port on the switch with the lowest root cost
+   2. Port on the switch with the lowest BID
+
+### STP port states and timers
+
+Root, designated, and non-designated are the STP **port roles**. In addition to the three roles, STP has multiple **port states**.
+
+| State      | Behavior                                   | Ports in this state in a stable LAN |
+| :--------- | :----------------------------------------- | :---------------------------------- |
+| Forwarding | Active. Can forward and receive frames.    | Root and designated ports           |
+| Blocking   | Disabled. Can't forward or receive frames. | Non-designated ports                |
+
+A port also goes through some transitional states to prepare to forward frames. Timers govern how long the port spends in each state.
+
+#### STP port states
+
+STP has four main port states: blocking, listening, learning, and forwarding.
+
+You might also hear of a fifth state, **disabled**. A disabled port isn't operational. For example, it's disabled with the `shutdown` command or isn't connected to another device. STP isn't active on such a port, so it's usually not included as an STP port state.
+
+| State              | Forward frames? | Learn MAC addresses? | Stable or transitional?   |
+| :----------------- | :-------------- | :------------------- | :------------------------ |
+| Blocking (`BLK`)   | No              | No                   | Stable (non-designated)   |
+| Listening (`LIS`)  | No              | No                   | Transitional              |
+| Learning (`LRN`)   | No              | Yes                  | Transitional              |
+| Forwarding (`FWD`) | Yes             | Yes                  | Stable (root, designated) |
+
+When a port is first enabled, for example when you connect it to another device, it enters the **listening** state:
+
+- The port can only send and receive STP BPDUs.
+- The port doesn't forward any regular data frames.
+- The switch doesn't learn MAC addresses from frames that arrive on the port.
+- The switch decides the port's role: root, designated, or non-designated.
+- The state is transitional. The port should stay in it for a maximum of 15 seconds.
+
+To see the listening state, disable SW2's G0/1 port, reenable it, and run `show spanning-tree`. `LIS` in the `Sts` column indicates the listening state:
+
+```text
+SW2(config)# interface g0/1
+SW2(config-if)# shutdown
+SW2(config-if)# no shutdown
+SW2(config-if)# do show spanning-tree
+. . .
+Interface           Role Sts Cost      Prio.Nbr Type
+------------------- ---- --- --------- -------- --------------------------------
+Gi0/0               Altn BLK 4         128.1    P2p 
+Gi0/1               Root LIS 4         128.2    P2p
+```
+
+{{< admonition "Altn role" note >}}
+<code>Altn</code> means alternate, which is equivalent to the non-designated role. Alternate is a port role introduced in Rapid STP.
+{{< /admonition >}}
+
+After the listening state, the port's role decides its next state:
+
+| Role               | Next state | When             |
+| :----------------- | :--------- | :--------------- |
+| Non-designated     | Blocking   | Immediately      |
+| Root or designated | Learning   | After 15 seconds |
+
+In the **blocking** state, the port is effectively disabled:
+
+- The port doesn't forward frames.
+- Its only job is to listen for BPDUs and react if the network changes.
+- `show ip interface brief` still shows its status as up/up.
+- `show spanning-tree` shows its status as `BLK`.
+
+The **learning** state is similar to the listening state, with one difference: the port starts learning MAC addresses when it receives frames. This state prepares the port to start forwarding traffic. Like the listening state, it's transitional.
+
+After 15 seconds in the learning state, a root or designated port transitions to the **forwarding** state. A forwarding port is a fully operational switch port that can forward traffic.
+
+STP has **converged** when all switches in the network have decided their ports' roles and all ports are in a blocking or forwarding state. The LAN is then stable.
+
+#### STP timers
+
+Three timers govern how STP operates:
+
+| Timer         | Purpose                                                                                     | Duration               |
+| :------------ | :------------------------------------------------------------------------------------------ | :--------------------- |
+| Hello         | How often BPDUs are sent                                                                    | 2 seconds              |
+| Forward delay | The length of the listening and learning states                                             | 15 seconds (per state) |
+| Max age       | How long a switch waits to change the STP topology after it stops receiving BPDUs on a port | 20 seconds             |
+
+The root bridge's timers apply to all switches in the LAN. For example, the root bridge's hello timer dictates how often BPDUs are sent in the LAN. All BPDUs originate from the root bridge, and the other switches forward them out of their designated ports.
+
+The **hello timer** determines how often BPDUs are sent. By default, it's 2 seconds, so BPDUs are sent every 2 seconds.
+
+The **forward delay timer** determines the length of the listening and learning states. By default, it's 15 seconds: 15 seconds for listening and 15 seconds for learning. A newly enabled port takes a total of 30 seconds before it can forward frames (except BPDUs).
+
+Each switch port spends a set time in each state before it transitions to another state. This lets the switch be absolutely sure it won't cause a loop when it transitions a port to the forwarding state. In a LAN with redundant connections, preventing loops is very important, because a loop can bring down a LAN in a matter of seconds.
+
+The **max age timer** determines how long a switch waits to change the STP topology after it stops receiving BPDUs on a port. By default, it's 20 seconds. With the default hello timer of 2 seconds, a port can miss 10 BPDUs before the switch recalculates the STP topology, for example by electing a new root bridge and recalculating port roles.
+
+STP can take up to 50 seconds to move a blocking port into the forwarding state:
+
+| Stage           | Time       |
+| :-------------- | :--------- |
+| Max age timer   | 20 seconds |
+| Listening state | 15 seconds |
+| Learning state  | 15 seconds |
+| **Total**       | **50 seconds** |
+
+If the hardware failure makes SW1's G0/1 port totally nonoperational (down/down state), SW1 reacts immediately. It doesn't wait for the max age timer.
+
+### PortFast and BPDU Guard
+
+Cisco switches include a suite of optional STP features, sometimes called the **STP toolkit**, that can speed up STP convergence and improve stability. The toolkit includes PortFast and BPDU Guard.
+
+Switch ports connected to devices that don't use STP, such as PCs, are always designated ports, so there's no risk of a Layer 2 loop. However, because STP is timer-based, a connected device must wait 30 seconds before it can access the network, when the switch port enters the forwarding state.
+
+#### PortFast
+
+**PortFast** is an optional STP feature that moves a switch port immediately to the forwarding state, bypassing the listening and learning states.
+
+| Scope                             | Command                             | Mode                    |
+| :-------------------------------- | :---------------------------------- | :---------------------- |
+| A specific port                   | `spanning-tree portfast`            | Interface configuration |
+| All access ports (not trunk ports) | `spanning-tree portfast default`    | Global configuration    |
+
+When you enable PortFast on a port, IOS warns you about bridging loops and notes that PortFast takes effect only in non-trunking mode:
+
+```text
+SW1(config)# interface g1/0
+SW1(config-if)# spanning-tree portfast
+%Warning: portfast should only be enabled on ports connected to a single
+ host. Connecting hubs, concentrators, switches, bridges, etc... to this
+ interface when portfast is enabled, can cause temporary bridging loops.
+ Use with CAUTION
+%Portfast has been configured on GigabitEthernet1/0 but will only 
+ have effect when the interface is in a non-trunking mode.
+```
+
+{{< admonition "End hosts only" warning >}}
+PortFast puts switch ports in the forwarding state immediately, bypassing the listening and learning states. Enable it only on ports intended for end hosts. Don't connect switches to PortFast-enabled ports.
+{{< /admonition >}}
+
+#### BPDU Guard
+
+**BPDU Guard** is another optional STP feature that disables a switch port if it receives a BPDU. Enable it on all PortFast-enabled ports.
+
+PortFast-enabled ports should connect only to end hosts, which don't send BPDUs. If a user carelessly connects another switch to a port meant for end hosts, BPDU Guard disables the port. This prevents the new switch from affecting the STP topology, for example by becoming the new root bridge.
+
+| Scope                       | Command                                  | Mode                    |
+| :-------------------------- | :--------------------------------------- | :---------------------- |
+| A specific port             | `spanning-tree bpduguard enable`         | Interface configuration |
+| All PortFast-enabled ports  | `spanning-tree portfast bpduguard default` | Global configuration  |
+
+```text
+SW4(config)# interface g0/0
+SW4(config-if)# spanning-tree portfast
+SW4(config-if)# spanning-tree bpduguard enable
+```
+
+If a port with BPDU Guard enabled receives a BPDU from another switch, the port enters an **error-disabled** state:
+
+```text
+%SPANTREE-2-BLOCK_BPDUGUARD: Received BPDU on port Gi0/0 
+with BPDU Guard enabled. Disabling port.
+%PM-4-ERR_DISABLE: bpduguard error detected on Gi0/0, 
+putting Gi0/0 in err-disable state
+```
+
+To reenable an error-disabled port:
+
+1. Solve the problem that caused the error. For example, disconnect the switch from the PortFast and BPDU Guard-enabled port.
+2. Run `shutdown` on the port.
+3. Run `no shutdown` on the port to reset it.
+
+{{< admonition "Remember" tip >}}
+Enable PortFast only on ports meant for end hosts, and enable BPDU Guard on all PortFast-enabled ports. You can use only PortFast or only BPDU Guard, but best practice is to use both features together.
+{{< /admonition >}}

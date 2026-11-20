@@ -1494,10 +1494,10 @@ PVST+ creates a separate spanning tree for each VLAN.
 
 RSTP was first standardized in IEEE 802.1w. Cisco then developed **Rapid Per-VLAN Spanning Tree Plus (Rapid PVST+)**, which runs on Cisco switches. 802.1w and Rapid PVST+ differ the same way 802.1D and PVST+ do:
 
-| Standard version         | Cisco version | Spanning trees                                                                    |
-| :----------------------- | :------------ | :-------------------------------------------------------------------------------- |
-| 802.1D (STP)             | PVST+         | Standard: a single spanning tree. Cisco: a separate spanning tree for each VLAN.   |
-| 802.1w (RSTP)            | Rapid PVST+   | Standard: a single spanning tree in the LAN. Cisco: a separate spanning tree for each VLAN, so traffic in different VLANs can use different links. |
+| Standard version | Cisco version | Spanning trees                                                                                                                                     |
+| :--------------- | :------------ | :------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 802.1D (STP)     | PVST+         | Standard: a single spanning tree. Cisco: a separate spanning tree for each VLAN.                                                                   |
+| 802.1w (RSTP)    | Rapid PVST+   | Standard: a single spanning tree in the LAN. Cisco: a separate spanning tree for each VLAN, so traffic in different VLANs can use different links. |
 
 To check which version a switch runs, use `show spanning-tree`:
 
@@ -1520,10 +1520,10 @@ VLAN0001
 
 The keyword that enables each mode differs from how the mode appears in `show spanning-tree`:
 
-| Version     | Configure with                   | `show spanning-tree` output          |
-| :---------- | :------------------------------- | :----------------------------------- |
-| PVST+       | `spanning-tree mode pvst`        | `Spanning tree enabled protocol ieee` |
-| Rapid PVST+ | `spanning-tree mode rapid-pvst`  | `Spanning tree enabled protocol rstp` |
+| Version     | Configure with                  | `show spanning-tree` output           |
+| :---------- | :------------------------------ | :------------------------------------ |
+| PVST+       | `spanning-tree mode pvst`       | `Spanning tree enabled protocol ieee` |
+| Rapid PVST+ | `spanning-tree mode rapid-pvst` | `Spanning tree enabled protocol rstp` |
 
 {{< admonition "Keep in mind" warning >}}
 Cisco switches don't run the IEEE-standard versions of STP and RSTP. They run PVST+ and Rapid PVST+.
@@ -1539,10 +1539,264 @@ In that case, **Multiple Spanning Tree Protocol (MSTP)** might be preferred. Wit
 
 STP versions:
 
-| Version     | Standard or Cisco-proprietary | Description                                                                       |
-| :---------- | :---------------------------- | :-------------------------------------------------------------------------------- |
-| STP         | Standard (802.1D)             | The original standard. Creates only a single spanning tree.                       |
-| PVST+       | Cisco-proprietary             | Cisco's upgrade to 802.1D. Creates a separate spanning tree for each VLAN.        |
-| RSTP        | Standard (802.1w)             | Much faster convergence than 802.1D. Creates only a single spanning tree.         |
-| Rapid PVST+ | Cisco-proprietary             | Cisco's upgrade to 802.1w. Creates a separate spanning tree for each VLAN.        |
+| Version     | Standard or Cisco-proprietary | Description                                                                                       |
+| :---------- | :---------------------------- | :------------------------------------------------------------------------------------------------ |
+| STP         | Standard (802.1D)             | The original standard. Creates only a single spanning tree.                                       |
+| PVST+       | Cisco-proprietary             | Cisco's upgrade to 802.1D. Creates a separate spanning tree for each VLAN.                        |
+| RSTP        | Standard (802.1w)             | Much faster convergence than 802.1D. Creates only a single spanning tree.                         |
+| Rapid PVST+ | Cisco-proprietary             | Cisco's upgrade to 802.1w. Creates a separate spanning tree for each VLAN.                        |
 | MSTP        | Standard (802.1s)             | Uses RSTP mechanics for fast convergence. Groups multiple VLANs into each spanning tree instance. |
+
+### STP and RSTP comparison
+
+The fundamental difference is speed. 802.1w RSTP uses a **synchronization mechanism**: RSTP-enabled switches communicate with each other to bring ports immediately to the forwarding state, without waiting for timers to count down.
+
+The algorithm that calculates the topology is identical:
+
+1. Root bridge election (one per LAN)
+   1. Lowest bridge identifier (BID)
+2. Root port selection (one per switch, excluding the root bridge)
+   1. Lowest root cost
+   2. Lowest neighbor BID
+   3. Lowest neighbor port ID
+3. Designated port selection (one per segment)
+   1. Port on the switch with the lowest root cost
+   2. Port on the switch with the lowest BID
+
+| Difference      | STP                | RSTP                                                                                                                            |
+| :-------------- | :----------------- | :------------------------------------------------------------------------------------------------------------------------------ |
+| Remaining ports | All non-designated | One of two roles: alternate or backup                                                                                           |
+| BPDUs           |                    | All switches send BPDUs out of their designated ports every 2 seconds, whether or not they received a BPDU from the root bridge |
+
+#### Port costs
+
+The original STP port costs are now called the **short costs**, and the new RSTP port costs are called the **long costs**:
+
+| Speed    | Short cost | Long cost |
+| :------- | :--------- | :-------- |
+| 10 Mbps  | 100        | 2,000,000 |
+| 100 Mbps | 19         | 200,000   |
+| 1 Gbps   | 4          | 20,000    |
+| 10 Gbps  | 2          | 2,000     |
+| 100 Gbps | -          | 200       |
+| 1 Tbps   | -          | 20        |
+| 10 Tbps  | -          | 2         |
+
+{{< admonition "Remembering the long costs" tip >}}
+Pick one long cost as a point of reference, such as 10 Gbps = 2,000. Then calculate the long costs for other speeds: increasing the speed by a factor of 10 reduces the cost by a factor of 10, and decreasing the speed by a factor of 10 increases the cost by a factor of 10.
+{{< /admonition >}}
+
+| Task                                          | Command                                         |
+| :-------------------------------------------- | :---------------------------------------------- |
+| View the switch's cost method (short or long) | `show spanning-tree pathcost method`            |
+| Change the cost method (global configuration) | `spanning-tree pathcost method {short \| long}` |
+
+#### Port states
+
+STP has four main states: blocking, listening, learning, and forwarding. RSTP combines the first two into a single state called **discarding**:
+
+<table class="merged">
+  <thead>
+    <tr><th>STP port state</th><th>RSTP port state</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Blocking</td><td rowspan="2">Discarding</td></tr>
+    <tr><td>Listening</td></tr>
+    <tr><td>Learning</td><td>Learning</td></tr>
+    <tr><td>Forwarding</td><td>Forwarding</td></tr>
+  </tbody>
+</table>
+
+When you first enable an RSTP port, it enters the discarding state. What happens next depends on the role the port receives:
+
+- **Alternate or backup port:** the port stays in the discarding state and blocks traffic to prevent Layer 2 loops.
+- **Root or designated port:** the port moves to the forwarding state in one of two ways:
+  - **Sync succeeds:** the port immediately transitions to forwarding, with no need to wait for any timers. Expect this when the port connects to another RSTP-enabled switch.
+  - **Sync doesn't work:** for example, the port connects to a device that doesn't use RSTP, such as a router, a PC, or a switch running STP instead of RSTP. The port stays in discarding for 15 seconds (the forward delay timer), moves to learning for another 15 seconds, and then transitions to forwarding. This is like a regular STP port moving through the listening and learning states before forwarding.
+
+RSTP and STP are compatible. However, a port on an RSTP-enabled switch that connects to a port on an STP-enabled switch can't use RSTP's sync mechanism. The RSTP port operates like a regular STP port.
+
+You can safely expect all switches to support RSTP, so expect the timer-based transition to forwarding only on ports connected to a host, such as a PC.
+
+#### Port roles
+
+A **root port** is a forwarding port that points toward the root bridge. It provides the switch's only active path to the root bridge. A **designated port** is a forwarding port that points away from the root bridge. Every segment must have exactly one designated port. RSTP replaces the nondesignated port role with two distinct roles: alternate and backup.
+
+##### Alternate role
+
+An RSTP **alternate port** is an alternative to the switch's root port. It provides an alternative path toward the root bridge and is ready to take over, by transitioning to the forwarding state, if the root port fails.
+
+The **designated bridge** is the switch that has the designated port for a particular segment. This term applies to both STP and RSTP.
+
+- **Rule:** any port that isn't a root or designated port is an alternate port if the switch isn't the designated bridge for that segment.
+- **Simple definition:** an alternate port is a port in the discarding state that connects to a designated port on another switch.
+
+In almost all cases, a port that is neither a root port nor a designated port is an alternate port.
+
+##### Backup role
+
+An RSTP **backup port** provides a backup path to the same segment as a designated port on the same switch. This happens only when two ports on the same switch connect to the same segment (collision domain), for example through a hub. This setup isn't common in modern networks.
+
+- **Rule:** any port that isn't a root or designated port is a backup port if the switch is the designated bridge for that segment.
+- **Simple definition:** a backup port is a port in the discarding state that connects to a designated port on the same switch (through a hub).
+
+Use `show spanning-tree` on SW1 and SW3 to confirm their port roles. In the Role column, `Altn` means alternate and `Back` means backup. The Sts column shows `BLK` in each case. RSTP renamed the blocking state to discarding, but this command keeps the "blocking" terminology:
+
+```text
+SW1# show spanning-tree
+. . .
+Interface           Role Sts Cost      Prio.Nbr Type
+------------------- ---- --- --------- -------- --------------------------------
+Gi0/0               Root FWD 4         128.1    Shr
+Gi0/1               Altn BLK 4         128.2    Shr
+
+SW3# show spanning-tree
+. . .
+Interface           Role Sts Cost      Prio.Nbr Type
+------------------- ---- --- --------- -------- --------------------------------
+Gi0/0               Desg FWD 4         128.1    Shr
+Gi0/1               Back BLK 4         128.2    Shr
+```
+
+When multiple ports on the same switch connect to the same segment, root and designated port selection need an additional tiebreaker: the port with the lowest port ID on the local switch becomes root or designated. With this tiebreaker added, the STP algorithm is:
+
+1. **Root bridge election** (one per LAN):
+   1. Lowest BID
+2. **Root port selection** (one per switch, excluding the root bridge):
+   1. Lowest root cost
+   2. Lowest neighbor BID
+   3. Lowest neighbor port ID
+   4. Lowest local port ID
+3. **Designated port selection** (one per segment):
+   1. Port on the switch with the lowest root cost
+   2. Port on the switch with the lowest BID
+   3. Lowest local port ID
+
+{{< admonition "Root bridge and designated ports" note >}}
+Rather than "every port on the root bridge should be designated," a more accurate rule is "the root bridge is the designated bridge for every segment." Because you'll rarely, if ever, encounter a LAN using hubs, you'll most often hear that every port on the root bridge should be designated.
+{{< /admonition >}}
+
+#### RSTP topology changes
+
+RSTP waits only until a port misses three BPDUs (6 seconds by default) to react. This speeds up convergence after a topology change like this one from 50 seconds to just over 6 seconds:
+
+1. Because of a hardware failure, SW1 stops receiving BPDUs on G0/1, but the port doesn't go down.
+2. G0/1 remains the root port for 6 seconds (3 × the 2-second hello timer).
+3. G0/0 becomes the root port, performs the RSTP sync process, and immediately moves to the forwarding state.
+
+If the hardware failure takes SW1's G0/1 down (disabled state), the process is even faster because there's no 6-second wait. SW1 G0/0 immediately starts the sync process, which brings total downtime to less than 1 second.
+
+### RSTP link types
+
+Link types influence how ports transition through the RSTP port states and react to network changes. RSTP defines three link types:
+
+| Link type      | Ports                  | Transition to forwarding                                        | Configuration                                          |
+| :------------- | :--------------------- | :-------------------------------------------------------------- | :----------------------------------------------------- |
+| Point-to-point | Full duplex            | Immediate, using the RSTP sync mechanism                        | Automatic, or `spanning-tree link-type point-to-point` |
+| Shared         | Half duplex            | Can't use the sync mechanism. Moves through the states like STP | Automatic, or `spanning-tree link-type shared`         |
+| Edge           | Connected to end hosts | Immediate, using PortFast                                       | Manual only: `spanning-tree portfast`                  |
+
+An RSTP **point-to-point link** operates in full duplex, meaning both connected ports (for example, SW1 G0/3 and SW2 G0/0) operate in full duplex. Only point-to-point links can use RSTP's sync mechanism to rapidly transition ports to the forwarding state. You can also configure this link type manually with `spanning-tree link-type point-to-point` in interface configuration mode.
+
+An RSTP **shared link** operates in half duplex. Half-duplex ports automatically use the shared link type, but you can configure it manually with `spanning-tree link-type shared` if necessary. Like the backup port role, you probably won't encounter the shared link type in a real network.
+
+**Edge** ports don't need the RSTP sync mechanism. There's no risk of a Layer 2 loop, so they can immediately transition to the forwarding state. Configure the edge link type by enabling PortFast on the appropriate ports with `spanning-tree portfast` (covered in chapter 14), not with `spanning-tree link-type` like point-to-point and shared links. Edge is the only link type the switch can't determine automatically from the port's duplex mode. You must configure it manually.
+
+RSTP doesn't consider activity on edge ports, such as moving to the forwarding or discarding state, a topology change, and it doesn't notify its neighbors of that activity. Edge ports connect to end hosts, not switches, so they pose no risk of causing Layer 2 loops. They don't affect the rest of the RSTP topology, so other switches don't need to know about activity on them.
+
+{{< admonition "Topology changes" note >}}
+STP and RSTP each have defined processes for reacting to topology changes, which let switches adapt to the new topology with minimal disruption.<br><br>
+<strong>STP</strong> triggers its topology change process when any port transitions to the forwarding state, or when a port in the learning or forwarding state transitions to the blocking or disabled state.<br><br>
+<strong>RSTP</strong> triggers the topology change process only when a port with a non-edge link type (point-to-point or shared) transitions to the forwarding state. It doesn't trigger the process when an edge port transitions to forwarding or when any port transitions to discarding.
+{{< /admonition >}}
+
+Use `show spanning-tree` to view each port's link type. The Type column on the far right lists the link types: point-to-point (`P2p`), shared (`Shr`), and edge (`Edge`):
+
+```text
+SW1# show spanning-tree
+. . .
+Interface           Role Sts Cost      Prio.Nbr Type
+------------------- ---- --- --------- -------- --------------------------------
+Gi0/0               Root FWD 4         128.1    Shr
+Gi0/1               Altn BLK 4         128.2    Shr
+Gi0/3               Desg FWD 4         128.4    P2p
+Fa1/0               Desg FWD 19        128.9    P2p Edge
+```
+
+In a modern network that uses only switches (not hubs), links should use these types:
+
+- **Switch to switch:** point-to-point
+- **Switch to end host:** edge (more specifically, point-to-point edge)
+
+### Root Guard, Loop Guard, and BPDU Filter
+
+#### Root Guard
+
+**Root Guard** stabilizes the STP topology by preventing external switches from becoming the root bridge. Root Guard is useful when two different entities control a LAN of switches, such as a service provider and a customer. The service provider can use Root Guard to keep one of its switches as the root bridge. This maintains a consistent STP topology even if a customer connects a switch with a lower bridge ID.
+
+When a Root Guard-enabled port receives a superior BPDU, the port enters the **root-inconsistent** state. This effectively disables the port and prevents the switch from accepting the superior BPDU.
+
+Enable Root Guard on a port with `spanning-tree guard root`. The following example shows the command and the error message that appears when Root Guard blocks the port:
+
+```text
+SW2(config)# interface g0/2
+SW2(config-if)# spanning-tree guard root
+*May 18 01:13:20.478: %SPANTREE-2-ROOTGUARD_BLOCK: Root guard blocking
+port GigabitEthernet0/2 on VLAN0001.
+SW2(config-if)# do show spanning-tree
+. . .
+Interface           Role Sts Cost      Prio.Nbr Type
+------------------- ---- --- --------- -------- -------------------------
+Gi0/0               Root FWD 4         128.1    P2p
+Gi0/1               Altn BLK 4         128.2    P2p
+Gi0/2               Desg BKN*4         128.3    P2p *ROOT_Inc
+```
+
+With Root Guard, your network's STP topology stays stable and consistent, and external or misconfigured devices can't disrupt the network.
+
+#### Loop Guard
+
+**Loop Guard** guards against Layer 2 loops in the LAN. STP's whole purpose is to prevent loops, but Loop Guard adds protection against a switch port erroneously transitioning from discarding (blocking in classic STP) to forwarding. This can happen when a discarding port stops receiving BPDUs, so the switch believes the port can move to forwarding without causing a loop.
+
+To avoid this problem, configure Loop Guard on a switch's alternate port with `spanning-tree guard loop`. If a Loop Guard-enabled port stops receiving BPDUs, the port moves into the **loop-inconsistent** state. This disables the port instead of letting it transition to forwarding, which prevents a loop from forming.
+
+The following example enables Loop Guard and shows the error message that appears when Loop Guard blocks the port to prevent a loop:
+
+```text
+SW2(config)# interface g0/1
+SW2(config-if)# spanning-tree guard loop
+*May 18 01:29:31.261: %SPANTREE-2-LOOPGUARD_BLOCK: Loop guard blocking
+port GigabitEthernet0/1 on VLAN0001.
+SW2(config-if)# do show spanning-tree
+. . .
+Interface           Role Sts Cost      Prio.Nbr Type
+------------------- ---- --- --------- -------- -------------------------
+Gi0/0               Root FWD 4         128.1    P2p
+Gi0/1               Desg BKN*4         128.2    P2p *LOOP_Inc
+```
+
+Loop Guard adds a safeguard against potential network loops, which keeps the LAN stable and reliable. A Layer 2 loop can bring down any LAN, so avoiding loops is critical.
+
+{{< admonition "Root Guard and Loop Guard" warning >}}
+Root Guard and Loop Guard are mutually exclusive. You can't enable both on the same port at the same time.
+{{< /admonition >}}
+
+#### BPDU Filter
+
+**BPDU Filter** prevents a port from sending or receiving BPDUs. Use it on ports where STP isn't necessary, such as ports connected to end hosts, because there's no risk of causing a loop. You can enable BPDU Filter in two ways, and each behaves differently:
+
+|                     | Per port                                               | Globally for PortFast ports                                                             |
+| :------------------ | :----------------------------------------------------- | :-------------------------------------------------------------------------------------- |
+| Command             | `spanning-tree bpdufilter enable`                      | `spanning-tree portfast bpdufilter default`                                             |
+| Mode                | Interface configuration                                | Global configuration                                                                    |
+| Applies to          | The specific port                                      | All PortFast-enabled ports (RSTP edge ports)                                            |
+| Sends BPDUs         | No                                                     | No                                                                                      |
+| When it gets a BPDU | Ignores it. This effectively disables STP on the port. | Disables PortFast and BPDU Filter. The port then operates as a normal STP or RSTP port. |
+
+{{< admonition "Avoid BPDU Filter" tip >}}
+Of the optional STP features (PortFast, BPDU Guard, Root Guard, Loop Guard, and BPDU Filter), BPDU Filter has the fewest use cases. Avoid it in general.
+{{< /admonition >}}
+
+
+## EtherChannel
+

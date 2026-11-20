@@ -1800,3 +1800,492 @@ Of the optional STP features (PortFast, BPDU Guard, Root Guard, Loop Guard, and 
 
 ## EtherChannel
 
+The downside of STP is that it disables all redundant links. These links provide essential redundancy in a LAN, but they forward traffic only if an active link fails.
+
+**EtherChannel** overcomes this limitation by combining multiple physical links into a single logical link. STP and frame-forwarding logic treat the group of links as a single unit, so the whole group can remain active without causing Layer 2 loops. EtherChannel provides these benefits:
+
+- Maximizes use of the available bandwidth
+- Improves network resilience
+- Simplifies management
+
+### How EtherChannel works
+
+**Bandwidth** is the total number of bits a connection can transfer per second. For example, four 1 Gbps links provide 4 Gbps of bandwidth.
+
+STP blocks all redundant links to avoid Layer 2 loops and leaves only a single link active. Additional links between SW1 and SW2 add redundancy, but they don't solve congestion between the switches. EtherChannel solves the problem: it combines multiple physical links into a single logical link, so they can all remain active without causing Layer 2 loops.
+
+Cisco IOS calls the logical interfaces that EtherChannel creates **port channels**. People often use this term interchangeably with EtherChannel.
+
+SW1 and SW2 distribute the frames they forward between each other over the four physical links in the EtherChannel. This is called **load balancing** or **load distribution**.
+
+A switch doesn't flood BUM frames that it receives on an EtherChannel member port out of other ports in the same EtherChannel:
+
+```text
+   40 hosts                    EtherChannel
+ +-----------+                  (  ...  )
+ | PC1 ----(1)--> +-----+ G0/0 ======(2)=====> G0/0 +-----+ ---> SRV1
+ |           |    |     | G0/1 -------------- G0/1 |     |
+ | PC40 <-------- | SW1 | G0/2 -------------- G0/2 | SW2 | (3)
+ |           |    |     | G0/3 -------------- G0/3 |     |
+ | PC2  <-------- +-----+                          +-----+ ---> SRV2
+ +-----------+
+```
+
+1. PC1 sends a broadcast frame.
+2. SW1 floods the frame out of one of the physical ports in the EtherChannel, G0/0. It also floods the frame to the other hosts, such as PC40 and PC2.
+3. SW2 receives the frame on G0/0 and doesn't flood it out of G0/1, G0/2, or G0/3, because they're part of the same EtherChannel. SW2 floods the frame to SRV1 and SRV2.
+
+STP treats all ports in an EtherChannel as one logical port, so `show spanning-tree` shows only the port channel interfaces, not the physical ports:
+
+```text
+SW1# show spanning-tree
+Interface           Role Sts Cost      Prio.Nbr Type
+------------------- ---- --- --------- -------- --------------------------------
+Po1                 Root FWD 3         128.65    P2p
+Po2                 Altn BLK 3         128.66    P2p
+```
+
+### EtherChannel configuration
+
+You can configure an EtherChannel in two ways:
+
+| Type    | How the EtherChannel forms                                                                        |
+| :------ | :------------------------------------------------------------------------------------------------ |
+| Dynamic | The switches use a protocol to negotiate with each other to form an EtherChannel.                 |
+| Static  | The switch forms an EtherChannel with the specified ports, without negotiating with the neighbor. |
+
+#### Dynamic EtherChannel
+
+To configure a **dynamic EtherChannel**, you enable a protocol on a set of switch ports. The switches use the protocol to send each other messages and negotiate whether to form an EtherChannel. During negotiation, they compare configuration parameters to make sure they match.
+
+{{< admonition "Use dynamic EtherChannel" warning >}}
+Incorrectly configured EtherChannels can cause loops in the LAN. Use dynamic EtherChannel instead of static EtherChannel.
+{{< /admonition >}}
+
+Cisco switches support two dynamic EtherChannel negotiation protocols:
+
+| Protocol                                     | Standard                                     | Runs on               |
+| :------------------------------------------- | :------------------------------------------- | :-------------------- |
+| **Port Aggregation Protocol (PAgP)**         | Cisco proprietary                            | Cisco switches only   |
+| **Link Aggregation Control Protocol (LACP)** | IEEE standard, first defined in IEEE 802.3ad | Any vendor's switches |
+
+{{< admonition "Exam tip" tip >}}
+The biggest difference between PAgP and LACP is vendor support. If an exam question mentions forming an EtherChannel with a non-Cisco switch, you must use LACP.
+{{< /admonition >}}
+
+##### PAgP configuration
+
+PAgP combines up to eight physical links into a single EtherChannel. You'll recognize the `desirable` and `auto` keywords from configuring trunks with DTP. To make the new EtherChannel a trunk link, configure `switchport mode trunk` on each logical port channel interface.
+
+In this example, SW1 and SW2 connect over G0/0 and G0/1. SW1 uses `desirable` mode and SW2 uses `auto` mode:
+
+```text
+SW1(config)# interface range g0/0-1
+SW1(config-if-range)# channel-group 1 mode desirable
+SW1(config-if-range)# interface po1
+SW1(config-if)# switchport mode trunk
+```
+
+```text
+SW2(config)# interface range g0/0-1
+SW2(config-if-range)# channel-group 1 mode auto
+SW2(config-if-range)# interface po1
+SW2(config-if)# switchport mode trunk
+```
+
+To configure an EtherChannel with PAgP, use `channel-group group-number mode {desirable | auto}` on the member ports. The **group number** identifies the EtherChannel on the switch. A single switch can have multiple EtherChannels, and this number identifies which ports belong to which EtherChannel.
+
+As with DTP trunk formation, the combination of `desirable` and `auto` modes on the two ends of the connection determines whether the switches form an EtherChannel:
+
+|                 | `desirable` | `auto` |
+| :-------------- | :---------- | :----- |
+| **`desirable`** | Yes         | Yes    |
+| **`auto`**      | Yes         | No     |
+
+Ports in `auto` mode don't actively try to form an EtherChannel. They respond when they receive PAgP messages from a `desirable`-mode neighbor and agree to form an EtherChannel.
+
+Configure `desirable` mode on SW1's G0/0 and G0/1 ports, as in the previous example. After you assign both ports to channel group 1, IOS automatically creates the logical interface Port-channel1, as shown in `show ip interface brief`. With this logical interface, Cisco IOS treats the physical G0/0 and G0/1 ports as one entity:
+
+```text
+SW1(config)# interface range g0/0-1
+SW1(config-if-range)# channel-group 1 mode desirable
+SW1(config-if-range)# do show ip interface brief
+Interface          IP-Address   OK?  Method  Status                 Protocol
+GigabitEthernet0/0  unassigned  YES  unset   up                     up
+GigabitEthernet0/1  unassigned  YES  unset   up                     up
+GigabitEthernet0/2  unassigned  YES  unset   administratively down  down
+GigabitEthernet0/3  unassigned  YES  unset   administratively down  down
+Port-channel1       unassigned  YES  unset   down                   down
+```
+
+{{< admonition "Same thing, different names" note >}}
+Some IOS commands use the term <code>channel-group</code>, some use <code>port-channel</code>, and some use <code>etherchannel</code>. They all refer to the same thing.
+{{< /admonition >}}
+
+Confirm the status of any EtherChannels on a switch with `show etherchannel summary`:
+
+```text
+SW1# show etherchannel summary
+Flags:  D - down        P - bundled in port-channel
+        I - stand-alone s - suspended
+        H - Hot-standby (LACP only)
+        R - Layer3      S - Layer2
+        U - in use      N - not in use, no aggregation
+        f - failed to allocate aggregator
+. . .
+Group  Port-channel  Protocol    Ports
+------+-------------+-----------+-----------------------------------------------
+1      Po1(SD)         PAgP      Gi0/0(I)    Gi0/1(I)
+```
+
+Flags in brackets next to the port channel interface and each member port show the EtherChannel's status:
+
+| Flag | Meaning              | Notes                                                                                                                                                   |
+| :--- | :------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `S`  | Layer 2 EtherChannel | Think S for "switch port." Like regular switch ports, you can configure port channel interfaces to operate like router interfaces with `no switchport`. |
+| `D`  | Down                 |                                                                                                                                                         |
+| `I`  | Stand-alone          | Think I for "independent."                                                                                                                              |
+
+SW1's Po1 interface has the `S` and `D` flags. G0/0 and G0/1 both have the `I` flag. Although they're configured as part of Port-channel1, PAgP didn't succeed in negotiating with SW2, so G0/0 and G0/1 operate as regular standalone switch ports. To complete the EtherChannel, configure SW2's side of the connection in `auto` mode:
+
+```text
+SW2(config)# interface range g0/0-1
+SW2(config-if-range)# channel-group 1 mode auto
+SW2(config-if-range)# do show etherchannel summary
+Flags:  D - down        P - bundled in port-channel
+. . .
+        R - Layer3      S - Layer2
+        U - in use      N - not in use, no aggregation
+. . .
+Group  Port-channel  Protocol    Ports
+------+-------------+-----------+-----------------------------------------------
+1      Po1(SU)         PAgP      Gi0/0(P)    Gi0/1(P)
+```
+
+The group number doesn't have to match on the two switches. It's significant only to the local switch.
+
+Next, configure each switch's port channel interface as necessary. For example, a connection between switches should probably be a trunk link, because in most cases connections between switches need to carry traffic in multiple VLANs:
+
+```text
+SW1(config)# interface po1
+SW1(config-if)# switchport mode trunk
+```
+
+Member ports automatically inherit the configuration you make on the port channel interface. Use `show running-config` on SW1 to check its port configurations. G0/0 and G0/1 have both inherited `switchport mode trunk`:
+
+```text
+SW1# show running-config
+. . .
+interface Port-channel1
+ switchport mode trunk
+!
+interface GigabitEthernet0/0
+ switchport mode trunk
+ channel-group 1 mode desirable
+!
+interface GigabitEthernet0/1
+ switchport mode trunk
+ channel-group 1 mode desirable
+. . .
+```
+
+Only Po1 appears in the output of `show interfaces trunk`. When physical ports are part of an EtherChannel, IOS no longer views them as independent logical entities. It combines them into the logical port channel interface:
+
+```text
+SW1# show interfaces trunk
+Port        Mode             Encapsulation  Status        Native vlan
+Po1         on               802.1q         trunking      1
+. . .
+```
+
+Inheritance also works in the other direction. If you use `switchport mode trunk` on G0/0 and G0/1, Po1 inherits the configuration:
+
+```text
+SW2(config)# interface range g0/0-1
+SW2(config-if-range)# switchport mode trunk
+SW2(config-if-range)# do show running-config
+. . .
+interface Port-channel1
+ switchport mode trunk
+!
+interface GigabitEthernet0/0
+ switchport mode trunk
+ channel-group 1 mode desirable
+!
+interface GigabitEthernet0/1
+ switchport mode trunk
+ channel-group 1 mode desirable
+. . .
+```
+
+{{< admonition "Order of configuration" note >}}
+You can assign ports to an EtherChannel (with <code>channel-group</code>) before or after you configure port settings (like <code>switchport mode trunk</code>). You can configure those port settings on either the member ports or the port channel interface.<br><br>
+After the EtherChannel is created and active in the network, make configuration changes (for example, modifying the allowed VLANs) on the port channel interface, not the member ports. Configuration changes on the member ports can cause the EtherChannel to flap.
+{{< /admonition >}}
+
+You'll use `show etherchannel summary` most often to verify a switch's EtherChannels. Also be familiar with `show pagp neighbor`, which displays information about the switch's PAgP-enabled neighbors:
+
+```text
+SW2# show pagp neighbor
+Flags:  S - Device is sending Slow hello.  C - Device is in Consistent state.
+        A - Device is in Auto mode.        P - Device learns on physical port.
+Channel group 1 neighbors
+         Partner   Partner          Partner        Partner Group
+Port     Name      Device ID        Port      Age  Flags   Cap.
+Gi0/0    SW1       5254.0015.8000   Gi0/0     6s   SC      10001
+Gi0/1    SW1       5254.0015.8000   Gi0/1     6s   SC      10001
+```
+
+The `A` flag, which stands for auto mode, doesn't appear in the Partner Flags column. SW1's ports aren't in `auto` mode, so they must be in `desirable` mode.
+
+##### Link aggregation control protocol
+
+In this example, SW1 and SW2 connect over G0/0 and G0/1. SW1 uses `active` mode and SW2 uses `passive` mode:
+
+```text
+SW1(config)# interface range g0/0-1
+SW1(config-if-range)# channel-group 1 mode active
+SW1(config-if-range)# interface po1
+SW1(config-if)# switchport mode trunk
+```
+
+```text
+SW2(config)# interface range g0/0-1
+SW2(config-if-range)# channel-group 1 mode passive
+SW2(config-if-range)# interface po1
+SW2(config-if)# switchport mode trunk
+```
+
+The most relevant difference from PAgP is the keywords you use with `channel-group` to configure an LACP EtherChannel: `active` and `passive` instead of PAgP's `desirable` and `auto`. These LACP mode combinations form an EtherChannel:
+
+|               | `active` | `passive` |
+| :------------ | :------- | :-------- |
+| **`active`**  | Yes      | Yes       |
+| **`passive`** | Yes      | No        |
+
+Each LACP mode is equivalent to a PAgP mode:
+
+| LACP mode | PAgP equivalent | Behavior                                                                                       |
+| :-------- | :-------------- | :--------------------------------------------------------------------------------------------- |
+| `active`  | `desirable`     | Actively tries to form an EtherChannel with the neighboring switch by sending LACP messages.   |
+| `passive` | `auto`          | Doesn't actively try to form an EtherChannel, but responds if the neighbor uses `active` mode. |
+
+{{< admonition "Don't mix protocols" warning >}}
+You can't use LACP and PAgP modes together.
+{{< /admonition >}}
+
+A second difference is the number of links:
+
+- **LACP:** supports up to 16 links in a single EtherChannel. However, only up to 8 links can be used at once. The remaining links are inactive and wait to take over if an active link fails.
+- **PAgP:** supports only 8 links.
+
+Aside from the `active` and `passive` keywords, the configurations are identical to the earlier PAgP configurations:
+
+```text
+SW1(config)# interface range g0/0-1
+SW1(config-if-range)# channel-group 1 mode active
+SW1(config-if-range)# interface po1
+SW1(config-if)# switchport mode trunk
+
+SW2(config)# interface range g0/0-1
+SW2(config-if-range)# channel-group 1 mode passive
+SW2(config-if-range)# interface po1
+SW2(config-if)# switchport mode trunk
+SW2(config-if)# do show etherchannel summary
+Flags:  D - down        P - bundled in port-channel
+        I - stand-alone s - suspended
+        H - Hot-standby (LACP only)
+        R - Layer3      S - Layer2
+        U - in use      N - not in use, no aggregation
+. . .
+Group  Port-channel  Protocol    Ports
+------+-------------+-----------+-----------------------------------------------
+1      Po1(SU)         LACP      Gi0/0(P)    Gi0/1(P)
+```
+
+Verify the status of an LACP EtherChannel with `show lacp neighbor`:
+
+```text
+SW1# show lacp neighbor
+Flags:  S - Device is requesting Slow LACPDUs
+        F - Device is requesting Fast LACPDUs
+        A - Device is in Active mode       P - Device is in Passive mode
+Channel group 1 neighbors
+Partner's information:
+                LACP port                       Admin  Oper   Port    Port
+Port    Flags  Priority  Dev ID          Age    key    Key    Number  State
+Gi0/0   SP     32768     5254.0004.8000  10s    0x0    0x1    0x1     0x3C
+Gi0/1   SP     32768     5254.0004.8000   6s    0x0    0x1    0x2     0x3C
+```
+
+#### Static EtherChannel
+
+You can also configure an EtherChannel without any negotiation protocol. This is called a **static EtherChannel**.
+
+In this example, SW1 and SW2 connect over G0/0 and G0/1, and both switches use `on` mode:
+
+```text
+SW1(config)# interface range g0/0-1
+SW1(config-if-range)# channel-group 1 mode on
+SW1(config-if-range)# interface po1
+SW1(config-if)# switchport mode trunk
+```
+
+```text
+SW2(config)# interface range g0/0-1
+SW2(config-if-range)# channel-group 1 mode on
+SW2(config-if-range)# interface po1
+SW2(config-if)# switchport mode trunk
+```
+
+In `on` mode, neither switch sends messages to negotiate an EtherChannel. The configured ports form an EtherChannel regardless of the state of the neighboring device.
+
+{{< admonition "Use PAgP or LACP" warning >}}
+Use PAgP or LACP instead of manual EtherChannels. The dynamic protocols check that the neighboring device's configuration is appropriate before they form an EtherChannel.
+{{< /admonition >}}
+
+In some cases you have to use a static EtherChannel, such as when you connect a switch to a wireless LAN controller (WLC).
+
+This table shows which combinations of modes form an operational EtherChannel:
+
+| Modes           | `desirable` | `auto` | `active` | `passive` | `on` |
+| :-------------- | :---------- | :----- | :------- | :-------- | :--- |
+| **`desirable`** | Yes         | Yes    | No       | No        | No   |
+| **`auto`**      | Yes         | No     | No       | No        | No   |
+| **`active`**    | No          | No     | Yes      | Yes       | No   |
+| **`passive`**   | No          | No     | Yes      | No        | No   |
+| **`on`**        | No          | No     | No       | No        | Yes  |
+
+
+### Physical port configurations
+
+When you configure EtherChannels, port settings must match, both among the ports on the same switch and between neighboring switches. These are some of the settings that must match among the ports of an EtherChannel:
+
+- Speed
+- Duplex
+- Operational mode (access or trunk)
+- Allowed VLANs and native VLAN (in trunk mode)
+- Access VLAN (in access mode)
+
+Configure all ports in the same EtherChannel identically. The following example shows what happens when one port's settings don't match the other ports in the EtherChannel. SW1 and SW2 connect over G0/0 through G0/3 in an LACP EtherChannel. On SW1, change the native VLAN on G0/0 only:
+
+```text
+SW1(config)# interface g0/0
+SW1(config-if)# switchport trunk native vlan 10
+```
+
+`show etherchannel summary` now shows G0/0 with the `s` (suspended) flag, while G0/1, G0/2, and G0/3 stay bundled (`P`):
+
+```text
+SW1# show etherchannel summary
+Flags:  D - down        P - bundled in port-channel
+        I - stand-alone s - suspended
+. . .
+Group  Port-channel  Protocol    Ports
+------+-------------+-----------+-----------------------------------------------
+1      Po1(SU)         LACP      Gi0/0(s)    Gi0/1(P)    Gi0/2(P)
+                                 Gi0/3(P)
+```
+
+### EtherChannel load balancing
+
+After a switch's frame-forwarding logic decides to forward a frame out of an EtherChannel, the switch runs an additional check. The **EtherChannel load-balancing logic** examines the frame and uses certain parameters to choose the physical port that forwards the frame.
+
+The switch load-balances frames over the EtherChannel's physical links by **flow**. A flow is a communication between two nodes. For example, if PC1 communicates with SRV1, all messages from PC1 to SRV1 are one flow, and all messages from SRV1 to PC1 are another flow. The switch forwards all messages in the same flow over the same physical link in the EtherChannel.
+
+Fortunately, you can change which parameters the load-balancing logic considers with `port-channel load-balance parameters` in global configuration mode:
+
+| Parameter     | Description                                                                                                                 |
+| :------------ | :-------------------------------------------------------------------------------------------------------------------------- |
+| `src-mac`     | All frames with the same source MAC address use the same link.                                                              |
+| `dst-mac`     | All frames with the same destination MAC address use the same link.                                                         |
+| `src-dst-mac` | All frames with the same combination of source and destination MAC addresses use the same link.                             |
+| `src-ip`      | All frames with the same source IP address (in the encapsulated packet) use the same link.                                  |
+| `dst-ip`      | All frames with the same destination IP address (in the encapsulated packet) use the same link.                             |
+| `src-dst-ip`  | All frames with the same combination of source and destination IP addresses (in the encapsulated packet) use the same link. |
+
+The default EtherChannel load-balancing setting varies by switch model and IOS version. To check which parameters the switch uses, run `show etherchannel load-balance`:
+
+```text
+SW1# show etherchannel load-balance
+EtherChannel Load-Balancing Configuration:
+        Src-dst-ip
+EtherChannel Load-Balancing Addresses Used Per-Protocol:
+Non-IP: Source XOR Destination MAC address
+  IPv4: Source XOR Destination IP address
+  IPv6: Source XOR Destination IP address
+```
+
+{{< admonition "Command names don't match" note >}}
+The configuration command is <code>port-channel load-balance</code>, but the show command is <code>show etherchannel load-balance</code>. This is one of the great mysteries of Cisco IOS.
+{{< /admonition >}}
+
+Load balancing based only on the destination MAC address causes all frames destined for the default gateway to use the same link, which can congest that link.
+
+{{< admonition "Lanes on a highway" note >}}
+EtherChannel is like adding more lanes to a highway. More lanes increase a highway's total capacity, and more links increase an EtherChannel's total bandwidth: the total number of bits it can transmit per second. An EtherChannel's bandwidth is the total bandwidth of its member links.<br><br>
+More lanes can also reduce congestion and indirectly increase a car's speed, because the car can drive at the speed limit without slowing down or stopping. Similarly, EtherChannel can reduce network congestion and increase the speed and efficiency of each communication flow.
+{{< /admonition >}}
+
+### Layer 3 EtherChannel
+
+On multilayer switches, `no switchport` makes a port a **routed port** that can forward packets like a router.
+
+However, Layer 3 EtherChannels provide a simple way to load-balance packets over multiple links. They can also be easier to manage than multiple independent Layer 3 links, because configuring IP addressing and routing for one logical interface is simpler than for multiple independent interfaces.
+
+The following example shows a situation where you might use a Layer 3 EtherChannel. Two LANs connect through multilayer switches:
+
+- **LAN A:** SW1, a Layer 2 switch, connects to multilayer switch SW3 over a Layer 2 EtherChannel.
+- **LAN B:** SW2, a Layer 2 switch, connects to multilayer switch SW4 over a Layer 2 EtherChannel.
+- **Between the LANs:** SW3 and SW4 connect over a Layer 3 EtherChannel on G0/2 and G0/3, using subnet 192.168.1.0/30.
+
+```text
+SW3(config)# interface range g0/2-3
+SW3(config-if-range)# no switchport
+SW3(config-if-range)# channel-group 2 mode active
+SW3(config-if-range)# interface po2
+SW3(config-if)# ip address 192.168.1.1 255.255.255.252
+```
+
+```text
+SW4(config)# interface range g0/2-3
+SW4(config-if-range)# no switchport
+SW4(config-if-range)# channel-group 2 mode active
+SW4(config-if-range)# interface po2
+SW4(config-if)# ip address 192.168.1.2 255.255.255.252
+```
+
+The only additions to a Layer 2 EtherChannel configuration are `no switchport`, which makes the ports routed ports, and an IP address on the port channel interface:
+
+```text
+SW3(config)# interface range g0/2-3
+SW3(config-if-range)# no switchport
+SW3(config-if-range)# channel-group 2 mode active
+SW3(config-if-range)# interface po2
+SW3(config-if)# ip address 192.168.1.1 255.255.255.252
+```
+
+Configure SW4's end of the connection and confirm the EtherChannel's status. Compare the flags on the two port channels:
+
+| Port channel | Connects to                | Flags | Meaning |
+| :----------- | :------------------------- | :---- | :------ |
+| Po1          | SW2 (Layer 2 EtherChannel) | `SU`  | `S`: Layer 2 |
+| Po2          | SW3 (Layer 3 EtherChannel) | `RU`  | `R`: Layer 3. Think R for "routed port." |
+
+```text
+SW4(config)# interface range g0/2-3
+SW4(config-if-range)# no switchport
+SW4(config-if-range)# channel-group 2 mode active
+SW4(config-if-range)# interface po2
+SW4(config-if)# ip address 192.168.1.2 255.255.255.252
+SW4(config-if)# do show etherchannel summary
+Flags:  D - down        P - bundled in port-channel
+        I - stand-alone s - suspended
+        H - Hot-standby (LACP only)
+        R - Layer3      S - Layer2
+. . .
+Group  Port-channel  Protocol    Ports
+------+-------------+-----------+-----------------------------------------------
+1      Po1(SU)         LACP      Gi0/0(P)    Gi0/1(P)
+2      Po2(RU)         LACP      Gi0/2(P)    Gi0/3(P)
+```
